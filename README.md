@@ -1,4 +1,4 @@
-# cdms-gateway
+# BTMS Gateway
 
 Core delivery C# ASP.NET backend template.
 
@@ -26,7 +26,7 @@ End-to-end tests can start the web server using `TestWebServer.BuildAndRun()` ta
 
 Run CDP-Deployments application:
 ```
-dotnet run --project CdmsGateway --launch-profile Development
+dotnet run --project BtmsGateway --launch-profile Development
 ```
 ### Deploying
 

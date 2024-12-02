@@ -1,44 +1,36 @@
-# btms-gateway
+# cdms-gateway
 
 Core delivery C# ASP.NET backend template.
 
-* [Install MongoDB](#install-mongodb)
-* [Inspect MongoDB](#inspect-mongodb)
 * [Testing](#testing)
 * [Running](#running)
+* [Deploying](#deploying)
+* [SonarCloud](#sonarCloud)
 * [Dependabot](#dependabot)
-
-### Install MongoDB
-- Install [MongoDB](https://www.mongodb.com/docs/manual/tutorial/#installation) on your local machine
-- Start MongoDB:
-```bash
-sudo mongod --dbpath ~/mongodb-cdp
-```
-
-### Inspect MongoDB
-
-To inspect the Database and Collections locally:
-```bash
-mongosh
-```
 
 ### Testing
 
 Run the tests with:
 
-Tests run by running a full `WebApplication` backed by [Ephemeral MongoDB](https://github.com/asimmon/ephemeral-mongo).
-Tests do not use mocking of any sort and read and write from the in-memory database.
-
-```bash
+```
 dotnet test
-````
+```
+
+Unit tests execute without a running instance of the web server. 
+End-to-end tests can start the web server using `TestWebServer.BuildAndRun()` taking `ServiceDescriptors` to replace services with mocked or stubbed versions. The `TestWebServer` provides properties:
+- `Services` allows access to injected services.
+- `HttpServiceClient` provide a pre-configured `HttpClient` that can be used to access the web server.
+- `OutboundTestHttpHandler` is a `TestHttpHandler` class that intercepts all `HttpClient` requests to dependant services called by the web server.
 
 ### Running
 
 Run CDP-Deployments application:
-```bash
-dotnet run --project BtmsGateway --launch-profile Development
 ```
+dotnet run --project CdmsGateway --launch-profile Development
+```
+### Deploying
+
+Before deploying via CDP set the correct config for the environment as per the `appsettings.Development.json`.
 
 ### SonarCloud
 

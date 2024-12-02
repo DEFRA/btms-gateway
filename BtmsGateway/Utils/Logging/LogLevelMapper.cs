@@ -4,10 +4,11 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace BtmsGateway.Utils.Logging;
 
-[ExcludeFromCodeCoverage]
 /**
  * Maps log levels from the C# default 'Information' etc to the node style 'info'.
  */
+
+[ExcludeFromCodeCoverage]
 public class LogLevelMapper : ILogEventEnricher
 {
     public void Enrich(LogEvent logEvent, ILogEventPropertyFactory propertyFactory)

@@ -1,95 +1,107 @@
-using BtmsGateway.Example.Endpoints;
-using BtmsGateway.Example.Services;
 using BtmsGateway.Utils;
-using BtmsGateway.Utils.Http;
 using BtmsGateway.Utils.Logging;
-using BtmsGateway.Utils.Mongo;
-using FluentValidation;
 using Serilog;
 using Serilog.Core;
 using System.Diagnostics.CodeAnalysis;
-
-//-------- Configure the WebApplication builder------------------//
+using BtmsGateway.Config;
+using Microsoft.OpenApi.Models;
+using OpenTelemetry;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Trace;
+using Environment = System.Environment;
 
 var app = CreateWebApplication(args);
 await app.RunAsync();
 
-
 [ExcludeFromCodeCoverage]
 static WebApplication CreateWebApplication(string[] args)
 {
-   var _builder = WebApplication.CreateBuilder(args);
+    var builder = WebApplication.CreateBuilder(args);
 
-   ConfigureWebApplication(_builder);
+    ConfigureWebApplication(builder);
 
-   var _app = BuildWebApplication(_builder);
+    ConfigureSwaggerBuilder(builder);
 
-   return _app;
+    var app = builder.BuildWebApplication();
+
+    ConfigureSwaggerApp(app);
+
+    return app;
 }
 
 [ExcludeFromCodeCoverage]
-static void ConfigureWebApplication(WebApplicationBuilder _builder)
+static void ConfigureWebApplication(WebApplicationBuilder builder)
 {
-   _builder.Configuration.AddEnvironmentVariables();
+    builder.Configuration.AddEnvironmentVariables();
+    builder.Configuration.AddIniFile("Properties/local.env", true);
 
-   var logger = ConfigureLogging(_builder);
+    builder.Services.AddOpenTelemetry()
+        .WithMetrics(metrics =>
+        {
+            metrics.AddRuntimeInstrumentation()
+                   .AddMeter(
+                       "Microsoft.AspNetCore.Hosting",
+                       "Microsoft.AspNetCore.Server.Kestrel",
+                       "System.Net.Http",
+                       MetricsHost.MeterName);
+        })
+        .WithTracing(tracing =>
+        {
+            tracing.AddAspNetCoreInstrumentation()
+                   .AddHttpClientInstrumentation()
+                   .AddSource(MetricsHost.MeterName);
+        })
+        .UseOtlpExporter();
 
-   // Load certificates into Trust Store - Note must happen before Mongo and Http client connections
-   _builder.Services.AddCustomTrustStore(logger);
+    var logger = ConfigureLogging(builder);
 
-   ConfigureMongoDb(_builder);
+    // Load certificates into Trust Store - Note must happen before Mongo and Http client connections
+    builder.Services.AddCustomTrustStore(logger);
 
-   ConfigureEndpoints(_builder);
+    builder.ConfigureEndpoints();
 
-   _builder.Services.AddHttpClient();
-
-   // calls outside the platform should be done using the named 'proxy' http client.
-   _builder.Services.AddHttpProxyClient(logger);
-
-   _builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+    builder.AddServices(logger);
 }
 
 [ExcludeFromCodeCoverage]
-static Logger ConfigureLogging(WebApplicationBuilder _builder)
+static Logger ConfigureLogging(WebApplicationBuilder builder)
 {
-   _builder.Logging.ClearProviders();
-   var logger = new LoggerConfiguration()
-       .ReadFrom.Configuration(_builder.Configuration)
-       .Enrich.With<LogLevelMapper>()
-       .Enrich.WithProperty("service.version", Environment.GetEnvironmentVariable("SERVICE_VERSION"))
-       .CreateLogger();
-   _builder.Logging.AddSerilog(logger);
-   logger.Information("Starting application");
-   return logger;
+    builder.Logging.ClearProviders();
+    var loggerConfiguration = new LoggerConfiguration()
+        .ReadFrom.Configuration(builder.Configuration)
+        .Enrich.With<LogLevelMapper>()
+        .Enrich.WithProperty("service.version", Environment.GetEnvironmentVariable("SERVICE_VERSION"))
+        .WriteTo.OpenTelemetry(options =>
+        {
+            options.LogsEndpoint = builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"];
+            options.ResourceAttributes.Add("service.name", "btms-gateway");
+        });
+    
+    var logger = loggerConfiguration.CreateLogger();
+    builder.Logging.AddSerilog(logger);
+    logger.Information("Starting application");
+    return logger;
 }
 
 [ExcludeFromCodeCoverage]
-static void ConfigureMongoDb(WebApplicationBuilder _builder)
+static void ConfigureSwaggerBuilder(WebApplicationBuilder builder)
 {
-   _builder.Services.AddSingleton<IMongoDbClientFactory>(_ =>
-       new MongoDbClientFactory(_builder.Configuration.GetValue<string>("Mongo:DatabaseUri")!,
-           _builder.Configuration.GetValue<string>("Mongo:DatabaseName")!));
+    if (builder.IsSwaggerEnabled())
+    {
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen(c => { c.SwaggerDoc("public-v0.1", new OpenApiInfo { Title = "TDM Public API", Version = "v1" }); });
+    }
 }
 
 [ExcludeFromCodeCoverage]
-static void ConfigureEndpoints(WebApplicationBuilder _builder)
+static void ConfigureSwaggerApp(WebApplication app)
 {
-   // our Example service, remove before deploying!
-   _builder.Services.AddSingleton<IExamplePersistence, ExamplePersistence>();
-
-   _builder.Services.AddHealthChecks();
-}
-
-[ExcludeFromCodeCoverage]
-static WebApplication BuildWebApplication(WebApplicationBuilder _builder)
-{
-   var app = _builder.Build();
-
-   app.UseRouting();
-   app.MapHealthChecks("/health");
-
-   // Example module, remove before deploying!
-   app.UseExampleEndpoints();
-
-   return app;
+    if (app.IsSwaggerEnabled())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI(options =>
+        {
+            options.SwaggerEndpoint("/swagger/public-v0.1/swagger.json", "public");
+        });
+    }
 }

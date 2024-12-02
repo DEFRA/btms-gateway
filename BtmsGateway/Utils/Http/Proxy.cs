@@ -1,12 +1,12 @@
 using System.Net;
-using Serilog.Core;
 using System.Diagnostics.CodeAnalysis;
 
 namespace BtmsGateway.Utils.Http;
 
 public static class Proxy
 {
-   public const string ProxyClient = "proxy";
+   public const string ProxyClientWithoutRetry = "proxy";
+   public const string ProxyClientWithRetry = "proxy-with-retry";
 
    /**
     * A preconfigured HTTP Client that uses the Platform's outbound proxy.
@@ -17,28 +17,31 @@ public static class Proxy
     *     `clientFactory.CreateClient(Proxy.ProxyClient);`
     */
    [ExcludeFromCodeCoverage]
-   public static void AddHttpProxyClient(this IServiceCollection services, Logger logger)
+   public static IHttpClientBuilder AddHttpProxyClientWithoutRetry(this IServiceCollection services, Serilog.ILogger logger)
    {
-      services.AddHttpClient(ProxyClient).ConfigurePrimaryHttpMessageHandler(() =>
-      {
-         return ConfigurePrimaryHttpMessageHandler(logger);
-      });
+      return services.AddHttpClient(ProxyClientWithoutRetry).ConfigurePrimaryHttpMessageHandler(() => ConfigurePrimaryHttpMessageHandler(logger));
+   }
+   
+   [ExcludeFromCodeCoverage]
+   public static IHttpClientBuilder AddHttpProxyClientWithRetry(this IServiceCollection services, Serilog.ILogger logger)
+   {
+      return services.AddHttpClient(ProxyClientWithRetry).ConfigurePrimaryHttpMessageHandler(() => ConfigurePrimaryHttpMessageHandler(logger));
    }
 
    [ExcludeFromCodeCoverage]
-   public static HttpClientHandler ConfigurePrimaryHttpMessageHandler(Logger logger)
+   public static HttpClientHandler ConfigurePrimaryHttpMessageHandler(Serilog.ILogger logger)
    {
       var proxyUri = Environment.GetEnvironmentVariable("CDP_HTTPS_PROXY");
       return CreateHttpClientHandler(proxyUri, logger);
    }
 
-   public static HttpClientHandler CreateHttpClientHandler(string? proxyUri, Logger logger)
+   public static HttpClientHandler CreateHttpClientHandler(string? proxyUri, Serilog.ILogger logger)
    {
       var proxy = CreateProxy(proxyUri, logger);
       return new HttpClientHandler { Proxy = proxy, UseProxy = proxyUri != null };
    }
 
-   public static WebProxy CreateProxy(string? proxyUri, Logger logger)
+   public static WebProxy CreateProxy(string? proxyUri, Serilog.ILogger logger)
    {
       var proxy = new WebProxy
       {
@@ -55,7 +58,7 @@ public static class Proxy
       return proxy;
    }
 
-   public static void ConfigureProxy(WebProxy proxy, string proxyUri, Logger logger)
+   public static void ConfigureProxy(WebProxy proxy, string proxyUri, Serilog.ILogger logger)
    {
       logger.Debug("Creating proxy http client");
       var uri = new UriBuilder(proxyUri);

@@ -80,11 +80,11 @@ public class SoapInterceptorMiddleware(RequestDelegate next, IMessageRouter mess
     {
         if (routingResult.RoutingSuccessful)
         {
-            logger.Information("{CorrelationId} {Action} successful for route {RouteUrl} with response {StatusCode} {Content}", messageData.CorrelationId, action, routingResult.RouteUrl, routingResult.StatusCode, routingResult.ResponseContent);
+            logger.Information("{CorrelationId} {Action} successful for route {RouteUrl} with response {StatusCode} {Content}", messageData.CorrelationId, action, routingResult.FullRouteUrl, routingResult.StatusCode, routingResult.ResponseContent);
         }
         else
         {
-            logger.Information("{CorrelationId} {Action} failed for route {RouteUrl} with status code {StatusCode}", messageData.CorrelationId, action, routingResult.RouteUrl, routingResult.StatusCode);
+            logger.Information("{CorrelationId} {Action} failed for route {RouteUrl} with status code {StatusCode}", messageData.CorrelationId, action, routingResult.FullRouteUrl, routingResult.StatusCode);
         }
     }
 }

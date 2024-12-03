@@ -15,14 +15,14 @@ public class MessageRouter(IHttpClientFactory clientFactory, IMessageRoutes mess
 {
     public async Task<RoutingResult> Route(MessageData messageData)
     {
-        var routingResult = messageRoutes.GetRoutedRoute(messageData.Path);
+        var routingResult = messageRoutes.GetRoute(messageData.Path);
         if (!routingResult.RouteFound) return routingResult;
         
         try
         {
             var metrics = metricsHost.GetMetrics();
             var client = clientFactory.CreateClient(Proxy.ProxyClientWithRetry);
-            var request = messageData.CreateForwardingRequest(routingResult.RouteUrl);
+            var request = messageData.CreateForwardingRequest(routingResult.FullRouteUrl);
             
             metrics.StartRoutedRequest();
             var response = await client.SendAsync(request);
@@ -40,14 +40,14 @@ public class MessageRouter(IHttpClientFactory clientFactory, IMessageRoutes mess
     
     public async Task<RoutingResult> Fork(MessageData messageData)
     {
-        var routingResult = messageRoutes.GetForkedRoute(messageData.Path);
+        var routingResult = messageRoutes.GetRoute(messageData.Path);
         if (!routingResult.RouteFound) return routingResult;
         
         try
         {
             var metrics = metricsHost.GetMetrics();
             var client = clientFactory.CreateClient(Proxy.ProxyClientWithRetry);
-            var request = messageData.CreateForwardingRequest(routingResult.RouteUrl);
+            var request = messageData.CreateForwardingRequest(routingResult.FullForkUrl);
             
             metrics.StartForkedRequest();
             var response = await client.SendAsync(request);

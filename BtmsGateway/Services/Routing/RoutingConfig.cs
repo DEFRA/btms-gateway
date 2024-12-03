@@ -2,39 +2,28 @@ namespace BtmsGateway.Services.Routing;
 
 public record RoutingConfig
 {
-    public RoutedUrl[] AllRoutedRoutes => Routes.Join(NamedUrls, nr => nr.RoutedUrlName, nu => nu.Name, (nr, nu) => new RoutedUrl { Name = nr.Name, Url = nu.Url }).ToArray();
-    public RoutedUrl[] AllForkedRoutes => Routes.Join(NamedUrls, nr => nr.ForkedUrlName, nu => nu.Name, (nr, nu) => new RoutedUrl { Name = nr.Name, Url = nu.Url }).ToArray();
+    public RoutedUrl[] Routes =>
+        NamedRoutes.Join(NamedUrls, nr => nr.Value.LegacyUrlName, nu => nu.Key, (nr, nu) => new { Name = nr.Key, LegacyUrl = nu.Value, nr.Value.BtmsUrlName, nr.Value.RouteTo })
+                   .Join(NamedUrls, nr => nr.BtmsUrlName, nu => nu.Key, (nr, nu) => new RoutedUrl { Name = nr.Name, LegacyUrl = nr.LegacyUrl, BtmsUrl = nu.Value, RouteTo = nr.RouteTo })
+                   .ToArray();
     
-    public required NamedRoute[] Routes { get; init; } = [];
-    public required NamedUrl[] NamedUrls { get; init; } = [];
-    public required HealthUrl[] HealthUrls { get; init; } = [];
+    public required Dictionary<string, NamedRoute> NamedRoutes { get; init; } = [];
+    public required Dictionary<string, string> NamedUrls { get; init; } = [];
 }
 
 public record NamedRoute
 {
-    public required string Name { get; init; }
-    public required string RoutedUrlName { get; init; }
-    public required string ForkedUrlName { get; init; }
+    public required string LegacyUrlName { get; init; }
+    public required string BtmsUrlName { get; init; }
+    public required RouteTo RouteTo { get; init; }
 }
 
-public record NamedUrl
-{
-    public required string Name { get; init; }
-    public required string Url { get; init; }
-}
+public enum RouteTo { Legacy, Btms }
 
 public record RoutedUrl
 {
     public required string Name { get; init; }
-    public required string Url { get; init; }
-}
-
-public record HealthUrl
-{
-    public required bool Disabled { get; init; }
-    public required string Name { get; init; }
-    public required string CheckType { get; init; } = "HTTP";
-    public required string Method { get; init; }
-    public required string Url { get; init; }
-    public Uri Uri => new(Url);
+    public required string LegacyUrl { get; init; }
+    public required string BtmsUrl { get; init; }
+    public required RouteTo RouteTo { get; init; }
 }

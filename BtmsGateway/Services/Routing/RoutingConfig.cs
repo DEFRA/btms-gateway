@@ -2,11 +2,10 @@ namespace BtmsGateway.Services.Routing;
 
 public record RoutingConfig
 {
-    public RoutedUrl[] AllRoutedRoutes => Routes.Concat(AdditionalRoutes).Join(NamedUrls, nr => nr.RoutedUrlName, nu => nu.Name, (nr, nu) => new RoutedUrl { Name = nr.Name, Url = nu.Url }).ToArray();
-    public RoutedUrl[] AllForkedRoutes => Routes.Concat(AdditionalRoutes).Join(NamedUrls, nr => nr.ForkedUrlName, nu => nu.Name, (nr, nu) => new RoutedUrl { Name = nr.Name, Url = nu.Url }).ToArray();
+    public RoutedUrl[] AllRoutedRoutes => Routes.Join(NamedUrls, nr => nr.RoutedUrlName, nu => nu.Name, (nr, nu) => new RoutedUrl { Name = nr.Name, Url = nu.Url }).ToArray();
+    public RoutedUrl[] AllForkedRoutes => Routes.Join(NamedUrls, nr => nr.ForkedUrlName, nu => nu.Name, (nr, nu) => new RoutedUrl { Name = nr.Name, Url = nu.Url }).ToArray();
     
     public required NamedRoute[] Routes { get; init; } = [];
-    public required NamedRoute[] AdditionalRoutes { get; init; } = [];
     public required NamedUrl[] NamedUrls { get; init; } = [];
     public required HealthUrl[] HealthUrls { get; init; } = [];
 }

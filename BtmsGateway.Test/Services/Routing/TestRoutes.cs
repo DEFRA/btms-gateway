@@ -11,11 +11,6 @@ public static class TestRoutes
             new NamedRoute { Name = "route-1", RoutedUrlName = "url-1", ForkedUrlName = "url-2" },
             new NamedRoute { Name = "route-2", RoutedUrlName = "url-2", ForkedUrlName = "url-3" }
         ],
-        AdditionalRoutes =
-        [
-            new NamedRoute { Name = "route-3", RoutedUrlName = "url-3", ForkedUrlName = "url-4" },
-            new NamedRoute { Name = "route-4", RoutedUrlName = "url-1", ForkedUrlName = "url-3" }
-        ],
         NamedUrls =
         [
             new NamedUrl { Name = "url-1", Url = "http://url-1/" },

@@ -8,6 +8,7 @@ EXPOSE 443
 # CDP PLATFORM HEALTHCHECK REQUIREMENT
 RUN apt update && \
     apt install curl -y && \
+    apt install dnsutils -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 

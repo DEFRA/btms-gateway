@@ -1,4 +1,4 @@
-namespace CdmsGateway.Services.Checking;
+namespace BtmsGateway.Services.Checking;
 
 public record HealthUrlConfig
 {

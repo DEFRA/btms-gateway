@@ -21,13 +21,17 @@ public class CheckRoutes(IMessageRoutes messageRoutes, IHttpClientFactory client
         if (healthUrl.Disabled)
             return [new CheckRouteResult(healthUrl.Name, $"{healthUrl.Method} {healthUrl.Url}", string.Empty, "Disabled", TimeSpan.Zero)];
         
-        var checks = new List<Task<CheckRouteResult>> { CheckHttp(healthUrl, cts) };
-        if (healthUrl.Uri.PathAndQuery != "/") checks.Add(CheckHttp(healthUrl with { CheckType = "HTTP HOST", Url = healthUrl.Url.Replace(healthUrl.Uri.PathAndQuery, "")}, cts));
+        var checks = new List<Task<CheckRouteResult>>
+        {
+            CheckHttp(healthUrl, cts.Token),
+            CheckNsLookup(healthUrl, cts.Token)
+        };
+        if (healthUrl.Uri.PathAndQuery != "/") checks.Add(CheckHttp(healthUrl with { CheckType = "HTTP HOST", Url = healthUrl.Url.Replace(healthUrl.Uri.PathAndQuery, "")}, cts.Token));
         
         return await Task.WhenAll(checks);
     }
 
-    private async Task<CheckRouteResult> CheckHttp(HealthUrl healthUrl, CancellationTokenSource cts)
+    private async Task<CheckRouteResult> CheckHttp(HealthUrl healthUrl, CancellationToken token)
     {
         var checkRouteResult = new CheckRouteResult(healthUrl.Name, $"{healthUrl.Method} {healthUrl.Url}", healthUrl.CheckType, string.Empty, TimeSpan.Zero);
         var stopwatch = new Stopwatch();
@@ -38,7 +42,7 @@ public class CheckRoutes(IMessageRoutes messageRoutes, IHttpClientFactory client
             var client = clientFactory.CreateClient(Proxy.ProxyClientWithoutRetry);
             var request = new HttpRequestMessage(new HttpMethod(healthUrl.Method), healthUrl.Url);
             stopwatch.Start();
-            var response = await client.SendAsync(request, cts.Token);
+            var response = await client.SendAsync(request, token);
             checkRouteResult = checkRouteResult with { ResponseResult = $"{response.StatusCode.ToString()} ({(int)response.StatusCode})", Elapsed = stopwatch.Elapsed };
         }
         catch (Exception ex)
@@ -52,16 +56,19 @@ public class CheckRoutes(IMessageRoutes messageRoutes, IHttpClientFactory client
         return checkRouteResult;
     }
 
-    private Task<CheckRouteResult> CheckNsLookup(HealthUrl healthUrl, CancellationTokenSource cts)
+    private async Task<CheckRouteResult> CheckNsLookup(HealthUrl healthUrl, CancellationToken token)
     {
         var checkRouteResult = new CheckRouteResult(healthUrl.Name, healthUrl.Uri.Host, "nslookup", string.Empty, TimeSpan.Zero);
         var stopwatch = new Stopwatch();
 
         try
         {
-            logger.Information("Start checking nslookup for {Url}", healthUrl.Url);
+            logger.Information("Start checking nslookup for {Url}", healthUrl.Uri.Host);
 
-            var processOutput = RunProcess("nslookup", healthUrl.Uri.Host);
+            var processTask = RunProcess("nslookup", healthUrl.Uri.Host);
+            var waitedTask = await Task.WhenAny(processTask, GetCancellationTask(token));
+            var processOutput = waitedTask == processTask ? processTask.Result : null;
+                
             checkRouteResult = checkRouteResult with { ResponseResult = $"{processOutput}", Elapsed = stopwatch.Elapsed };
         }
         catch (Exception ex)
@@ -72,12 +79,19 @@ public class CheckRoutes(IMessageRoutes messageRoutes, IHttpClientFactory client
         stopwatch.Stop();
         logger.Information("Completed checking nslookup for {Url} with result {Result}", healthUrl.Url, checkRouteResult.ResponseResult);
         
-        return Task.FromResult(checkRouteResult);
+        return checkRouteResult;
+    }
+
+    private static Task GetCancellationTask(CancellationToken token)
+    {
+        var tcs = new TaskCompletionSource<string>();
+        token.Register(() => tcs.TrySetCanceled());
+        return tcs.Task;
     }
     
-    private static string RunProcess(string fileName, string arguments)
+    private static Task<string> RunProcess(string fileName, string arguments)
     {
-        var startInfo = new ProcessStartInfo
+        using var process = Process.Start(new ProcessStartInfo
         {
             FileName = fileName,
             Arguments = arguments,
@@ -85,12 +99,10 @@ public class CheckRoutes(IMessageRoutes messageRoutes, IHttpClientFactory client
             RedirectStandardError = true,
             UseShellExecute = false,
             CreateNoWindow = true
-        };
-            
-        using var process = Process.Start(startInfo);
+        });
         using var outputReader = process?.StandardOutput;
         //using var errorReader = process?.StandardError;
         var readToEnd = outputReader?.ReadToEnd();
-        return $"{readToEnd}".Replace("\r\n", "\n").Replace("\n\n", "\n").Trim(' ', '\n');
+        return Task.FromResult($"{readToEnd}".Replace("\r\n", "\n").Replace("\n\n", "\n").Trim(' ', '\n'));
     }
 }

@@ -39,13 +39,21 @@ public class CheckRoutes(IMessageRoutes messageRoutes, IHttpClientFactory client
 
     private async Task<IEnumerable<CheckRouteResult>> CheckIpaffs(HealthUrl healthUrl, CancellationTokenSource cts)
     {
-        var client = clientFactory.CreateClient(Proxy.ProxyClientWithoutRetry);
-        var request = new HttpRequestMessage(HttpMethod.Post, "https://openid-token-microservice.azurewebsites.net/ad/sign");
-        request.Content = JsonContent.Create("{\"iss\":\"https://imports-proxy-static.azurewebsites.net\"}");
-        request.Headers.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.ASCII.GetBytes($"poc:5295CwcxefGhO3Vrg9C4cGe6ZmuMkWZBdMMQ")));
-        var tokenResponse = await client.SendAsync(request, cts.Token);
-        var authToken = await tokenResponse.Content.ReadAsStringAsync(cts.Token);
-        return [await CheckHttp(healthUrl, true, cts.Token, new AuthenticationHeaderValue("Bearer", authToken))];
+        try
+        {
+            var client = clientFactory.CreateClient(Proxy.ProxyClientWithoutRetry);
+            var request = new HttpRequestMessage(HttpMethod.Post, "https://openid-token-microservice.azurewebsites.net/ad/sign");
+            request.Content = JsonContent.Create("{\"iss\":\"https://imports-proxy-static.azurewebsites.net\"}");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.ASCII.GetBytes($"poc:5295CwcxefGhO3Vrg9C4cGe6ZmuMkWZBdMMQ")));
+            var tokenResponse = await client.SendAsync(request, cts.Token);
+            var authToken = await tokenResponse.Content.ReadAsStringAsync(cts.Token);
+            return [await CheckHttp(healthUrl, true, cts.Token, new AuthenticationHeaderValue("Bearer", authToken))];
+        }
+        catch (Exception ex)
+        {
+            logger.Error(ex, "Checking IPAFFS request for {Url} failed", healthUrl.Url);
+            return Array.Empty<CheckRouteResult>();
+        }
     }
 
     private async Task<CheckRouteResult> CheckHttp(HealthUrl healthUrl, bool includeResponseBody, CancellationToken token, AuthenticationHeaderValue? authHeader = null)

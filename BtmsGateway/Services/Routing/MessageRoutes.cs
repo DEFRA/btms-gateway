@@ -9,7 +9,7 @@ public interface IMessageRoutes
     HealthUrl[] HealthUrls { get; }
 }
 
-static class RepeatedExtension
+internal static class RepeatedExtension
 {
     public static IEnumerable<TResult> Repeated<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, TResult> selector) where TResult : notnull
     {

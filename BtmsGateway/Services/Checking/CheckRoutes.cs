@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using System.Net.Http.Headers;
-using System.Text;
 using BtmsGateway.Services.Routing;
 using BtmsGateway.Utils.Http;
 using ILogger = Serilog.ILogger;

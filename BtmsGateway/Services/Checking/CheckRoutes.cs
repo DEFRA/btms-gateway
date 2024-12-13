@@ -56,7 +56,7 @@ public class CheckRoutes(IMessageRoutes messageRoutes, IHttpClientFactory client
         }
         catch (Exception ex)
         {
-            checkRouteResult = checkRouteResult with { ResponseResult = $"\"{ex.Message}\"", Elapsed = stopwatch.Elapsed };
+            checkRouteResult = checkRouteResult with { ResponseResult = $"\"{ex.Message}\" {(ex.InnerException?.Message != null && ex.InnerException?.Message != ex.Message ? $"\"{ex.InnerException?.Message}\"" : null)}", Elapsed = stopwatch.Elapsed };
         }
         
         stopwatch.Stop();
@@ -86,7 +86,7 @@ public class CheckRoutes(IMessageRoutes messageRoutes, IHttpClientFactory client
         }
         catch (Exception ex)
         {
-            checkRouteResult = checkRouteResult with { ResponseResult = $"\"{ex.Message}\"", Elapsed = stopwatch.Elapsed };
+            checkRouteResult = checkRouteResult with { ResponseResult = $"\"{ex.Message}\" {(ex.InnerException?.Message != null && ex.InnerException?.Message != ex.Message ? $"\"{ex.InnerException?.Message}\"" : null)}", Elapsed = stopwatch.Elapsed };
         }
         
         stopwatch.Stop();

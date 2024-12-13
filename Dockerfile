@@ -9,13 +9,12 @@ EXPOSE 443
 RUN apt update && \
     apt install curl -y && \
     apt install dnsutils -y && \
-    apt install coreutils -y && \
-    apt install sed -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* 
 
-RUN ched 0755 /etc/hosts && \
-    touch /etc/hosts
+RUN dpkg -l | grep touch
+
+RUN dpkg -l | grep sed
 
 # Build stage image
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build

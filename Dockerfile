@@ -9,6 +9,8 @@ EXPOSE 443
 RUN apt update && \
     apt install curl -y && \
     apt install dnsutils -y && \
+    apt install coreutils -y && \
+    apt install sed -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* 
 

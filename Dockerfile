@@ -10,7 +10,10 @@ RUN apt update && \
     apt install curl -y && \
     apt install dnsutils -y && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* 
+
+RUN touch etc/hosts && \
+    sed -i '$ a 10.62.146.246 t2.secure.services.defra.gsi.gov.uk' etc/hosts
 
 # Build stage image
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build

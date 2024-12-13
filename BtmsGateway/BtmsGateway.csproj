@@ -8,8 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="..\.dockerignore">
-      <Link>.dockerignore</Link>
+    <Content Include="../Dockerfile">
+      <Link>Dockerfile</Link>
     </Content>
   </ItemGroup>
 

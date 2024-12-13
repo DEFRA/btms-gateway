@@ -29,7 +29,8 @@ public class CheckRoutes(IMessageRoutes messageRoutes, IHttpClientFactory client
         var checks = new List<Task<CheckRouteResult>>
         {
             CheckHttp(healthUrl, false, cts.Token),
-            CheckNsLookup(healthUrl, cts.Token)
+            CheckNsLookup(healthUrl, cts.Token),
+            CheckDig(healthUrl, cts.Token)
         };
         if (healthUrl.Uri.PathAndQuery != "/") checks.Add(CheckHttp(healthUrl with { CheckType = "HTTP HOST", Url = healthUrl.Url.Replace(healthUrl.Uri.PathAndQuery, "")}, false, cts.Token));
         
@@ -64,16 +65,20 @@ public class CheckRoutes(IMessageRoutes messageRoutes, IHttpClientFactory client
         return checkRouteResult;
     }
 
-    private async Task<CheckRouteResult> CheckNsLookup(HealthUrl healthUrl, CancellationToken token)
+    private Task<CheckRouteResult> CheckNsLookup(HealthUrl healthUrl, CancellationToken token) => CheckWithProcess(healthUrl.Name, "nslookup", healthUrl.Uri.Host, token);
+
+    private Task<CheckRouteResult> CheckDig(HealthUrl healthUrl, CancellationToken token) => CheckWithProcess(healthUrl.Name, "dig", healthUrl.Uri.Host, token);
+
+    private async Task<CheckRouteResult> CheckWithProcess(string name, string processName, string arguments, CancellationToken token)
     {
-        var checkRouteResult = new CheckRouteResult(healthUrl.Name, healthUrl.Uri.Host, "nslookup", string.Empty, TimeSpan.Zero);
+        var checkRouteResult = new CheckRouteResult(name, arguments, processName, string.Empty, TimeSpan.Zero);
         var stopwatch = new Stopwatch();
 
         try
         {
-            logger.Information("Start checking nslookup for {Url}", healthUrl.Uri.Host);
+            logger.Information("Start checking {ProcessName} for {Url}", processName, arguments);
 
-            var processTask = RunProcess("nslookup", healthUrl.Uri.Host);
+            var processTask = RunProcess(processName, arguments);
             var waitedTask = await Task.WhenAny(processTask, GetCancellationTask(token));
             var processOutput = waitedTask == processTask ? processTask.Result : null;
                 
@@ -85,7 +90,7 @@ public class CheckRoutes(IMessageRoutes messageRoutes, IHttpClientFactory client
         }
         
         stopwatch.Stop();
-        logger.Information("Completed checking nslookup for {Url} with result {Result}", healthUrl.Url, checkRouteResult.ResponseResult);
+        logger.Information("Completed checking {ProcessName} for {Url} with result {Result}", processName, arguments, checkRouteResult.ResponseResult);
         
         return checkRouteResult;
     }

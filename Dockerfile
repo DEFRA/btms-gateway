@@ -14,7 +14,8 @@ RUN apt update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* 
 
-RUN touch /etc/hosts
+RUN ched 0755 /etc/hosts && \
+    touch /etc/hosts
 
 # Build stage image
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build

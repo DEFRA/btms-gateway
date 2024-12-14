@@ -25,12 +25,12 @@ RUN dotnet test BtmsGateway.Test
 FROM build AS publish
 RUN dotnet publish BtmsGateway -c Release -o /app/publish /p:UseAppHost=false
 
-
 ENV ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
 
 # Final production image
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+COPY --chmod=+x BtmsGateway/run.sh /run.sh
 EXPOSE 8085
-ENTRYPOINT ["dotnet", "BtmsGateway.dll"]
+ENTRYPOINT ["/bin/bash", "/run.sh"]

@@ -12,10 +12,6 @@ RUN apt update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* 
 
-RUN dpkg -l | grep touch
-
-RUN dpkg -l | grep sed
-
 # Build stage image
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src

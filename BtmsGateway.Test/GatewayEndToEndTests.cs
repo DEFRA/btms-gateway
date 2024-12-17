@@ -13,7 +13,7 @@ public class GatewayEndToEndTests : IAsyncDisposable
 {
     private const string XmlContent = "<xml>Content</xml>";
     private const string RouteName = "alvs-ipaffs";
-    private const string SubPath = "sub-path";
+    private const string SubPath = "sub/path";
     private const string FullPath = $"{RouteName}/{SubPath}";
     private const string RoutedPath = $"/{SubPath}";
     private const string ForkedPath = $"/forked/{SubPath}";

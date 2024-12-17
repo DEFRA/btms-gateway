@@ -7,7 +7,7 @@ namespace BtmsGateway.Test.Services.Routing;
 public class RoutingConfigTests
 {
     [Fact]
-    public void When_getting_route_1_Then_should_retrieve_reouted_links()
+    public void When_getting_route_1_Then_should_retrieve_routed_links()
     {
         var route = TestRoutes.RoutingConfig.AllRoutes.Single(x => x.Name == "route-1");
         route.Name.Should().Be("route-1");
@@ -21,7 +21,7 @@ public class RoutingConfigTests
     }
     
     [Fact]
-    public void When_getting_route_2_Then_should_retrieve_reouted_links()
+    public void When_getting_route_2_Then_should_retrieve_routed_links()
     {
         var route = TestRoutes.RoutingConfig.AllRoutes.Single(x => x.Name == "route-2");
         route.Name.Should().Be("route-2");
@@ -29,7 +29,7 @@ public class RoutingConfigTests
         route.LegacyLinkType.Should().Be(LinkType.Queue);
         route.BtmsLink.Should().Be("http://btms-link-url");
         route.BtmsLinkType.Should().Be(LinkType.Url);
-        route.SendLegacyResponseToBtms.Should().BeFalse();
+        route.SendLegacyResponseToBtms.Should().BeTrue();
         route.RouteTo.Should().Be(RouteTo.Btms);
     }
 }

@@ -17,8 +17,6 @@ public class MessageRoutes : IMessageRoutes
         _logger = logger;
         try
         {
-            if (routingConfig.NamedRoutes.Count != routingConfig.NamedRoutes.Select(x => x.Key).Distinct().Count()) throw new InvalidDataException("Duplicate route name(s) in config");
-            if (routingConfig.NamedLinks.Count != routingConfig.NamedLinks.Select(x => x.Key).Distinct().Count()) throw new InvalidDataException("Duplicate link name(s) in config");
             if (routingConfig.NamedLinks.Any(x => x.Value.LinkType == LinkType.Url && !Uri.TryCreate(x.Value.Link, UriKind.Absolute, out _))) throw new InvalidDataException("Invalid URL(s) in config");
             if (routingConfig.NamedRoutes.Any(x => !Enum.IsDefined(typeof(RouteTo), x.Value.RouteTo))) throw new InvalidDataException("Invalid Route To in config");
             if (routingConfig.NamedLinks.Any(x => !Enum.IsDefined(typeof(LinkType), x.Value.LinkType))) throw new InvalidDataException("Invalid Link Type in config");

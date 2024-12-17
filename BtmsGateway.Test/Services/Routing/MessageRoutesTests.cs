@@ -56,22 +56,6 @@ public class MessageRoutesTests
     }
 
     [Fact]
-    public void When_routing_with_duplicate_routes_Then_should_fail()
-    {
-        var act = () => new MessageRoutes(TestRoutes.DuplicateRoutesConfig, Substitute.For<ILogger>());
-
-        act.Should().Throw<InvalidDataException>().WithMessage("Duplicate route name(s) in config");
-    }
-
-    [Fact]
-    public void When_routing_with_duplicate_links_Then_should_fail()
-    {
-        var act = () => new MessageRoutes(TestRoutes.DuplicateLinksConfig, Substitute.For<ILogger>());
-
-        act.Should().Throw<InvalidDataException>().WithMessage("Duplicate link name(s) in config");
-    }
-
-    [Fact]
     public void When_routing_with_invalid_url_Then_should_fail()
     {
         var act = () => new MessageRoutes(TestRoutes.InvalidUrlConfig, Substitute.For<ILogger>());

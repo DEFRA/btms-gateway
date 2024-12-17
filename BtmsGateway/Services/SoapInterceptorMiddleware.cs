@@ -17,7 +17,7 @@ public class SoapInterceptorMiddleware(RequestDelegate next, IMessageRouter mess
 
             if (messageData.ShouldProcessRequest())
             {
-                logger.Information("{CorrelationId} Received routing instruction {HttpString} {Content}", messageData.CorrelationId, messageData.HttpString, messageData.ContentAsString);
+                logger.Information("{CorrelationId} Received routing instruction {HttpString} {Content}", messageData.CorrelationId, messageData.HttpString, messageData.OriginalContentAsString);
 
                 await Route(context, messageData, metrics);
 

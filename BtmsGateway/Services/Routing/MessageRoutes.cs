@@ -10,17 +10,19 @@ public interface IMessageRoutes
 public class MessageRoutes : IMessageRoutes
 {
     private readonly ILogger _logger;
-    private readonly RoutedUrl[] _routes;
+    private readonly RoutedLink[] _routes;
 
     public MessageRoutes(RoutingConfig routingConfig, ILogger logger)
     {
         _logger = logger;
         try
         {
-            _routes = routingConfig.Routes;
-            if (_routes.Length != routingConfig.Routes.Select(x => x.Name).Distinct().Count()) throw new InvalidDataException("Duplicate route name(s)");
-            if (_routes.Any(x => !Uri.TryCreate(x.LegacyUrl, UriKind.Absolute, out _))) throw new InvalidDataException("Legacy URL invalid");
-            if (_routes.Any(x => !Uri.TryCreate(x.BtmsUrl, UriKind.Absolute, out _))) throw new InvalidDataException("BTMS URL invalid");
+            if (routingConfig.NamedRoutes.Count != routingConfig.NamedRoutes.Select(x => x.Key).Distinct().Count()) throw new InvalidDataException("Duplicate route name(s) in config");
+            if (routingConfig.NamedLinks.Count != routingConfig.NamedLinks.Select(x => x.Key).Distinct().Count()) throw new InvalidDataException("Duplicate link name(s) in config");
+            if (routingConfig.NamedLinks.Any(x => x.Value.LinkType == LinkType.Url && !Uri.TryCreate(x.Value.Link, UriKind.Absolute, out _))) throw new InvalidDataException("Invalid URL(s) in config");
+            if (routingConfig.NamedRoutes.Any(x => !Enum.IsDefined(typeof(RouteTo), x.Value.RouteTo))) throw new InvalidDataException("Invalid Route To in config");
+            if (routingConfig.NamedLinks.Any(x => !Enum.IsDefined(typeof(LinkType), x.Value.LinkType))) throw new InvalidDataException("Invalid Link Type in config");
+            _routes = routingConfig.AllRoutes;
         }
         catch (Exception ex)
         {
@@ -41,27 +43,32 @@ public class MessageRoutes : IMessageRoutes
             var route = _routes.SingleOrDefault(x => x.Name == routeName);
 
             return route == null
-                ? new RoutingResult { RouteFound = false, RouteName = routeName }
+                ? new RoutingResult { RouteFound = false, RouteName = routeName, UrlPath = routeUrlPath }
                 : route.RouteTo switch
                 {
                     RouteTo.Legacy => new RoutingResult
                     {
                         RouteFound = true,
                         RouteName = routeName,
-                        FullRouteUrl = $"{route.LegacyUrl}{routeUrlPath}",
-                        FullForkUrl = $"{route.BtmsUrl}{routeUrlPath}",
-                        RouteUrlPath = routeUrlPath,
-                        SendRoutedResponseToFork = true
+                        FullRouteLink = $"{route.LegacyLink}{(route.LegacyLinkType == LinkType.Url ? routeUrlPath : null)}",
+                        RouteLinkType = route.LegacyLinkType,
+                        FullForkLink = $"{route.BtmsLink}{(route.BtmsLinkType == LinkType.Url ? routeUrlPath : null)}",
+                        ForkLinkType = route.BtmsLinkType,
+                        UrlPath = routeUrlPath,
+                        SendLegacyResponseToBtms = route.SendLegacyResponseToBtms
                     },
-                    _ => new RoutingResult
+                    RouteTo.Btms => new RoutingResult
                     {
                         RouteFound = true,
                         RouteName = routeName,
-                        FullRouteUrl = $"{route.BtmsUrl}{routeUrlPath}",
-                        FullForkUrl = $"{route.LegacyUrl}{routeUrlPath}",
-                        RouteUrlPath = routeUrlPath,
-                        SendRoutedResponseToFork = false
-                    }
+                        FullRouteLink = $"{route.BtmsLink}{(route.BtmsLinkType == LinkType.Url ? routeUrlPath : null)}",
+                        RouteLinkType = route.BtmsLinkType,
+                        FullForkLink = $"{route.LegacyLink}{(route.LegacyLinkType == LinkType.Url ? routeUrlPath : null)}",
+                        ForkLinkType = route.LegacyLinkType,
+                        UrlPath = routeUrlPath,
+                        SendLegacyResponseToBtms = false
+                    },
+                    _ => throw new ArgumentOutOfRangeException(nameof(route.RouteTo), "Can only route to 'Legacy' or 'Btms'")
                 };
         }
         catch (Exception ex)

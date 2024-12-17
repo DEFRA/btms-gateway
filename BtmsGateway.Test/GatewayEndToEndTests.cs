@@ -37,7 +37,7 @@ public class GatewayEndToEndTests : IAsyncDisposable
         _httpHandler = _testWebServer.OutboundTestHttpHandler;
         
         var routingConfig = _testWebServer.Services.GetRequiredService<RoutingConfig>();
-        var expectedRoutUrl = routingConfig.AllRoutedRoutes.Single(x => x.Name == RouteName).Url;
+        var expectedRoutUrl = routingConfig.AllRoutes.Single(x => x.Name == RouteName).LegacyLink;
         _expectedRoutedUrl = $"{expectedRoutUrl.Trim('/')}/{SubPath}";
         _expectedForkedUrl = $"{expectedRoutUrl.Trim('/')}/forked/{SubPath}";
         _stringContent = new StringContent(XmlContent, Encoding.UTF8, MediaTypeNames.Application.Xml);

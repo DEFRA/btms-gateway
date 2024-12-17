@@ -7,29 +7,91 @@ namespace BtmsGateway.Test.Services.Routing;
 
 public class MessageRoutesTests
 {
-    [Theory]
-    [InlineData("/route-1/sub-path/", "http://url-1/sub-path")]
-    [InlineData("/route-2/sub-path/", "http://url-2/sub-path")]
-    public void When_routing_routed_route_Then_should_get_correct_route(string routedPath, string expectedRoutePath)
+    [Fact]
+    public void When_routing_route_1_Then_should_route_correctly()
     {
         var messageRoutes = new MessageRoutes(TestRoutes.RoutingConfig, Substitute.For<ILogger>());
 
-        var route = messageRoutes.GetRoutedRoute(routedPath);
+        var route = messageRoutes.GetRoute("/route-1/sub/path/");
 
         route.RouteFound.Should().BeTrue();
-        route.RouteUrl.Should().Be(expectedRoutePath);
+        route.RouteName.Should().Be("route-1");
+        route.FullRouteLink.Should().Be("http://legacy-link-url/sub/path");
+        route.RouteLinkType.Should().Be(LinkType.Url);
+        route.FullForkLink.Should().Be("btms-link-queue");
+        route.ForkLinkType.Should().Be(LinkType.Queue);
+        route.UrlPath.Should().Be("/sub/path");
+        route.SendLegacyResponseToBtms.Should().BeTrue();
+    }
+    
+    [Fact]
+    public void When_routing_route_2_Then_should_route_correctly()
+    {
+        var messageRoutes = new MessageRoutes(TestRoutes.RoutingConfig, Substitute.For<ILogger>());
+
+        var route = messageRoutes.GetRoute("/route-2/sub/path/");
+
+        route.RouteFound.Should().BeTrue();
+        route.RouteName.Should().Be("route-2");
+        route.FullRouteLink.Should().Be("http://btms-link-url/sub/path");
+        route.RouteLinkType.Should().Be(LinkType.Url);
+        route.FullForkLink.Should().Be("legacy-link-queue");
+        route.ForkLinkType.Should().Be(LinkType.Queue);
+        route.UrlPath.Should().Be("/sub/path");
+        route.SendLegacyResponseToBtms.Should().BeFalse();
+    }
+    
+    [Fact]
+    public void When_routing_unrecognised_route_Then_should_fail()
+    {
+        var messageRoutes = new MessageRoutes(TestRoutes.RoutingConfig, Substitute.For<ILogger>());
+
+        var route = messageRoutes.GetRoute("/route-3/sub/path/");
+
+        route.RouteFound.Should().BeFalse();
+        route.RouteName.Should().Be("route-3");
+        route.FullRouteLink.Should().BeNull();
+        route.FullForkLink.Should().BeNull();
+        route.UrlPath.Should().Be("/sub/path");
     }
 
-    [Theory]
-    [InlineData("/route-1/sub-path/", "http://url-2/sub-path")]
-    [InlineData("/route-2/sub-path/", "http://url-3/sub-path")]
-    public void When_routing_forked_route_Then_should_get_correct_route(string routedPath, string expectedRoutePath)
+    [Fact]
+    public void When_routing_with_duplicate_routes_Then_should_fail()
     {
-        var messageRoutes = new MessageRoutes(TestRoutes.RoutingConfig, Substitute.For<ILogger>());
+        var act = () => new MessageRoutes(TestRoutes.DuplicateRoutesConfig, Substitute.For<ILogger>());
 
-        var route = messageRoutes.GetForkedRoute(routedPath);
+        act.Should().Throw<InvalidDataException>().WithMessage("Duplicate route name(s) in config");
+    }
 
-        route.RouteFound.Should().BeTrue();
-        route.RouteUrl.Should().Be(expectedRoutePath);
+    [Fact]
+    public void When_routing_with_duplicate_links_Then_should_fail()
+    {
+        var act = () => new MessageRoutes(TestRoutes.DuplicateLinksConfig, Substitute.For<ILogger>());
+
+        act.Should().Throw<InvalidDataException>().WithMessage("Duplicate link name(s) in config");
+    }
+
+    [Fact]
+    public void When_routing_with_invalid_url_Then_should_fail()
+    {
+        var act = () => new MessageRoutes(TestRoutes.InvalidUrlConfig, Substitute.For<ILogger>());
+
+        act.Should().Throw<InvalidDataException>().WithMessage("Invalid URL(s) in config");
+    }
+
+    [Fact]
+    public void When_routing_with_invalid_route_to_Then_should_fail()
+    {
+        var act = () => new MessageRoutes(TestRoutes.InvalidRouteToConfig, Substitute.For<ILogger>());
+
+        act.Should().Throw<InvalidDataException>().WithMessage("Invalid Route To in config");
+    }
+
+    [Fact]
+    public void When_routing_with_invalid_link_type_Then_should_fail()
+    {
+        var act = () => new MessageRoutes(TestRoutes.InvalidLinkTypeConfig, Substitute.For<ILogger>());
+
+        act.Should().Throw<InvalidDataException>().WithMessage("Invalid Link Type in config");
     }
 }

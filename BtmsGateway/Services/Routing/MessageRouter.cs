@@ -22,7 +22,7 @@ public class MessageRouter(IHttpClientFactory clientFactory, IMessageRoutes mess
         {
             var metrics = metricsHost.GetMetrics();
             var client = clientFactory.CreateClient(Proxy.ProxyClientWithRetry);
-            var request = messageData.CreateForwardingRequest(routingResult.FullRouteUrl);
+            var request = messageData.CreateForwardingRequest(routingResult.FullRouteLink);
             
             metrics.StartRoutedRequest();
             var response = await client.SendAsync(request);
@@ -47,7 +47,7 @@ public class MessageRouter(IHttpClientFactory clientFactory, IMessageRoutes mess
         {
             var metrics = metricsHost.GetMetrics();
             var client = clientFactory.CreateClient(Proxy.ProxyClientWithRetry);
-            var request = messageData.CreateForwardingRequest(routingResult.FullForkUrl);
+            var request = messageData.CreateForwardingRequest(routingResult.FullForkLink);
             
             metrics.StartForkedRequest();
             var response = await client.SendAsync(request);

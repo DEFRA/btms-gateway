@@ -17,13 +17,10 @@ public class MessageRoutesTests
         route.RouteFound.Should().BeTrue();
         route.RouteName.Should().Be("route-1");
         route.FullRouteLink.Should().Be("http://legacy-link-url/sub/path");
-        route.RouteLinkType.Should().Be(LinkType.Url);
         route.ConvertedRoutedContentToJson.Should().BeFalse();
         route.FullForkLink.Should().Be("btms-link-queue");
-        route.ForkLinkType.Should().Be(LinkType.Queue);
         route.ConvertedForkedContentToJson.Should().BeTrue();
         route.UrlPath.Should().Be("/sub/path");
-        route.SendLegacyResponseToBtms.Should().BeTrue();
     }
     
     [Fact]
@@ -36,13 +33,10 @@ public class MessageRoutesTests
         route.RouteFound.Should().BeTrue();
         route.RouteName.Should().Be("route-2");
         route.FullRouteLink.Should().Be("http://btms-link-url/sub/path");
-        route.RouteLinkType.Should().Be(LinkType.Url);
         route.ConvertedRoutedContentToJson.Should().BeTrue();
         route.FullForkLink.Should().Be("legacy-link-queue");
-        route.ForkLinkType.Should().Be(LinkType.Queue);
         route.ConvertedForkedContentToJson.Should().BeFalse();
         route.UrlPath.Should().Be("/sub/path");
-        route.SendLegacyResponseToBtms.Should().BeFalse();
     }
     
     [Fact]

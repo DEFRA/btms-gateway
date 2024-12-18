@@ -49,21 +49,16 @@ public class MessageRoutes : IMessageRoutes
                         RouteFound = true,
                         RouteName = routeName,
                         FullRouteLink = $"{route.LegacyLink}{(route.LegacyLinkType == LinkType.Url ? routeUrlPath : null)}",
-                        RouteLinkType = route.LegacyLinkType,
                         FullForkLink = $"{route.BtmsLink}{(route.BtmsLinkType == LinkType.Url ? routeUrlPath : null)}",
-                        ForkLinkType = route.BtmsLinkType,
                         ConvertedForkedContentToJson = true,
-                        UrlPath = routeUrlPath,
-                        SendLegacyResponseToBtms = route.SendLegacyResponseToBtms
+                        UrlPath = routeUrlPath
                     },
                     RouteTo.Btms => new RoutingResult
                     {
                         RouteFound = true,
                         RouteName = routeName,
                         FullRouteLink = $"{route.BtmsLink}{(route.BtmsLinkType == LinkType.Url ? routeUrlPath : null)}",
-                        RouteLinkType = route.BtmsLinkType,
                         FullForkLink = $"{route.LegacyLink}{(route.LegacyLinkType == LinkType.Url ? routeUrlPath : null)}",
-                        ForkLinkType = route.LegacyLinkType,
                         ConvertedRoutedContentToJson = true,
                         UrlPath = routeUrlPath
                     },

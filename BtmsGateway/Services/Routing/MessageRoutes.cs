@@ -52,6 +52,7 @@ public class MessageRoutes : IMessageRoutes
                         RouteLinkType = route.LegacyLinkType,
                         FullForkLink = $"{route.BtmsLink}{(route.BtmsLinkType == LinkType.Url ? routeUrlPath : null)}",
                         ForkLinkType = route.BtmsLinkType,
+                        ConvertedForkedContentToJson = true,
                         UrlPath = routeUrlPath,
                         SendLegacyResponseToBtms = route.SendLegacyResponseToBtms
                     },
@@ -63,8 +64,8 @@ public class MessageRoutes : IMessageRoutes
                         RouteLinkType = route.BtmsLinkType,
                         FullForkLink = $"{route.LegacyLink}{(route.LegacyLinkType == LinkType.Url ? routeUrlPath : null)}",
                         ForkLinkType = route.LegacyLinkType,
-                        UrlPath = routeUrlPath,
-                        SendLegacyResponseToBtms = false
+                        ConvertedRoutedContentToJson = true,
+                        UrlPath = routeUrlPath
                     },
                     _ => throw new ArgumentOutOfRangeException(nameof(route.RouteTo), "Can only route to 'Legacy' or 'Btms'")
                 };

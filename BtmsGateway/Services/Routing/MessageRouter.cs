@@ -50,8 +50,8 @@ public class MessageRouter(IHttpClientFactory clientFactory, IMessageRoutes mess
             var metrics = metricsHost.GetMetrics();
             var client = clientFactory.CreateClient(Proxy.ProxyClientWithRetry);
             var request = routingResult.ConvertedForkedContentToJson 
-                ? messageData.CreateForwardingRequestAsJson(routingResult.FullRouteLink) 
-                : messageData.CreateForwardingRequestAsOriginal(routingResult.FullRouteLink);
+                ? messageData.CreateForwardingRequestAsJson(routingResult.FullForkLink) 
+                : messageData.CreateForwardingRequestAsOriginal(routingResult.FullForkLink);
             
             metrics.StartForkedRequest();
             var response = await client.SendAsync(request);

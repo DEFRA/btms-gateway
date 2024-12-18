@@ -1,4 +1,3 @@
-using System.Text.Json;
 using BtmsGateway.Services.Routing;
 using FluentAssertions;
 
@@ -17,7 +16,6 @@ public class RoutingConfigTests
         route.BtmsLinkType.Should().Be(LinkType.Queue);
         route.SendLegacyResponseToBtms.Should().BeTrue();
         route.RouteTo.Should().Be(RouteTo.Legacy);
-        var aaa = JsonSerializer.Serialize(TestRoutes.RoutingConfig);
     }
     
     [Fact]

@@ -1,67 +1,67 @@
 {
-  "Envelope": {
-    "Header": {
-      "Security": {
-        "UsernameToken": {
-          "Username": "username",
-          "Password": "password"
+  "envelope": {
+    "header": {
+      "security": {
+        "usernameToken": {
+          "username": "username",
+          "password": "password"
         }
       }
     },
-    "Body": {
-      "ALVSClearanceRequest": {
-        "ServiceHeader": {
-          "SourceSystem": "CDS",
-          "DestinationSystem": "ALVS",
-          "CorrelationId": 1.2345678901234568E+18,
-          "ServiceCallTimestamp": "2008-01-01T12:12:12.123"
+    "body": {
+      "alvsClearanceRequest": {
+        "serviceHeader": {
+          "sourceSystem": "CDS",
+          "destinationSystem": "ALVS",
+          "correlationId": 1.2345678901234568E+18,
+          "serviceCallTimestamp": "2008-01-01T12:12:12.123"
         },
-        "Header": {
-          "EntryReference": "18GB01234567890123ABCD",
-          "EntryVersionNumber": 4,
-          "PreviousVersionNumber": 3,
-          "DeclarationUCR": "GB123456789000-12345",
-          "DeclarationPartNumber": 3,
-          "DeclarationType": "S",
-          "ArrivalDateTime": 201804191451,
-          "SubmitterTURN": 987654321000,
-          "DeclarantId": "GB192837465000",
-          "DeclarantName": "A. Nother Trader",
-          "DispatchCountryCode": "US",
-          "GoodsLocationCode": "GBLHRABC",
-          "MasterUCR": "A:ABC123456789"
+        "header": {
+          "entryReference": "18GB01234567890123ABCD",
+          "entryVersionNumber": 4,
+          "previousVersionNumber": 3,
+          "declarationUCR": "GB123456789000-12345",
+          "declarationPartNumber": 3,
+          "declarationType": "S",
+          "arrivalDateTime": 201804191451,
+          "submitterTURN": 987654321000,
+          "declarantId": "GB192837465000",
+          "declarantName": "A. Nother Trader",
+          "dispatchCountryCode": "US",
+          "goodsLocationCode": "GBLHRABC",
+          "masterUCR": "A:ABC123456789"
         },
-        "Items": [
+        "items": [
           {
-            "ItemNumber": 1,
-            "CustomsProcedureCode": 4000000,
-            "TaricCommodityCode": 1604142100,
-            "GoodsDescription": "Tuna in Veg Oil",
-            "ConsigneeId": "GB906572504502854",
-            "ConsigneeName": "Consignee Name",
-            "ItemNetMass": 50.01,
-            "ItemSupplementaryUnits": 10,
-            "ItemThirdQuantity": 50.01,
-            "ItemOriginCountryCode": "US",
-            "Documents": [
+            "itemNumber": 1,
+            "customsProcedureCode": 4000000,
+            "taricCommodityCode": 1604142100,
+            "goodsDescription": "Tuna in Veg Oil",
+            "consigneeId": "GB906572504502854",
+            "consigneeName": "Consignee Name",
+            "itemNetMass": 50.01,
+            "itemSupplementaryUnits": 10,
+            "itemThirdQuantity": 50.01,
+            "itemOriginCountryCode": "US",
+            "documents": [
               {
-                "DocumentCode": "N853",
-                "DocumentReference": "GBCVD2019.0003283",
-                "DocumentStatus": "AE",
-                "DocumentControl": "P",
-                "DocumentQuantity": 2
+                "documentCode": "N853",
+                "documentReference": "GBCVD2019.0003283",
+                "documentStatus": "AE",
+                "documentControl": "P",
+                "documentQuantity": 2
               },
               {
-                "DocumentCode": "C673",
-                "DocumentReference": "GBIUUNZL123456789",
-                "DocumentStatus": "AE",
-                "DocumentControl": "P"
+                "documentCode": "C673",
+                "documentReference": "GBIUUNZL123456789",
+                "documentStatus": "AE",
+                "documentControl": "P"
               }
             ],
-            "Checks": [
+            "checks": [
               {
-                "CheckCode": "H224",
-                "DepartmentCode": "PHA"
+                "checkCode": "H224",
+                "departmentCode": "PHA"
               }
             ]
           }

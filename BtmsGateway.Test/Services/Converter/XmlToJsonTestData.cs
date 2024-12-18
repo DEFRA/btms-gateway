@@ -15,96 +15,96 @@ public class XmlToJsonTestData : TheoryData<string, string, string>
         Add("Complex multi level SOAP", XmlComplexMultiLevelSoap, JsonComplexMultiLevel);
     }
   
-    private const string XmlSimpleSelfClosing = "<root/>";
-    private const string XmlSimpleSelfClosingWithSpace = "<root />";
-    private const string XmlSimpleEmpty = "<root></root>";
-    private const string XmlSimpleContent = "<root>data</root>";
+    private const string XmlSimpleSelfClosing = "<Root/>";
+    private const string XmlSimpleSelfClosingWithSpace = "<Root />";
+    private const string XmlSimpleEmpty = "<Root></Root>";
+    private const string XmlSimpleContent = "<Root>data</Root>";
   
     private const string XmlComplexSingleLevel = """
-                                                 <root>
-                                                   <tag1>data1</tag1>
-                                                   <tag2>data2</tag2>
-                                                 </root>
+                                                 <Root>
+                                                   <Tag1>data1</Tag1>
+                                                   <Tag2>data2</Tag2>
+                                                 </Root>
                                                  """;
   
     private const string XmlComplexMultiLevel = """
                                                 <?xml version="1.0" encoding="UTF-8"?>
 
-                                                <root>
-                                                  <element1>
-                                                    <tag1>data1</tag1>
-                                                    <tag2>12.3</tag2>
-                                                  </element1>
+                                                <Root>
+                                                  <Element1>
+                                                    <Tag1>data1</Tag1>
+                                                    <Tag2>12.3</Tag2>
+                                                  </Element1>
                                                   
-                                                  <element2>
-                                                    <tag3>true</tag3>
-                                                    <element3>
-                                                      <tag4/>
+                                                  <Element2>
+                                                    <Tag3>true</Tag3>
+                                                    <Element3>
+                                                      <Tag4/>
                                                       
-                                                      <tag5></tag5>
-                                                      <tag6>123</tag6>
-                                                      <tag7>abc
+                                                      <Tag5></Tag5>
+                                                      <Tag6>123</Tag6>
+                                                      <Tag7>abc
                                                 def
-                                                ghi</tag7>
-                                                    </element3>
-                                                  </element2>
-                                                </root>
+                                                ghi</Tag7>
+                                                    </Element3>
+                                                  </Element2>
+                                                </Root>
                                                 """;
   
     private const string XmlComplexMultiLevelWithArrays = """
-                                                          <root>
-                                                            <array>
-                                                              <tag1>dataA</tag1>
-                                                              <tag2>123</tag2>
-                                                            </array>
-                                                            <array>
-                                                              <tag1>dataB</tag1>
-                                                              <tag2>456</tag2>
-                                                              <list>
-                                                                <tag3>dataC</tag3>
-                                                                <tag4>777</tag4>
-                                                              </list>
-                                                              <list>
-                                                                <tag3>dataD</tag3>
-                                                                <tag4>888</tag4>
-                                                              </list>
-                                                            </array>
-                                                          </root>
+                                                          <Root>
+                                                            <Array>
+                                                              <Tag1>dataA</Tag1>
+                                                              <Tag2>123</Tag2>
+                                                            </Array>
+                                                            <Array>
+                                                              <Tag1>dataB</Tag1>
+                                                              <Tag2>456</Tag2>
+                                                              <List>
+                                                                <Tag3>dataC</Tag3>
+                                                                <Tag4>777</Tag4>
+                                                              </List>
+                                                              <List>
+                                                                <Tag3>dataD</Tag3>
+                                                                <Tag4>888</Tag4>
+                                                              </List>
+                                                            </Array>
+                                                          </Root>
                                                           """;
   
     private const string XmlComplexMultiLevelWithSingleItemArrays = """
-                                                                    <root>
-                                                                      <array>
-                                                                        <tag1>dataB</tag1>
-                                                                        <tag2>456</tag2>
-                                                                        <list>
-                                                                          <tag3>dataC</tag3>
-                                                                          <tag4>777</tag4>
-                                                                        </list>
-                                                                      </array>
-                                                                    </root>
+                                                                    <Root>
+                                                                      <Array>
+                                                                        <Tag1>dataB</Tag1>
+                                                                        <Tag2>456</Tag2>
+                                                                        <List>
+                                                                          <Tag3>dataC</Tag3>
+                                                                          <Tag4>777</Tag4>
+                                                                        </List>
+                                                                      </Array>
+                                                                    </Root>
                                                                     """;
   
     private const string XmlComplexMultiLevelSoap = """
                                                     <?xml version="1.0" encoding="UTF-8"?>
 
-                                                    <root xmlns="http://www.w3.org/2003/05/soap-envelope/" xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
-                                                      <i:element1 xmlns:x="http://localtypes/">
-                                                        <x:tag1>data1</x:tag1>
-                                                        <x:tag2>12.3</x:tag2>
-                                                      </i:element1>
-                                                      <i:element2 xmlns:x="http://localtypes/">
-                                                        <x:tag3>true</x:tag3>
-                                                        <i:element3>
-                                                          <x:tag4/>
-                                                          <x:tag5></x:tag5>
-                                                          <x:tag6>123</x:tag6>
-                                                          <x:tag7>abc
+                                                    <Root xmlns="http://www.w3.org/2003/05/soap-envelope/" xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+                                                      <i:Element1 xmlns:x="http://localtypes/">
+                                                        <x:Tag1>data1</x:Tag1>
+                                                        <x:Tag2>12.3</x:Tag2>
+                                                      </i:Element1>
+                                                      <i:Element2 xmlns:x="http://localtypes/">
+                                                        <x:Tag3>true</x:Tag3>
+                                                        <i:Element3>
+                                                          <x:Tag4/>
+                                                          <x:Tag5></x:Tag5>
+                                                          <x:Tag6>123</x:Tag6>
+                                                          <x:Tag7>abc
                                                     def
-                                                    ghi</x:tag7>
-                                                        </i:element3>
-                                                      </i:element2>
-                                                    </root>
+                                                    ghi</x:Tag7>
+                                                        </i:Element3>
+                                                      </i:Element2>
+                                                    </Root>
                                                     """;
   
     private const string JsonSimpleNull = """

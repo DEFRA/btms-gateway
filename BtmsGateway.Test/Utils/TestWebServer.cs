@@ -9,7 +9,7 @@ namespace BtmsGateway.Test.Utils;
 
 public class TestWebServer : IAsyncDisposable
 {
-    private static int _portNumber = 5000;
+    private static int _portNumber = 5100;
     
     private readonly WebApplication _app;
 

@@ -31,31 +31,31 @@ public class XmlToJsonConverterTests
             Add("Complex multi layer", XmlComplexMultiLevel, JsonComplexMultiLevel);
         }
 
-        private const string XmlSimpleSelfClosing = "<root/>";
-        private const string XmlSimpleSelfClosingWithSpace = "<root />";
-        private const string XmlSimpleEmpty = "<root></root>";
-        private const string XmlSimpleContent = "<root>data</root>";
-        private const string XmlComplexSingleLevel = """
-                                                     <root>
-                                                       <tag1>data1</tag1>
-                                                       <tag2>data2</tag2>
-                                                     </root>
-                                                     """;
-        private const string XmlComplexMultiLevel = """
-                                                    <root>
-                                                      <element1>
-                                                        <tag1>data1</tag1>
-                                                        <tag2>data2</tag2>
-                                                      </element1>
-                                                      <element2>
-                                                        <tag3>data3</tag3>
-                                                        <element3>
-                                                          <tag4/>
-                                                          <tag5></tag5>
-                                                        </element3>
-                                                      </element2>
-                                                    </root>
-                                                    """;
+        private static readonly string XmlSimpleSelfClosing = "<root/>";
+        private static readonly string XmlSimpleSelfClosingWithSpace = "<root />";
+        private static readonly string XmlSimpleEmpty = "<root></root>";
+        private static readonly string XmlSimpleContent = "<root>data</root>";
+        private static readonly string XmlComplexSingleLevel = """
+                                                               <root>
+                                                                 <tag1>data1</tag1>
+                                                                 <tag2>data2</tag2>
+                                                               </root>
+                                                               """.Replace("\r\n", "\n");
+        private static readonly string XmlComplexMultiLevel = """
+                                                              <root>
+                                                                <element1>
+                                                                  <tag1>data1</tag1>
+                                                                  <tag2>data2</tag2>
+                                                                </element1>
+                                                                <element2>
+                                                                  <tag3>data3</tag3>
+                                                                  <element3>
+                                                                    <tag4/>
+                                                                    <tag5></tag5>
+                                                                  </element3>
+                                                                </element2>
+                                                              </root>
+                                                              """.Replace("\r\n", "\n");
 
         private static readonly string JsonSimpleEmpty = """
                                                          {

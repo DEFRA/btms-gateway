@@ -9,9 +9,12 @@ public static class XmlToJsonConverter
     public static string Convert(string xml)
     {
         Validate(xml);
+        WriteToConsole(xml);
+        
         var indent = 1;
         var sb = new StringBuilder();
-        using var sw = new StringWriter(sb) { NewLine = "\n" };
+        using var sw = new StringWriter(sb);
+        sw.NewLine = "\n";
         var matches = XmlToJsonConverterTypeConversion.XmlRegex().Matches(xml);
 
         sw.WriteLine("{");
@@ -19,6 +22,28 @@ public static class XmlToJsonConverter
         sw.WriteLine("}");
 
         return sb.ToString().Trim();
+    }
+
+    private static void WriteToConsole(string xml)
+    {
+        var matchNum = 1;
+        var matches = XmlToJsonConverterTypeConversion.XmlRegex().Matches(xml);
+        foreach (Match match in matches)
+        {
+            var groupNum = 0;
+            Console.WriteLine($"Match {$"{matchNum++,6}"}  {match.Value}");
+            foreach (Group group in match.Groups)
+            {
+                if (groupNum == 0 || !group.Success)
+                {
+                    groupNum++;
+                    continue;
+                }
+                Console.WriteLine($"Group {(string.IsNullOrWhiteSpace(group.Name) ? groupNum : group.Name),6}  {group.Value}");
+                groupNum++;
+            }
+            Console.WriteLine();
+        }
     }
 
     private static void Convert(Match match, Match? previousMatch, StringWriter sw, ref int indent)
@@ -87,20 +112,20 @@ public class XmlToJsonData(Match match, StringWriter sw) : XmlToJsonTag
 
 public static partial class XmlToJsonConverterTypeConversion
 {
-    [GeneratedRegex(@"(?>\<|\/)(.+?)(?>\>|((?> *?)\/\>))(.*?)(\<(\/.+?)\>|$)", RegexOptions.Multiline)]
+    [GeneratedRegex(@"(?>\<|\/)(?'tag'.+?)(?>\>|(?'empty'(?> *?)\/\>))(?'data'.*?)(\<(?'close'\/.+?)\>|$)", RegexOptions.Multiline | RegexOptions.Singleline)]
     public static partial Regex XmlRegex();
 
     public static bool IsOpeningTag(this Match match) => !match.TagName().StartsWith("/", StringComparison.InvariantCulture) && match.IsNotDataTag();
     
     public static bool IsClosingTag(this Match match) => match.TagName().StartsWith("/", StringComparison.InvariantCulture) && match.IsNotDataTag();
+
+    public static bool IsDataTag(this Match match) => match.Groups["close"].Value.TrimStart('/') == match.TagName() || match.Groups["empty"].Value == "/>";
+
+    public static string TagName(this Match match) => match.Groups["tag"].Value.Trim();
+
+    public static string Data(this Match match) => string.IsNullOrWhiteSpace(match.Groups["data"].Value) ? "null" : $"\"{match.Groups["data"].Value.Trim()}\"";
+
+    private static bool IsNotDataTag(this Match match) => string.IsNullOrWhiteSpace(match.Groups["close"].Value) && string.IsNullOrWhiteSpace(match.Groups["empty"].Value);
     
-    public static bool IsDataTag(this Match match) => match.Groups[5].Value.TrimStart('/') == match.TagName() || match.Groups[2].Value == "/>";
-
     public static string Spaces(this int indent) => new(' ', indent * 2);
-
-    public static string TagName(this Match match) => match.Groups[1].Value.Trim();
-
-    public static string Data(this Match match) => string.IsNullOrWhiteSpace(match.Groups[3].Value) ? "null" : $"\"{match.Groups[3].Value}\"";
-
-    private static bool IsNotDataTag(this Match match) => string.IsNullOrWhiteSpace(match.Groups[5].Value) && string.IsNullOrWhiteSpace(match.Groups[2].Value);
 }

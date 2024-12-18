@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" 
+               xmlns:oas="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="http://submitimportdocumenthmrcfacade.types.esb.ws.cara.defra.comfile:///C:/mdg-dev/DEC32/SubmitImportDocumentHMRCFacade.xsd">
+    <soap:Header>
+        <oas:Security soap:role="system" soap:mustUnderstand="true">
+            <oas:UsernameToken>
+                <oas:Username>username</oas:Username>
+                <oas:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText">password</oas:Password>
+            </oas:UsernameToken>
+        </oas:Security>
+    </soap:Header>
+    <soap:Body>
+        <ns:ALVSClearanceRequest xmlns:ns="http://submitimportdocumenthmrcfacade.types.esb.ws.cara.defra.com">
+            <ns:ServiceHeader>
+                <ns:SourceSystem>CDS</ns:SourceSystem>
+                <ns:DestinationSystem>ALVS</ns:DestinationSystem>
+                <ns:CorrelationId>1234567890123456789</ns:CorrelationId>
+                <ns:ServiceCallTimestamp>2008-01-01T12:12:12.123</ns:ServiceCallTimestamp>
+            </ns:ServiceHeader>
+            <ns:Header>
+                <ns:EntryReference>18GB01234567890123ABCD</ns:EntryReference>
+                <ns:EntryVersionNumber>4</ns:EntryVersionNumber>
+                <ns:PreviousVersionNumber>3</ns:PreviousVersionNumber>
+                <ns:DeclarationUCR>GB123456789000-12345</ns:DeclarationUCR>
+                <ns:DeclarationPartNumber>003</ns:DeclarationPartNumber>
+                <ns:DeclarationType>S</ns:DeclarationType>
+                <ns:ArrivalDateTime>201804191451</ns:ArrivalDateTime>
+                <ns:SubmitterTURN>987654321000</ns:SubmitterTURN>
+                <ns:DeclarantId>GB192837465000</ns:DeclarantId>
+                <ns:DeclarantName>A. Nother Trader</ns:DeclarantName>
+                <ns:DispatchCountryCode>US</ns:DispatchCountryCode>
+                <ns:GoodsLocationCode>GBLHRABC</ns:GoodsLocationCode>
+                <ns:MasterUCR>A:ABC123456789</ns:MasterUCR>
+            </ns:Header>
+            <ns:Item>
+                <ns:ItemNumber>1</ns:ItemNumber>
+                <ns:CustomsProcedureCode>4000000</ns:CustomsProcedureCode>
+                <ns:TaricCommodityCode>1604142100</ns:TaricCommodityCode>
+                <ns:GoodsDescription>Tuna in Veg Oil</ns:GoodsDescription>
+                <ns:ConsigneeId>GB906572504502854</ns:ConsigneeId>
+                <ns:ConsigneeName>Consignee Name</ns:ConsigneeName>
+                <ns:ItemNetMass>50.01</ns:ItemNetMass>
+                <ns:ItemSupplementaryUnits>10.0</ns:ItemSupplementaryUnits>
+                <ns:ItemThirdQuantity>50.01</ns:ItemThirdQuantity>
+                <ns:ItemOriginCountryCode>US</ns:ItemOriginCountryCode>
+                <ns:Document>
+                    <ns:DocumentCode>N853</ns:DocumentCode>
+                    <ns:DocumentReference>GBCVD2019.0003283</ns:DocumentReference>
+                    <ns:DocumentStatus>AE</ns:DocumentStatus>
+                    <ns:DocumentControl>P</ns:DocumentControl>
+                    <ns:DocumentQuantity>2</ns:DocumentQuantity>
+                </ns:Document>
+                <ns:Document>
+                    <ns:DocumentCode>C673</ns:DocumentCode>
+                    <ns:DocumentReference>GBIUUNZL123456789</ns:DocumentReference>
+                    <ns:DocumentStatus>AE</ns:DocumentStatus>
+                    <ns:DocumentControl>P</ns:DocumentControl>
+                </ns:Document>
+                <ns:Check>
+                    <ns:CheckCode>H224</ns:CheckCode>
+                    <ns:DepartmentCode>PHA</ns:DepartmentCode>
+                </ns:Check>
+            </ns:Item>
+        </ns:ALVSClearanceRequest>
+    </soap:Body>
+</soap:Envelope>

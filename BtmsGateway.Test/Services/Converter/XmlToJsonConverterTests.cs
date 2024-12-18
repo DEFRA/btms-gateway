@@ -5,11 +5,23 @@ namespace BtmsGateway.Test.Services.Converter;
 
 public class XmlToJsonConverterTests
 {
+    private static readonly string TestDataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Services", "Converter");
+    
+    [Fact]
+    public void When_receiving_clearance_request_soap_Then_should_convert_to_json()
+    {
+        var xml = File.ReadAllText(Path.Combine(TestDataPath, "ClearanceRequest.xml"));
+        var json = File.ReadAllText(Path.Combine(TestDataPath, "ClearanceRequest.json"));
+        var knownArrays = new Dictionary<string, string>() { { "Item", "Items" }, { "Document", "Documents" }, { "Check", "Checks" } };
+        XmlToJsonConverter.Convert(xml, knownArrays).Should().Be(json);
+    }
+
     [Theory]
     [ClassData(typeof(XmlToJsonTestData))]
     public void When_receiving_valid_xml_Then_should_convert_to_json(string because, string xml, string expectedJson)
     {
-        XmlToJsonConverter.Convert(xml).Should().Be(expectedJson, because);
+        var knownArrays = new Dictionary<string, string>() { { "array", "arrays" }, { "list", "lists" } };
+        XmlToJsonConverter.Convert(xml, knownArrays).Should().Be(expectedJson, because);
     }
 
     [Fact]
@@ -17,80 +29,5 @@ public class XmlToJsonConverterTests
     {
         var act = () => XmlToJsonConverter.Convert("<root><not-root>");
         act.Should().Throw<ArgumentException>();
-    }
-
-    private class XmlToJsonTestData : TheoryData<string, string, string>
-    {
-        public XmlToJsonTestData()
-        {
-            Add("Simple self-closing tag", XmlSimpleSelfClosing, JsonSimpleEmpty);
-            Add("Simple self-closing tag w/ space", XmlSimpleSelfClosingWithSpace, JsonSimpleEmpty);
-            Add("Simple empty tag", XmlSimpleEmpty, JsonSimpleEmpty);
-            Add("Simple content tag", XmlSimpleContent, JsonSimpleContent);
-            Add("Complex single layer", XmlComplexSingleLevel, JsonComplexSingleLevel);
-            Add("Complex multi layer", XmlComplexMultiLevel, JsonComplexMultiLevel);
-        }
-
-        private static readonly string XmlSimpleSelfClosing = "<root/>";
-        private static readonly string XmlSimpleSelfClosingWithSpace = "<root />";
-        private static readonly string XmlSimpleEmpty = "<root></root>";
-        private static readonly string XmlSimpleContent = "<root>data</root>";
-        private static readonly string XmlComplexSingleLevel = """
-                                                               <root>
-                                                                 <tag1>data1</tag1>
-                                                                 <tag2>data2</tag2>
-                                                               </root>
-                                                               """.Replace("\r\n", "\n");
-        private static readonly string XmlComplexMultiLevel = """
-                                                              <root>
-                                                                <element1>
-                                                                  <tag1>data1</tag1>
-                                                                  <tag2>data2</tag2>
-                                                                </element1>
-                                                                <element2>
-                                                                  <tag3>data3</tag3>
-                                                                  <element3>
-                                                                    <tag4/>
-                                                                    <tag5></tag5>
-                                                                  </element3>
-                                                                </element2>
-                                                              </root>
-                                                              """.Replace("\r\n", "\n");
-
-        private static readonly string JsonSimpleEmpty = """
-                                                         {
-                                                           "root": null
-                                                         }
-                                                         """.Replace("\r\n", "\n");
-        private static readonly string JsonSimpleContent = """
-                                                           {
-                                                             "root": "data"
-                                                           }
-                                                           """.Replace("\r\n", "\n");
-        private static readonly string JsonComplexSingleLevel = """
-                                                                {
-                                                                  "root": {
-                                                                    "tag1": "data1",
-                                                                    "tag2": "data2"
-                                                                  }
-                                                                }
-                                                                """.Replace("\r\n", "\n");
-        private static readonly string JsonComplexMultiLevel = """
-                                                               {
-                                                                 "root": {
-                                                                   "element1": {
-                                                                     "tag1": "data1",
-                                                                     "tag2": "data2"
-                                                                   },
-                                                                   "element2": {
-                                                                     "tag3": "data3",
-                                                                     "element3": {
-                                                                       "tag4": null,
-                                                                       "tag5": null
-                                                                     }
-                                                                   }
-                                                                 }
-                                                               }
-                                                               """.Replace("\r\n", "\n");
     }
 }

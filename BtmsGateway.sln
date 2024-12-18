@@ -20,8 +20,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BtmsGatewayStub", "..\btms-
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BtmsGatewayStub.Test", "..\btms-gateway-stub\BtmsGatewayStub.Test\BtmsGatewayStub.Test.csproj", "{7140D6EC-7B6D-412F-98E4-D4F17251DEEC}"
 EndProject
-Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "Btms.Backend.Perf.Tests", "..\btms-backend-perf-tests\Btms.Backend.Perf.Tests.njsproj", "{145AEFF2-DA30-4A2C-9CC1-E28991E52704}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

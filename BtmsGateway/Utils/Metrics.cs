@@ -24,7 +24,7 @@ public class Metrics(MetricsHost metricsHost)
             { "route-name", routingResult.RouteName },
             { "route-found", routingResult.RouteFound },
             { "routing-successful", routingResult.RoutingSuccessful },
-            { "forward-url", routingResult.RouteUrl },
+            { "forward-url", routingResult.FullRouteLink },
             { "status-code", routingResult.StatusCode }
         };
     }

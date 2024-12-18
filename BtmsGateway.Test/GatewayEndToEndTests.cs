@@ -12,8 +12,9 @@ namespace BtmsGateway.Test;
 public class GatewayEndToEndTests : IAsyncDisposable
 {
     private const string XmlContent = "<xml>Content</xml>";
+    private const string JsonContent = "{\"xml\":\"Content\"}";
     private const string RouteName = "alvs-ipaffs";
-    private const string SubPath = "sub-path";
+    private const string SubPath = "sub/path";
     private const string FullPath = $"{RouteName}/{SubPath}";
     private const string RoutedPath = $"/{SubPath}";
     private const string ForkedPath = $"/forked/{SubPath}";
@@ -37,7 +38,7 @@ public class GatewayEndToEndTests : IAsyncDisposable
         _httpHandler = _testWebServer.OutboundTestHttpHandler;
         
         var routingConfig = _testWebServer.Services.GetRequiredService<RoutingConfig>();
-        var expectedRoutUrl = routingConfig.AllRoutedRoutes.Single(x => x.Name == RouteName).Url;
+        var expectedRoutUrl = routingConfig.AllRoutes.Single(x => x.Name == RouteName).LegacyLink;
         _expectedRoutedUrl = $"{expectedRoutUrl.Trim('/')}/{SubPath}";
         _expectedForkedUrl = $"{expectedRoutUrl.Trim('/')}/forked/{SubPath}";
         _stringContent = new StringContent(XmlContent, Encoding.UTF8, MediaTypeNames.Application.Xml);
@@ -101,8 +102,8 @@ public class GatewayEndToEndTests : IAsyncDisposable
         var request = _httpHandler.Requests[_expectedForkedUrl];
         request?.RequestUri?.ToString().Should().Be(_expectedForkedUrl);
         request?.Method.ToString().Should().Be("POST");
-        (await request?.Content?.ReadAsStringAsync()!).Should().Be(XmlContent);
-        request?.Content?.Headers.ContentType?.ToString().Should().StartWith(MediaTypeNames.Application.Xml);
+        (await request?.Content?.ReadAsStringAsync()!).Should().Be(JsonContent);
+        request?.Content?.Headers.ContentType?.ToString().Should().StartWith(MediaTypeNames.Application.Json);
         request?.Headers.Date?.Should().Be(_headerDate);
         request?.Headers.GetValues(MessageData.CorrelationIdHeaderName).FirstOrDefault().Should().Be(_headerCorrelationId);
 
@@ -112,7 +113,7 @@ public class GatewayEndToEndTests : IAsyncDisposable
         response?.Headers.Date.Should().BeAfter(_headerDate);
         response?.Headers.GetValues(MessageData.CorrelationIdHeaderName).FirstOrDefault().Should().Be(_headerCorrelationId);
         response?.Headers.GetValues(MessageData.RequestedPathHeaderName).FirstOrDefault().Should().Be(ForkedPath);
-        response?.Content.Headers.ContentType?.ToString().Should().StartWith(MediaTypeNames.Application.Xml);
+        response?.Content.Headers.ContentType?.ToString().Should().StartWith(MediaTypeNames.Application.Json);
         (await response?.Content.ReadAsStringAsync()!).Should().Be(TestHttpHandler.XmlRoutedResponse);
     }
 

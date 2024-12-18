@@ -102,7 +102,7 @@ public class MessageData
             response.ContentType = OriginalContentType;
             response.Headers.Date = (routingResult.ResponseDate ?? DateTimeOffset.Now).ToString("R");
             response.Headers[CorrelationIdHeaderName] = CorrelationId;
-            response.Headers[RequestedPathHeaderName] = routingResult.RouteUrlPath;
+            response.Headers[RequestedPathHeaderName] = routingResult.UrlPath;
             if (routingResult.ResponseContent != null)
                 await response.BodyWriter.WriteAsync(new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes(routingResult.ResponseContent)));
         }

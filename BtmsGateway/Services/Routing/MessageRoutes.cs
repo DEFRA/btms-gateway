@@ -4,53 +4,23 @@ namespace BtmsGateway.Services.Routing;
 
 public interface IMessageRoutes
 {
-    RoutingResult GetRoutedRoute(string routePath);
-    RoutingResult GetForkedRoute(string routePath);
-    HealthUrl[] HealthUrls { get; }
-}
-
-internal static class RepeatedExtension
-{
-    public static IEnumerable<TResult> Repeated<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, TResult> selector) where TResult : notnull
-    {
-        var distinct = new Dictionary<TResult, int>();
-        foreach (var sourceItem in source)
-        {
-            var item = selector(sourceItem);
-            if (!distinct.ContainsKey(item))
-                distinct.Add(item, 1);
-            else
-            {
-                if (distinct[item]++ == 1) // only yield items on first repeated occurence
-                    yield return item;
-            }                    
-        }
-    }
+    RoutingResult GetRoute(string routePath);
 }
 
 public class MessageRoutes : IMessageRoutes
 {
     private readonly ILogger _logger;
-    private readonly IDictionary<string, string> _routedRoutes;
-    private readonly IDictionary<string, string> _forkedRoutes;
+    private readonly RoutedLink[] _routes;
 
     public MessageRoutes(RoutingConfig routingConfig, ILogger logger)
     {
         _logger = logger;
         try
         {
-            var repeatedRoutes = routingConfig.AllRoutedRoutes.Repeated(r => r.Name).ToArray();
-            var repeatedForks = routingConfig.AllForkedRoutes.Repeated(r => r.Name).ToArray();
-            
-            if (repeatedRoutes.Length > 0) throw new InvalidDataException($"Duplicate routed route name(s) {repeatedRoutes}");
-            if (repeatedForks.Length > 0) throw new InvalidDataException($"Duplicate forked route name(s) {repeatedForks}");
-            
-            if (routingConfig.AllRoutedRoutes.Any(x => !Uri.TryCreate(x.Url, UriKind.Absolute, out _))) throw new InvalidDataException("Routed URL invalid");
-            if (routingConfig.AllForkedRoutes.Any(x => !Uri.TryCreate(x.Url, UriKind.Absolute, out _))) throw new InvalidDataException("Forked URL invalid");
-
-            _routedRoutes = routingConfig.AllRoutedRoutes.ToDictionary(x => x.Name.ToLower(), x => x.Url.Trim('/'));
-            _forkedRoutes = routingConfig.AllForkedRoutes.ToDictionary(x => x.Name.ToLower(), x => x.Url.Trim('/'));
-            HealthUrls = routingConfig.HealthUrls;
+            if (routingConfig.NamedLinks.Any(x => x.Value.LinkType == LinkType.Url && !Uri.TryCreate(x.Value.Link, UriKind.Absolute, out _))) throw new InvalidDataException("Invalid URL(s) in config");
+            if (routingConfig.NamedRoutes.Any(x => !Enum.IsDefined(typeof(RouteTo), x.Value.RouteTo))) throw new InvalidDataException("Invalid Route To in config");
+            if (routingConfig.NamedLinks.Any(x => !Enum.IsDefined(typeof(LinkType), x.Value.LinkType))) throw new InvalidDataException("Invalid Link Type in config");
+            _routes = routingConfig.AllRoutes;
         }
         catch (Exception ex)
         {
@@ -58,14 +28,8 @@ public class MessageRoutes : IMessageRoutes
             throw;
         }
     }
-
-    public HealthUrl[] HealthUrls { get; }
-    
-    public RoutingResult GetRoutedRoute(string routePath) => GetRoute(routePath, _routedRoutes);
-
-    public RoutingResult GetForkedRoute(string routePath) => GetRoute(routePath, _forkedRoutes);
-
-    private RoutingResult GetRoute(string routePath, IDictionary<string, string> routes)
+   
+    public RoutingResult GetRoute(string routePath)
     {
         try
         {
@@ -74,9 +38,36 @@ public class MessageRoutes : IMessageRoutes
         
             var routeName = routeParts[0].ToLower();
             var routeUrlPath = $"/{string.Join('/', routeParts[1..])}";
-            var routeUrl = routes.TryGetValue(routeName, out var url) ? $"{url}{routeUrlPath}" : null;
+            var route = _routes.SingleOrDefault(x => x.Name == routeName);
 
-            return new RoutingResult { RouteFound = routeUrl != null, RouteName = routeName, RouteUrl = routeUrl, RouteUrlPath = routeUrlPath };
+            return route == null
+                ? new RoutingResult { RouteFound = false, RouteName = routeName, UrlPath = routeUrlPath }
+                : route.RouteTo switch
+                {
+                    RouteTo.Legacy => new RoutingResult
+                    {
+                        RouteFound = true,
+                        RouteName = routeName,
+                        FullRouteLink = $"{route.LegacyLink}{(route.LegacyLinkType == LinkType.Url ? routeUrlPath : null)}",
+                        RouteLinkType = route.LegacyLinkType,
+                        FullForkLink = $"{route.BtmsLink}{(route.BtmsLinkType == LinkType.Url ? routeUrlPath : null)}",
+                        ForkLinkType = route.BtmsLinkType,
+                        UrlPath = routeUrlPath,
+                        SendLegacyResponseToBtms = route.SendLegacyResponseToBtms
+                    },
+                    RouteTo.Btms => new RoutingResult
+                    {
+                        RouteFound = true,
+                        RouteName = routeName,
+                        FullRouteLink = $"{route.BtmsLink}{(route.BtmsLinkType == LinkType.Url ? routeUrlPath : null)}",
+                        RouteLinkType = route.BtmsLinkType,
+                        FullForkLink = $"{route.LegacyLink}{(route.LegacyLinkType == LinkType.Url ? routeUrlPath : null)}",
+                        ForkLinkType = route.LegacyLinkType,
+                        UrlPath = routeUrlPath,
+                        SendLegacyResponseToBtms = false
+                    },
+                    _ => throw new ArgumentOutOfRangeException(nameof(route.RouteTo), "Can only route to 'Legacy' or 'Btms'")
+                };
         }
         catch (Exception ex)
         {

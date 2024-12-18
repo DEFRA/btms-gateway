@@ -1,26 +1,35 @@
+using System.Text.Json;
+using BtmsGateway.Services.Routing;
 using FluentAssertions;
 
 namespace BtmsGateway.Test.Services.Routing;
 
 public class RoutingConfigTests
 {
-    [Theory]
-    [InlineData("route-1", "http://url-1/")]
-    [InlineData("route-2", "http://url-2/")]
-    [InlineData("route-3", "http://url-3/")]
-    [InlineData("route-4", "http://url-1/")]
-    public void When_getting_routed_routes_Then_should_retrieve_returned_urls(string routeName, string url)
+    [Fact]
+    public void When_getting_route_1_Then_should_retrieve_routed_links()
     {
-        TestRoutes.RoutingConfig.AllRoutedRoutes.Single(x => x.Name == routeName).Url.Should().Be(url);
+        var route = TestRoutes.RoutingConfig.AllRoutes.Single(x => x.Name == "route-1");
+        route.Name.Should().Be("route-1");
+        route.LegacyLink.Should().Be("http://legacy-link-url");
+        route.LegacyLinkType.Should().Be(LinkType.Url);
+        route.BtmsLink.Should().Be("btms-link-queue");
+        route.BtmsLinkType.Should().Be(LinkType.Queue);
+        route.SendLegacyResponseToBtms.Should().BeTrue();
+        route.RouteTo.Should().Be(RouteTo.Legacy);
+        var aaa = JsonSerializer.Serialize(TestRoutes.RoutingConfig);
     }
     
-    [Theory]
-    [InlineData("route-1", "http://url-2/")]
-    [InlineData("route-2", "http://url-3/")]
-    [InlineData("route-3", "http://url-4/")]
-    [InlineData("route-4", "http://url-3/")]
-    public void When_getting_forked_routes_Then_should_retrieve_unreturned_urls(string routeName, string url)
+    [Fact]
+    public void When_getting_route_2_Then_should_retrieve_routed_links()
     {
-        TestRoutes.RoutingConfig.AllForkedRoutes.Single(x => x.Name == routeName).Url.Should().Be(url);
+        var route = TestRoutes.RoutingConfig.AllRoutes.Single(x => x.Name == "route-2");
+        route.Name.Should().Be("route-2");
+        route.LegacyLink.Should().Be("legacy-link-queue");
+        route.LegacyLinkType.Should().Be(LinkType.Queue);
+        route.BtmsLink.Should().Be("http://btms-link-url");
+        route.BtmsLinkType.Should().Be(LinkType.Url);
+        route.SendLegacyResponseToBtms.Should().BeTrue();
+        route.RouteTo.Should().Be(RouteTo.Btms);
     }
 }

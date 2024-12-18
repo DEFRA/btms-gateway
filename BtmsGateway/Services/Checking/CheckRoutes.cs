@@ -1,58 +1,61 @@
 using System.Diagnostics;
-using System.Net.Http.Headers;
-using BtmsGateway.Services.Routing;
 using BtmsGateway.Utils.Http;
 using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Services.Checking;
 
-public class CheckRoutes(IMessageRoutes messageRoutes, IHttpClientFactory clientFactory, ILogger logger)
+public class CheckRoutes(HealthCheckConfig healthCheckConfig, IHttpClientFactory clientFactory, ILogger logger)
 {
     public const int OverallTimeoutSecs = 50;
 
     public async Task<IEnumerable<CheckRouteResult>> CheckAll()
     {
+        if (healthCheckConfig.Disabled) return [];
+        
         logger.Information("Start route checking");
         var cts = new CancellationTokenSource(TimeSpan.FromSeconds(OverallTimeoutSecs));
-        return (await Task.WhenAll(messageRoutes.HealthUrls.Where(x => !x.Disabled).Select(healthUrl => CheckAll(healthUrl, cts)))).SelectMany(routeResults => routeResults);
+        var checkRouteResults = await Task.WhenAll(healthCheckConfig.Urls.Select(GetCheckRouteUrl).Select(x => CheckAll(x, cts)));
+        return checkRouteResults.SelectMany(routeResults => routeResults);
     }
 
     public async Task<IEnumerable<CheckRouteResult>> CheckIpaffs()
     {
         logger.Information("Start route checking");
         var cts = new CancellationTokenSource(TimeSpan.FromSeconds(OverallTimeoutSecs));
-        return (await Task.WhenAll(messageRoutes.HealthUrls.Where(x => !x.Disabled && x.Name.StartsWith("IPAFFS")).Select(healthUrl => CheckIpaffs(healthUrl, cts)))).SelectMany(routeResults => routeResults);
+        return (await Task.WhenAll(healthCheckConfig.Urls.Where(x => !x.Value.Disabled && x.Key.StartsWith("IPAFFS")).Select(x => CheckAll(GetCheckRouteUrl(x), cts)))).SelectMany(routeResults => routeResults);
     }
 
-    private async Task<IEnumerable<CheckRouteResult>> CheckAll(HealthUrl healthUrl, CancellationTokenSource cts)
+    private static CheckRouteUrl GetCheckRouteUrl(KeyValuePair<string, HealthCheckUrl> x)
+    {
+        return new CheckRouteUrl { Name = x.Key, Method = x.Value.Method, Disabled = x.Value.Disabled, Url = x.Value.Url, CheckType = "HTTP" };
+    }
+
+    private async Task<IEnumerable<CheckRouteResult>> CheckAll(CheckRouteUrl checkRouteUrl, CancellationTokenSource cts)
     {
         var checks = new List<Task<CheckRouteResult>>
         {
-            CheckHttp(healthUrl, false, cts.Token),
-            CheckNsLookup(healthUrl, cts.Token),
-            CheckDig(healthUrl, cts.Token)
+            CheckHttp(checkRouteUrl, false, cts.Token),
+            CheckNsLookup(checkRouteUrl, cts.Token),
+            CheckDig(checkRouteUrl, cts.Token)
         };
-        if (healthUrl.Uri.PathAndQuery != "/") checks.Add(CheckHttp(healthUrl with { CheckType = "HTTP HOST", Url = healthUrl.Url.Replace(healthUrl.Uri.PathAndQuery, "")}, false, cts.Token));
+        if (checkRouteUrl.Uri.PathAndQuery != "/") checks.Add(CheckHttp(checkRouteUrl with { CheckType = "HTTP HOST", Url = checkRouteUrl.Url.Replace(checkRouteUrl.Uri.PathAndQuery, "")}, false, cts.Token));
         
         return await Task.WhenAll(checks);
     }
 
-    private async Task<IEnumerable<CheckRouteResult>> CheckIpaffs(HealthUrl healthUrl, CancellationTokenSource cts) => [await CheckHttp(healthUrl, true, cts.Token )];
-
-    private async Task<CheckRouteResult> CheckHttp(HealthUrl healthUrl, bool includeResponseBody, CancellationToken token, AuthenticationHeaderValue? authHeader = null)
+    private async Task<CheckRouteResult> CheckHttp(CheckRouteUrl checkRouteUrl, bool includeResponseBody, CancellationToken token)
     {
-        var checkRouteResult = new CheckRouteResult(healthUrl.Name, $"{healthUrl.Method} {healthUrl.Url}", healthUrl.CheckType, string.Empty, TimeSpan.Zero);
+        var checkRouteResult = new CheckRouteResult(checkRouteUrl.Name, $"{checkRouteUrl.Method} {checkRouteUrl.Url}", checkRouteUrl.CheckType, string.Empty, TimeSpan.Zero);
         var stopwatch = new Stopwatch();
-
+    
         try
         {
-            logger.Information("Start checking HTTP request for {Url}", healthUrl.Url);
+            logger.Information("Start checking HTTP request for {Url}", checkRouteUrl.Url);
             var client = clientFactory.CreateClient(Proxy.ProxyClientWithoutRetry);
-            var request = new HttpRequestMessage(new HttpMethod(healthUrl.Method), healthUrl.Url);
-            if (authHeader != null) request.Headers.Authorization = authHeader;
+            var request = new HttpRequestMessage(new HttpMethod(checkRouteUrl.Method), checkRouteUrl.Url);
             stopwatch.Start();
             var response = await client.SendAsync(request, token);
-            checkRouteResult = checkRouteResult with { ResponseResult = $"{response.StatusCode.ToString()} ({(int)response.StatusCode}){(includeResponseBody ? $"\n{await response.Content.ReadAsStringAsync()}" : string.Empty)}", Elapsed = stopwatch.Elapsed };
+            checkRouteResult = checkRouteResult with { ResponseResult = $"{response.StatusCode.ToString()} ({(int)response.StatusCode}){(includeResponseBody ? $"\n{await response.Content.ReadAsStringAsync(token)}" : string.Empty)}", Elapsed = stopwatch.Elapsed };
         }
         catch (Exception ex)
         {
@@ -60,20 +63,20 @@ public class CheckRoutes(IMessageRoutes messageRoutes, IHttpClientFactory client
         }
         
         stopwatch.Stop();
-        logger.Information("Completed checking HTTP request for {Url} with result {Result}", healthUrl.Url, checkRouteResult.ResponseResult);
+        logger.Information("Completed checking HTTP request for {Url} with result {Result}", checkRouteUrl.Url, checkRouteResult.ResponseResult);
         
         return checkRouteResult;
     }
 
-    private Task<CheckRouteResult> CheckNsLookup(HealthUrl healthUrl, CancellationToken token) => CheckWithProcess(healthUrl.Name, "nslookup", healthUrl.Uri.Host, token);
+    private Task<CheckRouteResult> CheckNsLookup(CheckRouteUrl checkRouteUrl, CancellationToken token) => CheckWithProcess(checkRouteUrl.Name, "nslookup", checkRouteUrl.Uri.Host, token);
 
-    private Task<CheckRouteResult> CheckDig(HealthUrl healthUrl, CancellationToken token) => CheckWithProcess(healthUrl.Name, "dig", healthUrl.Uri.Host, token);
+    private Task<CheckRouteResult> CheckDig(CheckRouteUrl checkRouteUrl, CancellationToken token) => CheckWithProcess(checkRouteUrl.Name, "dig", checkRouteUrl.Uri.Host, token);
 
     private async Task<CheckRouteResult> CheckWithProcess(string name, string processName, string arguments, CancellationToken token)
     {
         var checkRouteResult = new CheckRouteResult(name, arguments, processName, string.Empty, TimeSpan.Zero);
         var stopwatch = new Stopwatch();
-
+    
         try
         {
             logger.Information("Start checking {ProcessName} for {Url}", processName, arguments);
@@ -106,8 +109,8 @@ public class CheckRoutes(IMessageRoutes messageRoutes, IHttpClientFactory client
             UseShellExecute = false,
             CreateNoWindow = true
         });
+        
         using var outputReader = process?.StandardOutput;
-        //using var errorReader = process?.StandardError;
         var readToEnd = outputReader?.ReadToEnd();
         return Task.FromResult($"{readToEnd}".Replace("\r\n", "\n").Replace("\n\n", "\n").Trim(' ', '\n'));
     }

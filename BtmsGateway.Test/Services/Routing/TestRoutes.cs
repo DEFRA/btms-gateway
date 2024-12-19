@@ -8,15 +8,15 @@ public static class TestRoutes
     {
         NamedRoutes = new Dictionary<string, NamedRoute>
         {
-            { "route-1", new NamedRoute { LegacyLinkName = "legacy-link-name-1", BtmsLinkName = "btms-link-name-1", SendRoutedResponseToFork = true, RouteTo = RouteTo.Legacy } },
-            { "route-2", new NamedRoute { LegacyLinkName = "legacy-link-name-2", BtmsLinkName = "btms-link-name-2", SendRoutedResponseToFork = true, RouteTo = RouteTo.Btms } }
+            { "route-1", new NamedRoute { LegacyLinkName = "legacy_link_name_1", BtmsLinkName = "btms_link_name_1", SendRoutedResponseToFork = true, RouteTo = RouteTo.Legacy } },
+            { "route-2", new NamedRoute { LegacyLinkName = "legacy_link_name_2", BtmsLinkName = "btms_link_name_2", SendRoutedResponseToFork = true, RouteTo = RouteTo.Btms } }
         },
         NamedLinks = new Dictionary<string, NamedLink>
         {
-            { "legacy-link-name-1", new NamedLink { Link = "http://legacy-link-url", LinkType = LinkType.Url } },
-            { "legacy-link-name-2", new NamedLink { Link = "legacy-link-queue", LinkType = LinkType.Queue } },
-            { "btms-link-name-1", new NamedLink { Link = "btms-link-queue", LinkType = LinkType.Queue } },
-            { "btms-link-name-2", new NamedLink { Link = "http://btms-link-url", LinkType = LinkType.Url } },
+            { "legacy_link_name_1", new NamedLink { Link = "http://legacy-link-url", LinkType = LinkType.Url } },
+            { "legacy_link_name_2", new NamedLink { Link = "legacy-link-queue", LinkType = LinkType.Queue } },
+            { "btms_link_name_1", new NamedLink { Link = "btms-link-queue", LinkType = LinkType.Queue } },
+            { "btms_link_name_2", new NamedLink { Link = "http://btms-link-url", LinkType = LinkType.Url } },
         }
     };
     
@@ -24,11 +24,11 @@ public static class TestRoutes
     {
         NamedRoutes = new Dictionary<string, NamedRoute>
         {
-            { "route-1", new NamedRoute { LegacyLinkName = "link-name-1", BtmsLinkName = "link-name-1", SendRoutedResponseToFork = true, RouteTo = RouteTo.Legacy } }
+            { "route-1", new NamedRoute { LegacyLinkName = "link_name_1", BtmsLinkName = "link_name_1", SendRoutedResponseToFork = true, RouteTo = RouteTo.Legacy } }
         },
         NamedLinks = new Dictionary<string, NamedLink>
         {
-            { "link-name-1", new NamedLink { Link = "link-url", LinkType = LinkType.Url } }
+            { "link_name_1", new NamedLink { Link = "link-url", LinkType = LinkType.Url } }
         }
     };
     
@@ -36,11 +36,11 @@ public static class TestRoutes
     {
         NamedRoutes = new Dictionary<string, NamedRoute>
         {
-            { "route-1", new NamedRoute { LegacyLinkName = "link-name-1", BtmsLinkName = "link-name-1", SendRoutedResponseToFork = true, RouteTo = (RouteTo)99 } }
+            { "route-1", new NamedRoute { LegacyLinkName = "link_name_1", BtmsLinkName = "link_name_1", SendRoutedResponseToFork = true, RouteTo = (RouteTo)99 } }
         },
         NamedLinks = new Dictionary<string, NamedLink>
         {
-            { "link-name-1", new NamedLink { Link = "http://link-url", LinkType = LinkType.Url } }
+            { "link_name_1", new NamedLink { Link = "http://link-url", LinkType = LinkType.Url } }
         }
     };
     
@@ -48,11 +48,11 @@ public static class TestRoutes
     {
         NamedRoutes = new Dictionary<string, NamedRoute>
         {
-            { "route-1", new NamedRoute { LegacyLinkName = "link-name-1", BtmsLinkName = "link-name-1", SendRoutedResponseToFork = true, RouteTo = RouteTo.Legacy } }
+            { "route-1", new NamedRoute { LegacyLinkName = "link_name_1", BtmsLinkName = "link_name_1", SendRoutedResponseToFork = true, RouteTo = RouteTo.Legacy } }
         },
         NamedLinks = new Dictionary<string, NamedLink>
         {
-            { "link-name-1", new NamedLink { Link = "http://link-url", LinkType = (LinkType)99 } }
+            { "link_name_1", new NamedLink { Link = "http://link-url", LinkType = (LinkType)99 } }
         }
     };
 }

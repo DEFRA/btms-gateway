@@ -13,6 +13,9 @@ public class MessageData
 {
     public const string CorrelationIdHeaderName = "X-Correlation-ID";
     public const string RequestedPathHeaderName = "x-requested-path";
+    
+    private static readonly Dictionary<string, string> KnownArrays = new() { { "Item", "Items" }, { "Document", "Documents" }, { "Check", "Checks" } };
+
 
     public string CorrelationId { get; }
     public string OriginalContentAsString { get; }
@@ -63,7 +66,7 @@ public class MessageData
     public HttpRequestMessage CreateForwardingRequestAsJson(string? routeUrl)
     {
         return OriginalContentType is MediaTypeNames.Application.Xml or MediaTypeNames.Application.Soap 
-            ? CreateForwardingRequest(routeUrl, string.IsNullOrWhiteSpace(OriginalContentAsString) ? string.Empty : XmlToJsonConverter.Convert(OriginalContentAsString), MediaTypeNames.Application.Json) 
+            ? CreateForwardingRequest(routeUrl, string.IsNullOrWhiteSpace(OriginalContentAsString) ? string.Empty : XmlToJsonConverter.Convert(OriginalContentAsString, KnownArrays), MediaTypeNames.Application.Json) 
             : CreateForwardingRequestAsOriginal(routeUrl);
     }
 

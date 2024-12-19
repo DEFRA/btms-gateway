@@ -29,6 +29,7 @@ public class CheckRoutes(IMessageRoutes messageRoutes, IHttpClientFactory client
         var checks = new List<Task<CheckRouteResult>>
         {
             CheckHttp(healthUrl, false, cts.Token),
+            CheckPing(healthUrl, cts.Token),
             CheckNsLookup(healthUrl, cts.Token),
             CheckDig(healthUrl, cts.Token)
         };
@@ -64,6 +65,8 @@ public class CheckRoutes(IMessageRoutes messageRoutes, IHttpClientFactory client
         
         return checkRouteResult;
     }
+
+    private Task<CheckRouteResult> CheckPing(HealthUrl healthUrl, CancellationToken token) => CheckWithProcess(healthUrl.Name, "ping", $"-w 5 -c 3 {healthUrl.Uri.Host}", token);
 
     private Task<CheckRouteResult> CheckNsLookup(HealthUrl healthUrl, CancellationToken token) => CheckWithProcess(healthUrl.Name, "nslookup", healthUrl.Uri.Host, token);
 

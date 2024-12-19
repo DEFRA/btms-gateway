@@ -9,6 +9,7 @@ EXPOSE 443
 RUN apt update && \
     apt install curl -y && \
     apt install dnsutils -y && \
+    apt install iputils-ping -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* 
 
@@ -31,6 +32,6 @@ ENV ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-COPY --chmod=+x BtmsGateway/run.sh /run.sh
+COPY --chmod=+x run.sh /run.sh
 EXPOSE 8085
 ENTRYPOINT ["/bin/bash", "/run.sh"]

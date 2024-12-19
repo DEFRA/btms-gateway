@@ -7,11 +7,11 @@ public static class XmlToJsonConverter
 {
     private static readonly JsonSerializerOptions JsonSerializerOptions = new() { WriteIndented = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase, DictionaryKeyPolicy = JsonNamingPolicy.CamelCase };
 
-    public static string Convert(string xml, Dictionary<string, string>? knownArrays = null)
+    public static string Convert(string xml, Dictionary<string, string> knownArrays)
     {
         var xDocument = Validate(xml);
         var jsonObject = new Dictionary<string, object>();
-        ConvertElementToDictionary(xDocument, jsonObject, knownArrays ?? []);
+        ConvertElementToDictionary(xDocument, jsonObject, knownArrays);
 
         return JsonSerializer.Serialize(jsonObject, JsonSerializerOptions);
     }

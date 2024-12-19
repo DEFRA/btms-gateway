@@ -66,7 +66,7 @@ public class CheckRoutes(IMessageRoutes messageRoutes, IHttpClientFactory client
         return checkRouteResult;
     }
 
-    private Task<CheckRouteResult> CheckPing(HealthUrl healthUrl, CancellationToken token) => CheckWithProcess(healthUrl.Name, "ping", $"-w 5 -c 3 {healthUrl.Uri.Host}", token);
+    private Task<CheckRouteResult> CheckPing(HealthUrl healthUrl, CancellationToken token) => CheckWithProcess(healthUrl.Name, "ping", $"-w 3 {healthUrl.Uri.Host}", token);
 
     private Task<CheckRouteResult> CheckNsLookup(HealthUrl healthUrl, CancellationToken token) => CheckWithProcess(healthUrl.Name, "nslookup", healthUrl.Uri.Host, token);
 

@@ -17,14 +17,14 @@ public class Metrics(MetricsHost metricsHost)
             { "correlation-id", messageData.CorrelationId },
             { "originating-url", messageData.Url },
             { "method", messageData.Method },
-            { "content-type", messageData.ContentType },
+            { "content-type", messageData.OriginalContentType },
             { "path", messageData.Path },
             { "ched-type", messageData.ContentMap.ChedType },
             { "country-code", messageData.ContentMap.CountryCode },
             { "route-name", routingResult.RouteName },
             { "route-found", routingResult.RouteFound },
             { "routing-successful", routingResult.RoutingSuccessful },
-            { "forward-url", routingResult.RouteUrl },
+            { "forward-url", routingResult.FullRouteLink },
             { "status-code", routingResult.StatusCode }
         };
     }

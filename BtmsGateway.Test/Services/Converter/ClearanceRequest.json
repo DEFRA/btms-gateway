@@ -1,0 +1,72 @@
+{
+  "envelope": {
+    "header": {
+      "security": {
+        "usernameToken": {
+          "username": "username",
+          "password": "password"
+        }
+      }
+    },
+    "body": {
+      "alvsClearanceRequest": {
+        "serviceHeader": {
+          "sourceSystem": "CDS",
+          "destinationSystem": "ALVS",
+          "correlationId": 1.2345678901234568E+18,
+          "serviceCallTimestamp": "2008-01-01T12:12:12.123"
+        },
+        "header": {
+          "entryReference": "18GB01234567890123ABCD",
+          "entryVersionNumber": 4,
+          "previousVersionNumber": 3,
+          "declarationUCR": "GB123456789000-12345",
+          "declarationPartNumber": 3,
+          "declarationType": "S",
+          "arrivalDateTime": 201804191451,
+          "submitterTURN": 987654321000,
+          "declarantId": "GB192837465000",
+          "declarantName": "A. Nother Trader",
+          "dispatchCountryCode": "US",
+          "goodsLocationCode": "GBLHRABC",
+          "masterUCR": "A:ABC123456789"
+        },
+        "items": [
+          {
+            "itemNumber": 1,
+            "customsProcedureCode": 4000000,
+            "taricCommodityCode": 1604142100,
+            "goodsDescription": "Tuna in Veg Oil",
+            "consigneeId": "GB906572504502854",
+            "consigneeName": "Consignee Name",
+            "itemNetMass": 50.01,
+            "itemSupplementaryUnits": 10,
+            "itemThirdQuantity": 50.01,
+            "itemOriginCountryCode": "US",
+            "documents": [
+              {
+                "documentCode": "N853",
+                "documentReference": "GBCVD2019.0003283",
+                "documentStatus": "AE",
+                "documentControl": "P",
+                "documentQuantity": 2
+              },
+              {
+                "documentCode": "C673",
+                "documentReference": "GBIUUNZL123456789",
+                "documentStatus": "AE",
+                "documentControl": "P"
+              }
+            ],
+            "checks": [
+              {
+                "checkCode": "H224",
+                "departmentCode": "PHA"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

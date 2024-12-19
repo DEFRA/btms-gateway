@@ -30,4 +30,14 @@
   <ItemGroup>
     <ProjectReference Include="..\BtmsGateway\BtmsGateway.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Services\Converter\ClearanceRequest.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Services\Converter\ClearanceRequest.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  
 </Project>

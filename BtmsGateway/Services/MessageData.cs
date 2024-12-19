@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using BtmsGateway.Services.Checking;
+using BtmsGateway.Services.Converter;
 using BtmsGateway.Services.Routing;
 using ILogger = Serilog.ILogger;
 
@@ -14,12 +15,12 @@ public class MessageData
     public const string RequestedPathHeaderName = "x-requested-path";
 
     public string CorrelationId { get; }
-    public string ContentAsString { get; }
+    public string OriginalContentAsString { get; }
     public string HttpString { get; }
     public string Url { get; }
     public string Path { get; }
     public string Method { get; }
-    public string ContentType { get; }
+    public string OriginalContentType { get; }
     public ContentMap ContentMap { get; }
 
     private readonly ILogger _logger;
@@ -36,14 +37,14 @@ public class MessageData
         _logger = logger;
         try
         {
-            ContentAsString = contentAsString;
+            OriginalContentAsString = contentAsString;
             ContentMap = new ContentMap(contentAsString);
             Method = request.Method;
             Path = request.Path.HasValue ? request.Path.Value.Trim('/') : string.Empty;
-            ContentType = RetrieveContentType(request);
+            OriginalContentType = RetrieveContentType(request);
             _headers = request.Headers;
             Url = $"{request.Scheme}://{request.Host}{request.Path}{request.QueryString}";
-            HttpString = $"{request.Protocol} {Method} {Url} {ContentType}";       
+            HttpString = $"{request.Protocol} {Method} {Url} {OriginalContentType}";       
             var correlationId = _headers[CorrelationIdHeaderName].FirstOrDefault();
             CorrelationId = string.IsNullOrWhiteSpace(correlationId) ? Guid.NewGuid().ToString("D") : correlationId;
         }
@@ -59,7 +60,19 @@ public class MessageData
                                                 || Path.StartsWith("swagger", StringComparison.CurrentCultureIgnoreCase)
                                                 || Path.StartsWith(CheckRoutesEndpoints.Path, StringComparison.CurrentCultureIgnoreCase)));
 
-    public HttpRequestMessage CreateForwardingRequest(string? routeUrl)
+    public HttpRequestMessage CreateForwardingRequestAsJson(string? routeUrl)
+    {
+        return OriginalContentType is MediaTypeNames.Application.Xml or MediaTypeNames.Application.Soap 
+            ? CreateForwardingRequest(routeUrl, string.IsNullOrWhiteSpace(OriginalContentAsString) ? string.Empty : XmlToJsonConverter.Convert(OriginalContentAsString), MediaTypeNames.Application.Json) 
+            : CreateForwardingRequestAsOriginal(routeUrl);
+    }
+
+    public HttpRequestMessage CreateForwardingRequestAsOriginal(string? routeUrl)
+    {
+        return CreateForwardingRequest(routeUrl, OriginalContentAsString, OriginalContentType);
+    }
+
+    private HttpRequestMessage CreateForwardingRequest(string? routeUrl, string contentAsString, string contentType)
     {
         try
         {
@@ -68,9 +81,9 @@ public class MessageData
                 request.Headers.Add(header.Key, header.Value.ToArray());
             request.Headers.Add(CorrelationIdHeaderName, CorrelationId);
         
-            request.Content = ContentType == MediaTypeNames.Application.Json 
-                ? JsonContent.Create(JsonNode.Parse(string.IsNullOrWhiteSpace(ContentAsString) ? "{}" : ContentAsString)) 
-                : new StringContent(ContentAsString, Encoding.UTF8, ContentType);
+            request.Content = contentType == MediaTypeNames.Application.Json 
+                ? JsonContent.Create(JsonNode.Parse(string.IsNullOrWhiteSpace(contentAsString) ? "{}" : contentAsString)) 
+                : new StringContent(contentAsString, Encoding.UTF8, contentType);
 
             return request;
         }
@@ -86,10 +99,10 @@ public class MessageData
         try
         {
             response.StatusCode = (int)routingResult.StatusCode;
-            response.ContentType = ContentType;
+            response.ContentType = OriginalContentType;
             response.Headers.Date = (routingResult.ResponseDate ?? DateTimeOffset.Now).ToString("R");
             response.Headers[CorrelationIdHeaderName] = CorrelationId;
-            response.Headers[RequestedPathHeaderName] = routingResult.RouteUrlPath;
+            response.Headers[RequestedPathHeaderName] = routingResult.UrlPath;
             if (routingResult.ResponseContent != null)
                 await response.BodyWriter.WriteAsync(new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes(routingResult.ResponseContent)));
         }

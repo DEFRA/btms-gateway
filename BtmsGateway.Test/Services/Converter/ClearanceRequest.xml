@@ -1,68 +1,142 @@
-<?xml version="1.0" encoding="utf-8"?>
-<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" 
-               xmlns:oas="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"
-               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-               xsi:schemaLocation="http://submitimportdocumenthmrcfacade.types.esb.ws.cara.defra.comfile:///C:/mdg-dev/DEC32/SubmitImportDocumentHMRCFacade.xsd">
-    <soap:Header>
-        <oas:Security soap:role="system" soap:mustUnderstand="true">
-            <oas:UsernameToken>
-                <oas:Username>username</oas:Username>
-                <oas:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText">password</oas:Password>
-            </oas:UsernameToken>
-        </oas:Security>
-    </soap:Header>
-    <soap:Body>
-        <ns:ALVSClearanceRequest xmlns:ns="http://submitimportdocumenthmrcfacade.types.esb.ws.cara.defra.com">
-            <ns:ServiceHeader>
-                <ns:SourceSystem>CDS</ns:SourceSystem>
-                <ns:DestinationSystem>ALVS</ns:DestinationSystem>
-                <ns:CorrelationId>1234567890123456789</ns:CorrelationId>
-                <ns:ServiceCallTimestamp>2008-01-01T12:12:12.123</ns:ServiceCallTimestamp>
-            </ns:ServiceHeader>
-            <ns:Header>
-                <ns:EntryReference>18GB01234567890123ABCD</ns:EntryReference>
-                <ns:EntryVersionNumber>4</ns:EntryVersionNumber>
-                <ns:PreviousVersionNumber>3</ns:PreviousVersionNumber>
-                <ns:DeclarationUCR>GB123456789000-12345</ns:DeclarationUCR>
-                <ns:DeclarationPartNumber>003</ns:DeclarationPartNumber>
-                <ns:DeclarationType>S</ns:DeclarationType>
-                <ns:ArrivalDateTime>201804191451</ns:ArrivalDateTime>
-                <ns:SubmitterTURN>987654321000</ns:SubmitterTURN>
-                <ns:DeclarantId>GB192837465000</ns:DeclarantId>
-                <ns:DeclarantName>A. Nother Trader</ns:DeclarantName>
-                <ns:DispatchCountryCode>US</ns:DispatchCountryCode>
-                <ns:GoodsLocationCode>GBLHRABC</ns:GoodsLocationCode>
-                <ns:MasterUCR>A:ABC123456789</ns:MasterUCR>
-            </ns:Header>
-            <ns:Item>
-                <ns:ItemNumber>1</ns:ItemNumber>
-                <ns:CustomsProcedureCode>4000000</ns:CustomsProcedureCode>
-                <ns:TaricCommodityCode>1604142100</ns:TaricCommodityCode>
-                <ns:GoodsDescription>Tuna in Veg Oil</ns:GoodsDescription>
-                <ns:ConsigneeId>GB906572504502854</ns:ConsigneeId>
-                <ns:ConsigneeName>Consignee Name</ns:ConsigneeName>
-                <ns:ItemNetMass>50.01</ns:ItemNetMass>
-                <ns:ItemSupplementaryUnits>10.0</ns:ItemSupplementaryUnits>
-                <ns:ItemThirdQuantity>50.01</ns:ItemThirdQuantity>
-                <ns:ItemOriginCountryCode>US</ns:ItemOriginCountryCode>
-                <ns:Document>
-                    <ns:DocumentCode>N853</ns:DocumentCode>
-                    <ns:DocumentReference>GBCVD2019.0003283</ns:DocumentReference>
-                    <ns:DocumentStatus>AE</ns:DocumentStatus>
-                    <ns:DocumentControl>P</ns:DocumentControl>
-                    <ns:DocumentQuantity>2</ns:DocumentQuantity>
-                </ns:Document>
-                <ns:Document>
-                    <ns:DocumentCode>C673</ns:DocumentCode>
-                    <ns:DocumentReference>GBIUUNZL123456789</ns:DocumentReference>
-                    <ns:DocumentStatus>AE</ns:DocumentStatus>
-                    <ns:DocumentControl>P</ns:DocumentControl>
-                </ns:Document>
-                <ns:Check>
-                    <ns:CheckCode>H224</ns:CheckCode>
-                    <ns:DepartmentCode>PHA</ns:DepartmentCode>
-                </ns:Check>
-            </ns:Item>
-        </ns:ALVSClearanceRequest>
-    </soap:Body>
-</soap:Envelope>
+<?xml version="1.0" encoding="UTF-8"?>
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:oas="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+  <soap:Header>
+    <oas:Security soap:role="system" soap:mustUnderstand="true">
+      <oas:UsernameToken>
+        <oas:Username>systemID=ALVSHMRCCDS,ou=gsi systems,o=defra</oas:Username>
+        <oas:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText">th3Ups1d3D0wn</oas:Password>
+      </oas:UsernameToken>
+    </oas:Security>
+  </soap:Header>
+  <soap:Body>
+    <m:ALVSClearanceRequest xmlns:m="http://submitimportdocumenthmrcfacade.types.esb.ws.cara.defra.com">
+      <m:ServiceHeader>
+        <m:SourceSystem>CDS</m:SourceSystem>
+        <m:DestinationSystem>ALVS</m:DestinationSystem>
+        <m:CorrelationId>179120009100989</m:CorrelationId>
+        <m:ServiceCallTimestamp>2013-10-18T16:55:00.000</m:ServiceCallTimestamp>
+      </m:ServiceHeader>
+      <m:Header>
+        <m:EntryReference>24DSW01TST9009AR63</m:EntryReference>
+        <m:EntryVersionNumber>1</m:EntryVersionNumber>
+        <m:DeclarationUCR>4DP99000000000-TST63</m:DeclarationUCR>
+        <m:DeclarationType>S</m:DeclarationType>
+        <m:ArrivalDateTime>201310220900</m:ArrivalDateTime>
+        <m:SubmitterTURN>123456789012345</m:SubmitterTURN>
+        <m:DeclarantId>GBTRANSITAIR</m:DeclarantId>
+        <m:DeclarantName>TRANSITAIR.GB</m:DeclarantName>
+        <m:DispatchCountryCode>GB</m:DispatchCountryCode>
+        <m:GoodsLocationCode>BELBELBEL</m:GoodsLocationCode>
+        <m:MasterUCR>GB/TRANSITAIR-01</m:MasterUCR>
+      </m:Header>
+      <m:Item>
+        <m:ItemNumber>1</m:ItemNumber>
+        <m:CustomsProcedureCode>4000061</m:CustomsProcedureCode>
+        <m:TaricCommodityCode>0808108010</m:TaricCommodityCode>
+        <m:GoodsDescription>Test Test</m:GoodsDescription>
+        <m:ConsigneeId>NIIMPORTS</m:ConsigneeId>
+        <m:ConsigneeName>Importers Ltd</m:ConsigneeName>
+        <m:ItemNetMass>31</m:ItemNetMass>
+        <m:ItemSupplementaryUnits>0</m:ItemSupplementaryUnits>
+        <m:ItemThirdQuantity>0</m:ItemThirdQuantity>
+        <m:ItemOriginCountryCode>GB</m:ItemOriginCountryCode>
+        <m:Document>
+          <m:DocumentCode>N851</m:DocumentCode>
+          <m:DocumentReference>GBCHD2024.7360439</m:DocumentReference>
+          <m:DocumentStatus>St</m:DocumentStatus>
+          <m:DocumentControl>S</m:DocumentControl>
+        </m:Document>
+        <m:Check>
+          <m:CheckCode>H219</m:CheckCode>
+          <m:DepartmentCode>PHSI</m:DepartmentCode>
+        </m:Check>
+      </m:Item>
+      <m:Item>
+        <m:ItemNumber>2</m:ItemNumber>
+        <m:CustomsProcedureCode>4000061</m:CustomsProcedureCode>
+        <m:TaricCommodityCode>0808108010</m:TaricCommodityCode>
+        <m:GoodsDescription>Test Test</m:GoodsDescription>
+        <m:ConsigneeId>NIIMPORTS</m:ConsigneeId>
+        <m:ConsigneeName>Importers Ltd</m:ConsigneeName>
+        <m:ItemNetMass>11</m:ItemNetMass>
+        <m:ItemSupplementaryUnits>0</m:ItemSupplementaryUnits>
+        <m:ItemThirdQuantity>0</m:ItemThirdQuantity>
+        <m:ItemOriginCountryCode>GB</m:ItemOriginCountryCode>
+        <m:Document>
+          <m:DocumentCode>N851</m:DocumentCode>
+          <m:DocumentReference>GBCHD2024.7360439</m:DocumentReference>
+          <m:DocumentStatus>St</m:DocumentStatus>
+          <m:DocumentControl>S</m:DocumentControl>
+        </m:Document>
+        <m:Check>
+          <m:CheckCode>H219</m:CheckCode>
+          <m:DepartmentCode>PHSI</m:DepartmentCode>
+        </m:Check>
+      </m:Item>
+      <m:Item>
+        <m:ItemNumber>3</m:ItemNumber>
+        <m:CustomsProcedureCode>4000061</m:CustomsProcedureCode>
+        <m:TaricCommodityCode>0709601000</m:TaricCommodityCode>
+        <m:GoodsDescription>Test Test</m:GoodsDescription>
+        <m:ConsigneeId>NIIMPORTS</m:ConsigneeId>
+        <m:ConsigneeName>Importers Ltd</m:ConsigneeName>
+        <m:ItemNetMass>43</m:ItemNetMass>
+        <m:ItemSupplementaryUnits>0</m:ItemSupplementaryUnits>
+        <m:ItemThirdQuantity>0</m:ItemThirdQuantity>
+        <m:ItemOriginCountryCode>GB</m:ItemOriginCountryCode>
+        <m:Document>
+          <m:DocumentCode>N851</m:DocumentCode>
+          <m:DocumentReference>GBCHD2024.7360439</m:DocumentReference>
+          <m:DocumentStatus>St</m:DocumentStatus>
+          <m:DocumentControl>S</m:DocumentControl>
+        </m:Document>
+        <m:Document>
+          <m:DocumentCode>N002</m:DocumentCode>
+          <m:DocumentReference>GBCHD2024.7360439</m:DocumentReference>
+          <m:DocumentStatus>St</m:DocumentStatus>
+          <m:DocumentControl>S</m:DocumentControl>
+        </m:Document>
+        <m:Check>
+          <m:CheckCode>H219</m:CheckCode>
+          <m:DepartmentCode>PHSI</m:DepartmentCode>
+        </m:Check>
+        <m:Check>
+          <m:CheckCode>H218</m:CheckCode>
+          <m:DepartmentCode>HMI</m:DepartmentCode>
+        </m:Check>
+      </m:Item>
+      <m:Item>
+        <m:ItemNumber>4</m:ItemNumber>
+        <m:CustomsProcedureCode>4000061</m:CustomsProcedureCode>
+        <m:TaricCommodityCode>0709601000</m:TaricCommodityCode>
+        <m:GoodsDescription>Test Test</m:GoodsDescription>
+        <m:ConsigneeId>NIIMPORTS</m:ConsigneeId>
+        <m:ConsigneeName>Importers Ltd</m:ConsigneeName>
+        <m:ItemNetMass>22</m:ItemNetMass>
+        <m:ItemSupplementaryUnits>0</m:ItemSupplementaryUnits>
+        <m:ItemThirdQuantity>0</m:ItemThirdQuantity>
+        <m:ItemOriginCountryCode>GB</m:ItemOriginCountryCode>
+        <m:Document>
+          <m:DocumentCode>N851</m:DocumentCode>
+          <m:DocumentReference>GBCHD2024.7360439</m:DocumentReference>
+          <m:DocumentStatus>St</m:DocumentStatus>
+          <m:DocumentControl>S</m:DocumentControl>
+        </m:Document>
+        <m:Document>
+          <m:DocumentCode>N002</m:DocumentCode>
+          <m:DocumentReference>GBCHD2024.7360439</m:DocumentReference>
+          <m:DocumentStatus>St</m:DocumentStatus>
+          <m:DocumentControl>S</m:DocumentControl>
+        </m:Document>
+        <m:Check>
+          <m:CheckCode>H219</m:CheckCode>
+          <m:DepartmentCode>PHSI</m:DepartmentCode>
+        </m:Check>
+        <m:Check>
+          <m:CheckCode>H218</m:CheckCode>
+          <m:DepartmentCode>HMI</m:DepartmentCode>
+        </m:Check>
+      </m:Item>
+    </m:ALVSClearanceRequest>
+  </soap:Body>
+</soap:Envelope> 

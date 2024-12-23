@@ -3,8 +3,8 @@
     "header": {
       "security": {
         "usernameToken": {
-          "username": "systemID=ALVSHMRCCDS,ou=gsi systems,o=defra",
-          "password": "th3Ups1d3D0wn"
+          "username": "username",
+          "password": "password"
         }
       }
     },

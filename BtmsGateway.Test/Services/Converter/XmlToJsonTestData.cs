@@ -64,6 +64,10 @@ public class XmlToJsonTestData : TheoryData<string, string, string>
                                                                 <Tag3>dataC</Tag3>
                                                                 <Tag4>777</Tag4>
                                                               </List>
+                                                              <AnotherList>
+                                                                <Tag1>dataD</Tag1>
+                                                                <Tag2>dataE</Tag2>
+                                                              </AnotherList>
                                                               <List>
                                                                 <Tag3>dataD</Tag3>
                                                                 <Tag4>888</Tag4>
@@ -173,6 +177,12 @@ public class XmlToJsonTestData : TheoryData<string, string, string>
                                                                      {
                                                                        "tag3": "dataD",
                                                                        "tag4": 888
+                                                                     }
+                                                                   ],
+                                                                   "anotherLists": [
+                                                                     {
+                                                                       "tag1": "dataD",
+                                                                       "tag2": "dataE"
                                                                      }
                                                                    ]
                                                                  }

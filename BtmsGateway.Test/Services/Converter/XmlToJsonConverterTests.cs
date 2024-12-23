@@ -20,7 +20,7 @@ public class XmlToJsonConverterTests
     [ClassData(typeof(XmlToJsonTestData))]
     public void When_receiving_valid_xml_Then_should_convert_to_json(string because, string xml, string expectedJson)
     {
-        var knownArrays = new Dictionary<string, string> { { "Array", "Arrays" }, { "List", "Lists" } };
+        var knownArrays = new Dictionary<string, string> { { "Array", "Arrays" }, { "List", "Lists" }, { "AnotherList", "AnotherLists" } };
         XmlToJsonConverter.Convert(xml, knownArrays).Should().Be(expectedJson, because);
     }
 

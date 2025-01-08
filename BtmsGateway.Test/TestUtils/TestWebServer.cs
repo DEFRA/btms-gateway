@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using NSubstitute;
 
-namespace BtmsGateway.Test.Utils;
+namespace BtmsGateway.Test.TestUtils;
 
 public class TestWebServer : IAsyncDisposable
 {

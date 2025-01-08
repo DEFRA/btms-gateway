@@ -1,4 +1,4 @@
-namespace BtmsGateway.Test.Utils;
+namespace BtmsGateway.Test.TestUtils;
 
 public static class Extensions
 {

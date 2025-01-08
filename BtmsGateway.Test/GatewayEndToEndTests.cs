@@ -1,9 +1,9 @@
 using System.Net;
 using System.Net.Mime;
 using System.Text;
-using BtmsGateway.Test.Utils;
 using BtmsGateway.Services;
 using BtmsGateway.Services.Routing;
+using BtmsGateway.Test.TestUtils;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 

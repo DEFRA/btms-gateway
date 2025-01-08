@@ -11,6 +11,7 @@ namespace BtmsGateway.Test;
 
 public class GatewayEndToEndTests : IAsyncDisposable
 {
+    private static readonly TimeSpan WaitTime = TimeSpan.FromSeconds(5);
     private const string XmlContent = "<xml>Content</xml>";
     private const string JsonContent = "{\"xml\":\"Content\"}";
     private const string RouteName = "alvs-ipaffs";
@@ -60,7 +61,7 @@ public class GatewayEndToEndTests : IAsyncDisposable
     public async Task When_routing_request_Then_should_respond_from_routed_request()
     {
         var response = await _httpClient.PostAsync(FullPath, _stringContent);
-        _testMessageFork.HasForked.WaitOne();
+        _testMessageFork.HasForked.WaitOne(WaitTime).Should().BeTrue("Failed to respond in time");
         
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         response.Content.Headers.ContentType?.ToString().Should().Be(MediaTypeNames.Application.Xml);
@@ -74,7 +75,7 @@ public class GatewayEndToEndTests : IAsyncDisposable
     public async Task When_routing_routed_request_Then_should_route_correctly()
     {
         await _httpClient.PostAsync(FullPath, _stringContent);
-        _testMessageFork.HasForked.WaitOne();
+        _testMessageFork.HasForked.WaitOne(WaitTime).Should().BeTrue("Failed to respond in time");
 
         var request = _httpHandler.Requests[_expectedRoutedUrl];
         request?.RequestUri?.ToString().Should().Be(_expectedRoutedUrl);
@@ -97,7 +98,7 @@ public class GatewayEndToEndTests : IAsyncDisposable
     public async Task When_routing_forked_request_Then_should_route_correctly()
     {
         await _httpClient.PostAsync(FullPath, _stringContent);
-        _testMessageFork.HasForked.WaitOne();
+        _testMessageFork.HasForked.WaitOne(WaitTime).Should().BeTrue("Failed to respond in time");
 
         var request = _httpHandler.Requests[_expectedForkedUrl];
         request?.RequestUri?.ToString().Should().Be(_expectedForkedUrl);
@@ -123,7 +124,7 @@ public class GatewayEndToEndTests : IAsyncDisposable
         _testWebServer.OutboundTestHttpHandler.SetResponseStatusCode(_expectedRoutedUrl, () => HttpStatusCode.Accepted);
         
         var response = await _httpClient.PostAsync(FullPath, _stringContent);
-        _testMessageFork.HasForked.WaitOne();
+        _testMessageFork.HasForked.WaitOne(WaitTime).Should().BeTrue("Failed to respond in time");
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
     }
@@ -134,7 +135,7 @@ public class GatewayEndToEndTests : IAsyncDisposable
         _testWebServer.OutboundTestHttpHandler.SetResponseStatusCode(_expectedRoutedUrl, () => HttpStatusCode.NoContent);
         
         var response = await _httpClient.PostAsync(FullPath, null);
-        _testMessageFork.HasForked.WaitOne();
+        _testMessageFork.HasForked.WaitOne(WaitTime).Should().BeTrue("Failed to respond in time");
 
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
     }
@@ -146,7 +147,7 @@ public class GatewayEndToEndTests : IAsyncDisposable
         _testWebServer.OutboundTestHttpHandler.SetResponseStatusCode(_expectedRoutedUrl, () => ++callNum == 1 ? HttpStatusCode.BadGateway : HttpStatusCode.OK);
         
         var response = await _httpClient.PostAsync(FullPath, _stringContent);
-        _testMessageFork.HasForked.WaitOne();
+        _testMessageFork.HasForked.WaitOne(WaitTime).Should().BeTrue("Failed to respond in time");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         callNum.Should().Be(2);
@@ -159,7 +160,7 @@ public class GatewayEndToEndTests : IAsyncDisposable
         _testWebServer.OutboundTestHttpHandler.SetResponseStatusCode(_expectedForkedUrl, () => ++callNum == 1 ? HttpStatusCode.BadGateway : HttpStatusCode.OK);
         
         var response = await _httpClient.PostAsync(FullPath, _stringContent);
-        _testMessageFork.HasForked.WaitOne();
+        _testMessageFork.HasForked.WaitOne(WaitTime).Should().BeTrue("Failed to respond in time");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         callNum.Should().Be(2);

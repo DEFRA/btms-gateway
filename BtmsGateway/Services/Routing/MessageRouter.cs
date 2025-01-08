@@ -28,7 +28,7 @@ public class MessageRouter(IHttpClientFactory clientFactory, IMessageRoutes mess
             
             metrics.StartRoutedRequest();
             var response = await client.SendAsync(request);
-            var content = await response.Content.ReadAsStringAsync();
+            var content = response.StatusCode == HttpStatusCode.NoContent ? null : await response.Content.ReadAsStringAsync();
             metrics.RecordRoutedRequest();
             
             return routingResult with { RoutingSuccessful = response.IsSuccessStatusCode, ResponseContent = content, StatusCode = response.StatusCode, ResponseDate = response.Headers.Date };
@@ -55,7 +55,7 @@ public class MessageRouter(IHttpClientFactory clientFactory, IMessageRoutes mess
             
             metrics.StartForkedRequest();
             var response = await client.SendAsync(request);
-            var content = await response.Content.ReadAsStringAsync();
+            var content = response.StatusCode == HttpStatusCode.NoContent ? null : await response.Content.ReadAsStringAsync();
             metrics.RecordForkedRequest();
             
             return routingResult with { RoutingSuccessful = response.IsSuccessStatusCode, ResponseContent = content, StatusCode = response.StatusCode, ResponseDate = response.Headers.Date };

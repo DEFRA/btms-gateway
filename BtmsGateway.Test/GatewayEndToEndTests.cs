@@ -118,6 +118,28 @@ public class GatewayEndToEndTests : IAsyncDisposable
     }
 
     [Fact]
+    public async Task When_routed_request_returns_202_Then_should_succeed()
+    {
+        _testWebServer.OutboundTestHttpHandler.SetResponseStatusCode(_expectedRoutedUrl, () => HttpStatusCode.Accepted);
+        
+        var response = await _httpClient.PostAsync(FullPath, _stringContent);
+        _testMessageFork.HasForked.WaitOne();
+
+        response.StatusCode.Should().Be(HttpStatusCode.Accepted);
+    }
+
+    [Fact]
+    public async Task When_routed_request_returns_204_Then_should_succeed()
+    {
+        _testWebServer.OutboundTestHttpHandler.SetResponseStatusCode(_expectedRoutedUrl, () => HttpStatusCode.NoContent);
+        
+        var response = await _httpClient.PostAsync(FullPath, null);
+        _testMessageFork.HasForked.WaitOne();
+
+        response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+    }
+
+    [Fact]
     public async Task When_routed_request_returns_502_Then_should_retry()
     {
         var callNum = 0;

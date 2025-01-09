@@ -27,7 +27,6 @@ public static class ConfigureWebApp
         
         builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
-        builder.Services.AddSingleton<IMessageForwarded, MessageForwarded>();
         builder.Services.AddSingleton<IMessageRouter, MessageRouter>();
         builder.Services.AddSingleton<IMessageRoutes, MessageRoutes>();
         builder.Services.AddSingleton<CheckRoutes>();

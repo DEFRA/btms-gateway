@@ -4,7 +4,7 @@ using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Services;
 
-public class SoapInterceptorMiddleware(RequestDelegate next, IMessageRouter messageRouter, IMessageForwarded messageForwarded, MetricsHost metricsHost, ILogger logger)
+public class SoapInterceptorMiddleware(RequestDelegate next, IMessageRouter messageRouter, MetricsHost metricsHost, ILogger logger)
 {
     public async Task InvokeAsync(HttpContext context)
     {
@@ -47,7 +47,6 @@ public class SoapInterceptorMiddleware(RequestDelegate next, IMessageRouter mess
         {
             CheckResults(messageData, routingResult, Action);
             await messageData.PopulateResponse(context.Response, routingResult);
-            messageForwarded.Complete(ForwardedTo.Route);
         }
         else
         {
@@ -65,7 +64,6 @@ public class SoapInterceptorMiddleware(RequestDelegate next, IMessageRouter mess
         if (routingResult.RouteFound)
         {
             CheckResults(messageData, routingResult, Action);
-            messageForwarded.Complete(ForwardedTo.Fork);
         }
         else
         {

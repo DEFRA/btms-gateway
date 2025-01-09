@@ -6,12 +6,11 @@ using BtmsGateway.Services.Routing;
 using BtmsGateway.Test.TestUtils;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
-[assembly: CollectionBehavior(DisableTestParallelization = true)]
+
 namespace BtmsGateway.Test.EndToEnd;
 
 public sealed class GeneralEndToEndTests : IAsyncDisposable
 {
-    private static readonly TimeSpan WaitTime = TimeSpan.FromSeconds(5);
     private const string XmlRoutedResponse = "<xml>RoutedResponse</xml>";
     private const string XmlForkedResponse = "<xml>ForkedResponse</xml>";
     private const string XmlContent = "<xml>Content</xml>";
@@ -21,7 +20,6 @@ public sealed class GeneralEndToEndTests : IAsyncDisposable
     private const string FullPath = $"{RouteName}/{SubPath}";
     private const string RoutedPath = $"/{SubPath}";
 
-    private readonly TestMessageForwarded _testMessageForwarded = new();
     private readonly string _headerCorrelationId = Guid.NewGuid().ToString("D");
     private readonly DateTimeOffset _headerDate = DateTimeOffset.UtcNow.AddSeconds(-1).RoundDownToSecond();
     private readonly TestWebServer _testWebServer;
@@ -32,7 +30,7 @@ public sealed class GeneralEndToEndTests : IAsyncDisposable
 
     public GeneralEndToEndTests()
     {
-        _testWebServer = TestWebServer.BuildAndRun(ServiceDescriptor.Singleton<IMessageForwarded>(_testMessageForwarded));
+        _testWebServer = TestWebServer.BuildAndRun();
         _httpClient = _testWebServer.HttpServiceClient;
         _httpClient.DefaultRequestHeaders.Date = _headerDate;
         _httpClient.DefaultRequestHeaders.Add(MessageData.CorrelationIdHeaderName, _headerCorrelationId);
@@ -62,7 +60,6 @@ public sealed class GeneralEndToEndTests : IAsyncDisposable
         _testWebServer.RoutedHttpHandler.SetNextResponse(content: XmlRoutedResponse);
 
         var response = await _httpClient.PostAsync(FullPath, _stringContent);
-        _testMessageForwarded.HasRouted.WaitOne(WaitTime).Should().BeTrue("Failed to route in time");
         
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         response.Content.Headers.ContentType?.ToString().Should().Be(MediaTypeNames.Application.Xml);
@@ -78,7 +75,6 @@ public sealed class GeneralEndToEndTests : IAsyncDisposable
         _testWebServer.RoutedHttpHandler.SetNextResponse(content: XmlRoutedResponse);
 
         await _httpClient.PostAsync(FullPath, _stringContent);
-        _testMessageForwarded.HasRouted.WaitOne(WaitTime).Should().BeTrue("Failed to route in time");
 
         var request = _testWebServer.RoutedHttpHandler.LastRequest;
         request?.RequestUri?.ToString().Should().Be(_expectedRoutedUrl);
@@ -100,7 +96,6 @@ public sealed class GeneralEndToEndTests : IAsyncDisposable
         _testWebServer.ForkedHttpHandler.SetNextResponse(content: XmlForkedResponse);
 
         await _httpClient.PostAsync(FullPath, _stringContent);
-        _testMessageForwarded.HasForked.WaitOne(WaitTime).Should().BeTrue("Failed to fork in time");
 
         var request = _testWebServer.ForkedHttpHandler.LastRequest;
         request?.RequestUri?.ToString().Should().Be(_expectedForkedUrl);
@@ -127,7 +122,6 @@ public sealed class GeneralEndToEndTests : IAsyncDisposable
         _testWebServer.RoutedHttpHandler.SetNextResponse(statusFunc: () => targetStatusCode);
         
         var response = await _httpClient.PostAsync(FullPath, _stringContent);
-        _testMessageForwarded.HasRouted.WaitOne(WaitTime).Should().BeTrue("Failed to route in time");
 
         response.StatusCode.Should().Be(targetStatusCode);
     }
@@ -144,8 +138,6 @@ public sealed class GeneralEndToEndTests : IAsyncDisposable
         
         var response = await _httpClient.PostAsync(FullPath, _stringContent);
         
-        _testMessageForwarded.HasForked.WaitOne(WaitTime).Should().BeTrue("Failed to fork in time");
-
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
@@ -156,7 +148,6 @@ public sealed class GeneralEndToEndTests : IAsyncDisposable
         _testWebServer.RoutedHttpHandler.SetNextResponse(statusFunc: () => ++callNum == 1 ? HttpStatusCode.BadGateway : HttpStatusCode.OK);
         
         var response = await _httpClient.PostAsync(FullPath, _stringContent);
-        _testMessageForwarded.HasRouted.WaitOne(WaitTime).Should().BeTrue("Failed to route in time");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         callNum.Should().Be(2);
@@ -169,8 +160,6 @@ public sealed class GeneralEndToEndTests : IAsyncDisposable
         _testWebServer.ForkedHttpHandler.SetNextResponse(statusFunc: () => ++callNum == 1 ? HttpStatusCode.BadGateway : HttpStatusCode.OK);
         
         var response = await _httpClient.PostAsync(FullPath, _stringContent);
-        
-        _testMessageForwarded.HasForked.WaitOne(WaitTime).Should().BeTrue("Failed to fork in time");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         callNum.Should().Be(2);

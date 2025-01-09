@@ -5,6 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using NSubstitute;
 
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
+
 namespace BtmsGateway.Test.TestUtils;
 
 public class TestWebServer : IAsyncDisposable

@@ -19,8 +19,6 @@ public record NamedRoute
     public required RouteTo RouteTo { get; init; }
 }
 
-public enum RouteTo { Legacy, Btms }
-
 public record NamedLink
 {
     public required string Link { get; init; }
@@ -39,3 +37,5 @@ public record RoutedLink
     public required bool SendLegacyResponseToBtms { get; init; }
     public required RouteTo RouteTo { get; init; }
 }
+
+public enum RouteTo { Legacy, Btms }

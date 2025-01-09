@@ -13,15 +13,15 @@ public class TestWebServer : IAsyncDisposable
     
     private readonly WebApplication _app;
 
-    public TestHttpHandler OutboundTestHttpHandler { get; }
+    public TestHttpHandler RoutedHttpHandler { get; }
+    public TestHttpHandler ForkedHttpHandler { get; }
     public HttpClient HttpServiceClient { get; }
-    public IServiceProvider Services { get; }
+    public IServiceProvider Services => _app.Services;
 
     public static TestWebServer BuildAndRun(params ServiceDescriptor[] testServices) => new(testServices);
 
     private TestWebServer(params ServiceDescriptor[] testServices)
     {
-        OutboundTestHttpHandler = new TestHttpHandler();
         var url = $"http://localhost:{_portNumber}/";
         Interlocked.Increment(ref _portNumber);
         HttpServiceClient = new HttpClient { BaseAddress = new Uri(url) };
@@ -32,10 +32,12 @@ public class TestWebServer : IAsyncDisposable
         foreach (var testService in testServices) builder.Services.Replace(testService);
         builder.ConfigureEndpoints();
 
-        ConfigureWebApp.HttpProxyClientWithRetryBuilder?.AddHttpMessageHandler(() => OutboundTestHttpHandler);
+        RoutedHttpHandler = new TestHttpHandler();
+        ConfigureWebApp.HttpRoutedClientWithRetryBuilder?.AddHttpMessageHandler(() => RoutedHttpHandler);
+        ForkedHttpHandler = new TestHttpHandler();
+        ConfigureWebApp.HttpForkedClientWithRetryBuilder?.AddHttpMessageHandler(() => ForkedHttpHandler);
 
         _app = builder.BuildWebApplication();
-        Services = _app.Services;
         
         _app.RunAsync();
     }

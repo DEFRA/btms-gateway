@@ -44,7 +44,19 @@
     <None Update="EndToEnd\Fixtures\ClearanceRequest.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="EndToEnd\Fixtures\ClearanceRequestResponse.xml">
+    <None Update="EndToEnd\Fixtures\AlvsResponse.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="EndToEnd\Fixtures\FinalisationNotification.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="EndToEnd\Fixtures\FinalisationNotification.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="EndToEnd\Fixtures\AlvsErrorHandling.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="EndToEnd\Fixtures\AlvsErrorHandling.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

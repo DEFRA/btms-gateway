@@ -1,0 +1,1 @@
+{"finalisationNotificationRequest":{"serviceHeader":{"sourceSystem":"CHIEF","destinationSystem":"ALVS","correlationId":1.2345678901234568E+18,"serviceCallTimestamp":"2008-01-01T12:12:12.123"},"header":{"entryReference":"123-123456A-01/01/2008","entryVersionNumber":4,"decisionNumber":3,"finalState":0,"manualAction":"N"}}}

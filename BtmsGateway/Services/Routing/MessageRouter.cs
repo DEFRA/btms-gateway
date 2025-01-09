@@ -1,4 +1,5 @@
 using System.Net;
+using BtmsGateway.Middleware;
 using BtmsGateway.Utils;
 using BtmsGateway.Utils.Http;
 using ILogger = Serilog.ILogger;

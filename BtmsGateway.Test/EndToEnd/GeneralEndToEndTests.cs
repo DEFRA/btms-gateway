@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Mime;
 using System.Text;
-using BtmsGateway.Services;
+using BtmsGateway.Middleware;
 using BtmsGateway.Services.Routing;
 using BtmsGateway.Test.TestUtils;
 using FluentAssertions;

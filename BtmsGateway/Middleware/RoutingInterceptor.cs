@@ -2,9 +2,9 @@ using BtmsGateway.Services.Routing;
 using BtmsGateway.Utils;
 using ILogger = Serilog.ILogger;
 
-namespace BtmsGateway.Services;
+namespace BtmsGateway.Middleware;
 
-public class SoapInterceptorMiddleware(RequestDelegate next, IMessageRouter messageRouter, MetricsHost metricsHost, ILogger logger)
+public class RoutingInterceptor(RequestDelegate next, IMessageRouter messageRouter, MetricsHost metricsHost, ILogger logger)
 {
     public async Task InvokeAsync(HttpContext context)
     {

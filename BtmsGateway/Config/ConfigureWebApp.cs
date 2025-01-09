@@ -1,5 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
-using BtmsGateway.Services;
+using BtmsGateway.Middleware;
 using BtmsGateway.Services.Checking;
 using BtmsGateway.Services.Routing;
 using BtmsGateway.Utils;
@@ -44,7 +44,7 @@ public static class ConfigureWebApp
     {
         var app = builder.Build();
 
-        app.UseMiddleware<SoapInterceptorMiddleware>();
+        app.UseMiddleware<RoutingInterceptor>();
    
         app.MapHealthChecks("/health");
         

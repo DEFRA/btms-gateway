@@ -5,25 +5,25 @@ using FluentAssertions;
 
 namespace BtmsGateway.Test.EndToEnd;
 
-public class AlvsErrorHandlingTests : TargetRoutingTestBase
+public class CdsSourcedErrorHandlingTests : TargetRoutingTestBase
 {
-    private const string OriginalPath = "/alvs-error-handling/path";
+    private const string OriginalPath = "/cds-sourced-error-handling/path";
     private const string GatewayPath = $"/cds{OriginalPath}";
     private const string BtmsPath = $"/forked{OriginalPath}";
     
-    private readonly string _originalRequestSoap = File.ReadAllText(Path.Combine(FixturesPath, "AlvsErrorHandling.xml"));
+    private readonly string _originalRequestSoap = File.ReadAllText(Path.Combine(FixturesPath, "CdsErrorHandling.xml"));
     private readonly string _originalResponseSoap = File.ReadAllText(Path.Combine(FixturesPath, "AlvsResponse.xml"));
-    private readonly string _btmsRequestJson = File.ReadAllText(Path.Combine(FixturesPath, "AlvsErrorHandling.json"));
+    private readonly string _btmsRequestJson = File.ReadAllText(Path.Combine(FixturesPath, "CdsErrorHandling.json"));
     private readonly StringContent _originalRequestSoapContent;
 
-    public AlvsErrorHandlingTests()
+    public CdsSourcedErrorHandlingTests()
     {
         _originalRequestSoapContent = new StringContent(_originalRequestSoap, Encoding.UTF8, MediaTypeNames.Application.Soap);
         TestWebServer.RoutedHttpHandler.SetNextResponse(content: _originalResponseSoap, statusFunc: () => HttpStatusCode.Accepted);
     }
 
     [Fact]
-    public async Task When_receiving_finalisation_notification_from_cds_Then_should_forward_to_alvs()
+    public async Task When_receiving_request_from_cds_Then_should_forward_to_alvs()
     {
         await HttpClient.PostAsync(GatewayPath, _originalRequestSoapContent);
 
@@ -32,7 +32,7 @@ public class AlvsErrorHandlingTests : TargetRoutingTestBase
     }
 
     [Fact]
-    public async Task When_receiving_finalisation_notification_from_cds_Then_should_respond_with_alvs_response()
+    public async Task When_receiving_request_from_cds_Then_should_respond_with_alvs_response()
     {
         var response = await HttpClient.PostAsync(GatewayPath, _originalRequestSoapContent);
 
@@ -41,7 +41,7 @@ public class AlvsErrorHandlingTests : TargetRoutingTestBase
     }
 
     [Fact]
-    public async Task When_receiving_finalisation_notification_from_cds_Then_should_forward_converted_json_to_btms()
+    public async Task When_receiving_request_from_cds_Then_should_forward_converted_json_to_btms()
     {
         await HttpClient.PostAsync(GatewayPath, _originalRequestSoapContent);
 

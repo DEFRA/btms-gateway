@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<NS2:HMRCErrorNotification xmlns:NS2="http://hmrcerror.types.esb.ws.cara.defra.com ">
+    <NS2:ServiceHeader>
+        <NS2:SourceSystem>ALVS</NS2:SourceSystem>
+        <NS2:DestinationSystem>CDS</NS2:DestinationSystem>
+        <NS2:CorrelationId>000</NS2:CorrelationId>
+        <NS2:ServiceCallTimestamp>2023-05-26T10:11:48.629812</NS2:ServiceCallTimestamp>
+    </NS2:ServiceHeader>
+    <NS2:Header>
+        <NS2:SourceCorrelationId>101</NS2:SourceCorrelationId>
+        <NS2:EntryReference>23GB5RQJ3MLPIM6AR8</NS2:EntryReference>
+        <NS2:EntryVersionNumber>1</NS2:EntryVersionNumber>
+    </NS2:Header>
+    <NS2:Error>
+        <NS2:ErrorCode>ALVSVAL325</NS2:ErrorCode>
+        <NS2:ErrorMessage>The Import Declaration was processed as a New Import Declaration. However the DUCR 3GB00-CDS-ALVST2R08 and no Part Number for Owning Department 100 (NB Code 100=HMRC. If any other code, please contact the ALVS support team at IBM) is already known to ALVS as a currently active DUCR / Part Number. Your service request with Correlation ID 238605 has been terminated.</NS2:ErrorMessage>
+    </NS2:Error>
+</NS2:HMRCErrorNotification>

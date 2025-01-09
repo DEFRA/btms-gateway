@@ -59,6 +59,18 @@
     <None Update="EndToEnd\Fixtures\AlvsErrorHandling.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="EndToEnd\Fixtures\CdsErrorHandling.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="EndToEnd\Fixtures\CdsErrorHandling.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="EndToEnd\Fixtures\DecisionNotification.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="EndToEnd\Fixtures\DecisionNotification.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   
 </Project>

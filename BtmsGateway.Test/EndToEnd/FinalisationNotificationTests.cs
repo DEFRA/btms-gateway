@@ -23,7 +23,7 @@ public class FinalisationNotificationTests : TargetRoutingTestBase
     }
 
     [Fact]
-    public async Task When_receiving_finalisation_notification_from_cds_Then_should_forward_to_alvs()
+    public async Task When_receiving_request_from_cds_Then_should_forward_to_alvs()
     {
         await HttpClient.PostAsync(GatewayPath, _originalRequestSoapContent);
 
@@ -32,7 +32,7 @@ public class FinalisationNotificationTests : TargetRoutingTestBase
     }
 
     [Fact]
-    public async Task When_receiving_finalisation_notification_from_cds_Then_should_respond_with_alvs_response()
+    public async Task When_receiving_request_from_cds_Then_should_respond_with_alvs_response()
     {
         var response = await HttpClient.PostAsync(GatewayPath, _originalRequestSoapContent);
 
@@ -41,7 +41,7 @@ public class FinalisationNotificationTests : TargetRoutingTestBase
     }
 
     [Fact]
-    public async Task When_receiving_finalisation_notification_from_cds_Then_should_forward_converted_json_to_btms()
+    public async Task When_receiving_request_from_cds_Then_should_forward_converted_json_to_btms()
     {
         await HttpClient.PostAsync(GatewayPath, _originalRequestSoapContent);
 

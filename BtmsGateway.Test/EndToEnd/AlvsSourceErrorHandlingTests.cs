@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Mime;
 using System.Text;
+using BtmsGateway.Test.TestUtils;
 using FluentAssertions;
 
 namespace BtmsGateway.Test.EndToEnd;
@@ -12,7 +13,7 @@ public class AlvsSourceErrorHandlingTests : TargetRoutingTestBase
     private const string BtmsPath = $"/forked{OriginalPath}";
     
     private readonly string _originalRequestSoap = File.ReadAllText(Path.Combine(FixturesPath, "AlvsErrorHandling.xml"));
-    private readonly string _btmsRequestJson = File.ReadAllText(Path.Combine(FixturesPath, "AlvsErrorHandling.json"));
+    private readonly string _btmsRequestJson = File.ReadAllText(Path.Combine(FixturesPath, "AlvsErrorHandling.json")).LinuxLineEndings();
     private readonly StringContent _originalRequestSoapContent;
 
     public AlvsSourceErrorHandlingTests()
@@ -45,6 +46,6 @@ public class AlvsSourceErrorHandlingTests : TargetRoutingTestBase
         await HttpClient.PostAsync(GatewayPath, _originalRequestSoapContent);
 
         TestWebServer.ForkedHttpHandler.LastRequest!.RequestUri!.AbsolutePath.Should().Be(BtmsPath);
-        (await TestWebServer.ForkedHttpHandler.LastRequest!.Content!.ReadAsStringAsync()).Should().Be(_btmsRequestJson);
+        (await TestWebServer.ForkedHttpHandler.LastRequest!.Content!.ReadAsStringAsync()).LinuxLineEndings().Should().Be(_btmsRequestJson);
     }
 }

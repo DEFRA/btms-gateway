@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Mime;
 using System.Text;
+using BtmsGateway.Test.TestUtils;
 using FluentAssertions;
 
 namespace BtmsGateway.Test.EndToEnd;
@@ -13,7 +14,7 @@ public class ClearanceRequestTests : TargetRoutingTestBase
     
     private readonly string _originalRequestSoap = File.ReadAllText(Path.Combine(FixturesPath, "ClearanceRequest.xml"));
     private readonly string _originalResponseSoap = File.ReadAllText(Path.Combine(FixturesPath, "AlvsResponse.xml"));
-    private readonly string _btmsRequestJson = File.ReadAllText(Path.Combine(FixturesPath, "ClearanceRequest.json"));
+    private readonly string _btmsRequestJson = File.ReadAllText(Path.Combine(FixturesPath, "ClearanceRequest.json")).LinuxLineEndings();
     private readonly StringContent _originalRequestSoapContent;
 
     public ClearanceRequestTests()
@@ -46,6 +47,6 @@ public class ClearanceRequestTests : TargetRoutingTestBase
         await HttpClient.PostAsync(GatewayPath, _originalRequestSoapContent);
 
         TestWebServer.ForkedHttpHandler.LastRequest!.RequestUri!.AbsolutePath.Should().Be(BtmsPath);
-        (await TestWebServer.ForkedHttpHandler.LastRequest!.Content!.ReadAsStringAsync()).Should().Be(_btmsRequestJson);
+        (await TestWebServer.ForkedHttpHandler.LastRequest!.Content!.ReadAsStringAsync()).LinuxLineEndings().Should().Be(_btmsRequestJson);
     }
 }

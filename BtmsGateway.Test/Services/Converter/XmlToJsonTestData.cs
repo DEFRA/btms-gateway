@@ -1,18 +1,20 @@
+using BtmsGateway.Test.TestUtils;
+
 namespace BtmsGateway.Test.Services.Converter;
 
 public class XmlToJsonTestData : TheoryData<string, string, string>
 {
     public XmlToJsonTestData()
     {
-        Add("Simple self-closing tag", XmlSimpleSelfClosing, JsonSimpleNull);
-        Add("Simple self-closing tag w/ space", XmlSimpleSelfClosingWithSpace, JsonSimpleNull);
-        Add("Simple empty tag", XmlSimpleEmpty, JsonSimpleEmpty);
-        Add("Simple content tag", XmlSimpleContent, JsonSimpleContent);
-        Add("Complex single level", XmlComplexSingleLevel, JsonComplexSingleLevel);
-        Add("Complex multi level", XmlComplexMultiLevel, JsonComplexMultiLevel);
-        Add("Complex multi level w/ arrays", XmlComplexMultiLevelWithArrays, JsonComplexMultiLevelWithArrays);
-        Add("Complex multi level w/ single item arrays", XmlComplexMultiLevelWithSingleItemArrays, JsonComplexMultiLevelWithSingleItemArrays);
-        Add("Complex multi level SOAP", XmlComplexMultiLevelSoap, JsonComplexMultiLevel);
+        Add("Simple self-closing tag", XmlSimpleSelfClosing, JsonSimpleNull.LinuxLineEndings());
+        Add("Simple self-closing tag w/ space", XmlSimpleSelfClosingWithSpace, JsonSimpleNull.LinuxLineEndings());
+        Add("Simple empty tag", XmlSimpleEmpty, JsonSimpleEmpty.LinuxLineEndings());
+        Add("Simple content tag", XmlSimpleContent, JsonSimpleContent.LinuxLineEndings());
+        Add("Complex single level", XmlComplexSingleLevel, JsonComplexSingleLevel.LinuxLineEndings());
+        Add("Complex multi level", XmlComplexMultiLevel, JsonComplexMultiLevel.LinuxLineEndings());
+        Add("Complex multi level w/ arrays", XmlComplexMultiLevelWithArrays, JsonComplexMultiLevelWithArrays.LinuxLineEndings());
+        Add("Complex multi level w/ single item arrays", XmlComplexMultiLevelWithSingleItemArrays, JsonComplexMultiLevelWithSingleItemArrays.LinuxLineEndings());
+        Add("Complex multi level SOAP", XmlComplexMultiLevelSoap, JsonComplexMultiLevel.LinuxLineEndings());
     }
   
     private const string XmlSimpleSelfClosing = "<Root/>";

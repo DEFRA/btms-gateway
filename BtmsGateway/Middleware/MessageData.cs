@@ -67,7 +67,9 @@ public class MessageData
     public HttpRequestMessage CreateForwardingRequestAsJson(string? routeUrl)
     {
         return OriginalContentType is MediaTypeNames.Application.Xml or MediaTypeNames.Application.Soap 
-            ? CreateForwardingRequest(routeUrl, string.IsNullOrWhiteSpace(OriginalContentAsString) ? string.Empty : XmlToJsonConverter.Convert(OriginalContentAsString, KnownArrays), MediaTypeNames.Application.Json) 
+            ? CreateForwardingRequest(routeUrl, string.IsNullOrWhiteSpace(OriginalContentAsString) 
+                ? string.Empty 
+                : XmlToJsonConverter.Convert(OriginalContentAsString, KnownArrays), MediaTypeNames.Application.Json) 
             : CreateForwardingRequestAsOriginal(routeUrl);
     }
 

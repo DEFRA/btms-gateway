@@ -1,1 +1,48 @@
-{"decisionNotification":{"serviceHeader":{"sourceSystem":"ALVS","destinationSystem":"CDS","correlationId":0,"serviceCallTimestamp":"2023-06-30T07:34:14.405827"},"header":{"entryReference":"23GB1234567890ABC8","entryVersionNumber":1,"decisionNumber":1},"items":[{"itemNumber":1,"checks":[{"checkCode":"H218","decisionCode":"C02","decisionValidUntil":202307042359},{"checkCode":"H219","decisionCode":"C03"},{"checkCode":"H223","decisionCode":"C03"}]},{"itemNumber":2,"checks":[{"checkCode":"H219","decisionCode":"C03"},{"checkCode":"H223","decisionCode":"C03"}]}]}}
+{
+  "decisionNotification": {
+    "serviceHeader": {
+      "sourceSystem": "ALVS",
+      "destinationSystem": "CDS",
+      "correlationId": 0,
+      "serviceCallTimestamp": "2023-06-30T07:34:14.405827"
+    },
+    "header": {
+      "entryReference": "23GB1234567890ABC8",
+      "entryVersionNumber": 1,
+      "decisionNumber": 1
+    },
+    "items": [
+      {
+        "itemNumber": 1,
+        "checks": [
+          {
+            "checkCode": "H218",
+            "decisionCode": "C02",
+            "decisionValidUntil": 202307042359
+          },
+          {
+            "checkCode": "H219",
+            "decisionCode": "C03"
+          },
+          {
+            "checkCode": "H223",
+            "decisionCode": "C03"
+          }
+        ]
+      },
+      {
+        "itemNumber": 2,
+        "checks": [
+          {
+            "checkCode": "H219",
+            "decisionCode": "C03"
+          },
+          {
+            "checkCode": "H223",
+            "decisionCode": "C03"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,1 +1,98 @@
-{"alvsClearanceRequest":{"serviceHeader":{"sourceSystem":"CHIEF","destinationSystem":"ALVS","correlationId":193264645102865,"serviceCallTimestamp":"2022-01-12T14:21:50.286"},"header":{"entryReference":"290-000151G-02/01/2022","entryVersionNumber":3,"previousVersionNumber":2,"declarationUCR":"1GB116445386000-KDA35932Y1BHX","declarationType":"S","arrivalDateTime":202201031224,"submitterTURN":123456789012,"declarantId":"GB123456789013","declarantName":"REDACTED","dispatchCountryCode":"CN","goodsLocationCode":"GBSTN","masterUCR":"GB/CNS1-SCT16S6LF00000"},"items":[{"itemNumber":1,"customsProcedureCode":4000000,"taricCommodityCode":2309105100,"goodsDescription":"DOG CHEW","consigneeId":"GB123456789012","consigneeName":"REDACTED","itemNetMass":5011.2,"itemOriginCountryCode":"CN","documents":[{"documentCode":"N853","documentReference":"GBCVD2021.1396392","documentStatus":"AE","documentControl":"P"}],"checks":[{"checkCode":"H222","departmentCode":"PHA"}]},{"itemNumber":2,"customsProcedureCode":4000000,"taricCommodityCode":2309103300,"goodsDescription":"DOG CHEW","consigneeId":"GB123456789012","consigneeName":"REDACTED","itemNetMass":3198.72,"itemOriginCountryCode":"CN","documents":[{"documentCode":"N853","documentReference":"GBCVD2021.1396392","documentStatus":"AE","documentControl":"P"}],"checks":[{"checkCode":"H222","departmentCode":"PHA"}]},{"itemNumber":3,"customsProcedureCode":4000000,"taricCommodityCode":2309109000,"goodsDescription":"DOG CHEWS","consigneeId":"GB123456789012","consigneeName":"REDACTED","itemNetMass":144,"itemOriginCountryCode":"CN","documents":[{"documentCode":"N853","documentReference":"GBCVD2021.1396386","documentStatus":"AE","documentControl":"P"}],"checks":[{"checkCode":"H222","departmentCode":"PHA"}]}]}}
+{
+  "alvsClearanceRequest": {
+    "serviceHeader": {
+      "sourceSystem": "CHIEF",
+      "destinationSystem": "ALVS",
+      "correlationId": 193264645102865,
+      "serviceCallTimestamp": "2022-01-12T14:21:50.286"
+    },
+    "header": {
+      "entryReference": "290-000151G-02/01/2022",
+      "entryVersionNumber": 3,
+      "previousVersionNumber": 2,
+      "declarationUCR": "1GB116445386000-KDA35932Y1BHX",
+      "declarationType": "S",
+      "arrivalDateTime": 202201031224,
+      "submitterTURN": 123456789012,
+      "declarantId": "GB123456789013",
+      "declarantName": "REDACTED",
+      "dispatchCountryCode": "CN",
+      "goodsLocationCode": "GBSTN",
+      "masterUCR": "GB/CNS1-SCT16S6LF00000"
+    },
+    "items": [
+      {
+        "itemNumber": 1,
+        "customsProcedureCode": 4000000,
+        "taricCommodityCode": 2309105100,
+        "goodsDescription": "DOG CHEW",
+        "consigneeId": "GB123456789012",
+        "consigneeName": "REDACTED",
+        "itemNetMass": 5011.2,
+        "itemOriginCountryCode": "CN",
+        "documents": [
+          {
+            "documentCode": "N853",
+            "documentReference": "GBCVD2021.1396392",
+            "documentStatus": "AE",
+            "documentControl": "P"
+          }
+        ],
+        "checks": [
+          {
+            "checkCode": "H222",
+            "departmentCode": "PHA"
+          }
+        ]
+      },
+      {
+        "itemNumber": 2,
+        "customsProcedureCode": 4000000,
+        "taricCommodityCode": 2309103300,
+        "goodsDescription": "DOG CHEW",
+        "consigneeId": "GB123456789012",
+        "consigneeName": "REDACTED",
+        "itemNetMass": 3198.72,
+        "itemOriginCountryCode": "CN",
+        "documents": [
+          {
+            "documentCode": "N853",
+            "documentReference": "GBCVD2021.1396392",
+            "documentStatus": "AE",
+            "documentControl": "P"
+          }
+        ],
+        "checks": [
+          {
+            "checkCode": "H222",
+            "departmentCode": "PHA"
+          }
+        ]
+      },
+      {
+        "itemNumber": 3,
+        "customsProcedureCode": 4000000,
+        "taricCommodityCode": 2309109000,
+        "goodsDescription": "DOG CHEWS",
+        "consigneeId": "GB123456789012",
+        "consigneeName": "REDACTED",
+        "itemNetMass": 144,
+        "itemOriginCountryCode": "CN",
+        "documents": [
+          {
+            "documentCode": "N853",
+            "documentReference": "GBCVD2021.1396386",
+            "documentStatus": "AE",
+            "documentControl": "P"
+          }
+        ],
+        "checks": [
+          {
+            "checkCode": "H222",
+            "departmentCode": "PHA"
+          }
+        ]
+      }
+    ]
+  }
+}

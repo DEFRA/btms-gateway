@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Mime;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using BtmsGateway.Services.Checking;
@@ -86,7 +87,7 @@ public class MessageData
             request.Headers.Add(CorrelationIdHeaderName, CorrelationId);
         
             request.Content = contentType == MediaTypeNames.Application.Json 
-                ? JsonContent.Create(JsonNode.Parse(string.IsNullOrWhiteSpace(contentAsString) ? "{}" : contentAsString)) 
+                ? JsonContent.Create(JsonNode.Parse(string.IsNullOrWhiteSpace(contentAsString) ? "{}" : contentAsString), options: Json.SerializerOptions) 
                 : new StringContent(contentAsString, Encoding.UTF8, contentType);
 
             return request;

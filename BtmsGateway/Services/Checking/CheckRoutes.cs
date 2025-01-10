@@ -35,11 +35,12 @@ public class CheckRoutes(HealthCheckConfig healthCheckConfig, IHttpClientFactory
         var checks = new List<Task<CheckRouteResult>>
         {
             CheckHttp(checkRouteUrl, false, cts.Token),
-            CheckHttp(checkRouteUrl with { CheckType = "HTTP HOST", Url = checkRouteUrl.Url.Replace(checkRouteUrl.Uri.PathAndQuery, "")}, false, cts.Token),
             CheckPing(checkRouteUrl, cts.Token),
             CheckNsLookup(checkRouteUrl, cts.Token),
             CheckDig(checkRouteUrl, cts.Token)
         };
+        var hostOnlyUrl = $"{checkRouteUrl.Uri.Scheme}://{checkRouteUrl.Uri.Host}";
+        if (checkRouteUrl.Url != hostOnlyUrl) checks.Insert(1, CheckHttp(checkRouteUrl with { CheckType = "HTTP HOST", Url = $"{checkRouteUrl.Uri.Scheme}://{checkRouteUrl.Uri.Host}" }, false, cts.Token));
         
         return await Task.WhenAll(checks);
     }

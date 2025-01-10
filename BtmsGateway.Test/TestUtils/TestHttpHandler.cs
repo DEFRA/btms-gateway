@@ -2,7 +2,7 @@ using System.Net;
 using System.Text;
 using BtmsGateway.Services;
 
-namespace BtmsGateway.Test.Utils;
+namespace BtmsGateway.Test.TestUtils;
 
 public class TestHttpHandler : DelegatingHandler
 {

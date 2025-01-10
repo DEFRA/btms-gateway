@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Mime;
 using System.Text;
 using System.Text.Json.Nodes;
@@ -106,7 +107,7 @@ public class MessageData
             response.Headers.Date = (routingResult.ResponseDate ?? DateTimeOffset.Now).ToString("R");
             response.Headers[CorrelationIdHeaderName] = CorrelationId;
             response.Headers[RequestedPathHeaderName] = routingResult.UrlPath;
-            if (routingResult.ResponseContent != null)
+            if (routingResult.ResponseContent != null && response.StatusCode != (int)HttpStatusCode.NoContent)
                 await response.BodyWriter.WriteAsync(new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes(routingResult.ResponseContent)));
         }
         catch (Exception ex)

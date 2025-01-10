@@ -1,9 +1,9 @@
 using BtmsGateway.Utils.Http;
 using FluentAssertions;
-using Serilog.Core;
 using Serilog;
+using Serilog.Core;
 
-namespace BtmsGateway.Test.Utils.Http;
+namespace BtmsGateway.Test.Http;
 
 public class ProxyTest
 {

@@ -8,7 +8,7 @@ using BtmsGateway.Services.Converter;
 using BtmsGateway.Services.Routing;
 using ILogger = Serilog.ILogger;
 
-namespace BtmsGateway.Services;
+namespace BtmsGateway.Middleware;
 
 public class MessageData
 {
@@ -67,7 +67,9 @@ public class MessageData
     public HttpRequestMessage CreateForwardingRequestAsJson(string? routeUrl)
     {
         return OriginalContentType is MediaTypeNames.Application.Xml or MediaTypeNames.Application.Soap 
-            ? CreateForwardingRequest(routeUrl, string.IsNullOrWhiteSpace(OriginalContentAsString) ? string.Empty : XmlToJsonConverter.Convert(OriginalContentAsString, KnownArrays), MediaTypeNames.Application.Json) 
+            ? CreateForwardingRequest(routeUrl, string.IsNullOrWhiteSpace(OriginalContentAsString) 
+                ? string.Empty 
+                : XmlToJsonConverter.Convert(OriginalContentAsString, KnownArrays), MediaTypeNames.Application.Json) 
             : CreateForwardingRequestAsOriginal(routeUrl);
     }
 
@@ -86,7 +88,7 @@ public class MessageData
             request.Headers.Add(CorrelationIdHeaderName, CorrelationId);
         
             request.Content = contentType == MediaTypeNames.Application.Json 
-                ? JsonContent.Create(JsonNode.Parse(string.IsNullOrWhiteSpace(contentAsString) ? "{}" : contentAsString)) 
+                ? JsonContent.Create(JsonNode.Parse(string.IsNullOrWhiteSpace(contentAsString) ? "{}" : contentAsString), options: Json.SerializerOptions) 
                 : new StringContent(contentAsString, Encoding.UTF8, contentType);
 
             return request;

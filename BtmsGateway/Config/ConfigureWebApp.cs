@@ -1,19 +1,18 @@
 using System.Diagnostics.CodeAnalysis;
-using BtmsGateway.Services;
+using BtmsGateway.Middleware;
 using BtmsGateway.Services.Checking;
 using BtmsGateway.Services.Routing;
 using BtmsGateway.Utils;
 using BtmsGateway.Utils.Http;
 using FluentValidation;
-using Polly;
-using Polly.Extensions.Http;
 using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Config;
 
 public static class ConfigureWebApp
 {
-    public static IHttpClientBuilder? HttpProxyClientWithRetryBuilder;
+    public static IHttpClientBuilder? HttpRoutedClientWithRetryBuilder { get; private set; }
+    public static IHttpClientBuilder? HttpForkedClientWithRetryBuilder { get; private set; }
 
     [ExcludeFromCodeCoverage]
     public static void AddServices(this WebApplicationBuilder builder, ILogger logger)
@@ -22,12 +21,12 @@ public static class ConfigureWebApp
         builder.ConfigureToType<RoutingConfig>();
         builder.ConfigureToType<HealthCheckConfig>();
 
-        HttpProxyClientWithRetryBuilder = builder.Services.AddHttpProxyClientWithoutRetry(logger);
-        HttpProxyClientWithRetryBuilder = builder.Services.AddHttpProxyClientWithRetry(logger)
-                                                          .AddPolicyHandler(_ => HttpPolicyExtensions.HandleTransientHttpError().WaitAndRetryAsync(3, _ => TimeSpan.FromMilliseconds(100)));
+        HttpRoutedClientWithRetryBuilder = builder.Services.AddHttpProxyRoutedClientWithRetry(logger);
+        HttpForkedClientWithRetryBuilder = builder.Services.AddHttpProxyForkedClientWithRetry(logger);
+        builder.Services.AddHttpProxyClientWithoutRetry(logger);
+        
         builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
-        builder.Services.AddSingleton<IMessageFork, MessageFork>();
         builder.Services.AddSingleton<IMessageRouter, MessageRouter>();
         builder.Services.AddSingleton<IMessageRoutes, MessageRoutes>();
         builder.Services.AddSingleton<CheckRoutes>();
@@ -45,7 +44,7 @@ public static class ConfigureWebApp
     {
         var app = builder.Build();
 
-        app.UseMiddleware<SoapInterceptorMiddleware>();
+        app.UseMiddleware<RoutingInterceptor>();
    
         app.MapHealthChecks("/health");
         

@@ -1,4 +1,5 @@
 using BtmsGateway.Services.Converter;
+using BtmsGateway.Test.TestUtils;
 using FluentAssertions;
 
 namespace BtmsGateway.Test.Services.Converter;
@@ -11,9 +12,9 @@ public class XmlToJsonConverterTests
     public void When_receiving_clearance_request_soap_Then_should_convert_to_json()
     {
         var xml = File.ReadAllText(Path.Combine(TestDataPath, "ClearanceRequest.xml"));
-        var json = File.ReadAllText(Path.Combine(TestDataPath, "ClearanceRequest.json"));
+        var json = File.ReadAllText(Path.Combine(TestDataPath, "ClearanceRequest.json")).LinuxLineEndings();
         var knownArrays = new Dictionary<string, string> { { "Item", "Items" }, { "Document", "Documents" }, { "Check", "Checks" } };
-        XmlToJsonConverter.Convert(xml, knownArrays).Should().Be(json);
+        XmlToJsonConverter.Convert(xml, knownArrays).LinuxLineEndings().Should().Be(json);
     }
 
     [Theory]
@@ -21,7 +22,7 @@ public class XmlToJsonConverterTests
     public void When_receiving_valid_xml_Then_should_convert_to_json(string because, string xml, string expectedJson)
     {
         var knownArrays = new Dictionary<string, string> { { "Array", "Arrays" }, { "List", "Lists" }, { "AnotherList", "AnotherLists" } };
-        XmlToJsonConverter.Convert(xml, knownArrays).Should().Be(expectedJson, because);
+        XmlToJsonConverter.Convert(xml, knownArrays).LinuxLineEndings().Should().Be(expectedJson, because);
     }
 
     [Fact]

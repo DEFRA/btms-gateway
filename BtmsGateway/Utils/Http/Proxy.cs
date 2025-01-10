@@ -1,12 +1,16 @@
 using System.Net;
 using System.Diagnostics.CodeAnalysis;
+using Polly;
+using Polly.Extensions.Http;
+using Polly.Retry;
 
 namespace BtmsGateway.Utils.Http;
 
 public static class Proxy
 {
    public const string ProxyClientWithoutRetry = "proxy";
-   public const string ProxyClientWithRetry = "proxy-with-retry";
+   public const string RoutedClientWithRetry = "routed-with-retry";
+   public const string ForkedClientWithRetry = "forked-with-retry";
 
    /**
     * A preconfigured HTTP Client that uses the Platform's outbound proxy.
@@ -16,16 +20,25 @@ public static class Proxy
     *  2. Use the IHttpClientFactory to create a named instance of HttpClient:
     *     `clientFactory.CreateClient(Proxy.ProxyClient);`
     */
+   
    [ExcludeFromCodeCoverage]
    public static IHttpClientBuilder AddHttpProxyClientWithoutRetry(this IServiceCollection services, Serilog.ILogger logger)
    {
       return services.AddHttpClient(ProxyClientWithoutRetry).ConfigurePrimaryHttpMessageHandler(() => ConfigurePrimaryHttpMessageHandler(logger));
    }
    
+   private static readonly AsyncRetryPolicy<HttpResponseMessage> WaitAndRetryAsync = HttpPolicyExtensions.HandleTransientHttpError().WaitAndRetryAsync(3, _ => TimeSpan.FromMilliseconds(100));
+
    [ExcludeFromCodeCoverage]
-   public static IHttpClientBuilder AddHttpProxyClientWithRetry(this IServiceCollection services, Serilog.ILogger logger)
+   public static IHttpClientBuilder AddHttpProxyRoutedClientWithRetry(this IServiceCollection services, Serilog.ILogger logger)
    {
-      return services.AddHttpClient(ProxyClientWithRetry).ConfigurePrimaryHttpMessageHandler(() => ConfigurePrimaryHttpMessageHandler(logger));
+      return services.AddHttpClient(RoutedClientWithRetry).ConfigurePrimaryHttpMessageHandler(() => ConfigurePrimaryHttpMessageHandler(logger)).AddPolicyHandler(_ => WaitAndRetryAsync);
+   }
+
+   [ExcludeFromCodeCoverage]
+   public static IHttpClientBuilder AddHttpProxyForkedClientWithRetry(this IServiceCollection services, Serilog.ILogger logger)
+   {
+      return services.AddHttpClient(ForkedClientWithRetry).ConfigurePrimaryHttpMessageHandler(() => ConfigurePrimaryHttpMessageHandler(logger)).AddPolicyHandler(_ => WaitAndRetryAsync);
    }
 
    [ExcludeFromCodeCoverage]

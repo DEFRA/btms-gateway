@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ns:FinalisationNotificationRequest xmlns:ns="http://notifyfinalisedstatehmrcfacade.types.esb.ws.cara.defra.com ">
+    <ns:ServiceHeader>
+        <ns:SourceSystem>CHIEF</ns:SourceSystem>
+        <ns:DestinationSystem>ALVS</ns:DestinationSystem>
+        <ns:CorrelationId>1234567890123456789</ns:CorrelationId>
+        <ns:ServiceCallTimestamp>2008-01-01T12:12:12.123</ns:ServiceCallTimestamp>
+    </ns:ServiceHeader>
+    <ns:Header>
+        <ns:EntryReference>123-123456A-01/01/2008</ns:EntryReference>
+        <ns:EntryVersionNumber>4</ns:EntryVersionNumber>
+        <ns:DecisionNumber>3</ns:DecisionNumber>
+        <ns:FinalState>0</ns:FinalState>
+        <ns:ManualAction>N</ns:ManualAction>
+    </ns:Header>
+</ns:FinalisationNotificationRequest>

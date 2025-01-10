@@ -2,9 +2,9 @@ using BtmsGateway.Services.Routing;
 using BtmsGateway.Utils;
 using ILogger = Serilog.ILogger;
 
-namespace BtmsGateway.Services;
+namespace BtmsGateway.Middleware;
 
-public class SoapInterceptorMiddleware(RequestDelegate next, IMessageRouter messageRouter, IMessageFork messageFork, MetricsHost metricsHost, ILogger logger)
+public class RoutingInterceptor(RequestDelegate next, IMessageRouter messageRouter, MetricsHost metricsHost, ILogger logger)
 {
     public async Task InvokeAsync(HttpContext context)
     {
@@ -21,9 +21,7 @@ public class SoapInterceptorMiddleware(RequestDelegate next, IMessageRouter mess
 
                 await Route(context, messageData, metrics);
 
-#pragma warning disable CS4014 // This call is not awaited as forking of the message should happen asynchronously
                 await Fork(messageData, metrics);
-#pragma warning restore CS4014
                 
                 metrics.RecordTotalRequest();
                 return;
@@ -48,7 +46,7 @@ public class SoapInterceptorMiddleware(RequestDelegate next, IMessageRouter mess
         if (routingResult.RouteFound)
         {
             CheckResults(messageData, routingResult, Action);
-            if (routingResult.RoutingSuccessful) await messageData.PopulateResponse(context.Response, routingResult);
+            await messageData.PopulateResponse(context.Response, routingResult);
         }
         else
         {
@@ -66,7 +64,6 @@ public class SoapInterceptorMiddleware(RequestDelegate next, IMessageRouter mess
         if (routingResult.RouteFound)
         {
             CheckResults(messageData, routingResult, Action);
-            messageFork.Complete();
         }
         else
         {

@@ -1,4 +1,5 @@
 using System.Net;
+using BtmsGateway.Middleware;
 using BtmsGateway.Utils;
 using BtmsGateway.Utils.Http;
 using ILogger = Serilog.ILogger;
@@ -21,7 +22,7 @@ public class MessageRouter(IHttpClientFactory clientFactory, IMessageRoutes mess
         try
         {
             var metrics = metricsHost.GetMetrics();
-            var client = clientFactory.CreateClient(Proxy.ProxyClientWithRetry);
+            var client = clientFactory.CreateClient(Proxy.RoutedClientWithRetry);
             var request = routingResult.ConvertedRoutedContentToJson 
                 ? messageData.CreateForwardingRequestAsJson(routingResult.FullRouteLink) 
                 : messageData.CreateForwardingRequestAsOriginal(routingResult.FullRouteLink);
@@ -48,7 +49,7 @@ public class MessageRouter(IHttpClientFactory clientFactory, IMessageRoutes mess
         try
         {
             var metrics = metricsHost.GetMetrics();
-            var client = clientFactory.CreateClient(Proxy.ProxyClientWithRetry);
+            var client = clientFactory.CreateClient(Proxy.ForkedClientWithRetry);
             var request = routingResult.ConvertedForkedContentToJson 
                 ? messageData.CreateForwardingRequestAsJson(routingResult.FullForkLink) 
                 : messageData.CreateForwardingRequestAsOriginal(routingResult.FullForkLink);

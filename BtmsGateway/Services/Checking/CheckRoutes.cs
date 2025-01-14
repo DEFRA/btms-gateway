@@ -27,7 +27,7 @@ public class CheckRoutes(HealthCheckConfig healthCheckConfig, IHttpClientFactory
 
     private static CheckRouteUrl GetCheckRouteUrl(KeyValuePair<string, HealthCheckUrl> x)
     {
-        return new CheckRouteUrl { Name = x.Key, Method = x.Value.Method, Disabled = x.Value.Disabled, Url = x.Value.Url, CheckType = "HTTP" };
+        return new CheckRouteUrl { Name = x.Key, Method = x.Value.Method, Disabled = x.Value.Disabled, HostHeader = x.Value.HostHeader, Url = x.Value.Url, CheckType = "HTTP" };
     }
 
     private async Task<IEnumerable<CheckRouteResult>> CheckAll(CheckRouteUrl checkRouteUrl, CancellationTokenSource cts)
@@ -55,6 +55,7 @@ public class CheckRoutes(HealthCheckConfig healthCheckConfig, IHttpClientFactory
             logger.Information("Start checking HTTP request for {Url}", checkRouteUrl.Url);
             var client = clientFactory.CreateClient(Proxy.ProxyClientWithoutRetry);
             var request = new HttpRequestMessage(new HttpMethod(checkRouteUrl.Method), checkRouteUrl.Url);
+            if (checkRouteUrl.HostHeader != null) request.Headers.TryAddWithoutValidation("host", checkRouteUrl.HostHeader);
             stopwatch.Start();
             var response = await client.SendAsync(request, token);
             checkRouteResult = checkRouteResult with { ResponseResult = $"{response.StatusCode.ToString()} ({(int)response.StatusCode}){(includeResponseBody ? $"\n{await response.Content.ReadAsStringAsync(token)}" : string.Empty)}", Elapsed = stopwatch.Elapsed };

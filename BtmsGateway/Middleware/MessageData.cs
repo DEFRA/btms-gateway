@@ -19,7 +19,7 @@ public class MessageData
 
 
     public string CorrelationId { get; }
-    public string OriginalContentAsString { get; }
+    public string? OriginalContentAsString { get; }
     public string HttpString { get; }
     public string Url { get; }
     public string Path { get; }
@@ -36,7 +36,7 @@ public class MessageData
         return new MessageData(request, content, logger);
     }
 
-    private MessageData(HttpRequest request, string contentAsString, ILogger logger)
+    private MessageData(HttpRequest request, string? contentAsString, ILogger logger)
     {
         _logger = logger;
         try
@@ -47,8 +47,8 @@ public class MessageData
             Path = request.Path.HasValue ? request.Path.Value.Trim('/') : string.Empty;
             OriginalContentType = RetrieveContentType(request);
             _headers = request.Headers;
-            Url = $"{request.Scheme}://{request.Host}{request.Path}{request.QueryString}";
-            HttpString = $"{request.Protocol} {Method} {Url} {OriginalContentType}";       
+            Url = $"{request.Protocol}://{request.Host}{request.Path}{request.QueryString}";
+            HttpString = $"{Method} {Url} {request.Protocol.ToUpper()}/1.1 {OriginalContentType}";       
             var correlationId = _headers[CorrelationIdHeaderName].FirstOrDefault();
             CorrelationId = string.IsNullOrWhiteSpace(correlationId) ? Guid.NewGuid().ToString("D") : correlationId;
         }
@@ -59,10 +59,10 @@ public class MessageData
         }
     }
 
-    public bool ShouldProcessRequest() => !(Method == HttpMethods.Get
-                                            && (Path.Equals("health", StringComparison.CurrentCultureIgnoreCase)
-                                                || Path.StartsWith("swagger", StringComparison.CurrentCultureIgnoreCase)
-                                                || Path.StartsWith(CheckRoutesEndpoints.Path, StringComparison.CurrentCultureIgnoreCase)));
+    public bool ShouldProcessRequest => !(Method == HttpMethods.Get
+                                          && (Path.Equals("health", StringComparison.InvariantCultureIgnoreCase)
+                                              || Path.StartsWith("swagger", StringComparison.InvariantCultureIgnoreCase)
+                                              || Path.StartsWith(CheckRoutesEndpoints.Path, StringComparison.InvariantCultureIgnoreCase)));
 
     public HttpRequestMessage CreateForwardingRequestAsJson(string? routeUrl, string? hostHeader)
     {
@@ -78,19 +78,25 @@ public class MessageData
         return CreateForwardingRequest(routeUrl, hostHeader, OriginalContentAsString, OriginalContentType);
     }
 
-    private HttpRequestMessage CreateForwardingRequest(string? routeUrl, string? hostHeader, string contentAsString, string contentType)
+    private HttpRequestMessage CreateForwardingRequest(string? routeUrl, string? hostHeader, string? contentAsString, string contentType)
     {
         try
         {
             var request = new HttpRequestMessage(new HttpMethod(Method), routeUrl);
-            foreach (var header in _headers.Where(x => !x.Key.StartsWith("Content-", StringComparison.CurrentCultureIgnoreCase) && !string.Equals(x.Key, "Host", StringComparison.InvariantCultureIgnoreCase) && !string.Equals(x.Key, CorrelationIdHeaderName, StringComparison.InvariantCultureIgnoreCase))) 
+            foreach (var header in _headers.Where(x => !x.Key.StartsWith("Content-", StringComparison.InvariantCultureIgnoreCase) 
+                                                       && !string.Equals(x.Key, "Accept", StringComparison.InvariantCultureIgnoreCase) 
+                                                       && !string.Equals(x.Key, "Host", StringComparison.InvariantCultureIgnoreCase) 
+                                                       && !string.Equals(x.Key, CorrelationIdHeaderName, StringComparison.InvariantCultureIgnoreCase))) 
                 request.Headers.Add(header.Key, header.Value.ToArray());
             request.Headers.Add(CorrelationIdHeaderName, CorrelationId);
+            request.Headers.Add("Accept", contentType);
             if (!string.IsNullOrWhiteSpace(hostHeader)) request.Headers.TryAddWithoutValidation("host", hostHeader);
 
-            request.Content = contentType == MediaTypeNames.Application.Json 
-                ? JsonContent.Create(JsonNode.Parse(string.IsNullOrWhiteSpace(contentAsString) ? "{}" : contentAsString), options: Json.SerializerOptions) 
-                : new StringContent(contentAsString, Encoding.UTF8, contentType);
+            request.Content = contentAsString == null || Method == "GET"
+                ? null
+                : contentType == MediaTypeNames.Application.Json
+                    ? JsonContent.Create(JsonNode.Parse(string.IsNullOrWhiteSpace(contentAsString) ? "{}" : contentAsString), options: Json.SerializerOptions)
+                    : new StringContent(contentAsString, Encoding.UTF8, contentType);
 
             return request;
         }
@@ -110,7 +116,7 @@ public class MessageData
             response.Headers.Date = (routingResult.ResponseDate ?? DateTimeOffset.Now).ToString("R");
             response.Headers[CorrelationIdHeaderName] = CorrelationId;
             response.Headers[RequestedPathHeaderName] = routingResult.UrlPath;
-            if (routingResult.ResponseContent != null && response.StatusCode != (int)HttpStatusCode.NoContent)
+            if (routingResult.ResponseContent != null && response.StatusCode != (int)HttpStatusCode.NoContent) 
                 await response.BodyWriter.WriteAsync(new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes(routingResult.ResponseContent)));
         }
         catch (Exception ex)
@@ -120,26 +126,29 @@ public class MessageData
         }
     }
 
-    private static async Task<string> RetrieveContent(HttpRequest request)
+    private static async Task<string?> RetrieveContent(HttpRequest request)
     {
+        if (request.Body == Stream.Null) return null;
         request.EnableBuffering();
         var content = await new StreamReader(request.Body).ReadToEndAsync();
         request.Body.Position = 0;
         return content;
     }
 
-    private string RetrieveContentType(HttpRequest request)
+    private static string RetrieveContentType(HttpRequest request)
     {
         var contentTypeParts = request.ContentType?.Split(';');
-        return contentTypeParts is { Length: > 0 } ? contentTypeParts[0] : MediaTypeNames.Application.Json;
+        var contentType = contentTypeParts is { Length: > 0 } ? contentTypeParts[0] : null;
+        if (request.Headers.Accept.Count > 0 && request.Headers.Accept[0] != "*/*") contentType ??= request.Headers.Accept[0];
+        return contentType ?? "";
     }
 }
 
-public partial class ContentMap(string content)
+public partial class ContentMap(string? content)
 {
     [GeneratedRegex("CHED[A-Z]+")] private static partial Regex RegexChed();
     [GeneratedRegex("DispatchCountryCode>(.+?)<")] private static partial Regex RegexCountry();
 
-    public string ChedType => RegexChed().Match(content).Value;
-    public string CountryCode => RegexCountry().Match(content).Groups[1].Value;
+    public string? ChedType => content == null ? null : RegexChed().Match(content).Value;
+    public string? CountryCode => content == null ? null : RegexCountry().Match(content).Groups[1].Value;
 }

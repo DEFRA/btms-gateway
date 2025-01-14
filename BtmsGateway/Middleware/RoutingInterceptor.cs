@@ -15,7 +15,7 @@ public class RoutingInterceptor(RequestDelegate next, IMessageRouter messageRout
             
             var messageData = await MessageData.Create(context.Request, logger);
 
-            if (messageData.ShouldProcessRequest())
+            if (messageData.ShouldProcessRequest)
             {
                 logger.Information("{CorrelationId} Received routing instruction {HttpString} {Content}", messageData.CorrelationId, messageData.HttpString, messageData.OriginalContentAsString);
 

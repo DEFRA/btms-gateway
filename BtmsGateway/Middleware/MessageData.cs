@@ -64,29 +64,30 @@ public class MessageData
                                                 || Path.StartsWith("swagger", StringComparison.CurrentCultureIgnoreCase)
                                                 || Path.StartsWith(CheckRoutesEndpoints.Path, StringComparison.CurrentCultureIgnoreCase)));
 
-    public HttpRequestMessage CreateForwardingRequestAsJson(string? routeUrl)
+    public HttpRequestMessage CreateForwardingRequestAsJson(string? routeUrl, string? hostHeader)
     {
         return OriginalContentType is MediaTypeNames.Application.Xml or MediaTypeNames.Application.Soap 
-            ? CreateForwardingRequest(routeUrl, string.IsNullOrWhiteSpace(OriginalContentAsString) 
+            ? CreateForwardingRequest(routeUrl, hostHeader, string.IsNullOrWhiteSpace(OriginalContentAsString) 
                 ? string.Empty 
                 : XmlToJsonConverter.Convert(OriginalContentAsString, KnownArrays), MediaTypeNames.Application.Json) 
-            : CreateForwardingRequestAsOriginal(routeUrl);
+            : CreateForwardingRequestAsOriginal(routeUrl, hostHeader);
     }
 
-    public HttpRequestMessage CreateForwardingRequestAsOriginal(string? routeUrl)
+    public HttpRequestMessage CreateForwardingRequestAsOriginal(string? routeUrl, string? hostHeader)
     {
-        return CreateForwardingRequest(routeUrl, OriginalContentAsString, OriginalContentType);
+        return CreateForwardingRequest(routeUrl, hostHeader, OriginalContentAsString, OriginalContentType);
     }
 
-    private HttpRequestMessage CreateForwardingRequest(string? routeUrl, string contentAsString, string contentType)
+    private HttpRequestMessage CreateForwardingRequest(string? routeUrl, string? hostHeader, string contentAsString, string contentType)
     {
         try
         {
             var request = new HttpRequestMessage(new HttpMethod(Method), routeUrl);
-            foreach (var header in _headers.Where(x => !x.Key.StartsWith("Content-") && x.Key != "Host" && x.Key != CorrelationIdHeaderName)) 
+            foreach (var header in _headers.Where(x => !x.Key.StartsWith("Content-", StringComparison.CurrentCultureIgnoreCase) && !string.Equals(x.Key, "Host", StringComparison.InvariantCultureIgnoreCase) && !string.Equals(x.Key, CorrelationIdHeaderName, StringComparison.InvariantCultureIgnoreCase))) 
                 request.Headers.Add(header.Key, header.Value.ToArray());
             request.Headers.Add(CorrelationIdHeaderName, CorrelationId);
-        
+            if (!string.IsNullOrWhiteSpace(hostHeader)) request.Headers.TryAddWithoutValidation("host", hostHeader);
+
             request.Content = contentType == MediaTypeNames.Application.Json 
                 ? JsonContent.Create(JsonNode.Parse(string.IsNullOrWhiteSpace(contentAsString) ? "{}" : contentAsString), options: Json.SerializerOptions) 
                 : new StringContent(contentAsString, Encoding.UTF8, contentType);

@@ -47,7 +47,7 @@ public class CheckRoutes(HealthCheckConfig healthCheckConfig, IHttpClientFactory
 
     private async Task<CheckRouteResult> CheckHttp(CheckRouteUrl checkRouteUrl, bool includeResponseBody, CancellationToken token)
     {
-        var checkRouteResult = new CheckRouteResult(checkRouteUrl.Name, $"{checkRouteUrl.Method} {checkRouteUrl.Url}", checkRouteUrl.CheckType, string.Empty, TimeSpan.Zero);
+        var checkRouteResult = new CheckRouteResult(checkRouteUrl.Name, $"{checkRouteUrl.Method} {checkRouteUrl.Url}", checkRouteUrl.CheckType, checkRouteUrl.HostHeader, string.Empty, TimeSpan.Zero);
         var stopwatch = new Stopwatch();
     
         try
@@ -79,7 +79,7 @@ public class CheckRoutes(HealthCheckConfig healthCheckConfig, IHttpClientFactory
 
     private async Task<CheckRouteResult> CheckWithProcess(string name, string processName, string arguments, CancellationToken token)
     {
-        var checkRouteResult = new CheckRouteResult(name, arguments, processName, string.Empty, TimeSpan.Zero);
+        var checkRouteResult = new CheckRouteResult(name, arguments, processName, null, string.Empty, TimeSpan.Zero);
         var stopwatch = new Stopwatch();
     
         try

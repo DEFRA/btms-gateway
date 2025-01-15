@@ -13,10 +13,10 @@ public static class TestRoutes
         },
         NamedLinks = new Dictionary<string, NamedLink>
         {
-            { "legacy_link_name_1", new NamedLink { Link = "http://legacy-link-url", LinkType = LinkType.Url } },
+            { "legacy_link_name_1", new NamedLink { Link = "http://legacy-link-url", LinkType = LinkType.Url, HostHeader = "legacy-host-header" } },
             { "legacy_link_name_2", new NamedLink { Link = "legacy-link-queue", LinkType = LinkType.Queue } },
             { "btms_link_name_1", new NamedLink { Link = "btms-link-queue", LinkType = LinkType.Queue } },
-            { "btms_link_name_2", new NamedLink { Link = "http://btms-link-url", LinkType = LinkType.Url } },
+            { "btms_link_name_2", new NamedLink { Link = "http://btms-link-url", LinkType = LinkType.Url, HostHeader = "btms-host-header" } },
         }
     };
     

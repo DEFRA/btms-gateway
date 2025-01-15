@@ -8,8 +8,10 @@ public record RoutingResult
     public bool RouteFound { get; init; }
     public bool RoutingSuccessful { get; init; }
     public string? FullRouteLink { get; init; }
+    public string? RouteHostHeader { get; init; }
     public bool ConvertedRoutedContentToJson { get; init; }
     public string? FullForkLink { get; init; }
+    public string? ForkHostHeader { get; init; }
     public bool ConvertedForkedContentToJson { get; init; }
     public string? UrlPath { get; init; }
     public string? ResponseContent { get; init; }

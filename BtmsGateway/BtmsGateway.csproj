@@ -8,9 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="../Dockerfile">
-      <Link>Dockerfile</Link>
-    </Content>
     <Content Include="..\.dockerignore">
       <Link>Properties\SolutionFiles\.dockerignore</Link>
     </Content>
@@ -20,11 +17,11 @@
     <Content Include="..\.gitignore">
       <Link>Properties\SolutionFiles\.gitignore</Link>
     </Content>
+    <Content Include="..\Dockerfile">
+      <Link>Properties\SolutionFiles\Dockerfile</Link>
+    </Content>
     <Content Include="..\README.md">
       <Link>Properties\SolutionFiles\README.md</Link>
-    </Content>
-    <Content Include="..\run.sh">
-      <Link>Properties\SolutionFiles\run.sh</Link>
     </Content>
   </ItemGroup>
 

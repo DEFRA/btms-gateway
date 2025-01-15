@@ -32,6 +32,6 @@ ENV ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-COPY --chmod=+x run.sh /run.sh
+COPY --chmod=0755 run.sh /run.sh
 EXPOSE 8085
 ENTRYPOINT ["/bin/bash", "/run.sh"]

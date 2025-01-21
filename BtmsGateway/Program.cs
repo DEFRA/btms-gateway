@@ -4,6 +4,8 @@ using Serilog;
 using Serilog.Core;
 using System.Diagnostics.CodeAnalysis;
 using BtmsGateway.Config;
+using BtmsGateway.Middleware;
+using BtmsGateway.Services.Checking;
 using Microsoft.OpenApi.Models;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
@@ -19,10 +21,13 @@ static WebApplication CreateWebApplication(string[] args)
     var builder = WebApplication.CreateBuilder(args);
 
     ConfigureWebApplication(builder);
-
     ConfigureSwaggerBuilder(builder);
 
-    var app = builder.BuildWebApplication();
+    var app = builder.Build();
+
+    app.UseMiddleware<RoutingInterceptor>();
+    app.MapHealthChecks("/health");
+    app.UseCheckRoutesEndpoints();
 
     ConfigureSwaggerApp(app);
 
@@ -55,11 +60,8 @@ static void ConfigureWebApplication(WebApplicationBuilder builder)
 
     var logger = ConfigureLogging(builder);
 
-    // Load certificates into Trust Store - Note must happen before Mongo and Http client connections
     builder.Services.AddCustomTrustStore(logger);
-
-    builder.ConfigureEndpoints();
-
+    builder.Services.AddHealthChecks();
     builder.AddServices(logger);
 }
 

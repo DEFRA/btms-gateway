@@ -6,7 +6,6 @@ using System.Diagnostics.CodeAnalysis;
 using BtmsGateway.Config;
 using BtmsGateway.Middleware;
 using BtmsGateway.Services.Checking;
-using Microsoft.OpenApi.Models;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
@@ -21,7 +20,7 @@ static WebApplication CreateWebApplication(string[] args)
     var builder = WebApplication.CreateBuilder(args);
 
     ConfigureWebApplication(builder);
-    ConfigureSwaggerBuilder(builder);
+    builder.ConfigureSwaggerBuilder();
 
     var app = builder.Build();
 
@@ -29,7 +28,7 @@ static WebApplication CreateWebApplication(string[] args)
     app.MapHealthChecks("/health");
     app.UseCheckRoutesEndpoints();
 
-    ConfigureSwaggerApp(app);
+    app.ConfigureSwaggerApp();
 
     return app;
 }
@@ -83,27 +82,4 @@ static Logger ConfigureLogging(WebApplicationBuilder builder)
     builder.Logging.AddSerilog(logger);
     logger.Information("Starting application");
     return logger;
-}
-
-[ExcludeFromCodeCoverage]
-static void ConfigureSwaggerBuilder(WebApplicationBuilder builder)
-{
-    if (builder.IsSwaggerEnabled())
-    {
-        builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen(c => { c.SwaggerDoc("public-v0.1", new OpenApiInfo { Title = "TDM Public API", Version = "v1" }); });
-    }
-}
-
-[ExcludeFromCodeCoverage]
-static void ConfigureSwaggerApp(WebApplication app)
-{
-    if (app.IsSwaggerEnabled())
-    {
-        app.UseSwagger();
-        app.UseSwaggerUI(options =>
-        {
-            options.SwaggerEndpoint("/swagger/public-v0.1/swagger.json", "public");
-        });
-    }
 }

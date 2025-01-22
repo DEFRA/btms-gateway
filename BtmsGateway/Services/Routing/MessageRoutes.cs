@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Services.Routing;
@@ -29,6 +30,7 @@ public class MessageRoutes : IMessageRoutes
         }
     }
    
+    [SuppressMessage("SonarLint", "S3358", Justification = "The second nested ternary in each case (lines 55, 56, 68, 69) is within a string interpolation so is very clearly independent of the first")]
     public RoutingResult GetRoute(string routePath)
     {
         try

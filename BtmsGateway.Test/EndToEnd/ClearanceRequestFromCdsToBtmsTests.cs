@@ -6,34 +6,33 @@ using FluentAssertions;
 
 namespace BtmsGateway.Test.EndToEnd;
 
-public class ClearanceRequestTests : TargetRoutingTestBase
+public class ClearanceRequestFromCdsToBtmsTests : TargetRoutingTestBase
 {
     private const string OriginalPath = "/clearance-request/path";
-    private const string GatewayPath = $"/cds{OriginalPath}";
-    private const string BtmsPath = $"/forked{OriginalPath}";
+    private const string GatewayPath = $"/cds-btms{OriginalPath}";
     
     private readonly string _originalRequestSoap = File.ReadAllText(Path.Combine(FixturesPath, "ClearanceRequest.xml"));
     private readonly string _originalResponseSoap = File.ReadAllText(Path.Combine(FixturesPath, "AlvsResponse.xml"));
     private readonly string _btmsRequestJson = File.ReadAllText(Path.Combine(FixturesPath, "ClearanceRequest.json")).LinuxLineEndings();
     private readonly StringContent _originalRequestSoapContent;
 
-    public ClearanceRequestTests()
+    public ClearanceRequestFromCdsToBtmsTests()
     {
         _originalRequestSoapContent = new StringContent(_originalRequestSoap, Encoding.UTF8, MediaTypeNames.Application.Soap);
         TestWebServer.RoutedHttpHandler.SetNextResponse(content: _originalResponseSoap, statusFunc: () => HttpStatusCode.Accepted);
     }
 
     [Fact]
-    public async Task When_receiving_request_from_cds_Then_should_forward_to_alvs()
+    public async Task When_receiving_request_from_cds_Then_should_forward_converted_json_to_btms()
     {
         await HttpClient.PostAsync(GatewayPath, _originalRequestSoapContent);
 
-        TestWebServer.RoutedHttpHandler.LastRequest!.RequestUri!.AbsolutePath.Should().Be(OriginalPath);
-        (await TestWebServer.RoutedHttpHandler.LastRequest!.Content!.ReadAsStringAsync()).Should().Be(_originalRequestSoap);
+        TestWebServer.RoutedHttpHandler.LastRequest!.RequestUri!.AbsoluteUri.Should().Be($"http://btms{OriginalPath}");
+        (await TestWebServer.RoutedHttpHandler.LastRequest!.Content!.ReadAsStringAsync()).LinuxLineEndings().Should().Be(_btmsRequestJson);
     }
 
     [Fact]
-    public async Task When_receiving_request_from_cds_Then_should_respond_with_alvs_response()
+    public async Task When_receiving_request_from_cds_Then_should_respond_with_btms_response()
     {
         var response = await HttpClient.PostAsync(GatewayPath, _originalRequestSoapContent);
 
@@ -42,11 +41,10 @@ public class ClearanceRequestTests : TargetRoutingTestBase
     }
 
     [Fact]
-    public async Task When_receiving_request_from_cds_Then_should_forward_converted_json_to_btms()
+    public async Task When_receiving_request_from_cds_Then_should_not_forward_to_btms()
     {
         await HttpClient.PostAsync(GatewayPath, _originalRequestSoapContent);
 
-        TestWebServer.ForkedHttpHandler.LastRequest!.RequestUri!.AbsolutePath.Should().Be(BtmsPath);
-        (await TestWebServer.ForkedHttpHandler.LastRequest!.Content!.ReadAsStringAsync()).LinuxLineEndings().Should().Be(_btmsRequestJson);
+        TestWebServer.ForkedHttpHandler.LastRequest.Should().BeNull();
     }
 }

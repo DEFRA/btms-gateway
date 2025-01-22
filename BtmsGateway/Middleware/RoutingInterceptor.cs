@@ -40,17 +40,20 @@ public class RoutingInterceptor(RequestDelegate next, IMessageRouter messageRout
 
     private async Task Route(HttpContext context, MessageData messageData, Metrics metrics)
     {
-        const string Action = "Routing";
         var routingResult = await messageRouter.Route(messageData);
 
-        if (routingResult.RouteFound)
+        if (routingResult.RouteFound && routingResult.RouteLinkType != LinkType.None)
         {
-            CheckResults(messageData, routingResult, Action);
+            CheckResults(messageData, routingResult, "Routing");
             await messageData.PopulateResponse(context.Response, routingResult);
+        }
+        else if (routingResult.RouteLinkType == LinkType.None)
+        {
+            logger.Information("{CorrelationId} Routing not configured for [{HttpString}]", messageData.CorrelationId, messageData.HttpString);
         }
         else
         {
-            logger.Information("{CorrelationId} {Action} not supported for [{HttpString}]", messageData.CorrelationId, Action, messageData.HttpString);
+            logger.Information("{CorrelationId} Routing not supported for [{HttpString}]", messageData.CorrelationId, messageData.HttpString);
         }
 
         metrics.RequestRouted(messageData, routingResult);
@@ -58,16 +61,19 @@ public class RoutingInterceptor(RequestDelegate next, IMessageRouter messageRout
 
     private async Task Fork(MessageData messageData, Metrics metrics)
     {
-        const string Action = "Forking";
         var routingResult = await messageRouter.Fork(messageData);
 
-        if (routingResult.RouteFound)
+        if (routingResult.RouteFound && routingResult.ForkLinkType != LinkType.None)
         {
-            CheckResults(messageData, routingResult, Action);
+            CheckResults(messageData, routingResult, "Forking");
+        }
+        else if (routingResult.ForkLinkType == LinkType.None)
+        {
+            logger.Information("{CorrelationId} Forking not configured for [{HttpString}]", messageData.CorrelationId, messageData.HttpString);
         }
         else
         {
-            logger.Information("{CorrelationId} {Action} not supported for [{HttpString}]", messageData.CorrelationId, Action, messageData.HttpString);
+            logger.Information("{CorrelationId} Forking not supported for [{HttpString}]", messageData.CorrelationId, messageData.HttpString);
         }
         
         metrics.RequestForked(messageData, routingResult);

@@ -48,22 +48,26 @@ public class MessageRoutes : IMessageRoutes
                     {
                         RouteFound = true,
                         RouteName = routeName,
-                        FullRouteLink = $"{route.LegacyLink}{(route.LegacyLinkType == LinkType.Url ? routeUrlPath : null)}",
-                        FullForkLink = $"{route.BtmsLink}{(route.BtmsLinkType == LinkType.Url ? routeUrlPath : null)}",
+                        RouteLinkType = route.LegacyLinkType,
+                        ForkLinkType = route.BtmsLinkType,
+                        FullRouteLink = route.LegacyLinkType == LinkType.None ? null : $"{route.LegacyLink}{(route.LegacyLinkType == LinkType.Url ? routeUrlPath : null)}",
+                        FullForkLink = route.BtmsLinkType == LinkType.None ? null : $"{route.BtmsLink}{(route.BtmsLinkType == LinkType.Url ? routeUrlPath : null)}",
                         RouteHostHeader = route.LegacyHostHeader,
                         ForkHostHeader = route.BtmsHostHeader,
-                        ConvertedForkedContentToJson = true,
+                        ConvertForkedContentToJson = true,
                         UrlPath = routeUrlPath
                     },
                     RouteTo.Btms => new RoutingResult
                     {
                         RouteFound = true,
                         RouteName = routeName,
-                        FullRouteLink = $"{route.BtmsLink}{(route.BtmsLinkType == LinkType.Url ? routeUrlPath : null)}",
-                        FullForkLink = $"{route.LegacyLink}{(route.LegacyLinkType == LinkType.Url ? routeUrlPath : null)}",
+                        RouteLinkType = route.BtmsLinkType,
+                        ForkLinkType = route.LegacyLinkType,
+                        FullRouteLink = route.BtmsLinkType == LinkType.None ? null : $"{route.BtmsLink}{(route.BtmsLinkType == LinkType.Url ? routeUrlPath : null)}",
+                        FullForkLink = route.LegacyLinkType == LinkType.None ? null : $"{route.LegacyLink}{(route.LegacyLinkType == LinkType.Url ? routeUrlPath : null)}",
                         RouteHostHeader = route.BtmsHostHeader,
                         ForkHostHeader = route.LegacyHostHeader,
-                        ConvertedRoutedContentToJson = true,
+                        ConvertRoutedContentToJson = true,
                         UrlPath = routeUrlPath
                     },
                     _ => throw new ArgumentOutOfRangeException(nameof(route.RouteTo), "Can only route to 'Legacy' or 'Btms'")

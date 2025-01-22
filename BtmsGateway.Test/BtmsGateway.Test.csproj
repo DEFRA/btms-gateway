@@ -71,6 +71,9 @@
     <None Update="EndToEnd\Fixtures\DecisionNotification.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="EndToEnd\Fixtures\TargetRoutingConfig.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   
 </Project>

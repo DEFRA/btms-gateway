@@ -17,13 +17,13 @@ public class MessageRouter(IHttpClientFactory clientFactory, IMessageRoutes mess
     public async Task<RoutingResult> Route(MessageData messageData)
     {
         var routingResult = messageRoutes.GetRoute(messageData.Path);
-        if (!routingResult.RouteFound) return routingResult;
+        if (!routingResult.RouteFound || routingResult.RouteLinkType == LinkType.None) return routingResult;
         
         try
         {
             var metrics = metricsHost.GetMetrics();
             var client = clientFactory.CreateClient(Proxy.RoutedClientWithRetry);
-            var request = routingResult.ConvertedRoutedContentToJson 
+            var request = routingResult.ConvertRoutedContentToJson 
                 ? messageData.CreateForwardingRequestAsJson(routingResult.FullRouteLink, routingResult.RouteHostHeader) 
                 : messageData.CreateForwardingRequestAsOriginal(routingResult.FullRouteLink, routingResult.RouteHostHeader);
             
@@ -44,13 +44,13 @@ public class MessageRouter(IHttpClientFactory clientFactory, IMessageRoutes mess
     public async Task<RoutingResult> Fork(MessageData messageData)
     {
         var routingResult = messageRoutes.GetRoute(messageData.Path);
-        if (!routingResult.RouteFound) return routingResult;
+        if (!routingResult.RouteFound || routingResult.ForkLinkType == LinkType.None) return routingResult;
         
         try
         {
             var metrics = metricsHost.GetMetrics();
             var client = clientFactory.CreateClient(Proxy.ForkedClientWithRetry);
-            var request = routingResult.ConvertedForkedContentToJson 
+            var request = routingResult.ConvertForkedContentToJson 
                 ? messageData.CreateForwardingRequestAsJson(routingResult.FullForkLink, routingResult.ForkHostHeader) 
                 : messageData.CreateForwardingRequestAsOriginal(routingResult.FullForkLink, routingResult.ForkHostHeader);
             

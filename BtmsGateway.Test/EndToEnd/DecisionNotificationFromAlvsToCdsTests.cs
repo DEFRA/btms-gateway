@@ -6,17 +6,16 @@ using FluentAssertions;
 
 namespace BtmsGateway.Test.EndToEnd;
 
-public class DecisionNotificationTests : TargetRoutingTestBase
+public class DecisionNotificationFromAlvsToCdsTests : TargetRoutingTestBase
 {
     private const string OriginalPath = "/decision-notification/path";
     private const string GatewayPath = $"/alvs-cds{OriginalPath}";
-    private const string BtmsPath = $"/forked{OriginalPath}";
     
     private readonly string _originalRequestSoap = File.ReadAllText(Path.Combine(FixturesPath, "DecisionNotification.xml"));
     private readonly string _btmsRequestJson = File.ReadAllText(Path.Combine(FixturesPath, "DecisionNotification.json")).LinuxLineEndings();
     private readonly StringContent _originalRequestSoapContent;
 
-    public DecisionNotificationTests()
+    public DecisionNotificationFromAlvsToCdsTests()
     {
         _originalRequestSoapContent = new StringContent(_originalRequestSoap, Encoding.UTF8, MediaTypeNames.Application.Soap);
         TestWebServer.RoutedHttpHandler.SetNextResponse(statusFunc: () => HttpStatusCode.NoContent);
@@ -27,7 +26,7 @@ public class DecisionNotificationTests : TargetRoutingTestBase
     {
         await HttpClient.PostAsync(GatewayPath, _originalRequestSoapContent);
 
-        TestWebServer.RoutedHttpHandler.LastRequest!.RequestUri!.AbsolutePath.Should().Be(OriginalPath);
+        TestWebServer.RoutedHttpHandler.LastRequest!.RequestUri!.AbsoluteUri.Should().Be($"http://alvs-cds{OriginalPath}");
         (await TestWebServer.RoutedHttpHandler.LastRequest!.Content!.ReadAsStringAsync()).Should().Be(_originalRequestSoap);
     }
 
@@ -45,7 +44,7 @@ public class DecisionNotificationTests : TargetRoutingTestBase
     {
         await HttpClient.PostAsync(GatewayPath, _originalRequestSoapContent);
 
-        TestWebServer.ForkedHttpHandler.LastRequest!.RequestUri!.AbsolutePath.Should().Be(BtmsPath);
+        TestWebServer.ForkedHttpHandler.LastRequest!.RequestUri!.AbsoluteUri.Should().Be($"http://btms{OriginalPath}");
         (await TestWebServer.ForkedHttpHandler.LastRequest!.Content!.ReadAsStringAsync()).LinuxLineEndings().Should().Be(_btmsRequestJson);
     }
 }

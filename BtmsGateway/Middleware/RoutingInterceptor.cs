@@ -45,7 +45,6 @@ public class RoutingInterceptor(RequestDelegate next, IMessageRouter messageRout
         if (routingResult.RouteFound && routingResult.RouteLinkType != LinkType.None)
         {
             CheckResults(messageData, routingResult, "Routing");
-            await messageData.PopulateResponse(context.Response, routingResult);
         }
         else if (routingResult.RouteLinkType == LinkType.None)
         {
@@ -55,6 +54,8 @@ public class RoutingInterceptor(RequestDelegate next, IMessageRouter messageRout
         {
             logger.Information("{CorrelationId} Routing not supported for [{HttpString}]", messageData.CorrelationId, messageData.HttpString);
         }
+
+        await messageData.PopulateResponse(context.Response, routingResult);
 
         metrics.RequestRouted(messageData, routingResult);
     }

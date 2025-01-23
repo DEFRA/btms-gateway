@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Net;
 using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Services.Routing;
@@ -33,17 +34,19 @@ public class MessageRoutes : IMessageRoutes
     [SuppressMessage("SonarLint", "S3358", Justification = "The second nested ternary in each case (lines 55, 56, 68, 69) is within a string interpolation so is very clearly independent of the first")]
     public RoutingResult GetRoute(string routePath)
     {
+        var routeName = "";
+        var routeUrlPath = "";
         try
         {
             var routeParts = routePath.Split('/', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
             if (routeParts.Length == 0) return new RoutingResult();
         
-            var routeName = routeParts[0].ToLower();
-            var routeUrlPath = $"/{string.Join('/', routeParts[1..])}";
+            routeName = routeParts[0].ToLower();
+            routeUrlPath = $"/{string.Join('/', routeParts[1..])}";
             var route = _routes.SingleOrDefault(x => x.Name == routeName);
 
             return route == null
-                ? new RoutingResult { RouteFound = false, RouteName = routeName, UrlPath = routeUrlPath }
+                ? new RoutingResult { RouteFound = false, RouteName = routeName, UrlPath = routeUrlPath, StatusCode = HttpStatusCode.InternalServerError, ErrorMessage = "Route not found" }
                 : route.RouteTo switch
                 {
                     RouteTo.Legacy => new RoutingResult
@@ -78,7 +81,7 @@ public class MessageRoutes : IMessageRoutes
         catch (Exception ex)
         {
             _logger.Error(ex, "Error getting route");
-            throw;
+            return new RoutingResult { RouteFound = false, RouteName = routeName, UrlPath = routeUrlPath, StatusCode = HttpStatusCode.InternalServerError, ErrorMessage = ex.Message };
         }
     }
 }

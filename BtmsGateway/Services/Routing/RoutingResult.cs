@@ -19,4 +19,5 @@ public record RoutingResult
     public string? ResponseContent { get; init; }
     public DateTimeOffset? ResponseDate { get; init; }
     public HttpStatusCode StatusCode { get; init; }
+    public string? ErrorMessage { get; init; }
 }

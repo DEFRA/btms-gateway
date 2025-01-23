@@ -15,7 +15,7 @@ public sealed class GeneralEndToEndTests : IAsyncDisposable
     private const string XmlForkedResponse = "<xml>ForkedResponse</xml>";
     private const string XmlContent = "<xml>Content</xml>";
     private static readonly string JsonContent = $"{{{Environment.NewLine}  \"xml\": \"Content\"{Environment.NewLine}}}";
-    private const string RouteName = "alvs-ipaffs";
+    private const string RouteName = "alvs_ipaffs";
     private const string SubPath = "sub/path";
     private const string FullPath = $"{RouteName}/{SubPath}";
     private const string RoutedPath = $"/{SubPath}";

@@ -30,12 +30,12 @@ public class MessageDataTests
     [Theory]
     [InlineData("/")]
     [InlineData("/cds")]
-    [InlineData("/alvs-cds")]
-    [InlineData("/alvs-ipaffs")]
+    [InlineData("/alvs_cds")]
+    [InlineData("/alvs_ipaffs")]
     [InlineData("/test")]
     [InlineData("/simulator/cds")]
-    [InlineData("/simulator/alvs-cds")]
-    [InlineData("/simulator/alvs-ipaffs")]
+    [InlineData("/simulator/alvs_cds")]
+    [InlineData("/simulator/alvs_ipaffs")]
     [InlineData("/anything")]
     public async Task When_receiving_a_get_request_that_should_be_processed_Then_it_should_indicate_so(string path)
     {

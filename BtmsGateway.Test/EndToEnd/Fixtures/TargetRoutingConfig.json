@@ -6,19 +6,19 @@
       "SendLegacyResponseToBtms": false,
       "RouteTo": "Legacy"
     },
-    "alvs-cds": {
+    "alvs_cds": {
       "LegacyLinkName": "AlvsCds",
       "BtmsLinkName": "Btms",
       "SendLegacyResponseToBtms": false,
       "RouteTo": "Legacy"
     },
-    "btms-cds": {
+    "btms_cds": {
       "LegacyLinkName": "Cds",
       "BtmsLinkName": "None",
       "SendLegacyResponseToBtms": false,
       "RouteTo": "Legacy"
     },
-    "cds-btms": {
+    "cds_btms": {
       "LegacyLinkName": "None",
       "BtmsLinkName": "Btms",
       "SendLegacyResponseToBtms": false,
@@ -36,7 +36,7 @@
     },
     "AlvsCds": {
       "LinkType": "Url",
-      "Link": "http://alvs-cds/"
+      "Link": "http://alvs_cds/"
     },
     "Btms": {
       "LinkType": "Url",

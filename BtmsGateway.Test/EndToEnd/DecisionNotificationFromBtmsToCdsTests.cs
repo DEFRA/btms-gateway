@@ -8,7 +8,7 @@ namespace BtmsGateway.Test.EndToEnd;
 public class DecisionNotificationFromBtmsToCdsTests : TargetRoutingTestBase
 {
     private const string OriginalPath = "/decision-notification/path";
-    private const string GatewayPath = $"/btms-cds{OriginalPath}";
+    private const string GatewayPath = $"/btms_cds{OriginalPath}";
     
     private readonly string _originalRequestSoap = File.ReadAllText(Path.Combine(FixturesPath, "DecisionNotification.xml"));
     private readonly StringContent _originalRequestSoapContent;

@@ -9,7 +9,7 @@ namespace BtmsGateway.Test.EndToEnd;
 public class DecisionNotificationFromAlvsToCdsTests : TargetRoutingTestBase
 {
     private const string OriginalPath = "/decision-notification/path";
-    private const string GatewayPath = $"/alvs-cds{OriginalPath}";
+    private const string GatewayPath = $"/alvs_cds{OriginalPath}";
     
     private readonly string _originalRequestSoap = File.ReadAllText(Path.Combine(FixturesPath, "DecisionNotification.xml"));
     private readonly string _btmsRequestJson = File.ReadAllText(Path.Combine(FixturesPath, "DecisionNotification.json")).LinuxLineEndings();
@@ -26,7 +26,7 @@ public class DecisionNotificationFromAlvsToCdsTests : TargetRoutingTestBase
     {
         await HttpClient.PostAsync(GatewayPath, _originalRequestSoapContent);
 
-        TestWebServer.RoutedHttpHandler.LastRequest!.RequestUri!.AbsoluteUri.Should().Be($"http://alvs-cds{OriginalPath}");
+        TestWebServer.RoutedHttpHandler.LastRequest!.RequestUri!.AbsoluteUri.Should().Be($"http://alvs_cds{OriginalPath}");
         (await TestWebServer.RoutedHttpHandler.LastRequest!.Content!.ReadAsStringAsync()).Should().Be(_originalRequestSoap);
     }
 

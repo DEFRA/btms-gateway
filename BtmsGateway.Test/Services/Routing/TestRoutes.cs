@@ -8,8 +8,10 @@ public static class TestRoutes
     {
         NamedRoutes = new Dictionary<string, NamedRoute>
         {
-            { "route-1", new NamedRoute { LegacyLinkName = "legacy_link_name_1", BtmsLinkName = "btms_link_name_1", SendRoutedResponseToFork = true, RouteTo = RouteTo.Legacy } },
-            { "route-2", new NamedRoute { LegacyLinkName = "legacy_link_name_2", BtmsLinkName = "btms_link_name_2", SendRoutedResponseToFork = true, RouteTo = RouteTo.Btms } }
+            { "route-1", new NamedRoute { LegacyLinkName = "legacy_link_name_1", BtmsLinkName = "btms_link_name_1", SendLegacyResponseToBtms = true, RouteTo = RouteTo.Legacy } },
+            { "route-2", new NamedRoute { LegacyLinkName = "legacy_link_name_2", BtmsLinkName = "btms_link_name_2", SendLegacyResponseToBtms = true, RouteTo = RouteTo.Btms } },
+            { "route-3", new NamedRoute { LegacyLinkName = "legacy_link_name_1", BtmsLinkName = "none", SendLegacyResponseToBtms = false, RouteTo = RouteTo.Legacy } },
+            { "route-4", new NamedRoute { LegacyLinkName = "none", BtmsLinkName = "btms_link_name_2", SendLegacyResponseToBtms = false, RouteTo = RouteTo.Btms } }
         },
         NamedLinks = new Dictionary<string, NamedLink>
         {
@@ -17,6 +19,7 @@ public static class TestRoutes
             { "legacy_link_name_2", new NamedLink { Link = "legacy-link-queue", LinkType = LinkType.Queue } },
             { "btms_link_name_1", new NamedLink { Link = "btms-link-queue", LinkType = LinkType.Queue } },
             { "btms_link_name_2", new NamedLink { Link = "http://btms-link-url", LinkType = LinkType.Url, HostHeader = "btms-host-header" } },
+            { "none", new NamedLink { Link = "none", LinkType = LinkType.None, HostHeader = null } },
         }
     };
     
@@ -24,7 +27,7 @@ public static class TestRoutes
     {
         NamedRoutes = new Dictionary<string, NamedRoute>
         {
-            { "route-1", new NamedRoute { LegacyLinkName = "link_name_1", BtmsLinkName = "link_name_1", SendRoutedResponseToFork = true, RouteTo = RouteTo.Legacy } }
+            { "route-1", new NamedRoute { LegacyLinkName = "link_name_1", BtmsLinkName = "link_name_1", SendLegacyResponseToBtms = true, RouteTo = RouteTo.Legacy } }
         },
         NamedLinks = new Dictionary<string, NamedLink>
         {
@@ -36,7 +39,7 @@ public static class TestRoutes
     {
         NamedRoutes = new Dictionary<string, NamedRoute>
         {
-            { "route-1", new NamedRoute { LegacyLinkName = "link_name_1", BtmsLinkName = "link_name_1", SendRoutedResponseToFork = true, RouteTo = (RouteTo)99 } }
+            { "route-1", new NamedRoute { LegacyLinkName = "link_name_1", BtmsLinkName = "link_name_1", SendLegacyResponseToBtms = true, RouteTo = (RouteTo)99 } }
         },
         NamedLinks = new Dictionary<string, NamedLink>
         {
@@ -48,7 +51,7 @@ public static class TestRoutes
     {
         NamedRoutes = new Dictionary<string, NamedRoute>
         {
-            { "route-1", new NamedRoute { LegacyLinkName = "link_name_1", BtmsLinkName = "link_name_1", SendRoutedResponseToFork = true, RouteTo = RouteTo.Legacy } }
+            { "route-1", new NamedRoute { LegacyLinkName = "link_name_1", BtmsLinkName = "link_name_1", SendLegacyResponseToBtms = true, RouteTo = RouteTo.Legacy } }
         },
         NamedLinks = new Dictionary<string, NamedLink>
         {

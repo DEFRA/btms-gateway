@@ -6,18 +6,17 @@ using FluentAssertions;
 
 namespace BtmsGateway.Test.EndToEnd;
 
-public class ClearanceRequestTests : TargetRoutingTestBase
+public class FinalisationNotificationFromCdsToAlvsTests : TargetRoutingTestBase
 {
-    private const string OriginalPath = "/clearance-request/path";
+    private const string OriginalPath = "/finalisation-notification/path";
     private const string GatewayPath = $"/cds{OriginalPath}";
-    private const string BtmsPath = $"/forked{OriginalPath}";
     
-    private readonly string _originalRequestSoap = File.ReadAllText(Path.Combine(FixturesPath, "ClearanceRequest.xml"));
+    private readonly string _originalRequestSoap = File.ReadAllText(Path.Combine(FixturesPath, "FinalisationNotification.xml"));
     private readonly string _originalResponseSoap = File.ReadAllText(Path.Combine(FixturesPath, "AlvsResponse.xml"));
-    private readonly string _btmsRequestJson = File.ReadAllText(Path.Combine(FixturesPath, "ClearanceRequest.json")).LinuxLineEndings();
+    private readonly string _btmsRequestJson = File.ReadAllText(Path.Combine(FixturesPath, "FinalisationNotification.json")).LinuxLineEndings();
     private readonly StringContent _originalRequestSoapContent;
 
-    public ClearanceRequestTests()
+    public FinalisationNotificationFromCdsToAlvsTests()
     {
         _originalRequestSoapContent = new StringContent(_originalRequestSoap, Encoding.UTF8, MediaTypeNames.Application.Soap);
         TestWebServer.RoutedHttpHandler.SetNextResponse(content: _originalResponseSoap, statusFunc: () => HttpStatusCode.Accepted);
@@ -28,7 +27,7 @@ public class ClearanceRequestTests : TargetRoutingTestBase
     {
         await HttpClient.PostAsync(GatewayPath, _originalRequestSoapContent);
 
-        TestWebServer.RoutedHttpHandler.LastRequest!.RequestUri!.AbsolutePath.Should().Be(OriginalPath);
+        TestWebServer.RoutedHttpHandler.LastRequest!.RequestUri!.AbsoluteUri.Should().Be($"http://cds{OriginalPath}");
         (await TestWebServer.RoutedHttpHandler.LastRequest!.Content!.ReadAsStringAsync()).Should().Be(_originalRequestSoap);
     }
 
@@ -46,7 +45,7 @@ public class ClearanceRequestTests : TargetRoutingTestBase
     {
         await HttpClient.PostAsync(GatewayPath, _originalRequestSoapContent);
 
-        TestWebServer.ForkedHttpHandler.LastRequest!.RequestUri!.AbsolutePath.Should().Be(BtmsPath);
+        TestWebServer.ForkedHttpHandler.LastRequest!.RequestUri!.AbsoluteUri.Should().Be($"http://btms{OriginalPath}");
         (await TestWebServer.ForkedHttpHandler.LastRequest!.Content!.ReadAsStringAsync()).LinuxLineEndings().Should().Be(_btmsRequestJson);
     }
 }

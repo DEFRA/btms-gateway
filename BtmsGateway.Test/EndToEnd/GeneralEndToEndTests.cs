@@ -15,7 +15,7 @@ public sealed class GeneralEndToEndTests : IAsyncDisposable
     private const string XmlForkedResponse = "<xml>ForkedResponse</xml>";
     private const string XmlContent = "<xml>Content</xml>";
     private static readonly string JsonContent = $"{{{Environment.NewLine}  \"xml\": \"Content\"{Environment.NewLine}}}";
-    private const string RouteName = "alvs-ipaffs";
+    private const string RouteName = "alvs_ipaffs";
     private const string SubPath = "sub/path";
     private const string FullPath = $"{RouteName}/{SubPath}";
     private const string RoutedPath = $"/{SubPath}";
@@ -36,7 +36,7 @@ public sealed class GeneralEndToEndTests : IAsyncDisposable
         _httpClient.DefaultRequestHeaders.Add(MessageData.CorrelationIdHeaderName, _headerCorrelationId);
 
         var routingConfig = _testWebServer.Services.GetRequiredService<RoutingConfig>();
-        var expectedRoutUrl = routingConfig.AllRoutes.Single(x => x.Name == RouteName).LegacyLink;
+        var expectedRoutUrl = routingConfig.AllRoutes.Single(x => x.Name == RouteName).LegacyLink!;
         _expectedRoutedUrl = $"{expectedRoutUrl.Trim('/')}/{SubPath}";
         _expectedForkedUrl = $"{expectedRoutUrl.Trim('/')}/forked/{SubPath}";
         _stringContent = new StringContent(XmlContent, Encoding.UTF8, MediaTypeNames.Application.Xml);

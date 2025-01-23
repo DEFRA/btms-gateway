@@ -34,4 +34,34 @@ public class RoutingConfigTests
         route.SendLegacyResponseToBtms.Should().BeTrue();
         route.RouteTo.Should().Be(RouteTo.Btms);
     }
+    
+    [Fact]
+    public void When_getting_route_3_Then_should_retrieve_routed_links()
+    {
+        var route = TestRoutes.RoutingConfig.AllRoutes.Single(x => x.Name == "route-3");
+        route.Name.Should().Be("route-3");
+        route.LegacyLink.Should().Be("http://legacy-link-url");
+        route.LegacyLinkType.Should().Be(LinkType.Url);
+        route.LegacyHostHeader.Should().Be("legacy-host-header");
+        route.BtmsLink.Should().Be("none");
+        route.BtmsLinkType.Should().Be(LinkType.None);
+        route.BtmsHostHeader.Should().BeNull();
+        route.SendLegacyResponseToBtms.Should().BeFalse();
+        route.RouteTo.Should().Be(RouteTo.Legacy);
+    }
+
+    [Fact]
+    public void When_getting_route_4_Then_should_retrieve_routed_links()
+    {
+        var route = TestRoutes.RoutingConfig.AllRoutes.Single(x => x.Name == "route-4");
+        route.Name.Should().Be("route-4");
+        route.LegacyLink.Should().Be("none");
+        route.LegacyLinkType.Should().Be(LinkType.None);
+        route.LegacyHostHeader.Should().BeNull();
+        route.BtmsLink.Should().Be("http://btms-link-url");
+        route.BtmsLinkType.Should().Be(LinkType.Url);
+        route.BtmsHostHeader.Should().Be("btms-host-header");
+        route.SendLegacyResponseToBtms.Should().BeFalse();
+        route.RouteTo.Should().Be(RouteTo.Btms);
+    }
 }

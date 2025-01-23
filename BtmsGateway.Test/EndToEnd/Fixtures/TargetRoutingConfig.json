@@ -1,0 +1,46 @@
+{
+  "NamedRoutes": {
+    "cds": {
+      "LegacyLinkName": "Cds",
+      "BtmsLinkName": "Btms",
+      "SendLegacyResponseToBtms": false,
+      "RouteTo": "Legacy"
+    },
+    "alvs_cds": {
+      "LegacyLinkName": "AlvsCds",
+      "BtmsLinkName": "Btms",
+      "SendLegacyResponseToBtms": false,
+      "RouteTo": "Legacy"
+    },
+    "btms_cds": {
+      "LegacyLinkName": "Cds",
+      "BtmsLinkName": "None",
+      "SendLegacyResponseToBtms": false,
+      "RouteTo": "Legacy"
+    },
+    "cds_btms": {
+      "LegacyLinkName": "None",
+      "BtmsLinkName": "Btms",
+      "SendLegacyResponseToBtms": false,
+      "RouteTo": "Btms"
+    }
+  },
+  "NamedLinks": {
+    "None": {
+      "LinkType": "None",
+      "Link": ""
+    },
+    "Cds": {
+      "LinkType": "Url",
+      "Link": "http://cds/"
+    },
+    "AlvsCds": {
+      "LinkType": "Url",
+      "Link": "http://alvs_cds/"
+    },
+    "Btms": {
+      "LinkType": "Url",
+      "Link": "http://btms/"
+    }
+  }
+}

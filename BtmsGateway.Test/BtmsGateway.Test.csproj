@@ -32,49 +32,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="EndToEnd\Fixtures\ClearanceRequest.json">
+    <None Update="EndToEnd\Fixtures\**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="EndToEnd\Fixtures\ClearanceRequest.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="EndToEnd\Fixtures\AlvsResponse.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="EndToEnd\Fixtures\FinalisationNotification.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="EndToEnd\Fixtures\FinalisationNotification.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="EndToEnd\Fixtures\AlvsErrorHandling.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="EndToEnd\Fixtures\AlvsErrorHandling.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="EndToEnd\Fixtures\CdsErrorHandling.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="EndToEnd\Fixtures\CdsErrorHandling.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="EndToEnd\Fixtures\DecisionNotification.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="EndToEnd\Fixtures\DecisionNotification.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="EndToEnd\Fixtures\TargetRoutingConfig.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Services\Converter\Fixtures\ClearanceRequest.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Services\Converter\Fixtures\ClearanceRequestWithEnvelope.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Services\Converter\Fixtures\ClearanceRequestWithoutEnvelope.xml">
+    <None Update="Services\Converter\Fixtures\**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

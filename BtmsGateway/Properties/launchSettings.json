@@ -7,8 +7,7 @@
       "applicationUrl": "http://btms-gateway.localtest.me:3091",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "DMP_ENVIRONMENT": "dev",
-        "CDP_HTTPS_PROXY": "https://btms-gateway:bW5sJ9LqhOtuvTmkE65c@proxy.test.cdp-int.defra.cloud"
+        "DMP_ENVIRONMENT": "dev"
       }
     }
   }

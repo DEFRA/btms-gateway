@@ -9,7 +9,7 @@ public static class XmlToJsonConverter
     {
         XContainer xDocument = Validate(xml);
 
-        var message = xDocument.Elements().FirstOrDefault(e => e.Name.LocalName == "Envelope")?.Elements().FirstOrDefault(e => e.Name.LocalName == "Body") ?? xDocument;
+        var message = (xDocument.Elements().FirstOrDefault(e => e.Name.LocalName == "Envelope")?.Elements().FirstOrDefault(e => e.Name.LocalName == "Body") ?? xDocument).Descendants().FirstOrDefault();
         ArgumentNullException.ThrowIfNull(message, "SOAP Body message");
         
         var jsonObject = new Dictionary<string, object>();

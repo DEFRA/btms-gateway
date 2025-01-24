@@ -231,7 +231,7 @@ public class MessageDataTests
         
         var request = messageData.CreateForwardingRequestAsJson("https://localhost:456/cds/path", null);
 
-        (await request.Content!.ReadAsStringAsync()).LinuxLineEndings().Should().Be("{\n  \"root\": {\n    \"data\": \"abc\"\n  }\n}");
+        (await request.Content!.ReadAsStringAsync()).LinuxLineEndings().Should().Be("{\n  \"data\": \"abc\"\n}");
         request.Content!.Headers.ContentType!.ToString().Should().Be("application/json; charset=utf-8");
         request.Headers.Count().Should().Be(3);
         request.Headers.GetValues("Accept").Should().BeEquivalentTo("application/json");

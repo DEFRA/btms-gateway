@@ -11,9 +11,9 @@ namespace BtmsGateway.Test.EndToEnd;
 
 public sealed class GeneralEndToEndTests : IAsyncDisposable
 {
-    private const string XmlRoutedResponse = "<xml>RoutedResponse</xml>";
-    private const string XmlForkedResponse = "<xml>ForkedResponse</xml>";
-    private const string XmlContent = "<xml>Content</xml>";
+    private const string XmlRoutedResponse = "<root><xml>RoutedResponse</xml></root>";
+    private const string XmlForkedResponse = "<root><xml>ForkedResponse</xml></root>";
+    private const string XmlContent = "<root><xml>Content</xml></root>";
     private static readonly string JsonContent = $"{{{Environment.NewLine}  \"xml\": \"Content\"{Environment.NewLine}}}";
     private const string RouteName = "alvs_ipaffs";
     private const string SubPath = "sub/path";

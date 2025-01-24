@@ -10,7 +10,7 @@ public static class XmlToJsonConverter
         XContainer xDocument = Validate(xml);
 
         var message = (xDocument.Elements().FirstOrDefault(e => e.Name.LocalName == "Envelope")?.Elements().FirstOrDefault(e => e.Name.LocalName == "Body") ?? xDocument).Descendants().FirstOrDefault();
-        ArgumentNullException.ThrowIfNull(message, "SOAP Body message");
+        if (message == null) throw new InvalidDataException("The SOAP message does not contain a valid message");
         
         var jsonObject = new Dictionary<string, object>();
         ConvertElementToDictionary(message, jsonObject, knownArrays);

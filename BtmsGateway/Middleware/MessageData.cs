@@ -112,12 +112,12 @@ public class MessageData
         try
         {
             response.StatusCode = (int)routingResult.StatusCode;
-            response.ContentType = OriginalContentType;
+            response.ContentType =  OriginalContentType;
             response.Headers.Date = (routingResult.ResponseDate ?? DateTimeOffset.Now).ToString("R");
             response.Headers[CorrelationIdHeaderName] = CorrelationId;
             response.Headers[RequestedPathHeaderName] = routingResult.UrlPath;
-            if (routingResult.ResponseContent != null && response.StatusCode != (int)HttpStatusCode.NoContent) 
-                await response.BodyWriter.WriteAsync(new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes(routingResult.ResponseContent)));
+            if (!string.IsNullOrWhiteSpace($"{routingResult.ResponseContent}{routingResult.ErrorMessage}") && response.StatusCode != (int)HttpStatusCode.NoContent)
+                await response.BodyWriter.WriteAsync(new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes($"{routingResult.ResponseContent}{routingResult.ErrorMessage}")));
         }
         catch (Exception ex)
         {

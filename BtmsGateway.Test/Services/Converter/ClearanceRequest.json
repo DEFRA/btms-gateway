@@ -1,161 +1,149 @@
 {
-  "envelope": {
-    "header": {
-      "security": {
-        "usernameToken": {
-          "username": "username",
-          "password": "password"
-        }
-      }
+  "alvsClearanceRequest": {
+    "serviceHeader": {
+      "sourceSystem": "CDS",
+      "destinationSystem": "ALVS",
+      "correlationId": 179120009100989,
+      "serviceCallTimestamp": "2013-10-18T16:55:00.000"
     },
-    "body": {
-      "alvsClearanceRequest": {
-        "serviceHeader": {
-          "sourceSystem": "CDS",
-          "destinationSystem": "ALVS",
-          "correlationId": 179120009100989,
-          "serviceCallTimestamp": "2013-10-18T16:55:00.000"
-        },
-        "header": {
-          "entryReference": "24DSW01TST9009AR63",
-          "entryVersionNumber": 1,
-          "declarationUCR": "4DP99000000000-TST63",
-          "declarationType": "S",
-          "arrivalDateTime": 201310220900,
-          "submitterTURN": 123456789012345,
-          "declarantId": "GBTRANSITAIR",
-          "declarantName": "TRANSITAIR.GB",
-          "dispatchCountryCode": "GB",
-          "goodsLocationCode": "BELBELBEL",
-          "masterUCR": "GB/TRANSITAIR-01"
-        },
-        "items": [
+    "header": {
+      "entryReference": "24DSW01TST9009AR63",
+      "entryVersionNumber": 1,
+      "declarationUCR": "4DP99000000000-TST63",
+      "declarationType": "S",
+      "arrivalDateTime": 201310220900,
+      "submitterTURN": 123456789012345,
+      "declarantId": "GBTRANSITAIR",
+      "declarantName": "TRANSITAIR.GB",
+      "dispatchCountryCode": "GB",
+      "goodsLocationCode": "BELBELBEL",
+      "masterUCR": "GB/TRANSITAIR-01"
+    },
+    "items": [
+      {
+        "itemNumber": 1,
+        "customsProcedureCode": 4000061,
+        "taricCommodityCode": 808108010,
+        "goodsDescription": "Test Test",
+        "consigneeId": "NIIMPORTS",
+        "consigneeName": "Importers Ltd",
+        "itemNetMass": 31,
+        "itemSupplementaryUnits": 0,
+        "itemThirdQuantity": 0,
+        "itemOriginCountryCode": "GB",
+        "documents": [
           {
-            "itemNumber": 1,
-            "customsProcedureCode": 4000061,
-            "taricCommodityCode": 808108010,
-            "goodsDescription": "Test Test",
-            "consigneeId": "NIIMPORTS",
-            "consigneeName": "Importers Ltd",
-            "itemNetMass": 31,
-            "itemSupplementaryUnits": 0,
-            "itemThirdQuantity": 0,
-            "itemOriginCountryCode": "GB",
-            "documents": [
-              {
-                "documentCode": "N851",
-                "documentReference": "GBCHD2024.7360439",
-                "documentStatus": "St",
-                "documentControl": "S"
-              }
-            ],
-            "checks": [
-              {
-                "checkCode": "H219",
-                "departmentCode": "PHSI"
-              }
-            ]
+            "documentCode": "N851",
+            "documentReference": "GBCHD2024.7360439",
+            "documentStatus": "St",
+            "documentControl": "S"
+          }
+        ],
+        "checks": [
+          {
+            "checkCode": "H219",
+            "departmentCode": "PHSI"
+          }
+        ]
+      },
+      {
+        "itemNumber": 2,
+        "customsProcedureCode": 4000061,
+        "taricCommodityCode": 808108010,
+        "goodsDescription": "Test Test",
+        "consigneeId": "NIIMPORTS",
+        "consigneeName": "Importers Ltd",
+        "itemNetMass": 11,
+        "itemSupplementaryUnits": 0,
+        "itemThirdQuantity": 0,
+        "itemOriginCountryCode": "GB",
+        "documents": [
+          {
+            "documentCode": "N851",
+            "documentReference": "GBCHD2024.7360439",
+            "documentStatus": "St",
+            "documentControl": "S"
+          }
+        ],
+        "checks": [
+          {
+            "checkCode": "H219",
+            "departmentCode": "PHSI"
+          }
+        ]
+      },
+      {
+        "itemNumber": 3,
+        "customsProcedureCode": 4000061,
+        "taricCommodityCode": 709601000,
+        "goodsDescription": "Test Test",
+        "consigneeId": "NIIMPORTS",
+        "consigneeName": "Importers Ltd",
+        "itemNetMass": 43,
+        "itemSupplementaryUnits": 0,
+        "itemThirdQuantity": 0,
+        "itemOriginCountryCode": "GB",
+        "documents": [
+          {
+            "documentCode": "N851",
+            "documentReference": "GBCHD2024.7360439",
+            "documentStatus": "St",
+            "documentControl": "S"
           },
           {
-            "itemNumber": 2,
-            "customsProcedureCode": 4000061,
-            "taricCommodityCode": 808108010,
-            "goodsDescription": "Test Test",
-            "consigneeId": "NIIMPORTS",
-            "consigneeName": "Importers Ltd",
-            "itemNetMass": 11,
-            "itemSupplementaryUnits": 0,
-            "itemThirdQuantity": 0,
-            "itemOriginCountryCode": "GB",
-            "documents": [
-              {
-                "documentCode": "N851",
-                "documentReference": "GBCHD2024.7360439",
-                "documentStatus": "St",
-                "documentControl": "S"
-              }
-            ],
-            "checks": [
-              {
-                "checkCode": "H219",
-                "departmentCode": "PHSI"
-              }
-            ]
+            "documentCode": "N002",
+            "documentReference": "GBCHD2024.7360439",
+            "documentStatus": "St",
+            "documentControl": "S"
+          }
+        ],
+        "checks": [
+          {
+            "checkCode": "H219",
+            "departmentCode": "PHSI"
           },
           {
-            "itemNumber": 3,
-            "customsProcedureCode": 4000061,
-            "taricCommodityCode": 709601000,
-            "goodsDescription": "Test Test",
-            "consigneeId": "NIIMPORTS",
-            "consigneeName": "Importers Ltd",
-            "itemNetMass": 43,
-            "itemSupplementaryUnits": 0,
-            "itemThirdQuantity": 0,
-            "itemOriginCountryCode": "GB",
-            "documents": [
-              {
-                "documentCode": "N851",
-                "documentReference": "GBCHD2024.7360439",
-                "documentStatus": "St",
-                "documentControl": "S"
-              },
-              {
-                "documentCode": "N002",
-                "documentReference": "GBCHD2024.7360439",
-                "documentStatus": "St",
-                "documentControl": "S"
-              }
-            ],
-            "checks": [
-              {
-                "checkCode": "H219",
-                "departmentCode": "PHSI"
-              },
-              {
-                "checkCode": "H218",
-                "departmentCode": "HMI"
-              }
-            ]
+            "checkCode": "H218",
+            "departmentCode": "HMI"
+          }
+        ]
+      },
+      {
+        "itemNumber": 4,
+        "customsProcedureCode": 4000061,
+        "taricCommodityCode": 709601000,
+        "goodsDescription": "Test Test",
+        "consigneeId": "NIIMPORTS",
+        "consigneeName": "Importers Ltd",
+        "itemNetMass": 22,
+        "itemSupplementaryUnits": 0,
+        "itemThirdQuantity": 0,
+        "itemOriginCountryCode": "GB",
+        "documents": [
+          {
+            "documentCode": "N851",
+            "documentReference": "GBCHD2024.7360439",
+            "documentStatus": "St",
+            "documentControl": "S"
           },
           {
-            "itemNumber": 4,
-            "customsProcedureCode": 4000061,
-            "taricCommodityCode": 709601000,
-            "goodsDescription": "Test Test",
-            "consigneeId": "NIIMPORTS",
-            "consigneeName": "Importers Ltd",
-            "itemNetMass": 22,
-            "itemSupplementaryUnits": 0,
-            "itemThirdQuantity": 0,
-            "itemOriginCountryCode": "GB",
-            "documents": [
-              {
-                "documentCode": "N851",
-                "documentReference": "GBCHD2024.7360439",
-                "documentStatus": "St",
-                "documentControl": "S"
-              },
-              {
-                "documentCode": "N002",
-                "documentReference": "GBCHD2024.7360439",
-                "documentStatus": "St",
-                "documentControl": "S"
-              }
-            ],
-            "checks": [
-              {
-                "checkCode": "H219",
-                "departmentCode": "PHSI"
-              },
-              {
-                "checkCode": "H218",
-                "departmentCode": "HMI"
-              }
-            ]
+            "documentCode": "N002",
+            "documentReference": "GBCHD2024.7360439",
+            "documentStatus": "St",
+            "documentControl": "S"
+          }
+        ],
+        "checks": [
+          {
+            "checkCode": "H219",
+            "departmentCode": "PHSI"
+          },
+          {
+            "checkCode": "H218",
+            "departmentCode": "HMI"
           }
         ]
       }
-    }
+    ]
   }
 }

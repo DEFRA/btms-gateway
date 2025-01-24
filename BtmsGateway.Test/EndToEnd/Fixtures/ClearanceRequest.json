@@ -1,7 +1,7 @@
 {
   "alvsClearanceRequest": {
     "serviceHeader": {
-      "sourceSystem": "CHIEF",
+      "sourceSystem": "CDS",
       "destinationSystem": "ALVS",
       "correlationId": 193264645102865,
       "serviceCallTimestamp": "2022-01-12T14:21:50.286"

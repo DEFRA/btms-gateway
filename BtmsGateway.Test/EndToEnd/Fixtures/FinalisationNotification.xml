@@ -11,7 +11,7 @@
     <soap:Body>
         <FinalisationNotificationRequest xmlns="http://notifyfinalisedstatehmrcfacade.types.esb.ws.cara.defra.com ">
             <ServiceHeader>
-                <SourceSystem>CHIEF</SourceSystem>
+                <SourceSystem>CDS</SourceSystem>
                 <DestinationSystem>ALVS</DestinationSystem>
                 <CorrelationId>1234567890123456789</CorrelationId>
                 <ServiceCallTimestamp>2008-01-01T12:12:12.123</ServiceCallTimestamp>

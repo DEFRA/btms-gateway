@@ -1,6 +1,6 @@
 {
   "serviceHeader": {
-    "sourceSystem": "CHIEF",
+    "sourceSystem": "CDS",
     "destinationSystem": "ALVS",
     "correlationId": 1.2345678901234568E+18,
     "serviceCallTimestamp": "2008-01-01T12:12:12.123"

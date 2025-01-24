@@ -1,41 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<NS2:DecisionNotification xmlns:NS2="http://hmrcdecision.types.esb.ws.cara.defra.com">
-    <NS2:ServiceHeader>
-        <NS2:SourceSystem>ALVS</NS2:SourceSystem>
-        <NS2:DestinationSystem>CDS</NS2:DestinationSystem>
-        <NS2:CorrelationId>000</NS2:CorrelationId>
-        <NS2:ServiceCallTimestamp>2023-06-30T07:34:14.405827</NS2:ServiceCallTimestamp>
-    </NS2:ServiceHeader>
-    <NS2:Header>
-        <NS2:EntryReference>23GB1234567890ABC8</NS2:EntryReference>
-        <NS2:EntryVersionNumber>1</NS2:EntryVersionNumber>
-        <NS2:DecisionNumber>1</NS2:DecisionNumber>
-    </NS2:Header>
-    <NS2:Item>
-        <NS2:ItemNumber>1</NS2:ItemNumber>
-        <NS2:Check>
-            <NS2:CheckCode>H218</NS2:CheckCode>
-            <NS2:DecisionCode>C02</NS2:DecisionCode>
-            <NS2:DecisionValidUntil>202307042359</NS2:DecisionValidUntil>
-        </NS2:Check>
-        <NS2:Check>
-            <NS2:CheckCode>H219</NS2:CheckCode>
-            <NS2:DecisionCode>C03</NS2:DecisionCode>
-        </NS2:Check>
-        <NS2:Check>
-            <NS2:CheckCode>H223</NS2:CheckCode>
-            <NS2:DecisionCode>C03</NS2:DecisionCode>
-        </NS2:Check>
-    </NS2:Item>
-    <NS2:Item>
-        <NS2:ItemNumber>2</NS2:ItemNumber>
-        <NS2:Check>
-            <NS2:CheckCode>H219</NS2:CheckCode>
-            <NS2:DecisionCode>C03</NS2:DecisionCode>
-        </NS2:Check>
-        <NS2:Check>
-            <NS2:CheckCode>H223</NS2:CheckCode>
-            <NS2:DecisionCode>C03</NS2:DecisionCode>
-        </NS2:Check>
-    </NS2:Item>
-</NS2:DecisionNotification>
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:oas="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+    <soap:Header>
+        <oas:Security soap:role="system" soap:mustUnderstand="true">
+            <oas:UsernameToken>
+                <oas:Username>systemID=ALVSHMRCCDS,ou=gsi systems,o=defra</oas:Username>
+                <oas:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText">password</oas:Password>
+            </oas:UsernameToken>
+        </oas:Security>
+    </soap:Header>
+    <soap:Body>
+        <DecisionNotification xmlns="http://hmrcdecision.types.esb.ws.cara.defra.com">
+            <ServiceHeader>
+                <SourceSystem>ALVS</SourceSystem>
+                <DestinationSystem>CDS</DestinationSystem>
+                <CorrelationId>000</CorrelationId>
+                <ServiceCallTimestamp>2023-06-30T07:34:14.405827</ServiceCallTimestamp>
+            </ServiceHeader>
+            <Header>
+                <EntryReference>23GB1234567890ABC8</EntryReference>
+                <EntryVersionNumber>1</EntryVersionNumber>
+                <DecisionNumber>1</DecisionNumber>
+            </Header>
+            <Item>
+                <ItemNumber>1</ItemNumber>
+                <Check>
+                    <CheckCode>H218</CheckCode>
+                    <DecisionCode>C02</DecisionCode>
+                    <DecisionValidUntil>202307042359</DecisionValidUntil>
+                </Check>
+                <Check>
+                    <CheckCode>H219</CheckCode>
+                    <DecisionCode>C03</DecisionCode>
+                </Check>
+                <Check>
+                    <CheckCode>H223</CheckCode>
+                    <DecisionCode>C03</DecisionCode>
+                </Check>
+            </Item>
+            <Item>
+                <ItemNumber>2</ItemNumber>
+                <Check>
+                    <CheckCode>H219</CheckCode>
+                    <DecisionCode>C03</DecisionCode>
+                </Check>
+                <Check>
+                    <CheckCode>H223</CheckCode>
+                    <DecisionCode>C03</DecisionCode>
+                </Check>
+            </Item>
+        </DecisionNotification>
+    </soap:Body>
+</soap:Envelope>

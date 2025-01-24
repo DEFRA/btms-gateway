@@ -7,9 +7,13 @@ public static class XmlToJsonConverter
 {
     public static string Convert(string xml, Dictionary<string, string> knownArrays)
     {
-        var xDocument = Validate(xml);
+        XContainer xDocument = Validate(xml);
+
+        var message = (xDocument.Elements().FirstOrDefault(e => e.Name.LocalName == "Envelope")?.Elements().FirstOrDefault(e => e.Name.LocalName == "Body") ?? xDocument).Descendants().FirstOrDefault();
+        if (message == null) throw new InvalidDataException("The SOAP message does not contain a valid message");
+        
         var jsonObject = new Dictionary<string, object>();
-        ConvertElementToDictionary(xDocument, jsonObject, knownArrays);
+        ConvertElementToDictionary(message, jsonObject, knownArrays);
 
         return JsonSerializer.Serialize(jsonObject, Json.SerializerOptions);
     }

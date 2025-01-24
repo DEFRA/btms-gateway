@@ -1,6 +1,6 @@
 using BtmsGateway.Test.TestUtils;
 
-namespace BtmsGateway.Test.Services.Converter;
+namespace BtmsGateway.Test.Services.Converter.Fixtures;
 
 public class XmlToJsonTestData : TheoryData<string, string, string>
 {
@@ -9,7 +9,6 @@ public class XmlToJsonTestData : TheoryData<string, string, string>
         Add("Simple self-closing tag", XmlSimpleSelfClosing, JsonSimpleNull.LinuxLineEndings());
         Add("Simple self-closing tag w/ space", XmlSimpleSelfClosingWithSpace, JsonSimpleNull.LinuxLineEndings());
         Add("Simple empty tag", XmlSimpleEmpty, JsonSimpleEmpty.LinuxLineEndings());
-        Add("Simple content tag", XmlSimpleContent, JsonSimpleContent.LinuxLineEndings());
         Add("Complex single level", XmlComplexSingleLevel, JsonComplexSingleLevel.LinuxLineEndings());
         Add("Complex multi level", XmlComplexMultiLevel, JsonComplexMultiLevel.LinuxLineEndings());
         Add("Complex multi level w/ arrays", XmlComplexMultiLevelWithArrays, JsonComplexMultiLevelWithArrays.LinuxLineEndings());
@@ -20,7 +19,6 @@ public class XmlToJsonTestData : TheoryData<string, string, string>
     private const string XmlSimpleSelfClosing = "<Root/>";
     private const string XmlSimpleSelfClosingWithSpace = "<Root />";
     private const string XmlSimpleEmpty = "<Root></Root>";
-    private const string XmlSimpleContent = "<Root>data</Root>";
   
     private const string XmlComplexSingleLevel = """
                                                  <Root>
@@ -113,48 +111,30 @@ public class XmlToJsonTestData : TheoryData<string, string, string>
                                                     </Root>
                                                     """;
   
-    private const string JsonSimpleNull = """
-                                          {
-                                            "root": null
-                                          }
-                                          """;
+    private const string JsonSimpleNull = "{}";
   
-    private const string JsonSimpleEmpty = """
-                                           {
-                                             "root": ""
-                                           }
-                                           """;
-  
-    private const string JsonSimpleContent = """
-                                             {
-                                               "root": "data"
-                                             }
-                                             """;
-  
+    private const string JsonSimpleEmpty = "{}";
+
     private const string JsonComplexSingleLevel = """
                                                   {
-                                                    "root": {
-                                                      "tag1": "data1",
-                                                      "tag2": "data2"
-                                                    }
+                                                    "tag1": "data1",
+                                                    "tag2": "data2"
                                                   }
                                                   """;
   
     private const string JsonComplexMultiLevel = """
                                                  {
-                                                   "root": {
-                                                     "element1": {
-                                                       "tag1": "data1",
-                                                       "tag2": 12.3
-                                                     },
-                                                     "element2": {
-                                                       "tag3": true,
-                                                       "element3": {
-                                                         "tag4": null,
-                                                         "tag5": "",
-                                                         "tag6": 123,
-                                                         "tag7": "abc\ndef\nghi"
-                                                       }
+                                                   "element1": {
+                                                     "tag1": "data1",
+                                                     "tag2": 12.3
+                                                   },
+                                                   "element2": {
+                                                     "tag3": true,
+                                                     "element3": {
+                                                       "tag4": null,
+                                                       "tag5": "",
+                                                       "tag6": 123,
+                                                       "tag7": "abc\ndef\nghi"
                                                      }
                                                    }
                                                  }
@@ -162,53 +142,49 @@ public class XmlToJsonTestData : TheoryData<string, string, string>
   
     private const string JsonComplexMultiLevelWithArrays = """
                                                            {
-                                                             "root": {
-                                                               "arrays": [
-                                                                 {
-                                                                   "tag1": "dataA",
-                                                                   "tag2": 123
-                                                                 },
-                                                                 {
-                                                                   "tag1": "dataB",
-                                                                   "tag2": 456,
-                                                                   "lists": [
-                                                                     {
-                                                                       "tag3": "dataC",
-                                                                       "tag4": 777
-                                                                     },
-                                                                     {
-                                                                       "tag3": "dataD",
-                                                                       "tag4": 888
-                                                                     }
-                                                                   ],
-                                                                   "anotherLists": [
-                                                                     {
-                                                                       "tag1": "dataD",
-                                                                       "tag2": "dataE"
-                                                                     }
-                                                                   ]
-                                                                 }
-                                                               ]
-                                                             }
+                                                             "arrays": [
+                                                               {
+                                                                 "tag1": "dataA",
+                                                                 "tag2": 123
+                                                               },
+                                                               {
+                                                                 "tag1": "dataB",
+                                                                 "tag2": 456,
+                                                                 "lists": [
+                                                                   {
+                                                                     "tag3": "dataC",
+                                                                     "tag4": 777
+                                                                   },
+                                                                   {
+                                                                     "tag3": "dataD",
+                                                                     "tag4": 888
+                                                                   }
+                                                                 ],
+                                                                 "anotherLists": [
+                                                                   {
+                                                                     "tag1": "dataD",
+                                                                     "tag2": "dataE"
+                                                                   }
+                                                                 ]
+                                                               }
+                                                             ]
                                                            }
                                                            """;
   
     private const string JsonComplexMultiLevelWithSingleItemArrays = """
                                                                      {
-                                                                       "root": {
-                                                                         "arrays": [
-                                                                           {
-                                                                             "tag1": "dataB",
-                                                                             "tag2": 456,
-                                                                             "lists": [
-                                                                               {
-                                                                                 "tag3": "dataC",
-                                                                                 "tag4": 777
-                                                                               }
-                                                                             ]
-                                                                           }
-                                                                         ]
-                                                                       }
+                                                                       "arrays": [
+                                                                         {
+                                                                           "tag1": "dataB",
+                                                                           "tag2": 456,
+                                                                           "lists": [
+                                                                             {
+                                                                               "tag3": "dataC",
+                                                                               "tag4": 777
+                                                                             }
+                                                                           ]
+                                                                         }
+                                                                       ]
                                                                      }
                                                                      """;
 }

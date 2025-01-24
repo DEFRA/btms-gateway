@@ -1,4 +1,5 @@
 using BtmsGateway.Services.Converter;
+using BtmsGateway.Test.Services.Converter.Fixtures;
 using BtmsGateway.Test.TestUtils;
 using FluentAssertions;
 
@@ -6,7 +7,7 @@ namespace BtmsGateway.Test.Services.Converter;
 
 public class XmlToJsonConverterTests
 {
-    private static readonly string TestDataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Services", "Converter");
+    private static readonly string TestDataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Services", "Converter", "Fixtures");
     
     [Theory]
     [InlineData("ClearanceRequestWithEnvelope.xml")]

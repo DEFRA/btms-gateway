@@ -32,12 +32,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Services\Converter\ClearanceRequestWithEnvelope.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Services\Converter\ClearanceRequest.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Update="EndToEnd\Fixtures\ClearanceRequest.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -74,7 +68,13 @@
     <None Update="EndToEnd\Fixtures\TargetRoutingConfig.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Services\Converter\ClearanceRequestWithoutEnvelope.xml">
+    <None Update="Services\Converter\Fixtures\ClearanceRequest.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Services\Converter\Fixtures\ClearanceRequestWithEnvelope.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Services\Converter\Fixtures\ClearanceRequestWithoutEnvelope.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

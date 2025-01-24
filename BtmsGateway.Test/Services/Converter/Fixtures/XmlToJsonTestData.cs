@@ -1,6 +1,6 @@
 using BtmsGateway.Test.TestUtils;
 
-namespace BtmsGateway.Test.Services.Converter;
+namespace BtmsGateway.Test.Services.Converter.Fixtures;
 
 public class XmlToJsonTestData : TheoryData<string, string, string>
 {
@@ -114,13 +114,7 @@ public class XmlToJsonTestData : TheoryData<string, string, string>
     private const string JsonSimpleNull = "{}";
   
     private const string JsonSimpleEmpty = "{}";
-  
-    private const string JsonSimpleContent = """
-                                             {
-                                               "root": "data"
-                                             }
-                                             """;
-  
+
     private const string JsonComplexSingleLevel = """
                                                   {
                                                     "tag1": "data1",

@@ -1,3 +1,4 @@
+using System.Security.Cryptography.X509Certificates;
 using BtmsGateway.Services.Routing;
 using BtmsGateway.Utils;
 using ILogger = Serilog.ILogger;
@@ -12,6 +13,24 @@ public class RoutingInterceptor(RequestDelegate next, IMessageRouter messageRout
         {
             var metrics = metricsHost.GetMetrics();
             metrics.StartTotalRequest();
+
+            try
+            {
+                var store = new X509Store(StoreName.Root, StoreLocation.CurrentUser);
+                store.Open(OpenFlags.ReadOnly);
+                var cert = store.Certificates.Find(X509FindType.FindByThumbprint, "5b8d8325ac276a417f6875c83533f4b8caaf338e", false).FirstOrDefault();
+                logger.Warning($"CERT ON USER: {cert?.Subject}");
+                store.Close();
+                store = new X509Store(StoreName.Root, StoreLocation.LocalMachine);
+                store.Open(OpenFlags.ReadOnly);
+                cert = store.Certificates.Find(X509FindType.FindByThumbprint, "5b8d8325ac276a417f6875c83533f4b8caaf338e", false).FirstOrDefault();
+                logger.Warning($"CERT ON LOCAL: {cert?.Subject}");
+                store.Close();
+            }
+            catch (Exception ex)
+            {
+                logger.Warning($"CERT ERROR {ex.Message} - {ex.InnerException?.Message}");
+            }
             
             var messageData = await MessageData.Create(context.Request, logger);
 

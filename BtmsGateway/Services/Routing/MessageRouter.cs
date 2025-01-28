@@ -37,7 +37,7 @@ public class MessageRouter(IHttpClientFactory clientFactory, IMessageRoutes mess
         catch (Exception ex)
         {
             logger.Error(ex, "Error routing");
-            return routingResult with { StatusCode = HttpStatusCode.ServiceUnavailable, ErrorMessage = ex.Message };
+            return routingResult with { StatusCode = HttpStatusCode.ServiceUnavailable, ErrorMessage = $"Error routing - {ex.Message} - {ex.InnerException?.Message}" };
         }
     }
     
@@ -64,7 +64,7 @@ public class MessageRouter(IHttpClientFactory clientFactory, IMessageRoutes mess
         catch (Exception ex)
         {
             logger.Error(ex, "Error forking");
-            return routingResult with { StatusCode = HttpStatusCode.ServiceUnavailable };
+            return routingResult with { StatusCode = HttpStatusCode.ServiceUnavailable, ErrorMessage = $"Error forking - {ex.Message} - {ex.InnerException?.Message}" };
         }
     }
 }

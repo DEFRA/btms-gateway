@@ -81,7 +81,7 @@ public class MessageRoutes : IMessageRoutes
         catch (Exception ex)
         {
             _logger.Error(ex, "Error getting route");
-            return new RoutingResult { RouteFound = false, RouteName = routeName, UrlPath = routeUrlPath, StatusCode = HttpStatusCode.InternalServerError, ErrorMessage = ex.Message };
+            return new RoutingResult { RouteFound = false, RouteName = routeName, UrlPath = routeUrlPath, StatusCode = HttpStatusCode.InternalServerError, ErrorMessage = $"Error getting route - {ex.Message} - {ex.InnerException?.Message}" };
         }
     }
 }

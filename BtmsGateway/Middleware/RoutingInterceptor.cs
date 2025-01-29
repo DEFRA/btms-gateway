@@ -13,22 +13,6 @@ public class RoutingInterceptor(RequestDelegate next, IMessageRouter messageRout
         {
             var metrics = metricsHost.GetMetrics();
             metrics.StartTotalRequest();
-
-            try
-            {
-                var store = new X509Store(StoreName.Root, StoreLocation.CurrentUser);
-                store.Open(OpenFlags.ReadOnly);
-                var cert = store.Certificates.Find(X509FindType.FindByThumbprint, "5b8d8325ac276a417f6875c83533f4b8caaf338e", false).FirstOrDefault();
-                logger.Information($"CERT: CN=HMRCRootCA2,  {cert?.Subject}");
-                cert = store.Certificates.Find(X509FindType.FindByThumbprint, "db87380eaca06ce0fc53a6562f7b0b228ec4bc5a", false).FirstOrDefault();
-                logger.Information($"CERT: CN=HMRCSICA5, {cert?.Subject}");
-                store.Close();
-
-            }
-            catch (Exception ex)
-            {
-                logger.Warning($"CERT ERROR {ex.Message} - {ex.InnerException?.Message}");
-            }
             
             var messageData = await MessageData.Create(context.Request, logger);
 

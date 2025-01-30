@@ -226,7 +226,7 @@ public class MessageDataTests
         _httpContext.Request.Method = "POST";
         _httpContext.Request.Path = new PathString("/cds/path");
         _httpContext.Request.Headers.ContentType = "application/soap+xml";
-        _httpContext.Request.Body = new MemoryStream("<root><data>abc</data></root>"u8.ToArray());
+        _httpContext.Request.Body = new MemoryStream("<Envelope><Body><root><data>abc</data></root></Body></Envelope>"u8.ToArray());
         var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
         
         var request = messageData.CreateForwardingRequestAsJson("https://localhost:456/cds/path", null);
@@ -244,7 +244,7 @@ public class MessageDataTests
         _httpContext.Request.Method = "POST";
         _httpContext.Request.Path = new PathString("/cds/path");
         _httpContext.Request.Headers.ContentType = "application/soap+xml";
-        _httpContext.Request.Body = new MemoryStream("<root><data>abc</data></root>"u8.ToArray());
+        _httpContext.Request.Body = new MemoryStream("<Envelope><Body><root><data>abc</data></root></Body></Envelope>"u8.ToArray());
         var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
         var responseBody = new MemoryStream();
         _httpContext.Response.Body = responseBody;

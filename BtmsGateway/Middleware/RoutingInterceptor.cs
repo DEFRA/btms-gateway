@@ -1,4 +1,3 @@
-using System.Security.Cryptography.X509Certificates;
 using BtmsGateway.Services.Routing;
 using BtmsGateway.Utils;
 using ILogger = Serilog.ILogger;

@@ -4,19 +4,19 @@ namespace BtmsGateway.Services.Converter;
 
 public static class SoapToJsonConverter
 {
-    public static string Convert(string xml, Dictionary<string, string> knownArrays, int messageInBodyDepth = 1)
+    public static string Convert(string xml, Dictionary<string, string> knownArrays, int messageBodyDepth)
     {
-        var xContainer = ExtractXmlMessage(xml, messageInBodyDepth);
+        var xContainer = ExtractXmlMessage(xml, messageBodyDepth);
 
         return XmlToJsonConverter.Convert(xContainer, knownArrays);
     }
 
-    private static XContainer ExtractXmlMessage(string xml, int messageInBodyDepth)
+    private static XContainer ExtractXmlMessage(string xml, int messageBodyDepth)
     {
         try
         {
             var xElement = XDocument.Parse(xml).Elements().FirstOrDefault(e => e.Name.LocalName == "Envelope")?.Elements().FirstOrDefault(e => e.Name.LocalName == "Body");
-            for (var i = 0; i < messageInBodyDepth; i++) 
+            for (var i = 0; i < messageBodyDepth; i++) 
                 xElement = xElement?.Elements().LastOrDefault();
             
             return xElement ?? throw new InvalidDataException("The SOAP XML does not contain a valid message");

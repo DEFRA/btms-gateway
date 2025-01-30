@@ -64,12 +64,12 @@ public class MessageData
                                               || Path.StartsWith("swagger", StringComparison.InvariantCultureIgnoreCase)
                                               || Path.StartsWith(CheckRoutesEndpoints.Path, StringComparison.InvariantCultureIgnoreCase)));
 
-    public HttpRequestMessage CreateForwardingRequestAsJson(string? routeUrl, string? hostHeader)
+    public HttpRequestMessage CreateForwardingRequestAsJson(string? routeUrl, string? hostHeader, int messageBodyDepth)
     {
         return OriginalContentType is MediaTypeNames.Application.Xml or MediaTypeNames.Application.Soap or MediaTypeNames.Text.Xml
             ? CreateForwardingRequest(routeUrl, hostHeader, string.IsNullOrWhiteSpace(OriginalContentAsString) 
                 ? string.Empty 
-                : SoapToJsonConverter.Convert(OriginalContentAsString, KnownArrays), MediaTypeNames.Application.Json) 
+                : SoapToJsonConverter.Convert(OriginalContentAsString, KnownArrays, messageBodyDepth), MediaTypeNames.Application.Json) 
             : CreateForwardingRequestAsOriginal(routeUrl, hostHeader);
     }
 

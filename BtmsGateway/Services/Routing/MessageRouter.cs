@@ -24,7 +24,7 @@ public class MessageRouter(IHttpClientFactory clientFactory, IMessageRoutes mess
             var metrics = metricsHost.GetMetrics();
             var client = clientFactory.CreateClient(Proxy.RoutedClientWithRetry);
             var request = routingResult.ConvertRoutedContentToJson 
-                ? messageData.CreateForwardingRequestAsJson(routingResult.FullRouteLink, routingResult.RouteHostHeader) 
+                ? messageData.CreateForwardingRequestAsJson(routingResult.FullRouteLink, routingResult.RouteHostHeader, routingResult.MessageBodyDepth) 
                 : messageData.CreateForwardingRequestAsOriginal(routingResult.FullRouteLink, routingResult.RouteHostHeader);
             
             metrics.StartRoutedRequest();
@@ -51,7 +51,7 @@ public class MessageRouter(IHttpClientFactory clientFactory, IMessageRoutes mess
             var metrics = metricsHost.GetMetrics();
             var client = clientFactory.CreateClient(Proxy.ForkedClientWithRetry);
             var request = routingResult.ConvertForkedContentToJson 
-                ? messageData.CreateForwardingRequestAsJson(routingResult.FullForkLink, routingResult.ForkHostHeader) 
+                ? messageData.CreateForwardingRequestAsJson(routingResult.FullForkLink, routingResult.ForkHostHeader, routingResult.MessageBodyDepth) 
                 : messageData.CreateForwardingRequestAsOriginal(routingResult.FullForkLink, routingResult.ForkHostHeader);
             
             metrics.StartForkedRequest();

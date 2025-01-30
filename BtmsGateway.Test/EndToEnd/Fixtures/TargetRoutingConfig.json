@@ -12,6 +12,13 @@
       "SendLegacyResponseToBtms": false,
       "RouteTo": "Legacy"
     },
+    "alvs_ipaffs": {
+      "LegacyLinkName": "AlvsIpaffs",
+      "BtmsLinkName": "Btms",
+      "MessageBodyDepth": 2,
+      "SendLegacyResponseToBtms": false,
+      "RouteTo": "Legacy"
+    },
     "btms_cds": {
       "LegacyLinkName": "Cds",
       "BtmsLinkName": "None",
@@ -37,6 +44,10 @@
     "AlvsCds": {
       "LinkType": "Url",
       "Link": "http://alvs_cds/"
+    },
+    "AlvsIpaffs": {
+      "LinkType": "Url",
+      "Link": "http://alvs_ipaffs/"
     },
     "Btms": {
       "LinkType": "Url",

@@ -17,7 +17,7 @@ public class FinalisationNotificationFromAlvsToIpaffsTests : TargetRoutingTestBa
 
     public FinalisationNotificationFromAlvsToIpaffsTests()
     {
-        _originalRequestSoapContent = new StringContent(_originalRequestSoap, Encoding.UTF8, MediaTypeNames.Application.Soap);
+        _originalRequestSoapContent = new StringContent(_originalRequestSoap, Encoding.UTF8, MediaTypeNames.Text.Xml);
         TestWebServer.RoutedHttpHandler.SetNextResponse(statusFunc: () => HttpStatusCode.NoContent);
     }
 

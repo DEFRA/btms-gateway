@@ -18,7 +18,7 @@ public class ClearanceRequestFromAlvsToIpaffsTests : TargetRoutingTestBase
 
     public ClearanceRequestFromAlvsToIpaffsTests()
     {
-        _originalRequestSoapContent = new StringContent(_originalRequestSoap, Encoding.UTF8, MediaTypeNames.Application.Soap);
+        _originalRequestSoapContent = new StringContent(_originalRequestSoap, Encoding.UTF8, MediaTypeNames.Text.Xml);
         TestWebServer.RoutedHttpHandler.SetNextResponse(content: _originalResponseSoap, statusFunc: () => HttpStatusCode.Accepted);
     }
 

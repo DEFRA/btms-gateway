@@ -6,18 +6,18 @@ using FluentAssertions;
 
 namespace BtmsGateway.Test.EndToEnd;
 
-public class DecisionNotificationFromAlvsToCdsTests : TargetRoutingTestBase
+public class FinalisationNotificationFromAlvsToIpaffsTests : TargetRoutingTestBase
 {
-    private const string OriginalPath = "/decision-notification/path";
-    private const string GatewayPath = $"/alvs_cds{OriginalPath}";
+    private const string OriginalPath = "/finalisation-notification/path";
+    private const string GatewayPath = $"/alvs_ipaffs{OriginalPath}";
     
-    private readonly string _originalRequestSoap = File.ReadAllText(Path.Combine(FixturesPath, "AlvsToCdsDecisionNotification.xml"));
-    private readonly string _btmsRequestJson = File.ReadAllText(Path.Combine(FixturesPath, "DecisionNotification.json")).LinuxLineEndings();
+    private readonly string _originalRequestSoap = File.ReadAllText(Path.Combine(FixturesPath, "AlvsToIpaffsFinalisationNotification.xml"));
+    private readonly string _btmsRequestJson = File.ReadAllText(Path.Combine(FixturesPath, "FinalisationNotification.json")).LinuxLineEndings();
     private readonly StringContent _originalRequestSoapContent;
 
-    public DecisionNotificationFromAlvsToCdsTests()
+    public FinalisationNotificationFromAlvsToIpaffsTests()
     {
-        _originalRequestSoapContent = new StringContent(_originalRequestSoap, Encoding.UTF8, MediaTypeNames.Application.Soap);
+        _originalRequestSoapContent = new StringContent(_originalRequestSoap, Encoding.UTF8, MediaTypeNames.Text.Xml);
         TestWebServer.RoutedHttpHandler.SetNextResponse(statusFunc: () => HttpStatusCode.NoContent);
     }
 
@@ -26,7 +26,7 @@ public class DecisionNotificationFromAlvsToCdsTests : TargetRoutingTestBase
     {
         await HttpClient.PostAsync(GatewayPath, _originalRequestSoapContent);
 
-        TestWebServer.RoutedHttpHandler.LastRequest!.RequestUri!.AbsoluteUri.Should().Be($"http://alvs_cds{OriginalPath}");
+        TestWebServer.RoutedHttpHandler.LastRequest!.RequestUri!.AbsoluteUri.Should().Be($"http://alvs_ipaffs{OriginalPath}");
         (await TestWebServer.RoutedHttpHandler.LastRequest!.Content!.ReadAsStringAsync()).Should().Be(_originalRequestSoap);
     }
 

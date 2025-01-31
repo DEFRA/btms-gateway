@@ -10,7 +10,7 @@ public class DecisionNotificationFromBtmsToCdsTests : TargetRoutingTestBase
     private const string OriginalPath = "/decision-notification/path";
     private const string GatewayPath = $"/btms_cds{OriginalPath}";
     
-    private readonly string _originalRequestSoap = File.ReadAllText(Path.Combine(FixturesPath, "DecisionNotification.xml"));
+    private readonly string _originalRequestSoap = File.ReadAllText(Path.Combine(FixturesPath, "AlvsToCdsDecisionNotification.xml"));
     private readonly StringContent _originalRequestSoapContent;
 
     public DecisionNotificationFromBtmsToCdsTests()

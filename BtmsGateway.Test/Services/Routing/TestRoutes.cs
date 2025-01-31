@@ -9,7 +9,7 @@ public static class TestRoutes
         NamedRoutes = new Dictionary<string, NamedRoute>
         {
             { "route-1", new NamedRoute { LegacyLinkName = "legacy_link_name_1", BtmsLinkName = "btms_link_name_1", SendLegacyResponseToBtms = true, RouteTo = RouteTo.Legacy } },
-            { "route-2", new NamedRoute { LegacyLinkName = "legacy_link_name_2", BtmsLinkName = "btms_link_name_2", SendLegacyResponseToBtms = true, RouteTo = RouteTo.Btms } },
+            { "route-2", new NamedRoute { LegacyLinkName = "legacy_link_name_2", BtmsLinkName = "btms_link_name_2", SendLegacyResponseToBtms = true, RouteTo = RouteTo.Btms, MessageBodyDepth = 2 } },
             { "route-3", new NamedRoute { LegacyLinkName = "legacy_link_name_1", BtmsLinkName = "none", SendLegacyResponseToBtms = false, RouteTo = RouteTo.Legacy } },
             { "route-4", new NamedRoute { LegacyLinkName = "none", BtmsLinkName = "btms_link_name_2", SendLegacyResponseToBtms = false, RouteTo = RouteTo.Btms } }
         },

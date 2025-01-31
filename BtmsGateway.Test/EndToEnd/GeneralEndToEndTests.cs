@@ -12,9 +12,7 @@ namespace BtmsGateway.Test.EndToEnd;
 public sealed class GeneralEndToEndTests : IAsyncDisposable
 {
     private const string XmlRoutedResponse = "<root><xml>RoutedResponse</xml></root>";
-    private const string XmlForkedResponse = "<root><xml>ForkedResponse</xml></root>";
-    private const string XmlContent = "<root><xml>Content</xml></root>";
-    private static readonly string JsonContent = $"{{{Environment.NewLine}  \"xml\": \"Content\"{Environment.NewLine}}}";
+    private const string XmlContent = "<Envelope><Body><Message><xml>Content</xml></Message></Body></Envelope>";
     private const string RouteName = "test";
     private const string SubPath = "sub/path";
     private const string FullPath = $"{RouteName}/{SubPath}";
@@ -92,7 +90,10 @@ public sealed class GeneralEndToEndTests : IAsyncDisposable
 
     [Fact]
     public async Task When_routing_forked_request_Then_should_route_correctly()
-    {
+    { 
+        const string XmlForkedResponse = "<Envelope><Body><Message><xml>ForkedResponse</xml></Message></Body></Envelope>";
+        var jsonContent = $"{{{Environment.NewLine}  \"xml\": \"Content\"{Environment.NewLine}}}";
+
         _testWebServer.ForkedHttpHandler.SetNextResponse(content: XmlForkedResponse);
 
         await _httpClient.PostAsync(FullPath, _stringContent);
@@ -100,7 +101,7 @@ public sealed class GeneralEndToEndTests : IAsyncDisposable
         var request = _testWebServer.ForkedHttpHandler.LastRequest;
         request?.RequestUri?.ToString().Should().Be(_expectedForkedUrl);
         request?.Method.ToString().Should().Be("POST");
-        (await request?.Content?.ReadAsStringAsync()!).Should().Be(JsonContent);
+        (await request?.Content?.ReadAsStringAsync()!).Should().Be(jsonContent);
         request?.Content?.Headers.ContentType?.ToString().Should().StartWith(MediaTypeNames.Application.Json);
         request?.Headers.Date?.Should().Be(_headerDate);
         request?.Headers.GetValues(MessageData.CorrelationIdHeaderName).FirstOrDefault().Should().Be(_headerCorrelationId);

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope">
+    <soap:Header/>
+    <soap:Body>
+        <FinalisationNotificationRequestPost xmlns="traceswsns">
+            <XMLSchemaVersion>2.0</XMLSchemaVersion>
+            <UserIdentification>username</UserIdentification>
+            <UserPassword>password</UserPassword>
+            <SendingDate>2002-10-10 12:00</SendingDate>
+            <FinalisationNotificationRequest>
+                <ServiceHeader>
+                    <SourceSystem>CDS</SourceSystem>
+                    <DestinationSystem>ALVS</DestinationSystem>
+                    <CorrelationId>1234567890123456789</CorrelationId>
+                    <ServiceCallTimestamp>2008-01-01T12:12:12.123</ServiceCallTimestamp>
+                </ServiceHeader>
+                <Header>
+                    <EntryReference>123-123456A-01/01/2008</EntryReference>
+                    <EntryVersionNumber>4</EntryVersionNumber>
+                    <DecisionNumber>3</DecisionNumber>
+                    <FinalState>0</FinalState>
+                    <ManualAction>N</ManualAction>
+                </Header>
+            </FinalisationNotificationRequest>
+        </FinalisationNotificationRequestPost>
+    </soap:Body>
+</soap:Envelope>

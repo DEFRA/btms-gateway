@@ -3,7 +3,7 @@
     <soap:Header>
         <oas:Security soap:role="system" soap:mustUnderstand="true">
             <oas:UsernameToken>
-                <oas:Username>systemID=ALVSHMRCCDS,ou=gsi systems,o=defra</oas:Username>
+                <oas:Username>systemID=ALVSHMRCCDS,ou=gsi systems,o=cds</oas:Username>
                 <oas:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText">password</oas:Password>
             </oas:UsernameToken>
         </oas:Security>

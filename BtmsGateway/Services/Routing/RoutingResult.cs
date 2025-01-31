@@ -15,6 +15,7 @@ public record RoutingResult
     public string? FullForkLink { get; init; }
     public string? ForkHostHeader { get; init; }
     public bool ConvertForkedContentToJson { get; init; }
+    public int MessageBodyDepth { get; init; }
     public string? UrlPath { get; init; }
     public string? ResponseContent { get; init; }
     public DateTimeOffset? ResponseDate { get; init; }

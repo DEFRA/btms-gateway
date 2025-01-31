@@ -18,7 +18,7 @@
           {
             "checkCode": "H218",
             "decisionCode": "C02",
-            "decisionValidUntil": 202307042359
+            "decisionValidUntil": "202307042359"
           },
           {
             "checkCode": "H219",

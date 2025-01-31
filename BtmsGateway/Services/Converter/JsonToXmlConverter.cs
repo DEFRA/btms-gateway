@@ -61,13 +61,13 @@ public static class JsonToXmlConverter
                 }
                 break;
 
-            case JsonValueKind.String or JsonValueKind.Number:
+            case JsonValueKind.String:
                 parentElement.Value = jsonElement.ToString();
                 break;
 
-            // case JsonValueKind.Number:
-            //     parentElement.Value = jsonElement.GetRawText();
-            //     break;
+            case JsonValueKind.Number:
+                parentElement.Value = jsonElement.GetRawText();
+                break;
 
             case JsonValueKind.True:
             case JsonValueKind.False:

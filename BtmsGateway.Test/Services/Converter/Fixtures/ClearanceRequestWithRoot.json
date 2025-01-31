@@ -3,7 +3,7 @@
     "serviceHeader": {
       "sourceSystem": "CDS",
       "destinationSystem": "ALVS",
-      "correlationId": 179120009100989,
+      "correlationId": "179120009100989",
       "serviceCallTimestamp": "2013-10-18T16:55:00.000"
     },
     "header": {
@@ -11,8 +11,8 @@
       "entryVersionNumber": 1,
       "declarationUCR": "4DP99000000000-TST63",
       "declarationType": "S",
-      "arrivalDateTime": 201310220900,
-      "submitterTURN": 123456789012345,
+      "arrivalDateTime": "201310220900",
+      "submitterTURN": "123456789012345",
       "declarantId": "GBTRANSITAIR",
       "declarantName": "TRANSITAIR.GB",
       "dispatchCountryCode": "GB",
@@ -22,8 +22,8 @@
     "items": [
       {
         "itemNumber": 1,
-        "customsProcedureCode": 4000061,
-        "taricCommodityCode": 808108010,
+        "customsProcedureCode": "4000061",
+        "taricCommodityCode": "0808108010",
         "goodsDescription": "Test Test",
         "consigneeId": "NIIMPORTS",
         "consigneeName": "Importers Ltd",
@@ -48,8 +48,8 @@
       },
       {
         "itemNumber": 2,
-        "customsProcedureCode": 4000061,
-        "taricCommodityCode": 808108010,
+        "customsProcedureCode": "4000061",
+        "taricCommodityCode": "0808108010",
         "goodsDescription": "Test Test",
         "consigneeId": "NIIMPORTS",
         "consigneeName": "Importers Ltd",
@@ -74,8 +74,8 @@
       },
       {
         "itemNumber": 3,
-        "customsProcedureCode": 4000061,
-        "taricCommodityCode": 709601000,
+        "customsProcedureCode": "4000061",
+        "taricCommodityCode": "0709601000",
         "goodsDescription": "Test Test",
         "consigneeId": "NIIMPORTS",
         "consigneeName": "Importers Ltd",
@@ -110,8 +110,8 @@
       },
       {
         "itemNumber": 4,
-        "customsProcedureCode": 4000061,
-        "taricCommodityCode": 709601000,
+        "customsProcedureCode": "4000061",
+        "taricCommodityCode": "0709601000",
         "goodsDescription": "Test Test",
         "consigneeId": "NIIMPORTS",
         "consigneeName": "Importers Ltd",

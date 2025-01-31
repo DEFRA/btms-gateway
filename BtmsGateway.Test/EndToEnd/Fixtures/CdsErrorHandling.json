@@ -2,11 +2,11 @@
   "serviceHeader": {
     "sourceSystem": "ALVS",
     "destinationSystem": "CDS",
-    "correlationId": 0,
+    "correlationId": "0",
     "serviceCallTimestamp": "2023-05-26T10:11:48.629812"
   },
   "header": {
-    "sourceCorrelationId": 101,
+    "sourceCorrelationId": "101",
     "entryReference": "23GB5RQJ3MLPIM6AR8",
     "entryVersionNumber": 1
   },

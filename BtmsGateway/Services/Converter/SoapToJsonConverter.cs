@@ -4,7 +4,7 @@ namespace BtmsGateway.Services.Converter;
 
 public static class SoapToJsonConverter
 {
-    public static string Convert(string xml, Dictionary<string, string> knownArrays, int messageBodyDepth)
+    public static string Convert(string xml, KnownArray[] knownArrays, int messageBodyDepth)
     {
         var xContainer = ExtractXmlMessage(xml, messageBodyDepth);
 

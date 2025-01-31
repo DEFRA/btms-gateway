@@ -15,7 +15,7 @@ public class MessageData
     public const string CorrelationIdHeaderName = "X-Correlation-ID";
     public const string RequestedPathHeaderName = "x-requested-path";
     
-    private static readonly Dictionary<string, string> KnownArrays = new() { { "Item", "Items" }, { "Document", "Documents" }, { "Check", "Checks" } };
+    private static readonly KnownArray[] KnownArrays = [ new() { ItemName = "Item", ArrayName = "Items" }, new() { ItemName = "Document", ArrayName = "Documents" }, new() { ItemName = "Check", ArrayName = "Checks" } ];
 
 
     public string CorrelationId { get; }

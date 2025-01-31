@@ -9,28 +9,29 @@ public class DecisionNotificationFromBtmsToCdsTests : TargetRoutingTestBase
 {
     private const string UrlPath = "/route/path/btms-cds/decision-notification";
     
-    private readonly string _originalRequestSoap = File.ReadAllText(Path.Combine(FixturesPath, "AlvsToCdsDecisionNotification.xml"));
-    private readonly StringContent _originalRequestSoapContent;
+    private readonly string _originalMessageJson = File.ReadAllText(Path.Combine(FixturesPath, "DecisionNotification.json"));
+    private readonly string _targetMessageSoap = File.ReadAllText(Path.Combine(FixturesPath, "AlvsToCdsDecisionNotification.xml"));
+    private readonly StringContent _originalRequestJsonContent;
 
     public DecisionNotificationFromBtmsToCdsTests()
     {
-        _originalRequestSoapContent = new StringContent(_originalRequestSoap, Encoding.UTF8, MediaTypeNames.Application.Soap);
+        _originalRequestJsonContent = new StringContent(_originalMessageJson, Encoding.UTF8, MediaTypeNames.Application.Json);
         TestWebServer.RoutedHttpHandler.SetNextResponse(statusFunc: () => HttpStatusCode.NoContent);
     }
 
     [Fact]
     public async Task When_receiving_request_from_btms_Then_should_forward_converted_soap_to_cds()
     {
-        await HttpClient.PostAsync(UrlPath, _originalRequestSoapContent);   // TODO: Should be passing in JSON
+        await HttpClient.PostAsync(UrlPath, _originalRequestJsonContent);
 
         TestWebServer.RoutedHttpHandler.LastRequest!.RequestUri!.AbsoluteUri.Should().Be($"http://cds-host{UrlPath}");
-        (await TestWebServer.RoutedHttpHandler.LastRequest!.Content!.ReadAsStringAsync()).Should().Be(_originalRequestSoap);
+        (await TestWebServer.RoutedHttpHandler.LastRequest!.Content!.ReadAsStringAsync()).Should().Be(_targetMessageSoap);
     }
 
     [Fact]
     public async Task When_receiving_request_from_btms_Then_should_respond_with_cds_response()
     {
-        var response = await HttpClient.PostAsync(UrlPath, _originalRequestSoapContent);   // TODO: Should be passing in JSON
+        var response = await HttpClient.PostAsync(UrlPath, _originalRequestJsonContent);
 
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
         (await response.Content.ReadAsStringAsync()).Should().Be(string.Empty);
@@ -39,7 +40,7 @@ public class DecisionNotificationFromBtmsToCdsTests : TargetRoutingTestBase
     [Fact]
     public async Task When_receiving_request_from_btms_Then_should_not_forward_to_btms()
     {
-        await HttpClient.PostAsync(UrlPath, _originalRequestSoapContent);
+        await HttpClient.PostAsync(UrlPath, _originalRequestJsonContent);
 
         TestWebServer.ForkedHttpHandler.LastRequest.Should().BeNull();
     }

@@ -5,20 +5,20 @@ namespace BtmsGateway.Services.Converter;
 
 public static class XmlToJsonConverter
 {
-    public static string Convert(string xml, Dictionary<string, string> knownArrays)
+    public static string Convert(string xml, KnownArray[] knownArrays)
     {
         return Convert(Validate(xml), knownArrays);
     }
 
-    public static string Convert(XContainer xContainer, Dictionary<string, string> knownArrays)
+    public static string Convert(XContainer xContainer, KnownArray[] knownArrays)
     {
         var jsonObject = new Dictionary<string, object>();
-        ConvertElementToDictionary(xContainer, jsonObject, knownArrays);
+        ConvertElementToDictionary(xContainer, knownArrays, ref jsonObject);
 
         return JsonSerializer.Serialize(jsonObject, Json.SerializerOptions);
     }
 
-    private static void ConvertElementToDictionary(XContainer xElement, Dictionary<string, object> parent, Dictionary<string, string> knownArrays)
+    private static void ConvertElementToDictionary(XContainer xElement, KnownArray[] knownArrays, ref Dictionary<string, object> parent)
     {
         IDictionary<string, object> dictionary = parent;
 
@@ -29,7 +29,8 @@ public static class XmlToJsonConverter
                 var childObject = new Dictionary<string, object>();
                 var elementName = child.Name.LocalName;
 
-                if (knownArrays.TryGetValue(elementName, out var newElementName))
+                var newElementName = knownArrays.SingleOrDefault(x => x.ItemName == elementName)?.ArrayName;
+                if (newElementName != null)
                 {
                     if (parent.TryGetValue(newElementName, out var value))
                     {
@@ -48,7 +49,7 @@ public static class XmlToJsonConverter
                     parent[elementName] = childObject;
                 }
                 
-                ConvertElementToDictionary(child, childObject, knownArrays);
+                ConvertElementToDictionary(child, knownArrays, ref childObject);
             }
             else
             {

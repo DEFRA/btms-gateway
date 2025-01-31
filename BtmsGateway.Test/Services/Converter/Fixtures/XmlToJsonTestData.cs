@@ -6,29 +6,29 @@ public class XmlToJsonTestData : TheoryData<string, string, string>
 {
     public XmlToJsonTestData()
     {
-        Add("Simple self-closing tag", XmlSimpleSelfClosing, JsonSimpleNull.LinuxLineEndings());
-        Add("Simple self-closing tag w/ space", XmlSimpleSelfClosingWithSpace, JsonSimpleNull.LinuxLineEndings());
-        Add("Simple empty tag", XmlSimpleEmpty, JsonSimpleEmpty.LinuxLineEndings());
-        Add("Simple content tag", XmlSimpleContent, JsonSimpleContent.LinuxLineEndings());
-        Add("Complex single level", XmlComplexSingleLevel, JsonComplexSingleLevel.LinuxLineEndings());
-        Add("Complex multi level", XmlComplexMultiLevel, JsonComplexMultiLevel.LinuxLineEndings());
-        Add("Complex multi level w/ arrays", XmlComplexMultiLevelWithArrays, JsonComplexMultiLevelWithArrays.LinuxLineEndings());
-        Add("Complex multi level w/ single item arrays", XmlComplexMultiLevelWithSingleItemArrays, JsonComplexMultiLevelWithSingleItemArrays.LinuxLineEndings());
-        Add("Complex multi level SOAP", XmlComplexMultiLevelSoap, JsonComplexMultiLevel.LinuxLineEndings());
+      Add("Simple self-closing tag", XmlSimpleSelfClosing, JsonSimpleNull.LinuxLineEndings());
+      Add("Simple self-closing tag w/ space", XmlSimpleSelfClosingWithSpace, JsonSimpleNull.LinuxLineEndings());
+      Add("Simple empty tag", XmlSimpleEmpty, JsonSimpleEmpty.LinuxLineEndings());
+      Add("Simple content tag", XmlSimpleContent, JsonSimpleContent.LinuxLineEndings());
+      Add("Complex single level", XmlComplexSingleLevel, JsonComplexSingleLevel.LinuxLineEndings());
+      Add("Complex multi level", XmlComplexMultiLevel, JsonComplexMultiLevel.LinuxLineEndings());
+      Add("Complex multi level w/ arrays", XmlComplexMultiLevelWithArrays, JsonComplexMultiLevelWithArrays.LinuxLineEndings());
+      Add("Complex multi level w/ single item arrays", XmlComplexMultiLevelWithSingleItemArrays, JsonComplexMultiLevelWithSingleItemArrays.LinuxLineEndings());
+      Add("Complex multi level SOAP", XmlComplexMultiLevelWithNamespace, JsonComplexMultiLevel.LinuxLineEndings());
     }
-  
+
     private const string XmlSimpleSelfClosing = "<Root/>";
     private const string XmlSimpleSelfClosingWithSpace = "<Root />";
     private const string XmlSimpleEmpty = "<Root></Root>";
     private const string XmlSimpleContent = "<Root>data</Root>";
-  
+
     private const string XmlComplexSingleLevel = """
                                                  <Root>
                                                    <Tag1>data1</Tag1>
                                                    <Tag2>data2</Tag2>
                                                  </Root>
                                                  """;
-  
+
     private const string XmlComplexMultiLevel = """
                                                 <?xml version="1.0" encoding="UTF-8"?>
 
@@ -52,7 +52,7 @@ public class XmlToJsonTestData : TheoryData<string, string, string>
                                                   </Element2>
                                                 </Root>
                                                 """;
-  
+
     private const string XmlComplexMultiLevelWithArrays = """
                                                           <Root>
                                                             <Array>
@@ -77,7 +77,7 @@ public class XmlToJsonTestData : TheoryData<string, string, string>
                                                             </Array>
                                                           </Root>
                                                           """;
-  
+
     private const string XmlComplexMultiLevelWithSingleItemArrays = """
                                                                     <Root>
                                                                       <Array>
@@ -90,47 +90,69 @@ public class XmlToJsonTestData : TheoryData<string, string, string>
                                                                       </Array>
                                                                     </Root>
                                                                     """;
-  
-    private const string XmlComplexMultiLevelSoap = """
-                                                    <?xml version="1.0" encoding="UTF-8"?>
 
-                                                    <Root xmlns="http://www.w3.org/2003/05/soap-envelope/" xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
-                                                      <i:Element1 xmlns:x="http://localtypes/">
-                                                        <x:Tag1>data1</x:Tag1>
-                                                        <x:Tag2>12.3</x:Tag2>
-                                                      </i:Element1>
-                                                      <i:Element2 xmlns:x="http://localtypes/">
-                                                        <x:Tag3>true</x:Tag3>
-                                                        <i:Element3>
-                                                          <x:Tag4/>
-                                                          <x:Tag5></x:Tag5>
-                                                          <x:Tag6>123</x:Tag6>
-                                                          <x:Tag7>abc
-                                                    def
-                                                    ghi</x:Tag7>
-                                                        </i:Element3>
-                                                      </i:Element2>
-                                                    </Root>
-                                                    """;
-  
+    private const string XmlComplexMultiLevelWithNamespace = """
+                                                                 <?xml version="1.0" encoding="UTF-8"?>
+
+                                                                 <Root xmlns="http://www.w3.org/2003/05/soap-envelope/" xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+                                                                   <i:Element1 xmlns:x="http://localtypes/">
+                                                                     <x:Tag1>data1</x:Tag1>
+                                                                     <x:Tag2>12.3</x:Tag2>
+                                                                   </i:Element1>
+                                                                   <i:Element2 xmlns:x="http://localtypes/">
+                                                                     <x:Tag3>true</x:Tag3>
+                                                                     <i:Element3>
+                                                                       <x:Tag4/>
+                                                                       <x:Tag5></x:Tag5>
+                                                                       <x:Tag6>123</x:Tag6>
+                                                                       <x:Tag7>abc
+                                                                 def
+                                                                 ghi</x:Tag7>
+                                                                     </i:Element3>
+                                                                   </i:Element2>
+                                                                 </Root>
+                                                                 """;
+
+    private const string XmlComplexMultiLevelSoapWithoutNamespace = """
+                                                                    <?xml version="1.0" encoding="UTF-8"?>
+
+                                                                    <Root xmlns="http://www.w3.org/2003/05/soap-envelope/" xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+                                                                      <i:Element1 xmlns:x="http://localtypes/">
+                                                                        <x:Tag1>data1</x:Tag1>
+                                                                        <x:Tag2>12.3</x:Tag2>
+                                                                      </i:Element1>
+                                                                      <i:Element2 xmlns:x="http://localtypes/">
+                                                                        <x:Tag3>true</x:Tag3>
+                                                                        <i:Element3>
+                                                                          <x:Tag4/>
+                                                                          <x:Tag5></x:Tag5>
+                                                                          <x:Tag6>123</x:Tag6>
+                                                                          <x:Tag7>abc
+                                                                    def
+                                                                    ghi</x:Tag7>
+                                                                        </i:Element3>
+                                                                      </i:Element2>
+                                                                    </Root>
+                                                                    """;
+
     private const string JsonSimpleNull = """
                                           {
                                             "root": null
                                           }
                                           """;
-  
+
     private const string JsonSimpleEmpty = """
                                            {
                                              "root": ""
                                            }
                                            """;
-  
+
     private const string JsonSimpleContent = """
                                              {
                                                "root": "data"
                                              }
                                              """;
-  
+
     private const string JsonComplexSingleLevel = """
                                                   {
                                                     "root": {
@@ -139,7 +161,7 @@ public class XmlToJsonTestData : TheoryData<string, string, string>
                                                     }
                                                   }
                                                   """;
-  
+
     private const string JsonComplexMultiLevel = """
                                                  {
                                                    "root": {
@@ -159,7 +181,7 @@ public class XmlToJsonTestData : TheoryData<string, string, string>
                                                    }
                                                  }
                                                  """;
-  
+
     private const string JsonComplexMultiLevelWithArrays = """
                                                            {
                                                              "root": {
@@ -192,7 +214,7 @@ public class XmlToJsonTestData : TheoryData<string, string, string>
                                                              }
                                                            }
                                                            """;
-  
+
     private const string JsonComplexMultiLevelWithSingleItemArrays = """
                                                                      {
                                                                        "root": {

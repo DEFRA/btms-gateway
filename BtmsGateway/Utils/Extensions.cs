@@ -10,4 +10,6 @@ public static class Extensions
         builder.Services.Configure<T>(builder.Configuration.GetSection(sectionName));
         builder.Services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<T>>().Value);
     }
+
+    public static string ToTitleCase(this string text) => char.ToUpper(text[0]) + text[1..];
 }

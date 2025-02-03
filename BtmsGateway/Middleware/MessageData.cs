@@ -47,8 +47,8 @@ public class MessageData
             Path = request.Path.HasValue ? request.Path.Value.Trim('/') : string.Empty;
             OriginalContentType = RetrieveContentType(request);
             _headers = request.Headers;
-            Url = $"{request.Protocol}://{request.Host}{request.Path}{request.QueryString}";
-            HttpString = $"{Method} {Url} {request.Protocol.ToUpper()}/1.1 {OriginalContentType}";       
+            Url = $"{request.Scheme}://{request.Host}{request.Path}{request.QueryString}";
+            HttpString = $"{Method} {Url} {request.Protocol.ToUpper()} {OriginalContentType}";       
             var correlationId = _headers[CorrelationIdHeaderName].FirstOrDefault();
             CorrelationId = string.IsNullOrWhiteSpace(correlationId) ? Guid.NewGuid().ToString("D") : correlationId;
         }

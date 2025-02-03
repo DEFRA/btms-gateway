@@ -10,6 +10,7 @@ public class RoutingConfigTests
     {
         var route = TestRoutes.RoutingConfig.AllRoutes.Single(x => x.Name == "route-1");
         route.Name.Should().Be("route-1");
+        route.RoutePath.Should().Be("route/path-1/sub/path");
         route.LegacyLink.Should().Be("http://legacy-link-url");
         route.LegacyLinkType.Should().Be(LinkType.Url);
         route.LegacyHostHeader.Should().Be("legacy-host-header");
@@ -26,6 +27,7 @@ public class RoutingConfigTests
     {
         var route = TestRoutes.RoutingConfig.AllRoutes.Single(x => x.Name == "route-2");
         route.Name.Should().Be("route-2");
+        route.RoutePath.Should().Be("route/path-2/sub/path");
         route.LegacyLink.Should().Be("legacy-link-queue");
         route.LegacyLinkType.Should().Be(LinkType.Queue);
         route.LegacyHostHeader.Should().BeNull();
@@ -42,6 +44,7 @@ public class RoutingConfigTests
     {
         var route = TestRoutes.RoutingConfig.AllRoutes.Single(x => x.Name == "route-3");
         route.Name.Should().Be("route-3");
+        route.RoutePath.Should().Be("route/path-3/sub/path");
         route.LegacyLink.Should().Be("http://legacy-link-url");
         route.LegacyLinkType.Should().Be(LinkType.Url);
         route.LegacyHostHeader.Should().Be("legacy-host-header");
@@ -58,6 +61,7 @@ public class RoutingConfigTests
     {
         var route = TestRoutes.RoutingConfig.AllRoutes.Single(x => x.Name == "route-4");
         route.Name.Should().Be("route-4");
+        route.RoutePath.Should().Be("route/path-4/sub/path");
         route.LegacyLink.Should().Be("none");
         route.LegacyLinkType.Should().Be(LinkType.None);
         route.LegacyHostHeader.Should().BeNull();

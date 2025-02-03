@@ -13,10 +13,7 @@ public sealed class GeneralEndToEndTests : IAsyncDisposable
 {
     private const string XmlRoutedResponse = "<root><xml>RoutedResponse</xml></root>";
     private const string XmlContent = "<Envelope><Body><Message><xml>Content</xml></Message></Body></Envelope>";
-    private const string RouteName = "test";
-    private const string SubPath = "sub/path";
-    private const string FullPath = $"{RouteName}/{SubPath}";
-    private const string RoutedPath = $"/{SubPath}";
+    private const string RoutedPath = "/test/path";
 
     private readonly string _headerCorrelationId = Guid.NewGuid().ToString("D");
     private readonly DateTimeOffset _headerDate = DateTimeOffset.UtcNow.AddSeconds(-1).RoundDownToSecond();
@@ -28,15 +25,34 @@ public sealed class GeneralEndToEndTests : IAsyncDisposable
 
     public GeneralEndToEndTests()
     {
-        _testWebServer = TestWebServer.BuildAndRun();
+        var routingConfig = new RoutingConfig()
+        {
+            NamedRoutes = new Dictionary<string, NamedRoute>
+            {
+                {
+                    "Test", new NamedRoute
+                    {
+                        RoutePath = "test/path",
+                        LegacyLinkName = "TestPath",
+                        BtmsLinkName = "BtmsPath",
+                        RouteTo = RouteTo.Legacy,
+                        SendLegacyResponseToBtms = false
+                    }
+                }
+            },
+            NamedLinks = new Dictionary<string, NamedLink>
+            {
+                { "TestPath", new NamedLink { Link = "http://TestUrlPath", LinkType = LinkType.Url } },
+                { "BtmsPath", new NamedLink { Link = "http://BtmsUrlPath/forked", LinkType = LinkType.Url } }
+            }
+        };
+        _testWebServer = TestWebServer.BuildAndRun(ServiceDescriptor.Singleton(routingConfig));
         _httpClient = _testWebServer.HttpServiceClient;
         _httpClient.DefaultRequestHeaders.Date = _headerDate;
         _httpClient.DefaultRequestHeaders.Add(MessageData.CorrelationIdHeaderName, _headerCorrelationId);
 
-        var routingConfig = _testWebServer.Services.GetRequiredService<RoutingConfig>();
-        var expectedRoutUrl = routingConfig.AllRoutes.Single(x => x.Name == RouteName).LegacyLink!;
-        _expectedRoutedUrl = $"{expectedRoutUrl.Trim('/')}/{SubPath}";
-        _expectedForkedUrl = $"{expectedRoutUrl.Trim('/')}/forked/{SubPath}";
+        _expectedRoutedUrl = $"http://testurlpath{RoutedPath}";
+        _expectedForkedUrl = $"http://btmsurlpath/forked{RoutedPath}";
         _stringContent = new StringContent(XmlContent, Encoding.UTF8, MediaTypeNames.Application.Xml);
     }
 
@@ -57,7 +73,7 @@ public sealed class GeneralEndToEndTests : IAsyncDisposable
     {
         _testWebServer.RoutedHttpHandler.SetNextResponse(content: XmlRoutedResponse);
 
-        var response = await _httpClient.PostAsync(FullPath, _stringContent);
+        var response = await _httpClient.PostAsync(RoutedPath, _stringContent);
         
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         response.Content.Headers.ContentType?.ToString().Should().Be(MediaTypeNames.Application.Xml);
@@ -72,7 +88,7 @@ public sealed class GeneralEndToEndTests : IAsyncDisposable
     {
         _testWebServer.RoutedHttpHandler.SetNextResponse(content: XmlRoutedResponse);
 
-        await _httpClient.PostAsync(FullPath, _stringContent);
+        await _httpClient.PostAsync(RoutedPath, _stringContent);
 
         var request = _testWebServer.RoutedHttpHandler.LastRequest;
         request?.RequestUri?.ToString().Should().Be(_expectedRoutedUrl);
@@ -96,7 +112,7 @@ public sealed class GeneralEndToEndTests : IAsyncDisposable
 
         _testWebServer.ForkedHttpHandler.SetNextResponse(content: XmlForkedResponse);
 
-        await _httpClient.PostAsync(FullPath, _stringContent);
+        await _httpClient.PostAsync(RoutedPath, _stringContent);
 
         var request = _testWebServer.ForkedHttpHandler.LastRequest;
         request?.RequestUri?.ToString().Should().Be(_expectedForkedUrl);
@@ -122,7 +138,7 @@ public sealed class GeneralEndToEndTests : IAsyncDisposable
     {
         _testWebServer.RoutedHttpHandler.SetNextResponse(statusFunc: () => targetStatusCode);
         
-        var response = await _httpClient.PostAsync(FullPath, _stringContent);
+        var response = await _httpClient.PostAsync(RoutedPath, _stringContent);
 
         response.StatusCode.Should().Be(targetStatusCode);
     }
@@ -137,7 +153,7 @@ public sealed class GeneralEndToEndTests : IAsyncDisposable
     {
         _testWebServer.ForkedHttpHandler.SetNextResponse(statusFunc: () => targetStatusCode);
         
-        var response = await _httpClient.PostAsync(FullPath, _stringContent);
+        var response = await _httpClient.PostAsync(RoutedPath, _stringContent);
         
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
@@ -148,7 +164,7 @@ public sealed class GeneralEndToEndTests : IAsyncDisposable
         var callNum = 0;
         _testWebServer.RoutedHttpHandler.SetNextResponse(statusFunc: () => ++callNum == 1 ? HttpStatusCode.BadGateway : HttpStatusCode.OK);
         
-        var response = await _httpClient.PostAsync(FullPath, _stringContent);
+        var response = await _httpClient.PostAsync(RoutedPath, _stringContent);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         callNum.Should().Be(2);
@@ -160,7 +176,7 @@ public sealed class GeneralEndToEndTests : IAsyncDisposable
         var callNum = 0;
         _testWebServer.ForkedHttpHandler.SetNextResponse(statusFunc: () => ++callNum == 1 ? HttpStatusCode.BadGateway : HttpStatusCode.OK);
         
-        var response = await _httpClient.PostAsync(FullPath, _stringContent);
+        var response = await _httpClient.PostAsync(RoutedPath, _stringContent);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         callNum.Should().Be(2);

@@ -5,15 +5,14 @@ using BtmsGateway.Utils;
 namespace BtmsGateway.Services.Converter;
 
 public static class JsonToXmlConverter
-{
+{    
     public static string Convert(string json, KnownArray[] knownArrays, string rootName)
     {
         try
         {
-            var jsonObject = JsonSerializer.Deserialize<dynamic>(json, Json.SerializerOptions);
-            var xDocument = ConvertToXdoc(jsonObject, knownArrays, rootName);
+            var xDocument = ConvertToXdoc(json, knownArrays, rootName);
 
-            return $"{xDocument.Declaration}{Environment.NewLine}{xDocument}";
+            return xDocument.ToStringWithDeclaration();
         }
         catch (Exception ex)
         {
@@ -21,8 +20,9 @@ public static class JsonToXmlConverter
         }
     }
 
-    public static XDocument ConvertToXdoc(object jsonObject, KnownArray[] knownArrays, string rootName)
+    public static XDocument ConvertToXdoc(string json, KnownArray[] knownArrays, string rootName)
     {
+            var jsonObject = JsonSerializer.Deserialize<dynamic>(json, Json.SerializerOptions);
             var rootElement = new XElement(rootName);
             AddElements(rootElement, jsonObject, knownArrays);
             return new XDocument(new XDeclaration("1.0", "utf-8", null), rootElement);

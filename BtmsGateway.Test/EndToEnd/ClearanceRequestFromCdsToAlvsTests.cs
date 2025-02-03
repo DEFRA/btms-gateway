@@ -10,39 +10,39 @@ public class ClearanceRequestFromCdsToAlvsTests : TargetRoutingTestBase
 {
     private const string UrlPath = "/route/path/cds/clearance-request";
     
-    private readonly string _originalRequestSoap = File.ReadAllText(Path.Combine(FixturesPath, "CdsToAlvsClearanceRequest.xml"));
-    private readonly string _originalResponseSoap = File.ReadAllText(Path.Combine(FixturesPath, "AlvsResponse.xml"));
+    private readonly string _cdsRequestSoap = File.ReadAllText(Path.Combine(FixturesPath, "CdsToAlvsClearanceRequest.xml"));
+    private readonly string _cdsResponseSoap = File.ReadAllText(Path.Combine(FixturesPath, "AlvsResponse.xml"));
     private readonly string _btmsRequestJson = File.ReadAllText(Path.Combine(FixturesPath, "ClearanceRequest.json")).LinuxLineEndings();
-    private readonly StringContent _originalRequestSoapContent;
+    private readonly StringContent _cdsRequestSoapContent;
 
     public ClearanceRequestFromCdsToAlvsTests()
     {
-        _originalRequestSoapContent = new StringContent(_originalRequestSoap, Encoding.UTF8, MediaTypeNames.Application.Soap);
-        TestWebServer.RoutedHttpHandler.SetNextResponse(content: _originalResponseSoap, statusFunc: () => HttpStatusCode.Accepted);
+        _cdsRequestSoapContent = new StringContent(_cdsRequestSoap, Encoding.UTF8, MediaTypeNames.Application.Soap);
+        TestWebServer.RoutedHttpHandler.SetNextResponse(content: _cdsResponseSoap, statusFunc: () => HttpStatusCode.Accepted);
     }
 
     [Fact]
     public async Task When_receiving_request_from_cds_Then_should_forward_to_alvs()
     {
-        await HttpClient.PostAsync(UrlPath, _originalRequestSoapContent);
+        await HttpClient.PostAsync(UrlPath, _cdsRequestSoapContent);
 
         TestWebServer.RoutedHttpHandler.LastRequest!.RequestUri!.AbsoluteUri.Should().Be($"http://cds-host{UrlPath}");
-        (await TestWebServer.RoutedHttpHandler.LastRequest!.Content!.ReadAsStringAsync()).Should().Be(_originalRequestSoap);
+        (await TestWebServer.RoutedHttpHandler.LastRequest!.Content!.ReadAsStringAsync()).Should().Be(_cdsRequestSoap);
     }
 
     [Fact]
     public async Task When_receiving_request_from_cds_Then_should_respond_with_alvs_response()
     {
-        var response = await HttpClient.PostAsync(UrlPath, _originalRequestSoapContent);
+        var response = await HttpClient.PostAsync(UrlPath, _cdsRequestSoapContent);
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
-        (await response.Content.ReadAsStringAsync()).Should().Be(_originalResponseSoap);
+        (await response.Content.ReadAsStringAsync()).Should().Be(_cdsResponseSoap);
     }
 
     [Fact]
     public async Task When_receiving_request_from_cds_Then_should_forward_converted_json_to_btms()
     {
-        await HttpClient.PostAsync(UrlPath, _originalRequestSoapContent);
+        await HttpClient.PostAsync(UrlPath, _cdsRequestSoapContent);
 
         TestWebServer.ForkedHttpHandler.LastRequest!.RequestUri!.AbsoluteUri.Should().Be($"http://btms-host{UrlPath}");
         (await TestWebServer.ForkedHttpHandler.LastRequest!.Content!.ReadAsStringAsync()).LinuxLineEndings().Should().Be(_btmsRequestJson);

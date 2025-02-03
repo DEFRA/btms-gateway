@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Header/>
+    <soap:Body>
+        <FinalisationNotificationRequestPostResult xmlns="traceswsns">
+            <XMLSchemaVersion>2.0</XMLSchemaVersion>
+            <OperationCode>9</OperationCode>
+        </FinalisationNotificationRequestPostResult>
+    </soap:Body>
+</soap:Envelope>

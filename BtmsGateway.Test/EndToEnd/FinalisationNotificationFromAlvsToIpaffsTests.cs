@@ -10,38 +10,39 @@ public class FinalisationNotificationFromAlvsToIpaffsTests : TargetRoutingTestBa
 {
     private const string UrlPath = "/route/path/alvs-ipaffs/finalisation-notification";
     
-    private readonly string _originalRequestSoap = File.ReadAllText(Path.Combine(FixturesPath, "AlvsToIpaffsFinalisationNotification.xml"));
+    private readonly string _alvsRequestSoap = File.ReadAllText(Path.Combine(FixturesPath, "AlvsToIpaffsFinalisationNotification.xml"));
+    private readonly string _alvsResponseSoap = File.ReadAllText(Path.Combine(FixturesPath, "IpaffsResponse.xml"));
     private readonly string _btmsRequestJson = File.ReadAllText(Path.Combine(FixturesPath, "FinalisationNotification.json")).LinuxLineEndings();
-    private readonly StringContent _originalRequestSoapContent;
+    private readonly StringContent _alvsRequestSoapContent;
 
     public FinalisationNotificationFromAlvsToIpaffsTests()
     {
-        _originalRequestSoapContent = new StringContent(_originalRequestSoap, Encoding.UTF8, MediaTypeNames.Text.Xml);
-        TestWebServer.RoutedHttpHandler.SetNextResponse(statusFunc: () => HttpStatusCode.NoContent);
+        _alvsRequestSoapContent = new StringContent(_alvsRequestSoap, Encoding.UTF8, MediaTypeNames.Text.Xml);
+        TestWebServer.RoutedHttpHandler.SetNextResponse(content: _alvsResponseSoap, statusFunc: () => HttpStatusCode.Accepted);
     }
 
     [Fact]
     public async Task When_receiving_request_from_alvs_Then_should_forward_to_cds()
     {
-        await HttpClient.PostAsync(UrlPath, _originalRequestSoapContent);
+        await HttpClient.PostAsync(UrlPath, _alvsRequestSoapContent);
 
         TestWebServer.RoutedHttpHandler.LastRequest!.RequestUri!.AbsoluteUri.Should().Be($"http://alvs-ipaffs-host{UrlPath}");
-        (await TestWebServer.RoutedHttpHandler.LastRequest!.Content!.ReadAsStringAsync()).Should().Be(_originalRequestSoap);
+        (await TestWebServer.RoutedHttpHandler.LastRequest!.Content!.ReadAsStringAsync()).Should().Be(_alvsRequestSoap);
     }
 
     [Fact]
-    public async Task When_receiving_request_from_alvs_Then_should_respond_with_cds_response()
+    public async Task When_receiving_request_from_alvs_Then_should_respond_with_ipaffs_response()
     {
-        var response = await HttpClient.PostAsync(UrlPath, _originalRequestSoapContent);
+        var response = await HttpClient.PostAsync(UrlPath, _alvsRequestSoapContent);
 
-        response.StatusCode.Should().Be(HttpStatusCode.NoContent);
-        (await response.Content.ReadAsStringAsync()).Should().Be(string.Empty);
+        response.StatusCode.Should().Be(HttpStatusCode.Accepted);
+        (await response.Content.ReadAsStringAsync()).Should().Be(_alvsResponseSoap);
     }
 
     [Fact]
     public async Task When_receiving_request_from_alvs_Then_should_forward_converted_json_to_btms()
     {
-        await HttpClient.PostAsync(UrlPath, _originalRequestSoapContent);
+        await HttpClient.PostAsync(UrlPath, _alvsRequestSoapContent);
 
         TestWebServer.ForkedHttpHandler.LastRequest!.RequestUri!.AbsoluteUri.Should().Be($"http://btms-host{UrlPath}");
         (await TestWebServer.ForkedHttpHandler.LastRequest!.Content!.ReadAsStringAsync()).LinuxLineEndings().Should().Be(_btmsRequestJson);

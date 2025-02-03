@@ -6,16 +6,16 @@ public record RoutingConfig
 
     private RoutedLink[] GetAllRoutes()
     {
-        var legacy = NamedRoutes.Join(NamedLinks, nr => nr.Value.LegacyLinkName, nl => nl.Key, (nr, nl) => new { Name = nr.Key, nl.Value.Link, nl.Value.LinkType, nl.Value.HostHeader, 
-            nr.Value.MessageBodyDepth, nr.Value.SendLegacyResponseToBtms, nr.Value.RouteTo });
+        var legacy = NamedRoutes.Join(NamedLinks, nr => nr.Value.LegacyLinkName, nl => nl.Key, (nr, nl) => new { Name = nr.Key, nl.Value.Link, nl.Value.LinkType, nl.Value.HostHeader,
+            nr.Value.RoutePath, nr.Value.MessageBodyDepth, nr.Value.SendLegacyResponseToBtms, nr.Value.RouteTo });
         var btms = NamedRoutes.Join(NamedLinks, nr => nr.Value.BtmsLinkName, nl => nl.Key, (nr, nl) => new { Name = nr.Key, nl.Value.Link, nl.Value.LinkType, nl.Value.HostHeader,
-            nr.Value.MessageBodyDepth, nr.Value.SendLegacyResponseToBtms, nr.Value.RouteTo });
+            nr.Value.RoutePath, nr.Value.MessageBodyDepth, nr.Value.SendLegacyResponseToBtms, nr.Value.RouteTo });
         return legacy.Join(btms, l => l.Name, b => b.Name, (l, b) => new RoutedLink
             {
                 Name = l.Name, 
                 LegacyLink = l.Link.TrimEnd('/'), LegacyLinkType = l.LinkType, LegacyHostHeader = l.HostHeader, 
                 BtmsLink = b.Link.TrimEnd('/'), BtmsLinkType = b.LinkType, BtmsHostHeader = b.HostHeader, 
-                MessageBodyDepth = l.MessageBodyDepth, SendLegacyResponseToBtms = b.SendLegacyResponseToBtms, RouteTo = b.RouteTo
+                RoutePath = l.RoutePath.Trim('/'), MessageBodyDepth = l.MessageBodyDepth, SendLegacyResponseToBtms = b.SendLegacyResponseToBtms, RouteTo = b.RouteTo
             })
             .ToArray();
     }
@@ -26,6 +26,7 @@ public record RoutingConfig
 
 public record NamedRoute
 {
+    public required string RoutePath { get; init; }
     public string? LegacyLinkName { get; init; }
     public string? BtmsLinkName { get; init; }
     public required bool SendLegacyResponseToBtms { get; init; }
@@ -45,6 +46,7 @@ public enum LinkType { None, Url, Queue }
 public record RoutedLink
 {
     public required string Name { get; init; }
+    public required string RoutePath { get; init; }
     public string? LegacyLink { get; init; }
     public required LinkType LegacyLinkType { get; init; }
     public string? LegacyHostHeader { get; init; }

@@ -1,31 +1,51 @@
 {
   "NamedRoutes": {
-    "cds": {
+    "CDSClearanceRequestToAlvs": {
+      "RoutePath": "/route/path/cds/clearance-request",
       "LegacyLinkName": "Cds",
       "BtmsLinkName": "Btms",
       "SendLegacyResponseToBtms": false,
       "RouteTo": "Legacy"
     },
-    "alvs_cds": {
+    "CDSFinalisationNotificationToAlvs": {
+      "RoutePath": "/route/path/cds/finalisation-notification",
+      "LegacyLinkName": "Cds",
+      "BtmsLinkName": "Btms",
+      "SendLegacyResponseToBtms": false,
+      "RouteTo": "Legacy"
+    },
+    "ALVSDecisionNotificationToCds": {
+      "RoutePath": "/route/path/alvs-cds/decision-notification",
       "LegacyLinkName": "AlvsCds",
       "BtmsLinkName": "Btms",
       "SendLegacyResponseToBtms": false,
       "RouteTo": "Legacy"
     },
-    "alvs_ipaffs": {
+    "ALVSClearanceRequestToIpaffs": {
+      "RoutePath": "/route/path/alvs-ipaffs/clearance-request",
       "LegacyLinkName": "AlvsIpaffs",
       "BtmsLinkName": "Btms",
       "MessageBodyDepth": 2,
       "SendLegacyResponseToBtms": false,
       "RouteTo": "Legacy"
     },
-    "btms_cds": {
+    "ALVSFinalisationNotificationToIpaffs": {
+      "RoutePath": "/route/path/alvs-ipaffs/finalisation-notification",
+      "LegacyLinkName": "AlvsIpaffs",
+      "BtmsLinkName": "Btms",
+      "MessageBodyDepth": 2,
+      "SendLegacyResponseToBtms": false,
+      "RouteTo": "Legacy"
+    },
+    "BTMSDecisionNotificationToCds": {
+      "RoutePath": "/route/path/btms-cds/decision-notification",
       "LegacyLinkName": "Cds",
       "BtmsLinkName": "None",
       "SendLegacyResponseToBtms": false,
       "RouteTo": "Legacy"
     },
-    "cds_btms": {
+    "CDSClearanceRequestToBtms": {
+      "RoutePath": "/route/path/cds-btms/clearance-request",
       "LegacyLinkName": "None",
       "BtmsLinkName": "Btms",
       "SendLegacyResponseToBtms": false,
@@ -39,19 +59,19 @@
     },
     "Cds": {
       "LinkType": "Url",
-      "Link": "http://cds/"
+      "Link": "http://cds-host/"
     },
     "AlvsCds": {
       "LinkType": "Url",
-      "Link": "http://alvs_cds/"
+      "Link": "http://alvs-cds-host/"
     },
     "AlvsIpaffs": {
       "LinkType": "Url",
-      "Link": "http://alvs_ipaffs/"
+      "Link": "http://alvs-ipaffs-host/"
     },
     "Btms": {
       "LinkType": "Url",
-      "Link": "http://btms/"
+      "Link": "http://btms-host/"
     }
   }
 }

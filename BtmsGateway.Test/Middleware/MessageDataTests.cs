@@ -15,8 +15,9 @@ public class MessageDataTests
     {
         Request =
         {
+            Protocol = "HTTP/1.1",
+            Scheme = "http",
             Method = "GET",
-            Protocol = "http",
             Host = new HostString("localhost", 123),
             Headers =
             {

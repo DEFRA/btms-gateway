@@ -8,8 +8,7 @@ namespace BtmsGateway.Test.EndToEnd;
 
 public class ErrorHandlingFromAlvsToCdsTests : TargetRoutingTestBase
 {
-    private const string OriginalPath = "/alvs-sourced-error-handling/path";
-    private const string GatewayPath = $"/alvs_cds{OriginalPath}";
+    private const string UrlPath = "/route/path/cds/clearance-request";
     
     private readonly string _originalRequestSoap = File.ReadAllText(Path.Combine(FixturesPath, "AlvsErrorHandling.xml"));
     private readonly string _btmsRequestJson = File.ReadAllText(Path.Combine(FixturesPath, "AlvsErrorHandling.json")).LinuxLineEndings();
@@ -24,16 +23,16 @@ public class ErrorHandlingFromAlvsToCdsTests : TargetRoutingTestBase
     [Fact]
     public async Task When_receiving_request_from_alvs_Then_should_forward_to_cds()
     {
-        await HttpClient.PostAsync(GatewayPath, _originalRequestSoapContent);
+        await HttpClient.PostAsync(UrlPath, _originalRequestSoapContent);
 
-        TestWebServer.RoutedHttpHandler.LastRequest!.RequestUri!.AbsoluteUri.Should().Be($"http://alvs_cds{OriginalPath}");
+        TestWebServer.RoutedHttpHandler.LastRequest!.RequestUri!.AbsoluteUri.Should().Be($"http://cds-host{UrlPath}");
         (await TestWebServer.RoutedHttpHandler.LastRequest!.Content!.ReadAsStringAsync()).Should().Be(_originalRequestSoap);
     }
 
     [Fact]
     public async Task When_receiving_request_from_alvs_Then_should_respond_with_cds_response()
     {
-        var response = await HttpClient.PostAsync(GatewayPath, _originalRequestSoapContent);
+        var response = await HttpClient.PostAsync(UrlPath, _originalRequestSoapContent);
 
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
         (await response.Content.ReadAsStringAsync()).Should().Be(string.Empty);
@@ -42,9 +41,9 @@ public class ErrorHandlingFromAlvsToCdsTests : TargetRoutingTestBase
     [Fact]
     public async Task When_receiving_request_from_alvs_Then_should_forward_converted_json_to_btms()
     {
-        await HttpClient.PostAsync(GatewayPath, _originalRequestSoapContent);
+        await HttpClient.PostAsync(UrlPath, _originalRequestSoapContent);
 
-        TestWebServer.ForkedHttpHandler.LastRequest!.RequestUri!.AbsoluteUri.Should().Be($"http://btms{OriginalPath}");
+        TestWebServer.ForkedHttpHandler.LastRequest!.RequestUri!.AbsoluteUri.Should().Be($"http://btms-host{UrlPath}");
         (await TestWebServer.ForkedHttpHandler.LastRequest!.Content!.ReadAsStringAsync()).LinuxLineEndings().Should().Be(_btmsRequestJson);
     }
 }

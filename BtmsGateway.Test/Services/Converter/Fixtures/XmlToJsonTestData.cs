@@ -113,28 +113,6 @@ public class XmlToJsonTestData : TheoryData<string, string, string>
                                                                  </Root>
                                                                  """;
 
-    private const string XmlComplexMultiLevelSoapWithoutNamespace = """
-                                                                    <?xml version="1.0" encoding="UTF-8"?>
-
-                                                                    <Root xmlns="http://www.w3.org/2003/05/soap-envelope/" xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
-                                                                      <i:Element1 xmlns:x="http://localtypes/">
-                                                                        <x:Tag1>data1</x:Tag1>
-                                                                        <x:Tag2>12.3</x:Tag2>
-                                                                      </i:Element1>
-                                                                      <i:Element2 xmlns:x="http://localtypes/">
-                                                                        <x:Tag3>true</x:Tag3>
-                                                                        <i:Element3>
-                                                                          <x:Tag4/>
-                                                                          <x:Tag5></x:Tag5>
-                                                                          <x:Tag6>123</x:Tag6>
-                                                                          <x:Tag7>abc
-                                                                    def
-                                                                    ghi</x:Tag7>
-                                                                        </i:Element3>
-                                                                      </i:Element2>
-                                                                    </Root>
-                                                                    """;
-
     private const string JsonSimpleNull = """
                                           {
                                             "root": null
@@ -196,11 +174,11 @@ public class XmlToJsonTestData : TheoryData<string, string, string>
                                                                    "lists": [
                                                                      {
                                                                        "tag3": "dataC",
-                                                                       "tag4": 777
+                                                                       "tag4": "777"
                                                                      },
                                                                      {
                                                                        "tag3": "dataD",
-                                                                       "tag4": 888
+                                                                       "tag4": "888"
                                                                      }
                                                                    ],
                                                                    "anotherLists": [

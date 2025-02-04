@@ -25,7 +25,7 @@ public class DecisionNotificationFromBtmsToCdsTests : TargetRoutingTestBase
         await HttpClient.PostAsync(UrlPath, _btmsRequestJsonContent);
 
         TestWebServer.RoutedHttpHandler.LastRequest!.RequestUri!.AbsoluteUri.Should().Be($"http://cds-host{UrlPath}");
-        (await TestWebServer.RoutedHttpHandler.LastRequest!.Content!.ReadAsStringAsync()).Should().Be(_btmsRequestJson);
+        (await TestWebServer.RoutedHttpHandler.LastRequest!.Content!.ReadAsStringAsync()).Should().Be(_cdsRequestSoap);
     }
 
     [Fact]

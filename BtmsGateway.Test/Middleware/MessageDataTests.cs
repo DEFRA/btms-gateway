@@ -230,7 +230,7 @@ public class MessageDataTests
         _httpContext.Request.Body = new MemoryStream("<Envelope><Body><root><data>abc</data></root></Body></Envelope>"u8.ToArray());
         var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
         
-        var request = messageData.CreateForwardingRequestAsJson("https://localhost:456/cds/path", null, 1);
+        var request = messageData.CreateConvertedForwardingRequest("https://localhost:456/cds/path", null, 1);
 
         (await request.Content!.ReadAsStringAsync()).LinuxLineEndings().Should().Be("{\n  \"data\": \"abc\"\n}");
         request.Content!.Headers.ContentType!.ToString().Should().Be("application/json; charset=utf-8");

@@ -56,7 +56,7 @@ public class MessageRoutes : IMessageRoutes
                         RouteHostHeader = route.LegacyHostHeader,
                         ForkHostHeader = route.BtmsHostHeader,
                         MessageBodyDepth = route.MessageBodyDepth, 
-                        ConvertForkedContentToJson = true,
+                        ConvertForkedContentToFromJson = true,
                         UrlPath = routePath
                     },
                     RouteTo.Btms => new RoutingResult
@@ -70,7 +70,7 @@ public class MessageRoutes : IMessageRoutes
                         RouteHostHeader = route.BtmsHostHeader,
                         ForkHostHeader = route.LegacyHostHeader,
                         MessageBodyDepth = route.MessageBodyDepth, 
-                        ConvertRoutedContentToJson = true,
+                        ConvertRoutedContentToFromJson = true,
                         UrlPath = routePath
                     },
                     _ => throw new ArgumentOutOfRangeException(nameof(route.RouteTo), "Can only route to 'Legacy' or 'Btms'")

@@ -8,7 +8,7 @@ namespace BtmsGateway.Test.EndToEnd;
 
 public class ErrorHandlingFromCdsToAlvsTests : TargetRoutingTestBase
 {
-    private const string UrlPath = "/route/path/alvs-cds/decision-notification";
+    private const string UrlPath = "/route/path/cds/error-notification";
     
     private readonly string _cdsRequestSoap = File.ReadAllText(Path.Combine(FixturesPath, "CdsErrorHandling.xml"));
     private readonly string _cdsResponseSoap = File.ReadAllText(Path.Combine(FixturesPath, "AlvsResponse.xml"));
@@ -26,7 +26,7 @@ public class ErrorHandlingFromCdsToAlvsTests : TargetRoutingTestBase
     {
         await HttpClient.PostAsync(UrlPath, _cdsRequestSoapContent);
 
-        TestWebServer.RoutedHttpHandler.LastRequest!.RequestUri!.AbsoluteUri.Should().Be($"http://alvs-cds-host{UrlPath}");
+        TestWebServer.RoutedHttpHandler.LastRequest!.RequestUri!.AbsoluteUri.Should().Be($"http://cds-host{UrlPath}");
         (await TestWebServer.RoutedHttpHandler.LastRequest!.Content!.ReadAsStringAsync()).Should().Be(_cdsRequestSoap);
     }
 

@@ -19,12 +19,12 @@ public class MessageRoutesTests
         route.RouteLinkType.Should().Be(LinkType.Url);
         route.FullRouteLink.Should().Be("http://legacy-link-url/route/path-1/sub/path");
         route.RouteHostHeader.Should().Be("legacy-host-header");
-        route.ConvertRoutedContentToJson.Should().BeFalse();
+        route.ConvertRoutedContentToFromJson.Should().BeFalse();
         route.ForkLinkType.Should().Be(LinkType.Queue);
         route.FullForkLink.Should().Be("btms-link-queue");
         route.ForkHostHeader.Should().BeNull();
         route.MessageBodyDepth.Should().Be(1);
-        route.ConvertForkedContentToJson.Should().BeTrue();
+        route.ConvertForkedContentToFromJson.Should().BeTrue();
         route.UrlPath.Should().Be("/route/path-1/sub/path");
     }
     
@@ -40,12 +40,12 @@ public class MessageRoutesTests
         route.RouteLinkType.Should().Be(LinkType.Url);
         route.FullRouteLink.Should().Be("http://btms-link-url/route/path-2/sub/path");
         route.RouteHostHeader.Should().Be("btms-host-header");
-        route.ConvertRoutedContentToJson.Should().BeTrue();
+        route.ConvertRoutedContentToFromJson.Should().BeTrue();
         route.ForkLinkType.Should().Be(LinkType.Queue);
         route.FullForkLink.Should().Be("legacy-link-queue");
         route.ForkHostHeader.Should().BeNull();
         route.MessageBodyDepth.Should().Be(2);
-        route.ConvertForkedContentToJson.Should().BeFalse();
+        route.ConvertForkedContentToFromJson.Should().BeFalse();
         route.UrlPath.Should().Be("/route/path-2/sub/path");
     }
     
@@ -61,12 +61,12 @@ public class MessageRoutesTests
         route.RouteLinkType.Should().Be(LinkType.Url);
         route.FullRouteLink.Should().Be("http://legacy-link-url/route/path-3/sub/path");
         route.RouteHostHeader.Should().Be("legacy-host-header");
-        route.ConvertRoutedContentToJson.Should().BeFalse();
+        route.ConvertRoutedContentToFromJson.Should().BeFalse();
         route.ForkLinkType.Should().Be(LinkType.None);
         route.FullForkLink.Should().BeNull();
         route.ForkHostHeader.Should().BeNull();
         route.MessageBodyDepth.Should().Be(1);
-        route.ConvertForkedContentToJson.Should().BeTrue();
+        route.ConvertForkedContentToFromJson.Should().BeTrue();
         route.UrlPath.Should().Be("/route/path-3/sub/path");
     }
    
@@ -82,12 +82,12 @@ public class MessageRoutesTests
         route.RouteLinkType.Should().Be(LinkType.Url);
         route.FullRouteLink.Should().Be("http://btms-link-url/route/path-4/sub/path");
         route.RouteHostHeader.Should().Be("btms-host-header");
-        route.ConvertRoutedContentToJson.Should().BeTrue();
+        route.ConvertRoutedContentToFromJson.Should().BeTrue();
         route.ForkLinkType.Should().Be(LinkType.None);
         route.FullForkLink.Should().BeNull();
         route.ForkHostHeader.Should().BeNull();
         route.MessageBodyDepth.Should().Be(1);
-        route.ConvertForkedContentToJson.Should().BeFalse();
+        route.ConvertForkedContentToFromJson.Should().BeFalse();
         route.UrlPath.Should().Be("/route/path-4/sub/path");
     }
     

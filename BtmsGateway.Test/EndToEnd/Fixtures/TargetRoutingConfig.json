@@ -14,11 +14,25 @@
       "SendLegacyResponseToBtms": false,
       "RouteTo": "Legacy"
     },
+    "CDSErrorNotificationToAlvs": {
+      "RoutePath": "/route/path/cds/error-notification",
+      "LegacyLinkName": "Cds",
+      "BtmsLinkName": "Btms",
+      "SendLegacyResponseToBtms": false,
+      "RouteTo": "Legacy"
+    },
     "ALVSDecisionNotificationToCds": {
       "RoutePath": "/route/path/alvs-cds/decision-notification",
       "LegacyLinkName": "AlvsCds",
       "BtmsLinkName": "Btms",
       "MessageBodyDepth": 2,
+      "SendLegacyResponseToBtms": false,
+      "RouteTo": "Legacy"
+    },
+    "ALVSErrorNotificationToCds": {
+      "RoutePath": "/route/path/alvs-cds/error-notification",
+      "LegacyLinkName": "AlvsCds",
+      "BtmsLinkName": "Btms",
       "SendLegacyResponseToBtms": false,
       "RouteTo": "Legacy"
     },

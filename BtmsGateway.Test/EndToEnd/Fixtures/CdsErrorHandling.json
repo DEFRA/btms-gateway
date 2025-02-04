@@ -2,7 +2,7 @@
   "serviceHeader": {
     "sourceSystem": "ALVS",
     "destinationSystem": "CDS",
-    "correlationId": "0",
+    "correlationId": "000",
     "serviceCallTimestamp": "2023-05-26T10:11:48.629812"
   },
   "header": {

@@ -10,11 +10,11 @@ public record RoutingResult
     public LinkType RouteLinkType { get; init; }
     public string? FullRouteLink { get; init; }
     public string? RouteHostHeader { get; init; }
-    public bool ConvertRoutedContentToJson { get; init; }
+    public bool ConvertRoutedContentToFromJson { get; init; }
     public LinkType ForkLinkType { get; init; }
     public string? FullForkLink { get; init; }
     public string? ForkHostHeader { get; init; }
-    public bool ConvertForkedContentToJson { get; init; }
+    public bool ConvertForkedContentToFromJson { get; init; }
     public int MessageBodyDepth { get; init; }
     public string? UrlPath { get; init; }
     public string? ResponseContent { get; init; }

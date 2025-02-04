@@ -65,13 +65,26 @@ public class MessageData
                                               || Path.StartsWith("swagger", StringComparison.InvariantCultureIgnoreCase)
                                               || Path.StartsWith(CheckRoutesEndpoints.Path, StringComparison.InvariantCultureIgnoreCase)));
 
-    public HttpRequestMessage CreateForwardingRequestAsJson(string? routeUrl, string? hostHeader, int messageBodyDepth)
+    public HttpRequestMessage CreateConvertedForwardingRequest(string? routeUrl, string? hostHeader, int messageBodyDepth)
     {
-        return OriginalContentType is MediaTypeNames.Application.Xml or MediaTypeNames.Application.Soap or MediaTypeNames.Text.Xml
-            ? CreateForwardingRequest(routeUrl, hostHeader, string.IsNullOrWhiteSpace(OriginalContentAsString) 
-                ? string.Empty 
-                : SoapToJsonConverter.Convert(OriginalContentAsString, KnownArrays, KnownNumbers, messageBodyDepth), MediaTypeNames.Application.Json) 
-            : CreateForwardingRequestAsOriginal(routeUrl, hostHeader);
+        if (OriginalContentType is MediaTypeNames.Application.Xml or MediaTypeNames.Application.Soap or MediaTypeNames.Text.Xml)
+        {
+            var content = string.IsNullOrWhiteSpace(OriginalContentAsString)
+                ? string.Empty
+                : SoapToJsonConverter.Convert(OriginalContentAsString, KnownArrays, KnownNumbers, messageBodyDepth);
+            return CreateForwardingRequest(routeUrl, hostHeader, content, MediaTypeNames.Application.Json);
+        }
+        
+        if (OriginalContentType is MediaTypeNames.Application.Json)
+        {
+            throw new NotImplementedException("Converting BTMS JSON to SOAP API not implemented yet, though conversion code is");
+            // var content = string.IsNullOrWhiteSpace(OriginalContentAsString)
+            //     ? string.Empty
+            //     : JsonToSoapConverter.Convert(OriginalContentAsString, KnownArrays, "FinalisationNotificationRequest", SoapType.Cds);
+            // return CreateForwardingRequest(routeUrl, hostHeader, content, MediaTypeNames.Application.Xml);
+        }
+
+        return CreateForwardingRequestAsOriginal(routeUrl, hostHeader);
     }
 
     public HttpRequestMessage CreateForwardingRequestAsOriginal(string? routeUrl, string? hostHeader)
@@ -84,11 +97,14 @@ public class MessageData
         try
         {
             var request = new HttpRequestMessage(new HttpMethod(Method), routeUrl);
-            foreach (var header in _headers.Where(x => !x.Key.StartsWith("Content-", StringComparison.InvariantCultureIgnoreCase) 
-                                                       && !string.Equals(x.Key, "Accept", StringComparison.InvariantCultureIgnoreCase) 
-                                                       && !string.Equals(x.Key, "Host", StringComparison.InvariantCultureIgnoreCase) 
-                                                       && !string.Equals(x.Key, CorrelationIdHeaderName, StringComparison.InvariantCultureIgnoreCase))) 
+            
+            foreach (var header in _headers.Where(x => !x.Key.StartsWith("Content-", StringComparison.InvariantCultureIgnoreCase)
+                                                       && !string.Equals(x.Key, "Accept", StringComparison.InvariantCultureIgnoreCase)
+                                                       && !string.Equals(x.Key, "Host", StringComparison.InvariantCultureIgnoreCase)
+                                                       && !string.Equals(x.Key, CorrelationIdHeaderName, StringComparison.InvariantCultureIgnoreCase)))
+            {
                 request.Headers.Add(header.Key, header.Value.ToArray());
+            }
             request.Headers.Add(CorrelationIdHeaderName, CorrelationId);
             request.Headers.Add("Accept", contentType);
             if (!string.IsNullOrWhiteSpace(hostHeader)) request.Headers.TryAddWithoutValidation("host", hostHeader);

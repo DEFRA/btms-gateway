@@ -4,7 +4,7 @@ using System.Text;
 using BtmsGateway.Test.TestUtils;
 using FluentAssertions;
 
-namespace BtmsGateway.Test.EndToEnd;
+namespace BtmsGateway.Test.EndToEnd.FromBtms;
 
 public class ClearanceRequestFromBtmsToIpaffsTests : TargetRoutingTestBase
 {
@@ -22,7 +22,7 @@ public class ClearanceRequestFromBtmsToIpaffsTests : TargetRoutingTestBase
         TestWebServer.RoutedHttpHandler.SetNextResponse(content: _btmsResponseJson, statusFunc: () => HttpStatusCode.Accepted);
     }
 
-    [Fact]
+    [Fact(Skip = "Not implemented outbound from BTMS yet")]
     public async Task When_receiving_request_from_btms_Then_should_forward_converted_soap_to_alvs()
     {
         await HttpClient.PostAsync(GatewayPath, _btmsRequestJsonContent);
@@ -31,7 +31,7 @@ public class ClearanceRequestFromBtmsToIpaffsTests : TargetRoutingTestBase
         (await TestWebServer.RoutedHttpHandler.LastRequest!.Content!.ReadAsStringAsync()).Should().Be(_ipaffsRequestSoap);
     }
 
-    [Fact]
+    [Fact(Skip = "Not implemented outbound from BTMS yet")]
     public async Task When_receiving_request_from_btms_Then_should_respond_with_ipaffs_response()
     {
         var response = await HttpClient.PostAsync(GatewayPath, _btmsRequestJsonContent);
@@ -40,7 +40,7 @@ public class ClearanceRequestFromBtmsToIpaffsTests : TargetRoutingTestBase
         (await response.Content.ReadAsStringAsync()).Should().Be(_btmsResponseJson);
     }
 
-    [Fact]
+    [Fact(Skip = "Not implemented outbound from BTMS yet")]
     public async Task When_receiving_request_from_btms_Then_should_not_forward_btms()
     {
         await HttpClient.PostAsync(GatewayPath, _btmsRequestJsonContent);

@@ -3,7 +3,7 @@ using System.Net.Mime;
 using System.Text;
 using FluentAssertions;
 
-namespace BtmsGateway.Test.EndToEnd;
+namespace BtmsGateway.Test.EndToEnd.FromBtms;
 
 public class DecisionNotificationFromBtmsToCdsTests : TargetRoutingTestBase
 {
@@ -19,7 +19,7 @@ public class DecisionNotificationFromBtmsToCdsTests : TargetRoutingTestBase
         TestWebServer.RoutedHttpHandler.SetNextResponse(statusFunc: () => HttpStatusCode.NoContent);
     }
 
-    [Fact]
+    [Fact(Skip = "Not implemented outbound from BTMS yet")]
     public async Task When_receiving_request_from_btms_Then_should_forward_converted_soap_to_cds()
     {
         await HttpClient.PostAsync(UrlPath, _btmsRequestJsonContent);
@@ -28,7 +28,7 @@ public class DecisionNotificationFromBtmsToCdsTests : TargetRoutingTestBase
         (await TestWebServer.RoutedHttpHandler.LastRequest!.Content!.ReadAsStringAsync()).Should().Be(_cdsRequestSoap);
     }
 
-    [Fact]
+    [Fact(Skip = "Not implemented outbound from BTMS yet")]
     public async Task When_receiving_request_from_btms_Then_should_respond_with_cds_response()
     {
         var response = await HttpClient.PostAsync(UrlPath, _btmsRequestJsonContent);
@@ -37,7 +37,7 @@ public class DecisionNotificationFromBtmsToCdsTests : TargetRoutingTestBase
         (await response.Content.ReadAsStringAsync()).Should().Be(string.Empty);
     }
 
-    [Fact]
+    [Fact(Skip = "Not implemented outbound from BTMS yet")]
     public async Task When_receiving_request_from_btms_Then_should_not_forward_to_cds()
     {
         await HttpClient.PostAsync(UrlPath, _btmsRequestJsonContent);

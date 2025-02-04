@@ -203,7 +203,7 @@ public class XmlToJsonTestData : TheoryData<string, string, string>
                                                                              "lists": [
                                                                                {
                                                                                  "tag3": "dataC",
-                                                                                 "tag4": 777
+                                                                                 "tag4": "777"
                                                                                }
                                                                              ]
                                                                            }

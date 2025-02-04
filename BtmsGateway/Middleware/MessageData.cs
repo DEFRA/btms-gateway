@@ -16,6 +16,7 @@ public class MessageData
     public const string RequestedPathHeaderName = "x-requested-path";
     
     private static readonly KnownArray[] KnownArrays = [ new() { ItemName = "Item", ArrayName = "Items" }, new() { ItemName = "Document", ArrayName = "Documents" }, new() { ItemName = "Check", ArrayName = "Checks" } ];
+    private static readonly string[] KnownNumbers = [ "EntryVersionNumber", "PreviousVersionNumber", "DecisionNumber", "ItemNumber", "ItemNetMass", "ItemSupplementaryUnits", "ItemThirdQuantity", "DocumentQuantity" ];
 
 
     public string CorrelationId { get; }
@@ -69,7 +70,7 @@ public class MessageData
         return OriginalContentType is MediaTypeNames.Application.Xml or MediaTypeNames.Application.Soap or MediaTypeNames.Text.Xml
             ? CreateForwardingRequest(routeUrl, hostHeader, string.IsNullOrWhiteSpace(OriginalContentAsString) 
                 ? string.Empty 
-                : SoapToJsonConverter.Convert(OriginalContentAsString, KnownArrays, messageBodyDepth), MediaTypeNames.Application.Json) 
+                : SoapToJsonConverter.Convert(OriginalContentAsString, KnownArrays, KnownNumbers, messageBodyDepth), MediaTypeNames.Application.Json) 
             : CreateForwardingRequestAsOriginal(routeUrl, hostHeader);
     }
 

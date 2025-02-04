@@ -15,7 +15,7 @@ public class XmlToJsonConverterTests
     {
         KnownArray[] knownArrays = [ new() { ItemName = "Array", ArrayName = "Arrays" }, new() { ItemName = "List", ArrayName = "Lists" }, new() { ItemName = "AnotherList", ArrayName = "AnotherLists" } ];
         
-        XmlToJsonConverter.Convert(xml, knownArrays).LinuxLineEndings().Should().Be(expectedJson, because);
+        XmlToJsonConverter.Convert(xml, knownArrays, ["Tag2", "Tag6"]).LinuxLineEndings().Should().Be(expectedJson, because);
     }
 
     [Fact]
@@ -24,14 +24,15 @@ public class XmlToJsonConverterTests
         var xml = File.ReadAllText(Path.Combine(TestDataPath, "ClearanceRequestNotSoap.xml"));
         var expectedJson = File.ReadAllText(Path.Combine(TestDataPath, "ClearanceRequestWithRoot.json")).LinuxLineEndings();
         KnownArray[] knownArrays = [ new() { ItemName = "Item", ArrayName = "Items" }, new() { ItemName = "Document", ArrayName = "Documents" }, new() { ItemName = "Check", ArrayName = "Checks" } ];
-        
-        XmlToJsonConverter.Convert(xml, knownArrays).LinuxLineEndings().Should().Be(expectedJson);
+        string[] knownNumbers = [ "EntryVersionNumber", "PreviousVersionNumber", "DecisionNumber", "ItemNumber", "ItemNetMass", "ItemSupplementaryUnits", "ItemThirdQuantity", "DocumentQuantity" ];
+
+        XmlToJsonConverter.Convert(xml, knownArrays, knownNumbers).LinuxLineEndings().Should().Be(expectedJson);
     }
 
     [Fact]
     public void When_receiving_invalid_xml_Then_should_fail()
     {
-        var act = () => XmlToJsonConverter.Convert("<root><not-root>", []);
+        var act = () => XmlToJsonConverter.Convert("<root><not-root>", [], []);
         
         act.Should().Throw<ArgumentException>();
     }

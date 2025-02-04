@@ -5,12 +5,15 @@ using BtmsGateway.Utils;
 namespace BtmsGateway.Services.Converter;
 
 public static class JsonToXmlConverter
-{    
+{
+    public static readonly XDeclaration XmlDeclaration = new("1.0", "utf-8", null);
+
     public static string Convert(string json, KnownArray[] knownArrays, string rootName)
     {
         try
         {
-            var xDocument = ConvertToXdoc(json, knownArrays, rootName);
+            var rootElement = ConvertToElement(json, knownArrays, rootName);
+            var xDocument = new XDocument(XmlDeclaration, rootElement);
 
             return xDocument.ToStringWithDeclaration();
         }
@@ -20,12 +23,12 @@ public static class JsonToXmlConverter
         }
     }
 
-    public static XDocument ConvertToXdoc(string json, KnownArray[] knownArrays, string rootName)
+    public static XElement ConvertToElement(string json, KnownArray[] knownArrays, string rootName)
     {
             var jsonObject = JsonSerializer.Deserialize<dynamic>(json, Json.SerializerOptions);
             var rootElement = new XElement(rootName);
             AddElements(rootElement, jsonObject, knownArrays);
-            return new XDocument(new XDeclaration("1.0", "utf-8", null), rootElement);
+            return rootElement;
     }
     
     private static void AddElements(XElement parentElement, dynamic jsonObject, KnownArray[] knownArrays)

@@ -9,7 +9,7 @@
         </oas:Security>
     </soap:Header>
     <soap:Body>
-        <ALVSErrorNotificationRequest xmlns="http://alvserrornotification.types.esb.ws.cara.defra.com ">
+        <ALVSErrorNotificationRequest xmlns="http://alvserrornotification.types.esb.ws.cara.defra.com">
             <ServiceHeader>
                 <SourceSystem>CDS</SourceSystem>
                 <DestinationSystem>ALVS</DestinationSystem>

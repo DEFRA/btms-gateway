@@ -38,7 +38,7 @@
     <None Update="Services\Converter\Fixtures\**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="EndToEnd\Fixtures\IpaffsResponse.xml">
+    <None Update="EndToEnd\Fixtures\IpaffsResponse.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

@@ -18,6 +18,7 @@
       "RoutePath": "/route/path/alvs-cds/decision-notification",
       "LegacyLinkName": "AlvsCds",
       "BtmsLinkName": "Btms",
+      "MessageBodyDepth": 2,
       "SendLegacyResponseToBtms": false,
       "RouteTo": "Legacy"
     },

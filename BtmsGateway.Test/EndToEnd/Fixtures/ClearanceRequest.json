@@ -27,7 +27,7 @@
       "goodsDescription": "DOG CHEW",
       "consigneeId": "GB123456789012",
       "consigneeName": "REDACTED",
-      "itemNetMass": 5011.2,
+      "itemNetMass": 5011.200,
       "itemOriginCountryCode": "CN",
       "documents": [
         {
@@ -51,7 +51,7 @@
       "goodsDescription": "DOG CHEW",
       "consigneeId": "GB123456789012",
       "consigneeName": "REDACTED",
-      "itemNetMass": 3198.72,
+      "itemNetMass": 3198.720,
       "itemOriginCountryCode": "CN",
       "documents": [
         {
@@ -75,7 +75,7 @@
       "goodsDescription": "DOG CHEWS",
       "consigneeId": "GB123456789012",
       "consigneeName": "REDACTED",
-      "itemNetMass": 144,
+      "itemNetMass": 144.000,
       "itemOriginCountryCode": "CN",
       "documents": [
         {

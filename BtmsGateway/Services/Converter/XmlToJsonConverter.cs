@@ -63,6 +63,7 @@ public static class XmlToJsonConverter
         if (element.IsEmpty) return null;
         if (bool.TryParse(element.Value, out var boolResult)) return boolResult;
         if (int.TryParse(element.Value, out var intResult)) return ConvertNumber(element, intResult, knownNumbers);
+        if (long.TryParse(element.Value, out var longResult)) return ConvertNumber(element, longResult, knownNumbers);
         if (decimal.TryParse(element.Value, out var decimalResult)) return ConvertNumber(element, decimalResult, knownNumbers);
         return element.Value;
     }

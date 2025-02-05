@@ -5,20 +5,20 @@ namespace BtmsGateway.Services.Converter;
 
 public static class XmlToJsonConverter
 {
-    public static string Convert(string xml, string[] knownNumbers)
+    public static string Convert(string xml)
     {
-        return Convert(Validate(xml), knownNumbers);
+        return Convert(Validate(xml));
     }
 
-    public static string Convert(XContainer xContainer, string[] knownNumbers)
+    public static string Convert(XContainer xContainer)
     {
         var jsonObject = new Dictionary<string, object>();
-        ConvertElementToDictionary(xContainer, knownNumbers, ref jsonObject);
+        ConvertElementToDictionary(xContainer, ref jsonObject);
 
         return JsonSerializer.Serialize(jsonObject, Json.SerializerOptions);
     }
 
-    private static void ConvertElementToDictionary(XContainer xElement, string[] knownNumbers, ref Dictionary<string, object> parent)
+    private static void ConvertElementToDictionary(XContainer xElement, ref Dictionary<string, object> parent)
     {
         IDictionary<string, object> dictionary = parent;
 
@@ -49,28 +49,28 @@ public static class XmlToJsonConverter
                     parent[elementName] = childObject;
                 }
                 
-                ConvertElementToDictionary(child, knownNumbers, ref childObject);
+                ConvertElementToDictionary(child, ref childObject);
             }
             else
             {
-                dictionary[child.Name.LocalName] = ConvertValue(child, knownNumbers)!;
+                dictionary[child.Name.LocalName] = ConvertValue(child)!;
             }
         }
     }
 
-    private static object? ConvertValue(XElement element, string[] knownNumbers)
+    private static object? ConvertValue(XElement element)
     {
         if (element.IsEmpty) return null;
         if (bool.TryParse(element.Value, out var boolResult)) return boolResult;
-        if (int.TryParse(element.Value, out var intResult)) return ConvertNumber(element, intResult, knownNumbers);
-        if (long.TryParse(element.Value, out var longResult)) return ConvertNumber(element, longResult, knownNumbers);
-        if (decimal.TryParse(element.Value, out var decimalResult)) return ConvertNumber(element, decimalResult, knownNumbers);
+        if (int.TryParse(element.Value, out var intResult)) return ConvertNumber(element, intResult);
+        if (long.TryParse(element.Value, out var longResult)) return ConvertNumber(element, longResult);
+        if (decimal.TryParse(element.Value, out var decimalResult)) return ConvertNumber(element, decimalResult);
         return element.Value;
     }
 
-    private static object? ConvertNumber(XElement element, object? result, string[] knownNumbers)
+    private static object? ConvertNumber(XElement element, object? result)
     {
-        return knownNumbers.Contains(element.Name.LocalName, StringComparer.InvariantCultureIgnoreCase) ? result : element.Value;
+        return DomainInfo.KnownNumbers.Contains(element.Name.LocalName, StringComparer.InvariantCultureIgnoreCase) ? result : element.Value;
     }
 
     private static XDocument Validate(string xml)

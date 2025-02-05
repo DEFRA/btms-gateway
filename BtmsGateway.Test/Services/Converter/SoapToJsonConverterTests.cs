@@ -16,8 +16,7 @@ public class SoapToJsonConverterTests
     {
         var soap = File.ReadAllText(Path.Combine(TestDataPath, soapFileName));
         var json = File.ReadAllText(Path.Combine(TestDataPath, jsonFileName)).LinuxLineEndings();
-        string[] knownNumbers = [ "EntryVersionNumber", "PreviousVersionNumber", "DecisionNumber", "ItemNumber", "ItemNetMass", "ItemSupplementaryUnits", "ItemThirdQuantity", "DocumentQuantity" ];
 
-        SoapToJsonConverter.Convert(soap, knownNumbers, messageBodyDepth).LinuxLineEndings().Should().Be(json);
+        SoapToJsonConverter.Convert(soap, messageBodyDepth).LinuxLineEndings().Should().Be(json);
     }
 }

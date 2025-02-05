@@ -25,7 +25,7 @@ public class XmlToJsonTestData : TheoryData<string, string, string>
     private const string XmlComplexSingleLevel = """
                                                  <Root>
                                                    <Tag1>data1</Tag1>
-                                                   <Tag2>data2</Tag2>
+                                                   <EntryVersionNumber>data2</EntryVersionNumber>
                                                  </Root>
                                                  """;
 
@@ -35,7 +35,7 @@ public class XmlToJsonTestData : TheoryData<string, string, string>
                                                 <Root>
                                                   <Element1>
                                                     <Tag1>data1</Tag1>
-                                                    <Tag2>12.3</Tag2>
+                                                    <EntryVersionNumber>12.3</EntryVersionNumber>
                                                   </Element1>
                                                   
                                                   <Element2>
@@ -44,7 +44,7 @@ public class XmlToJsonTestData : TheoryData<string, string, string>
                                                       <Tag4/>
                                                       
                                                       <Tag5></Tag5>
-                                                      <Tag6>123</Tag6>
+                                                      <DecisionNumber>123</DecisionNumber>
                                                       <Tag7>abc
                                                 def
                                                 ghi</Tag7>
@@ -57,18 +57,18 @@ public class XmlToJsonTestData : TheoryData<string, string, string>
                                                           <Root>
                                                             <Item>
                                                               <Tag1>dataA</Tag1>
-                                                              <Tag2>123</Tag2>
+                                                              <EntryVersionNumber>123</EntryVersionNumber>
                                                             </Item>
                                                             <Item>
                                                               <Tag1>dataB</Tag1>
-                                                              <Tag2>456</Tag2>
+                                                              <EntryVersionNumber>456</EntryVersionNumber>
                                                               <Document>
                                                                 <Tag3>dataC</Tag3>
                                                                 <Tag4>777</Tag4>
                                                               </Document>
                                                               <Check>
                                                                 <Tag1>dataD</Tag1>
-                                                                <Tag2>dataE</Tag2>
+                                                                <EntryVersionNumber>dataE</EntryVersionNumber>
                                                               </Check>
                                                               <Document>
                                                                 <Tag3>dataD</Tag3>
@@ -82,7 +82,7 @@ public class XmlToJsonTestData : TheoryData<string, string, string>
                                                                     <Root>
                                                                       <Item>
                                                                         <Tag1>dataB</Tag1>
-                                                                        <Tag2>456</Tag2>
+                                                                        <EntryVersionNumber>456</EntryVersionNumber>
                                                                         <Document>
                                                                           <Tag3>dataC</Tag3>
                                                                           <Tag4>777</Tag4>
@@ -97,14 +97,14 @@ public class XmlToJsonTestData : TheoryData<string, string, string>
                                                                  <Root xmlns="http://www.w3.org/2003/05/soap-envelope/" xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
                                                                    <i:Element1 xmlns:x="http://localtypes/">
                                                                      <x:Tag1>data1</x:Tag1>
-                                                                     <x:Tag2>12.3</x:Tag2>
+                                                                     <x:EntryVersionNumber>12.3</x:EntryVersionNumber>
                                                                    </i:Element1>
                                                                    <i:Element2 xmlns:x="http://localtypes/">
                                                                      <x:Tag3>true</x:Tag3>
                                                                      <i:Element3>
                                                                        <x:Tag4/>
                                                                        <x:Tag5></x:Tag5>
-                                                                       <x:Tag6>123</x:Tag6>
+                                                                       <x:DecisionNumber>123</x:DecisionNumber>
                                                                        <x:Tag7>abc
                                                                  def
                                                                  ghi</x:Tag7>
@@ -135,7 +135,7 @@ public class XmlToJsonTestData : TheoryData<string, string, string>
                                                   {
                                                     "root": {
                                                       "tag1": "data1",
-                                                      "tag2": "data2"
+                                                      "entryVersionNumber": "data2"
                                                     }
                                                   }
                                                   """;
@@ -145,14 +145,14 @@ public class XmlToJsonTestData : TheoryData<string, string, string>
                                                    "root": {
                                                      "element1": {
                                                        "tag1": "data1",
-                                                       "tag2": 12.3
+                                                       "entryVersionNumber": 12.3
                                                      },
                                                      "element2": {
                                                        "tag3": true,
                                                        "element3": {
                                                          "tag4": null,
                                                          "tag5": "",
-                                                         "tag6": 123,
+                                                         "decisionNumber": 123,
                                                          "tag7": "abc\ndef\nghi"
                                                        }
                                                      }
@@ -166,11 +166,11 @@ public class XmlToJsonTestData : TheoryData<string, string, string>
                                                                "items": [
                                                                  {
                                                                    "tag1": "dataA",
-                                                                   "tag2": 123
+                                                                   "entryVersionNumber": 123
                                                                  },
                                                                  {
                                                                    "tag1": "dataB",
-                                                                   "tag2": 456,
+                                                                   "entryVersionNumber": 456,
                                                                    "documents": [
                                                                      {
                                                                        "tag3": "dataC",
@@ -184,7 +184,7 @@ public class XmlToJsonTestData : TheoryData<string, string, string>
                                                                    "checks": [
                                                                      {
                                                                        "tag1": "dataD",
-                                                                       "tag2": "dataE"
+                                                                       "entryVersionNumber": "dataE"
                                                                      }
                                                                    ]
                                                                  }
@@ -199,7 +199,7 @@ public class XmlToJsonTestData : TheoryData<string, string, string>
                                                                          "items": [
                                                                            {
                                                                              "tag1": "dataB",
-                                                                             "tag2": 456,
+                                                                             "entryVersionNumber": 456,
                                                                              "documents": [
                                                                                {
                                                                                  "tag3": "dataC",

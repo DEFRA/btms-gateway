@@ -3,7 +3,6 @@ using System.Net.Mime;
 using System.Text;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
-using BtmsGateway.Services;
 using BtmsGateway.Services.Checking;
 using BtmsGateway.Services.Converter;
 using BtmsGateway.Services.Routing;
@@ -68,7 +67,7 @@ public class MessageData
         {
             var content = string.IsNullOrWhiteSpace(OriginalContentAsString)
                 ? string.Empty
-                : SoapToJsonConverter.Convert(OriginalContentAsString, DomainInfo.KnownNumbers, messageBodyDepth);
+                : SoapToJsonConverter.Convert(OriginalContentAsString, messageBodyDepth);
             return CreateForwardingRequest(routeUrl, hostHeader, content, MediaTypeNames.Application.Json);
         }
         

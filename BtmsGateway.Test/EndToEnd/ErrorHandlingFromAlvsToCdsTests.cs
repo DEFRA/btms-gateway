@@ -8,10 +8,10 @@ namespace BtmsGateway.Test.EndToEnd;
 
 public class ErrorHandlingFromAlvsToCdsTests : TargetRoutingTestBase
 {
-    private const string UrlPath = "/route/path/alvs-cds/error-notification";
+    private const string UrlPath = "/route/path/cds/error-notification";
     
-    private readonly string _alvsRequestSoap = File.ReadAllText(Path.Combine(FixturesPath, "AlvsErrorHandling.xml"));
-    private readonly string _btmsRequestJson = File.ReadAllText(Path.Combine(FixturesPath, "AlvsErrorHandling.json")).LinuxLineEndings();
+    private readonly string _alvsRequestSoap = File.ReadAllText(Path.Combine(FixturesPath, "CdsErrorHandling.xml"));
+    private readonly string _btmsRequestJson = File.ReadAllText(Path.Combine(FixturesPath, "CdsErrorHandling.json")).LinuxLineEndings();
     private readonly StringContent _alvsRequestSoapContent;
 
     public ErrorHandlingFromAlvsToCdsTests()
@@ -25,7 +25,7 @@ public class ErrorHandlingFromAlvsToCdsTests : TargetRoutingTestBase
     {
         await HttpClient.PostAsync(UrlPath, _alvsRequestSoapContent);
 
-        TestWebServer.RoutedHttpHandler.LastRequest!.RequestUri!.AbsoluteUri.Should().Be($"http://alvs-cds-host{UrlPath}");
+        TestWebServer.RoutedHttpHandler.LastRequest!.RequestUri!.AbsoluteUri.Should().Be($"http://cds-host{UrlPath}");
         (await TestWebServer.RoutedHttpHandler.LastRequest!.Content!.ReadAsStringAsync()).Should().Be(_alvsRequestSoap);
     }
 

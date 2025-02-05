@@ -73,11 +73,10 @@ public class MessageData
         
         if (OriginalContentType is MediaTypeNames.Application.Json)
         {
-            throw new NotImplementedException("Converting BTMS JSON to SOAP API not implemented yet, though conversion code is");
-            // var content = string.IsNullOrWhiteSpace(OriginalContentAsString)
-            //     ? string.Empty
-            //     : JsonToSoapConverter.Convert(OriginalContentAsString, KnownArrays, "FinalisationNotificationRequest", SoapType.Cds);
-            // return CreateForwardingRequest(routeUrl, hostHeader, content, MediaTypeNames.Application.Xml);
+            var content = string.IsNullOrWhiteSpace(OriginalContentAsString)
+                ? string.Empty
+                : JsonToSoapConverter.Convert(OriginalContentAsString, "FinalisationNotificationRequest", SoapType.Cds);
+            return CreateForwardingRequest(routeUrl, hostHeader, content, MediaTypeNames.Application.Xml);
         }
 
         return CreateForwardingRequestAsOriginal(routeUrl, hostHeader);

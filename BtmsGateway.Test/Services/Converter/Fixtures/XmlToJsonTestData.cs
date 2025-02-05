@@ -66,10 +66,10 @@ public class XmlToJsonTestData : TheoryData<string, string, string>
                                                                 <Tag3>dataC</Tag3>
                                                                 <Tag4>777</Tag4>
                                                               </Document>
-                                                              <AnotherDocument>
+                                                              <Check>
                                                                 <Tag1>dataD</Tag1>
                                                                 <Tag2>dataE</Tag2>
-                                                              </AnotherDocument>
+                                                              </Check>
                                                               <Document>
                                                                 <Tag3>dataD</Tag3>
                                                                 <Tag4>888</Tag4>
@@ -163,7 +163,7 @@ public class XmlToJsonTestData : TheoryData<string, string, string>
     private const string JsonComplexMultiLevelWithItems = """
                                                            {
                                                              "root": {
-                                                               "Items": [
+                                                               "items": [
                                                                  {
                                                                    "tag1": "dataA",
                                                                    "tag2": 123
@@ -171,7 +171,7 @@ public class XmlToJsonTestData : TheoryData<string, string, string>
                                                                  {
                                                                    "tag1": "dataB",
                                                                    "tag2": 456,
-                                                                   "Documents": [
+                                                                   "documents": [
                                                                      {
                                                                        "tag3": "dataC",
                                                                        "tag4": "777"
@@ -181,7 +181,7 @@ public class XmlToJsonTestData : TheoryData<string, string, string>
                                                                        "tag4": "888"
                                                                      }
                                                                    ],
-                                                                   "anotherDocuments": [
+                                                                   "checks": [
                                                                      {
                                                                        "tag1": "dataD",
                                                                        "tag2": "dataE"
@@ -196,11 +196,11 @@ public class XmlToJsonTestData : TheoryData<string, string, string>
     private const string JsonComplexMultiLevelWithSingleItemItems = """
                                                                      {
                                                                        "root": {
-                                                                         "Items": [
+                                                                         "items": [
                                                                            {
                                                                              "tag1": "dataB",
                                                                              "tag2": 456,
-                                                                             "Documents": [
+                                                                             "documents": [
                                                                                {
                                                                                  "tag3": "dataC",
                                                                                  "tag4": "777"

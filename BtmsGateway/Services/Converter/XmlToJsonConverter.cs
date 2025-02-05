@@ -5,20 +5,20 @@ namespace BtmsGateway.Services.Converter;
 
 public static class XmlToJsonConverter
 {
-    public static string Convert(string xml, Dictionary<string, string> knownArrays)
+    public static string Convert(string xml)
     {
-        return Convert(Validate(xml), knownArrays);
+        return Convert(Validate(xml));
     }
 
-    public static string Convert(XContainer xContainer, Dictionary<string, string> knownArrays)
+    public static string Convert(XContainer xContainer)
     {
         var jsonObject = new Dictionary<string, object>();
-        ConvertElementToDictionary(xContainer, jsonObject, knownArrays);
+        ConvertElementToDictionary(xContainer, ref jsonObject);
 
         return JsonSerializer.Serialize(jsonObject, Json.SerializerOptions);
     }
 
-    private static void ConvertElementToDictionary(XContainer xElement, Dictionary<string, object> parent, Dictionary<string, string> knownArrays)
+    private static void ConvertElementToDictionary(XContainer xElement, ref Dictionary<string, object> parent)
     {
         IDictionary<string, object> dictionary = parent;
 
@@ -29,7 +29,8 @@ public static class XmlToJsonConverter
                 var childObject = new Dictionary<string, object>();
                 var elementName = child.Name.LocalName;
 
-                if (knownArrays.TryGetValue(elementName, out var newElementName))
+                var newElementName = DomainInfo.KnownArrays.SingleOrDefault(x => x.ItemName == elementName)?.ArrayName;
+                if (newElementName != null)
                 {
                     if (parent.TryGetValue(newElementName, out var value))
                     {
@@ -48,7 +49,7 @@ public static class XmlToJsonConverter
                     parent[elementName] = childObject;
                 }
                 
-                ConvertElementToDictionary(child, childObject, knownArrays);
+                ConvertElementToDictionary(child, ref childObject);
             }
             else
             {
@@ -57,13 +58,19 @@ public static class XmlToJsonConverter
         }
     }
 
-    private static object? ConvertValue(XElement child)
+    private static object? ConvertValue(XElement element)
     {
-        if (child.IsEmpty) return null;
-        if (bool.TryParse(child.Value, out var boolResult)) return boolResult;
-        if (int.TryParse(child.Value, out var intResult)) return intResult;
-        if (double.TryParse(child.Value, out var doubleResult)) return doubleResult;
-        return child.Value;
+        if (element.IsEmpty) return null;
+        if (bool.TryParse(element.Value, out var boolResult)) return boolResult;
+        if (int.TryParse(element.Value, out var intResult)) return ConvertNumber(element, intResult);
+        if (long.TryParse(element.Value, out var longResult)) return ConvertNumber(element, longResult);
+        if (decimal.TryParse(element.Value, out var decimalResult)) return ConvertNumber(element, decimalResult);
+        return element.Value;
+    }
+
+    private static object? ConvertNumber(XElement element, object? result)
+    {
+        return DomainInfo.KnownNumbers.Contains(element.Name.LocalName, StringComparer.InvariantCultureIgnoreCase) ? result : element.Value;
     }
 
     private static XDocument Validate(string xml)

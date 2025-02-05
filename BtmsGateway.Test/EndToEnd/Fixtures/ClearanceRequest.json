@@ -2,7 +2,7 @@
   "serviceHeader": {
     "sourceSystem": "CDS",
     "destinationSystem": "ALVS",
-    "correlationId": 193264645102865,
+    "correlationId": "193264645102865",
     "serviceCallTimestamp": "2022-01-12T14:21:50.286"
   },
   "header": {
@@ -11,8 +11,8 @@
     "previousVersionNumber": 2,
     "declarationUCR": "1GB116445386000-KDA35932Y1BHX",
     "declarationType": "S",
-    "arrivalDateTime": 202201031224,
-    "submitterTURN": 123456789012,
+    "arrivalDateTime": "202201031224",
+    "submitterTURN": "123456789012",
     "declarantId": "GB123456789013",
     "declarantName": "REDACTED",
     "dispatchCountryCode": "CN",
@@ -22,12 +22,12 @@
   "items": [
     {
       "itemNumber": 1,
-      "customsProcedureCode": 4000000,
-      "taricCommodityCode": 2309105100,
+      "customsProcedureCode": "4000000",
+      "taricCommodityCode": "2309105100",
       "goodsDescription": "DOG CHEW",
       "consigneeId": "GB123456789012",
       "consigneeName": "REDACTED",
-      "itemNetMass": 5011.2,
+      "itemNetMass": 5011.200,
       "itemOriginCountryCode": "CN",
       "documents": [
         {
@@ -46,12 +46,12 @@
     },
     {
       "itemNumber": 2,
-      "customsProcedureCode": 4000000,
-      "taricCommodityCode": 2309103300,
+      "customsProcedureCode": "4000000",
+      "taricCommodityCode": "2309103300",
       "goodsDescription": "DOG CHEW",
       "consigneeId": "GB123456789012",
       "consigneeName": "REDACTED",
-      "itemNetMass": 3198.72,
+      "itemNetMass": 3198.720,
       "itemOriginCountryCode": "CN",
       "documents": [
         {
@@ -70,12 +70,12 @@
     },
     {
       "itemNumber": 3,
-      "customsProcedureCode": 4000000,
-      "taricCommodityCode": 2309109000,
+      "customsProcedureCode": "4000000",
+      "taricCommodityCode": "2309109000",
       "goodsDescription": "DOG CHEWS",
       "consigneeId": "GB123456789012",
       "consigneeName": "REDACTED",
-      "itemNetMass": 144,
+      "itemNetMass": 144.000,
       "itemOriginCountryCode": "CN",
       "documents": [
         {

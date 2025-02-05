@@ -9,7 +9,7 @@
         </oas:Security>
     </soap:Header>
     <soap:Body>
-        <HMRCErrorNotification xmlns="http://hmrcerror.types.esb.ws.cara.defra.com ">
+        <HMRCErrorNotification xmlns="http://hmrcerror.types.esb.ws.cara.defra.com">
             <ServiceHeader>
                 <SourceSystem>ALVS</SourceSystem>
                 <DestinationSystem>CDS</DestinationSystem>

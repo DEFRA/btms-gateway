@@ -13,7 +13,7 @@ public static class JsonToSoapConverter
         var envelopeElement = AddSoapEnvelope(rootElement, soapType);
         var soapDocument = new XDocument(JsonToXmlConverter.XmlDeclaration, envelopeElement);
 
-        return soapDocument.ToStringWithDeclaration().Replace(" xmlns=\"\"", "");
+        return soapDocument.ToStringWithDeclaration();
     }
     
     private static XElement AddSoapEnvelope(XElement rootElement, SoapType soapType)
@@ -45,8 +45,7 @@ public static class JsonToSoapConverter
                         new XElement(OasNs + "Username", "systemID=ALVSHMRCCDS,ou=gsi systems,o=defra"),
                         new XElement(OasNs + "Password", "password", PasswordTypeAttribute)))),
             new XElement(SoapNs + "Body",
-                new XElement(rootNs + rootElement.Name.LocalName,
-                    rootElement.Elements())));
+                AddNamespace(rootElement, rootNs)));
     }
 
     private static XElement GetAlvsToCdsSoapEnvelope(XElement rootElement)
@@ -61,8 +60,7 @@ public static class JsonToSoapConverter
                         new XElement(OasNs + "Password", "password")))),
             new XElement(SoapNs + "Body",
                 new XElement(commonRootNs + rootElement.Name.LocalName,
-                    new XElement(rootNs + rootElement.Name.LocalName,
-                        rootElement.Elements()))));
+                    AddNamespace(rootElement, rootNs))));
     }
 
     private static XElement GetAlvsToIpaffsSoapEnvelope(XElement rootElement)
@@ -73,12 +71,20 @@ public static class JsonToSoapConverter
             new XElement(SoapNs + "Header"),
             new XElement(SoapNs + "Body",
                 new XElement(commonRootNs + $"{rootElement.Name.LocalName}Post",
-                    new XElement("XMLSchemaVersion", "2.0"),
-                    new XElement("UserIdentification", "username"),
-                    new XElement("UserPassword", "password"),
-                    new XElement("SendingDate", "2002-10-10 12:00"),
-                    new XElement(rootNs + rootElement.Name.LocalName,
-                        rootElement.Elements()))));
+                    new XElement(commonRootNs + "XMLSchemaVersion", "2.0"),
+                    new XElement(commonRootNs + "UserIdentification", "username"),
+                    new XElement(commonRootNs + "UserPassword", "password"),
+                    new XElement(commonRootNs + "SendingDate", "2002-10-10 12:00"),
+                    AddNamespace(rootElement, rootNs))));
+    }
+
+    private static XElement AddNamespace(XElement element, XNamespace rootNs)
+    {
+        element.Name = rootNs + element.Name.LocalName;
+        foreach (var child in element.Elements()) 
+            AddNamespace(child, rootNs);
+
+        return element;
     }
 
     private static string GetRootAttributeValue(string rootName)

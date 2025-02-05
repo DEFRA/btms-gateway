@@ -5,9 +5,9 @@ namespace BtmsGateway.Services.Converter;
 
 public static class JsonToSoapConverter
 {
-    public static string Convert(string json, KnownArray[] knownArrays, string rootName, SoapType soapType)
+    public static string Convert(string json, string rootName, SoapType soapType)
     {
-        var rootElement = JsonToXmlConverter.ConvertToElement(json, knownArrays, rootName);
+        var rootElement = JsonToXmlConverter.ConvertToElement(json, rootName);
         var envelopeElement = AddSoapEnvelope(rootElement, soapType);
         var soapDocument = new XDocument(JsonToXmlConverter.XmlDeclaration, envelopeElement);
 

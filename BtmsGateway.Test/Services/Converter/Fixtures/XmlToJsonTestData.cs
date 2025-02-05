@@ -12,8 +12,8 @@ public class XmlToJsonTestData : TheoryData<string, string, string>
       Add("Simple content tag", XmlSimpleContent, JsonSimpleContent.LinuxLineEndings());
       Add("Complex single level", XmlComplexSingleLevel, JsonComplexSingleLevel.LinuxLineEndings());
       Add("Complex multi level", XmlComplexMultiLevel, JsonComplexMultiLevel.LinuxLineEndings());
-      Add("Complex multi level w/ arrays", XmlComplexMultiLevelWithArrays, JsonComplexMultiLevelWithArrays.LinuxLineEndings());
-      Add("Complex multi level w/ single item arrays", XmlComplexMultiLevelWithSingleItemArrays, JsonComplexMultiLevelWithSingleItemArrays.LinuxLineEndings());
+      Add("Complex multi level w/ Items", XmlComplexMultiLevelWithItems, JsonComplexMultiLevelWithItems.LinuxLineEndings());
+      Add("Complex multi level w/ single item Items", XmlComplexMultiLevelWithSingleItemItems, JsonComplexMultiLevelWithSingleItemItems.LinuxLineEndings());
       Add("Complex multi level SOAP", XmlComplexMultiLevelWithNamespace, JsonComplexMultiLevel.LinuxLineEndings());
     }
 
@@ -53,41 +53,41 @@ public class XmlToJsonTestData : TheoryData<string, string, string>
                                                 </Root>
                                                 """;
 
-    private const string XmlComplexMultiLevelWithArrays = """
+    private const string XmlComplexMultiLevelWithItems = """
                                                           <Root>
-                                                            <Array>
+                                                            <Item>
                                                               <Tag1>dataA</Tag1>
                                                               <Tag2>123</Tag2>
-                                                            </Array>
-                                                            <Array>
+                                                            </Item>
+                                                            <Item>
                                                               <Tag1>dataB</Tag1>
                                                               <Tag2>456</Tag2>
-                                                              <List>
+                                                              <Document>
                                                                 <Tag3>dataC</Tag3>
                                                                 <Tag4>777</Tag4>
-                                                              </List>
-                                                              <AnotherList>
+                                                              </Document>
+                                                              <AnotherDocument>
                                                                 <Tag1>dataD</Tag1>
                                                                 <Tag2>dataE</Tag2>
-                                                              </AnotherList>
-                                                              <List>
+                                                              </AnotherDocument>
+                                                              <Document>
                                                                 <Tag3>dataD</Tag3>
                                                                 <Tag4>888</Tag4>
-                                                              </List>
-                                                            </Array>
+                                                              </Document>
+                                                            </Item>
                                                           </Root>
                                                           """;
 
-    private const string XmlComplexMultiLevelWithSingleItemArrays = """
+    private const string XmlComplexMultiLevelWithSingleItemItems = """
                                                                     <Root>
-                                                                      <Array>
+                                                                      <Item>
                                                                         <Tag1>dataB</Tag1>
                                                                         <Tag2>456</Tag2>
-                                                                        <List>
+                                                                        <Document>
                                                                           <Tag3>dataC</Tag3>
                                                                           <Tag4>777</Tag4>
-                                                                        </List>
-                                                                      </Array>
+                                                                        </Document>
+                                                                      </Item>
                                                                     </Root>
                                                                     """;
 
@@ -160,10 +160,10 @@ public class XmlToJsonTestData : TheoryData<string, string, string>
                                                  }
                                                  """;
 
-    private const string JsonComplexMultiLevelWithArrays = """
+    private const string JsonComplexMultiLevelWithItems = """
                                                            {
                                                              "root": {
-                                                               "arrays": [
+                                                               "Items": [
                                                                  {
                                                                    "tag1": "dataA",
                                                                    "tag2": 123
@@ -171,7 +171,7 @@ public class XmlToJsonTestData : TheoryData<string, string, string>
                                                                  {
                                                                    "tag1": "dataB",
                                                                    "tag2": 456,
-                                                                   "lists": [
+                                                                   "Documents": [
                                                                      {
                                                                        "tag3": "dataC",
                                                                        "tag4": "777"
@@ -181,7 +181,7 @@ public class XmlToJsonTestData : TheoryData<string, string, string>
                                                                        "tag4": "888"
                                                                      }
                                                                    ],
-                                                                   "anotherLists": [
+                                                                   "anotherDocuments": [
                                                                      {
                                                                        "tag1": "dataD",
                                                                        "tag2": "dataE"
@@ -193,14 +193,14 @@ public class XmlToJsonTestData : TheoryData<string, string, string>
                                                            }
                                                            """;
 
-    private const string JsonComplexMultiLevelWithSingleItemArrays = """
+    private const string JsonComplexMultiLevelWithSingleItemItems = """
                                                                      {
                                                                        "root": {
-                                                                         "arrays": [
+                                                                         "Items": [
                                                                            {
                                                                              "tag1": "dataB",
                                                                              "tag2": 456,
-                                                                             "lists": [
+                                                                             "Documents": [
                                                                                {
                                                                                  "tag3": "dataC",
                                                                                  "tag4": "777"

@@ -68,7 +68,7 @@ public class MessageData
         {
             var content = string.IsNullOrWhiteSpace(OriginalContentAsString)
                 ? string.Empty
-                : SoapToJsonConverter.Convert(OriginalContentAsString, DomainInfo.KnownArrays, DomainInfo.KnownNumbers, messageBodyDepth);
+                : SoapToJsonConverter.Convert(OriginalContentAsString, DomainInfo.KnownNumbers, messageBodyDepth);
             return CreateForwardingRequest(routeUrl, hostHeader, content, MediaTypeNames.Application.Json);
         }
         

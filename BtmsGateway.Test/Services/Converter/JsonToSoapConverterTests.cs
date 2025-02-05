@@ -16,8 +16,7 @@ public class JsonToSoapConverterTests
     {
         var json = File.ReadAllText(Path.Combine(TestDataPath, jsonFileName));
         var soap = File.ReadAllText(Path.Combine(TestDataPath, soapFileName)).LinuxLineEndings();
-        KnownArray[] knownArrays = [ new() { ItemName = "Item", ArrayName = "Items" }, new() { ItemName = "Document", ArrayName = "Documents" }, new() { ItemName = "Check", ArrayName = "Checks" } ];
         
-        JsonToSoapConverter.Convert(json, knownArrays, rootName, soapType).LinuxLineEndings().Should().Be(soap);
+        JsonToSoapConverter.Convert(json, rootName, soapType).LinuxLineEndings().Should().Be(soap);
     }
 }

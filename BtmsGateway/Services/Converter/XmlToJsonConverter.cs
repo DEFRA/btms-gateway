@@ -5,20 +5,20 @@ namespace BtmsGateway.Services.Converter;
 
 public static class XmlToJsonConverter
 {
-    public static string Convert(string xml, KnownArray[] knownArrays, string[] knownNumbers)
+    public static string Convert(string xml, string[] knownNumbers)
     {
-        return Convert(Validate(xml), knownArrays, knownNumbers);
+        return Convert(Validate(xml), knownNumbers);
     }
 
-    public static string Convert(XContainer xContainer, KnownArray[] knownArrays, string[] knownNumbers)
+    public static string Convert(XContainer xContainer, string[] knownNumbers)
     {
         var jsonObject = new Dictionary<string, object>();
-        ConvertElementToDictionary(xContainer, knownArrays, knownNumbers, ref jsonObject);
+        ConvertElementToDictionary(xContainer, knownNumbers, ref jsonObject);
 
         return JsonSerializer.Serialize(jsonObject, Json.SerializerOptions);
     }
 
-    private static void ConvertElementToDictionary(XContainer xElement, KnownArray[] knownArrays, string[] knownNumbers, ref Dictionary<string, object> parent)
+    private static void ConvertElementToDictionary(XContainer xElement, string[] knownNumbers, ref Dictionary<string, object> parent)
     {
         IDictionary<string, object> dictionary = parent;
 
@@ -29,7 +29,7 @@ public static class XmlToJsonConverter
                 var childObject = new Dictionary<string, object>();
                 var elementName = child.Name.LocalName;
 
-                var newElementName = knownArrays.SingleOrDefault(x => x.ItemName == elementName)?.ArrayName;
+                var newElementName = DomainInfo.KnownArrays.SingleOrDefault(x => x.ItemName == elementName)?.ArrayName;
                 if (newElementName != null)
                 {
                     if (parent.TryGetValue(newElementName, out var value))
@@ -49,7 +49,7 @@ public static class XmlToJsonConverter
                     parent[elementName] = childObject;
                 }
                 
-                ConvertElementToDictionary(child, knownArrays, knownNumbers, ref childObject);
+                ConvertElementToDictionary(child, knownNumbers, ref childObject);
             }
             else
             {

@@ -8,11 +8,11 @@ public static class JsonToXmlConverter
 {
     public static readonly XDeclaration XmlDeclaration = new("1.0", "utf-8", null);
 
-    public static string Convert(string json, KnownArray[] knownArrays, string rootName)
+    public static string Convert(string json, string rootName)
     {
         try
         {
-            var rootElement = ConvertToElement(json, knownArrays, rootName);
+            var rootElement = ConvertToElement(json, rootName);
             var xDocument = new XDocument(XmlDeclaration, rootElement);
 
             return xDocument.ToStringWithDeclaration();
@@ -23,15 +23,15 @@ public static class JsonToXmlConverter
         }
     }
 
-    public static XElement ConvertToElement(string json, KnownArray[] knownArrays, string rootName)
+    public static XElement ConvertToElement(string json, string rootName)
     {
             var jsonObject = JsonSerializer.Deserialize<dynamic>(json, Json.SerializerOptions);
             var rootElement = new XElement(rootName);
-            AddElements(rootElement, jsonObject, knownArrays);
+            AddElements(rootElement, jsonObject);
             return rootElement;
     }
     
-    private static void AddElements(XElement parentElement, dynamic jsonObject, KnownArray[] knownArrays)
+    private static void AddElements(XElement parentElement, dynamic jsonObject)
     {
         if (jsonObject is not JsonElement jsonElement) return;
         
@@ -41,15 +41,15 @@ public static class JsonToXmlConverter
                 foreach (var property in jsonElement.EnumerateObject())
                 {
                     var elementName = property.Name.ToTitleCase();
-                    var arrayItemName = knownArrays.SingleOrDefault(x => x.ArrayName == elementName)?.ItemName;
+                    var arrayItemName = DomainInfo.KnownArrays.SingleOrDefault(x => x.ArrayName == elementName)?.ItemName;
                     if (property.Value.ValueKind == JsonValueKind.Array && arrayItemName != null)
                     {
-                        AddArrayElements(parentElement, property.Value, knownArrays, arrayItemName);
+                        AddArrayElements(parentElement, property.Value, arrayItemName);
                     }
                     else
                     {
                         var childElement = new XElement(elementName);
-                        AddElements(childElement, property.Value, knownArrays);
+                        AddElements(childElement, property.Value);
                         parentElement.Add(childElement);
                     }
                 }
@@ -59,7 +59,7 @@ public static class JsonToXmlConverter
                 foreach (var item in jsonElement.EnumerateArray())
                 {
                     var arrayItemElement = new XElement("Item");
-                    AddElements(arrayItemElement, item, knownArrays);
+                    AddElements(arrayItemElement, item);
                     parentElement.Add(arrayItemElement);
                 }
                 break;
@@ -86,14 +86,14 @@ public static class JsonToXmlConverter
         }
     }
 
-    private static void AddArrayElements(XElement parentElement, dynamic jsonObject, KnownArray[] knownArrays, string arrayItemName = "")
+    private static void AddArrayElements(XElement parentElement, dynamic jsonObject, string arrayItemName = "")
     {
         if (jsonObject is not JsonElement jsonElement) return;
 
         foreach (var item in jsonElement.EnumerateArray())
         {
             var arrayItemElement = new XElement(arrayItemName);
-            AddElements(arrayItemElement, item, knownArrays);
+            AddElements(arrayItemElement, item);
             parentElement.Add(arrayItemElement);
         }
     }

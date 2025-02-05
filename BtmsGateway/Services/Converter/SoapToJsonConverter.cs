@@ -4,11 +4,11 @@ namespace BtmsGateway.Services.Converter;
 
 public static class SoapToJsonConverter
 {
-    public static string Convert(string xml, KnownArray[] knownArrays, string[] knownNumbers, int messageBodyDepth)
+    public static string Convert(string xml, string[] knownNumbers, int messageBodyDepth)
     {
         var xContainer = ExtractXmlMessage(xml, messageBodyDepth);
 
-        return XmlToJsonConverter.Convert(xContainer, knownArrays, knownNumbers);
+        return XmlToJsonConverter.Convert(xContainer, knownNumbers);
     }
 
     private static XContainer ExtractXmlMessage(string xml, int messageBodyDepth)

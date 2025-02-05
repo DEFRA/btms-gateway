@@ -3,6 +3,7 @@ using System.Net.Mime;
 using System.Text;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
+using BtmsGateway.Services;
 using BtmsGateway.Services.Checking;
 using BtmsGateway.Services.Converter;
 using BtmsGateway.Services.Routing;
@@ -14,10 +15,6 @@ public class MessageData
 {
     public const string CorrelationIdHeaderName = "X-Correlation-ID";
     public const string RequestedPathHeaderName = "x-requested-path";
-    
-    private static readonly KnownArray[] KnownArrays = [ new() { ItemName = "Item", ArrayName = "Items" }, new() { ItemName = "Document", ArrayName = "Documents" }, new() { ItemName = "Check", ArrayName = "Checks" } ];
-    private static readonly string[] KnownNumbers = [ "EntryVersionNumber", "PreviousVersionNumber", "DecisionNumber", "ItemNumber", "ItemNetMass", "ItemSupplementaryUnits", "ItemThirdQuantity", "DocumentQuantity" ];
-
 
     public string CorrelationId { get; }
     public string? OriginalContentAsString { get; }
@@ -71,7 +68,7 @@ public class MessageData
         {
             var content = string.IsNullOrWhiteSpace(OriginalContentAsString)
                 ? string.Empty
-                : SoapToJsonConverter.Convert(OriginalContentAsString, KnownArrays, KnownNumbers, messageBodyDepth);
+                : SoapToJsonConverter.Convert(OriginalContentAsString, DomainInfo.KnownArrays, DomainInfo.KnownNumbers, messageBodyDepth);
             return CreateForwardingRequest(routeUrl, hostHeader, content, MediaTypeNames.Application.Json);
         }
         

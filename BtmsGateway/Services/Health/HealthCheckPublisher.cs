@@ -1,6 +1,8 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using ILogger = Serilog.ILogger;
 
+// ReSharper disable TemplateIsNotCompileTimeConstantProblem
+
 namespace BtmsGateway.Services.Health;
 
 public class HealthCheckPublisher(ILogger logger) : IHealthCheckPublisher
@@ -12,16 +14,16 @@ public class HealthCheckPublisher(ILogger logger) : IHealthCheckPublisher
         switch (report.Status)
         {
             case HealthStatus.Healthy:
-                logger.Information("{HealthReport}", healthStatusAsJson);
+                logger.Information(healthStatusAsJson);
                 break;
             case HealthStatus.Degraded:
-                logger.Warning("{HealthReport}", healthStatusAsJson);
+                logger.Warning(healthStatusAsJson);
                 break;
             case HealthStatus.Unhealthy:
-                logger.Error("{HealthReport}", healthStatusAsJson);
+                logger.Error(healthStatusAsJson);
                 break;
             default:
-                logger.Error("Invalid health status");
+                logger.Error($"{{\"status\":\"Invalid\",\"description\":\"Invalid health status '{report.Status}'\"}}");
                 break;
         }
         

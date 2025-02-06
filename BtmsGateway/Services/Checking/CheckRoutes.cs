@@ -14,7 +14,7 @@ public class CheckRoutes(HealthCheckConfig healthCheckConfig, IHttpClientFactory
         
         logger.Information("Start route checking");
         var cts = new CancellationTokenSource(TimeSpan.FromSeconds(OverallTimeoutSecs));
-        var checkRouteResults = await Task.WhenAll(healthCheckConfig.Urls.Select(GetCheckRouteUrl).Select(x => CheckAll(x, cts)));
+        var checkRouteResults = await Task.WhenAll(healthCheckConfig.Urls.Select(GetCheckRouteUrl).Where(x => !x.Disabled).Select(x => CheckAll(x, cts)));
         return checkRouteResults.SelectMany(routeResults => routeResults);
     }
 

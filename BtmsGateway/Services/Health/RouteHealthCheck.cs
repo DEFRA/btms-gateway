@@ -26,15 +26,17 @@ public class RouteHealthCheck(string name, HealthCheckUrl healthCheckUrl, IHttpC
         }
         
         return new HealthCheckResult(
-            response?.IsSuccessStatusCode == true ? HealthStatus.Healthy : HealthStatus.Degraded, 
-            $"Route to {name.Replace('_', ' ')}", 
+            status: exception == null ? response?.IsSuccessStatusCode == true ? HealthStatus.Healthy : HealthStatus.Degraded : HealthStatus.Unhealthy, 
+            description: $"Route to {name.Replace('_', ' ')}",
+            exception: exception,
             data: new Dictionary<string, object>
             {
                 { "route", healthCheckUrl.Url},
                 { "host", healthCheckUrl.HostHeader ?? ""},
                 { "method", healthCheckUrl.Method},
-                { "status", response != null ? $"{(int)response.StatusCode} {response.StatusCode}" : $"{exception?.GetType().Name} {exception?.InnerException?.GetType().Name}" },
-                { "content", content ?? $"{exception?.Message} - {exception?.InnerException?.Message}"}
+                { "status", $"{(int?)response?.StatusCode} {response?.StatusCode}".Trim() },
+                { "content", content ?? "" },
+                { "error", exception != null ? $"{exception.Message} - {exception.InnerException?.Message}" : "" }
             });
     }
 }

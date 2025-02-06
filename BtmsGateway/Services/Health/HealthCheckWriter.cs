@@ -16,7 +16,7 @@ public static class HealthCheckWriter
             jsonWriter.WriteStartObject();
             jsonWriter.WriteString("status", healthReport.Status.ToString());
             
-            var healthReportEntries = healthReport.Entries.Where(x => excludeHealthy && x.Value.Status != HealthStatus.Healthy).ToArray();
+            var healthReportEntries = healthReport.Entries.Where(x => !excludeHealthy || x.Value.Status != HealthStatus.Healthy).ToArray();
             if (healthReportEntries.Any())
             {
                 jsonWriter.WriteStartObject("results");
@@ -26,6 +26,7 @@ public static class HealthCheckWriter
                     jsonWriter.WriteStartObject(healthReportEntry.Key);
                     jsonWriter.WriteString("status", healthReportEntry.Value.Status.ToString());
                     jsonWriter.WriteString("description", healthReportEntry.Value.Description);
+                    jsonWriter.WriteString("exception", $"{healthReportEntry.Value.Exception?.GetType().Name}  {healthReportEntry.Value.Exception?.InnerException?.GetType().Name}".Trim());
                     jsonWriter.WriteStartObject("data");
 
                     foreach (var item in healthReportEntry.Value.Data)

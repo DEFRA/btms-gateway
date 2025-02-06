@@ -7,7 +7,24 @@ public class HealthCheckPublisher(ILogger logger) : IHealthCheckPublisher
 {
     public Task PublishAsync(HealthReport report, CancellationToken cancellationToken)
     {
-        logger.Information("{HealthReport}", HealthCheckWriter.WriteHealthStatusAsJson(report, excludeHealthy:true, indented:false));
+        var healthStatusAsJson = HealthCheckWriter.WriteHealthStatusAsJson(report, excludeHealthy:true, indented:false);
+        
+        switch (report.Status)
+        {
+            case HealthStatus.Healthy:
+                logger.Information("{HealthReport}", healthStatusAsJson);
+                break;
+            case HealthStatus.Degraded:
+                logger.Warning("{HealthReport}", healthStatusAsJson);
+                break;
+            case HealthStatus.Unhealthy:
+                logger.Error("{HealthReport}", healthStatusAsJson);
+                break;
+            default:
+                logger.Error("Invalid health status");
+                break;
+        }
+        
         return Task.CompletedTask;
     }
 }

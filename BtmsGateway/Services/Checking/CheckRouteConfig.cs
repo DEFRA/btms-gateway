@@ -12,6 +12,7 @@ public record HealthCheckUrl
     public required string Method { get; init; }
     public required string Url { get; init; }
     public required string? HostHeader { get; init; }
+    public required bool IncludeInAutomatedHealthCheck { get; init; }
 }
 
 public record CheckRouteUrl

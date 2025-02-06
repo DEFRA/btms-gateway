@@ -6,6 +6,8 @@ using System.Diagnostics.CodeAnalysis;
 using BtmsGateway.Config;
 using BtmsGateway.Middleware;
 using BtmsGateway.Services.Checking;
+using BtmsGateway.Services.Health;
+using BtmsGateway.Services.Routing;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
@@ -31,12 +33,14 @@ static void BuildWebApplication(WebApplicationBuilder builder)
 {
     builder.Configuration.AddEnvironmentVariables();
     builder.Configuration.AddIniFile("Properties/local.env", true);
+    builder.ConfigureToType<RoutingConfig>();
+    var healthCheckConfig = builder.ConfigureToType<HealthCheckConfig>();
 
     ConfigureTelemetry(builder);
     var logger = ConfigureLogging(builder);
 
     builder.Services.AddCustomTrustStore(logger);
-    builder.Services.AddHealthChecks();
+    builder.AddCustomHealthChecks(healthCheckConfig);
     builder.AddServices(logger);
     builder.ConfigureSwaggerBuilder();
 }
@@ -87,7 +91,7 @@ static void ConfigureTelemetry(WebApplicationBuilder builder)
 static WebApplication ConfigureWebApplication(WebApplication webApplication)
 {
     webApplication.UseMiddleware<RoutingInterceptor>();
-    webApplication.MapHealthChecks("/health");
+    webApplication.UseCustomHealthChecks();
     webApplication.UseCheckRoutesEndpoints();
 
     webApplication.ConfigureSwaggerApp();

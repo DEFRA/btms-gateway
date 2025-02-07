@@ -19,7 +19,7 @@ public static class ConfigureHealthChecks
     
     private static void AddTypeActivatedChecks(this IHealthChecksBuilder builder, HealthCheckConfig? healthCheckConfig)
     {
-        if (healthCheckConfig == null) return;
+        if (healthCheckConfig == null || healthCheckConfig.AutomatedHealthCheckDisabled) return;
 
         foreach (var healthCheck in healthCheckConfig.Urls.Where(x => x.Value.IncludeInAutomatedHealthCheck))
         {

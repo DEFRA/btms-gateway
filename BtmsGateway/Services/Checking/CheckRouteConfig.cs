@@ -3,6 +3,7 @@ namespace BtmsGateway.Services.Checking;
 public record HealthCheckConfig
 {
     public required bool Disabled { get; init; }
+    public required bool AutomatedHealthCheckDisabled { get; init; }
     public required Dictionary<string, HealthCheckUrl> Urls { get; init; } = [];
 }
 

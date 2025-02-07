@@ -29,7 +29,7 @@ public class RouteHealthCheckTests
         var result = await routeHealthCheck.CheckHealthAsync(new HealthCheckContext());
 
         result.Status.Should().Be(healthStatus);
-        result.Data["status"].Should().Be($"{(int)statusCode} {statusCode}");
+        result.Data["Status"].Should().Be($"{(int)statusCode} {statusCode}");
     }
 
     [Fact]
@@ -44,11 +44,11 @@ public class RouteHealthCheckTests
 
         result.Description.Should().Be("Route to Health Check Name");
         result.Exception.Should().BeNull();
-        result.Data["route"].Should().Be(healthCheckUrl.Url);
-        result.Data["method"].Should().Be(healthCheckUrl.Method);
-        result.Data["host"].Should().Be(healthCheckUrl.HostHeader);
-        result.Data["content"].Should().Be("route-content");
-        result.Data["error"].Should().Be("");
+        result.Data["Route"].Should().Be(healthCheckUrl.Url);
+        result.Data["Host"].Should().Be(healthCheckUrl.HostHeader);
+        result.Data["Method"].Should().Be(healthCheckUrl.Method);
+        result.Data["Content"].Should().Be("route-content");
+        result.Data.Keys.Should().NotContain("Error");
     }
 
     [Fact]
@@ -65,12 +65,12 @@ public class RouteHealthCheckTests
         result.Status.Should().Be(HealthStatus.Unhealthy);
         result.Description.Should().Be("Route to Health Check Name");
         result.Exception.Should().Be(exceptionToThrow);
-        result.Data["route"].Should().Be(healthCheckUrl.Url);
-        result.Data["method"].Should().Be(healthCheckUrl.Method);
-        result.Data["host"].Should().Be(healthCheckUrl.HostHeader);
-        result.Data["content"].Should().Be("");
-        result.Data["status"].Should().Be("");
-        result.Data["error"].Should().Be("Error message - Inner error message");
+        result.Data["Route"].Should().Be(healthCheckUrl.Url);
+        result.Data["Host"].Should().Be(healthCheckUrl.HostHeader);
+        result.Data["Method"].Should().Be(healthCheckUrl.Method);
+        result.Data["Status"].Should().Be("");
+        result.Data["Content"].Should().Be("");
+        result.Data["Error"].Should().Be("Error message - Inner error message");
     }
 
     private static RouteHealthCheck GetRouteHealthCheck(HealthCheckUrl healthCheckUrl, TestHttpHandler testHttpHandler)

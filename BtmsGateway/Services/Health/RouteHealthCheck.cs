@@ -24,19 +24,22 @@ public class RouteHealthCheck(string name, HealthCheckUrl healthCheckUrl, IHttpC
         {
             exception = ex;
         }
+
+        var data = new Dictionary<string, object>
+        {
+            { "Route", healthCheckUrl.Url },
+            { "Host", healthCheckUrl.HostHeader ?? "" },
+            { "Method", healthCheckUrl.Method },
+            { "Status", $"{(int?)response?.StatusCode} {response?.StatusCode}".Trim() },
+            { "Content", content ?? "" }
+        };
+        
+        if (exception != null) data.Add("Error", $"{exception.Message} - {exception.InnerException?.Message}");
         
         return new HealthCheckResult(
             status: exception == null ? response?.IsSuccessStatusCode == true ? HealthStatus.Healthy : HealthStatus.Degraded : HealthStatus.Unhealthy, 
             description: $"Route to {name.Replace('_', ' ')}",
             exception: exception,
-            data: new Dictionary<string, object>
-            {
-                { "route", healthCheckUrl.Url},
-                { "host", healthCheckUrl.HostHeader ?? ""},
-                { "method", healthCheckUrl.Method},
-                { "status", $"{(int?)response?.StatusCode} {response?.StatusCode}".Trim() },
-                { "content", content ?? "" },
-                { "error", exception != null ? $"{exception.Message} - {exception.InnerException?.Message}" : "" }
-            });
+            data: data);
     }
 }

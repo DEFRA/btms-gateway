@@ -23,7 +23,7 @@ public static class ConfigureHealthChecks
 
         foreach (var healthCheck in healthCheckConfig.Urls.Where(x => x.Value.IncludeInAutomatedHealthCheck))
         {
-            builder.AddTypeActivatedCheck<RouteHealthCheck>(healthCheck.Key, failureStatus: HealthStatus.Unhealthy, tags: [healthCheck.Key, "Route"], args: [healthCheck.Key, healthCheck.Value]);
+            builder.AddTypeActivatedCheck<RouteHealthCheck>(healthCheck.Key, failureStatus: HealthStatus.Unhealthy, tags: ["Route", "HTTP"], args: [healthCheck.Key, healthCheck.Value]);
         }
     }
     

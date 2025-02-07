@@ -27,18 +27,18 @@ public class RouteHealthCheck(string name, HealthCheckUrl healthCheckUrl, IHttpC
 
         var data = new Dictionary<string, object>
         {
-            { "Route", healthCheckUrl.Url },
-            { "Host", healthCheckUrl.HostHeader ?? "" },
-            { "Method", healthCheckUrl.Method },
-            { "Status", $"{(int?)response?.StatusCode} {response?.StatusCode}".Trim() },
-            { "Content", content ?? "" }
+            { "route", healthCheckUrl.Url },
+            { "host", healthCheckUrl.HostHeader ?? "" },
+            { "method", healthCheckUrl.Method },
+            { "status", $"{(int?)response?.StatusCode} {response?.StatusCode}".Trim() },
+            { "content", content ?? "" }
         };
 
         var healthStatus = response?.IsSuccessStatusCode == true ? HealthStatus.Healthy : HealthStatus.Degraded;
         if (exception != null)
         {
             healthStatus = HealthStatus.Unhealthy;
-            data.Add("Error", $"{exception.Message} - {exception.InnerException?.Message}");
+            data.Add("error", $"{exception.Message} - {exception.InnerException?.Message}");
         }
         
         return new HealthCheckResult(

@@ -17,46 +17,60 @@ public static class HealthCheckWriter
             jsonWriter.WriteString("status", healthReport.Status.ToString());
             jsonWriter.WriteNumber("durationMs", healthReport.TotalDuration.TotalMilliseconds);
             
-            var healthReportEntries = healthReport.Entries.Where(x => !excludeHealthy || x.Value.Status != HealthStatus.Healthy).ToArray();
-            if (healthReportEntries.Any())
-            {
-                jsonWriter.WriteStartObject("results");
-
-                foreach (var healthReportEntry in healthReportEntries)
-                {
-                    jsonWriter.WriteStartObject(healthReportEntry.Key);
-                    jsonWriter.WriteString("status", healthReportEntry.Value.Status.ToString());
-                    jsonWriter.WriteString("description", healthReportEntry.Value.Description);
-                    jsonWriter.WriteNumber("durationMs", healthReportEntry.Value.Duration.TotalMilliseconds);
-                    if (healthReportEntry.Value.Exception != null ) 
-                        jsonWriter.WriteString("exception", $"{healthReportEntry.Value.Exception?.GetType().Name}  {healthReportEntry.Value.Exception?.InnerException?.GetType().Name}".Trim());
-
-                    if (healthReportEntry.Value.Tags.Any())
-                    {
-                        jsonWriter.WriteStartArray("tags");
-                        foreach (var tag in healthReportEntry.Value.Tags)
-                        {
-                            jsonWriter.WriteStringValue(tag);
-                        }
-                        jsonWriter.WriteEndArray();
-                    }
-                    
-                    jsonWriter.WriteStartObject("data");
-                    foreach (var item in healthReportEntry.Value.Data)
-                    {
-                        jsonWriter.WritePropertyName(item.Key);
-                        JsonSerializer.Serialize(jsonWriter, item.Value, item.Value.GetType());
-                    }
-                    jsonWriter.WriteEndObject();
-                    jsonWriter.WriteEndObject();
-                }
-
-                jsonWriter.WriteEndObject();
-            }
+            WriteEntries(healthReport, excludeHealthy, jsonWriter);
 
             jsonWriter.WriteEndObject();
         }
 
         return Encoding.UTF8.GetString(memoryStream.ToArray());
+    }
+
+    private static void WriteEntries(HealthReport healthReport, bool excludeHealthy, Utf8JsonWriter jsonWriter)
+    {
+        var healthReportEntries = healthReport.Entries.Where(x => !excludeHealthy || x.Value.Status != HealthStatus.Healthy).ToArray();
+        if (!healthReportEntries.Any()) return;
+        
+        jsonWriter.WriteStartObject("results");
+
+        foreach (var healthReportEntry in healthReportEntries)
+        {
+            jsonWriter.WriteStartObject(healthReportEntry.Key);
+            jsonWriter.WriteString("status", healthReportEntry.Value.Status.ToString());
+            jsonWriter.WriteString("description", healthReportEntry.Value.Description);
+            jsonWriter.WriteNumber("durationMs", healthReportEntry.Value.Duration.TotalMilliseconds);
+            if (healthReportEntry.Value.Exception != null ) 
+                jsonWriter.WriteString("exception", $"{healthReportEntry.Value.Exception?.GetType().Name}  {healthReportEntry.Value.Exception?.InnerException?.GetType().Name}".Trim());
+
+            WriteTags(healthReportEntry, jsonWriter);
+                    
+            WriteData(jsonWriter, healthReportEntry);
+
+            jsonWriter.WriteEndObject();
+        }
+
+        jsonWriter.WriteEndObject();
+    }
+
+    private static void WriteData(Utf8JsonWriter jsonWriter, KeyValuePair<string, HealthReportEntry> healthReportEntry)
+    {
+        jsonWriter.WriteStartObject("data");
+        foreach (var item in healthReportEntry.Value.Data)
+        {
+            jsonWriter.WritePropertyName(item.Key);
+            JsonSerializer.Serialize(jsonWriter, item.Value, item.Value.GetType());
+        }
+        jsonWriter.WriteEndObject();
+    }
+
+    private static void WriteTags(KeyValuePair<string, HealthReportEntry> healthReportEntry, Utf8JsonWriter jsonWriter)
+    {
+        if (!healthReportEntry.Value.Tags.Any()) return;
+        
+        jsonWriter.WriteStartArray("tags");
+        foreach (var tag in healthReportEntry.Value.Tags)
+        {
+            jsonWriter.WriteStringValue(tag);
+        }
+        jsonWriter.WriteEndArray();
     }
 }

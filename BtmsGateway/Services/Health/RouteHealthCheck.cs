@@ -33,11 +33,16 @@ public class RouteHealthCheck(string name, HealthCheckUrl healthCheckUrl, IHttpC
             { "Status", $"{(int?)response?.StatusCode} {response?.StatusCode}".Trim() },
             { "Content", content ?? "" }
         };
-        
-        if (exception != null) data.Add("Error", $"{exception.Message} - {exception.InnerException?.Message}");
+
+        var healthStatus = response?.IsSuccessStatusCode == true ? HealthStatus.Healthy : HealthStatus.Degraded;
+        if (exception != null)
+        {
+            healthStatus = HealthStatus.Unhealthy;
+            data.Add("Error", $"{exception.Message} - {exception.InnerException?.Message}");
+        }
         
         return new HealthCheckResult(
-            status: exception == null ? response?.IsSuccessStatusCode == true ? HealthStatus.Healthy : HealthStatus.Degraded : HealthStatus.Unhealthy, 
+            status: healthStatus, 
             description: $"Route to {name.Replace('_', ' ')}",
             exception: exception,
             data: data);

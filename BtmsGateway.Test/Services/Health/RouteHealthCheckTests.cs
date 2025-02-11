@@ -76,7 +76,7 @@ public class RouteHealthCheckTests
     private static RouteHealthCheck GetRouteHealthCheck(HealthCheckUrl healthCheckUrl, TestHttpHandler testHttpHandler)
     {
         var serviceCollection = new ServiceCollection();
-        serviceCollection.AddHttpClient(Proxy.ProxyClientWithoutRetry).AddHttpMessageHandler(() => testHttpHandler);
+        serviceCollection.AddHttpClient(Proxy.RoutedClientWithRetry).AddHttpMessageHandler(() => testHttpHandler);
         serviceCollection.AddSingleton(s => new RouteHealthCheck("Health_Check_Name", healthCheckUrl, s.GetRequiredService<IHttpClientFactory>()));
         var services = serviceCollection.BuildServiceProvider();
         return services.GetRequiredService<RouteHealthCheck>();

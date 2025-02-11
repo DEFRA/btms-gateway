@@ -9,6 +9,7 @@ public class RouteHealthCheck(string name, HealthCheckUrl healthCheckUrl, IHttpC
     public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = new())
     {
         var client = httpClientFactory.CreateClient(Proxy.ProxyClientWithoutRetry);
+        var client = httpClientFactory.CreateClient(Proxy.RoutedClientWithRetry);
         var request = new HttpRequestMessage(HttpMethod.Parse(healthCheckUrl.Method), healthCheckUrl.Url);
         if (healthCheckUrl.HostHeader != null) request.Headers.TryAddWithoutValidation("host", healthCheckUrl.HostHeader);
 

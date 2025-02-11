@@ -6,9 +6,13 @@ namespace BtmsGateway.Services.Health;
 
 public class RouteHealthCheck(string name, HealthCheckUrl healthCheckUrl, IHttpClientFactory httpClientFactory) : IHealthCheck
 {
+    private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(10);
+
     public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = new())
     {
-        var client = httpClientFactory.CreateClient(Proxy.ProxyClientWithoutRetry);
+        var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        cts.CancelAfter(Timeout);
+
         var client = httpClientFactory.CreateClient(Proxy.RoutedClientWithRetry);
         var request = new HttpRequestMessage(HttpMethod.Parse(healthCheckUrl.Method), healthCheckUrl.Url);
         if (healthCheckUrl.HostHeader != null) request.Headers.TryAddWithoutValidation("host", healthCheckUrl.HostHeader);
@@ -18,8 +22,12 @@ public class RouteHealthCheck(string name, HealthCheckUrl healthCheckUrl, IHttpC
         Exception? exception = null;
         try
         {
-            response = await client.SendAsync(request, cancellationToken);
-            content = await response.Content.ReadAsStringAsync(cancellationToken);
+            response = await client.SendAsync(request, cts.Token);
+            content = await response.Content.ReadAsStringAsync(cts.Token);
+        }
+        catch (TaskCanceledException)
+        {
+            exception = new TimeoutException($"The network check cas cancelled, probably because it timed out after {Timeout.TotalSeconds} seconds");
         }
         catch (Exception ex)
         {

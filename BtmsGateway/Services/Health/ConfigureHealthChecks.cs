@@ -13,7 +13,7 @@ public static class ConfigureHealthChecks
         builder.Services.AddHealthChecks()
                         .AddResourceUtilizationHealthCheck()
                         .AddTypeActivatedChecks(healthCheckConfig);
-        builder.Services.Configure<HealthCheckPublisherOptions>(options => options.Delay = TimeSpan.FromSeconds(5));
+        builder.Services.Configure<HealthCheckPublisherOptions>(options => options.Delay = TimeSpan.FromSeconds(30));
         builder.Services.AddSingleton<IHealthCheckPublisher, HealthCheckPublisher>();
     }
     

@@ -27,7 +27,7 @@ public static class Proxy
       return services.AddHttpClient(ProxyClientWithoutRetry).ConfigurePrimaryHttpMessageHandler(() => ConfigurePrimaryHttpMessageHandler(logger));
    }
    
-   private static readonly AsyncRetryPolicy<HttpResponseMessage> WaitAndRetryAsync = HttpPolicyExtensions.HandleTransientHttpError().WaitAndRetryAsync(3, _ => TimeSpan.FromMilliseconds(100));
+   private static readonly AsyncRetryPolicy<HttpResponseMessage> WaitAndRetryAsync = HttpPolicyExtensions.HandleTransientHttpError().WaitAndRetryAsync(3, _ => TimeSpan.FromMilliseconds(1000));
 
    [ExcludeFromCodeCoverage]
    public static IHttpClientBuilder AddHttpProxyRoutedClientWithRetry(this IServiceCollection services, Serilog.ILogger logger)

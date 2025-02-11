@@ -1,6 +1,8 @@
 using BtmsGateway.Config;
 using BtmsGateway.Middleware;
 using BtmsGateway.Services.Checking;
+using BtmsGateway.Services.Routing;
+using BtmsGateway.Utils;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,10 +33,11 @@ public class TestWebServer : IAsyncDisposable
         HttpServiceClient = new HttpClient { BaseAddress = new Uri(url) };
 
         var builder = WebApplication.CreateBuilder();
+        builder.ConfigureToType<RoutingConfig>();
+        builder.ConfigureToType<HealthCheckConfig>();
         builder.WebHost.UseUrls(url);
         builder.AddServices(Substitute.For<Serilog.ILogger>());
         foreach (var testService in testServices) builder.Services.Replace(testService);
-        builder.Services.AddHealthChecks();
 
         RoutedHttpHandler = new TestHttpHandler();
         ConfigureServices.HttpRoutedClientWithRetryBuilder?.AddHttpMessageHandler(() => RoutedHttpHandler);
@@ -45,8 +48,6 @@ public class TestWebServer : IAsyncDisposable
 
         app.UseMiddleware<RoutingInterceptor>();
    
-        app.MapHealthChecks("/health");
-        
         app.UseCheckRoutesEndpoints();
 
         _app = app;

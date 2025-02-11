@@ -17,8 +17,6 @@ public static class ConfigureServices
     public static void AddServices(this WebApplicationBuilder builder, ILogger logger)
     {
         builder.Services.AddSingleton(logger);
-        builder.ConfigureToType<RoutingConfig>();
-        builder.ConfigureToType<HealthCheckConfig>();
 
         HttpRoutedClientWithRetryBuilder = builder.Services.AddHttpProxyRoutedClientWithRetry(logger);
         HttpForkedClientWithRetryBuilder = builder.Services.AddHttpProxyForkedClientWithRetry(logger);

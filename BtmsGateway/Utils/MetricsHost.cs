@@ -22,5 +22,5 @@ public class MetricsHost
         ForkedRequestDuration = meter.CreateHistogram<long>("btms.gateway.duration.forked", "ms", "Duration of forked request/response");
     }
 
-    public Metrics GetMetrics() => new(this);
+    public IMetrics GetMetrics() => new Metrics(this);
 }

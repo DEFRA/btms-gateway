@@ -58,7 +58,7 @@ static void ConfigureWebApplication(WebApplicationBuilder builder)
         .UseOtlpExporter();
 
     var logger = ConfigureLogging(builder);
-
+    
     builder.Services.AddCustomTrustStore(logger);
     builder.Services.AddHealthChecks();
     builder.AddServices(logger);

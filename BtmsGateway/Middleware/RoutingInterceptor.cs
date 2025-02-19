@@ -38,9 +38,9 @@ public class RoutingInterceptor(RequestDelegate next, IMessageRouter messageRout
         }
     }
 
-    private async Task Route(HttpContext context, MessageData messageData, Metrics metrics)
+    private async Task Route(HttpContext context, MessageData messageData, IMetrics metrics)
     {
-        var routingResult = await messageRouter.Route(messageData);
+        var routingResult = await messageRouter.Route(messageData, metrics);
 
         if (routingResult.RouteFound && routingResult.RouteLinkType != LinkType.None)
             LogRouteFoundResults(messageData, routingResult, "Routing");
@@ -52,9 +52,9 @@ public class RoutingInterceptor(RequestDelegate next, IMessageRouter messageRout
         metrics.RequestRouted(messageData, routingResult);
     }
 
-    private async Task Fork(MessageData messageData, Metrics metrics)
+    private async Task Fork(MessageData messageData, IMetrics metrics)
     {
-        var routingResult = await messageRouter.Fork(messageData);
+        var routingResult = await messageRouter.Fork(messageData, metrics);
 
         if (routingResult.RouteFound && routingResult.ForkLinkType != LinkType.None)
             LogRouteFoundResults(messageData, routingResult, "Forking");

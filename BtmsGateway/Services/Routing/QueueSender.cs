@@ -21,20 +21,20 @@ public class QueueSender(IAmazonSimpleNotificationService snsService) : IQueueSe
             metrics.StartForkedRequest();
         else
             metrics.StartRoutedRequest();
-        
+
         var response = await snsService.PublishAsync(request);
 
         if (fork)
             metrics.RecordForkedRequest();
         else
             metrics.RecordRoutedRequest();
-        
+
         return routingResult
          with
-         {
-             RoutingSuccessful = response.HttpStatusCode == HttpStatusCode.OK,
-             ResponseContent = $"Successfully published MessageId: {response.MessageId}",
-             StatusCode = response.HttpStatusCode
-         };
+        {
+            RoutingSuccessful = response.HttpStatusCode == HttpStatusCode.OK,
+            ResponseContent = $"Successfully published MessageId: {response.MessageId}",
+            StatusCode = response.HttpStatusCode
+        };
     }
 }

@@ -18,7 +18,7 @@ public class MessageRouter(IMessageRoutes messageRoutes, IApiSender apiSender, I
     {
         var routingResult = messageRoutes.GetRoute(messageData.Path);
         if (!routingResult.RouteFound || routingResult.RouteLinkType == LinkType.None) return routingResult;
-        
+
         try
         {
             switch (routingResult.RouteLinkType)
@@ -37,12 +37,12 @@ public class MessageRouter(IMessageRoutes messageRoutes, IApiSender apiSender, I
             return routingResult with { StatusCode = HttpStatusCode.ServiceUnavailable, ErrorMessage = $"Error routing - {ex.Message} - {ex.InnerException?.Message}" };
         }
     }
-    
+
     public async Task<RoutingResult> Fork(MessageData messageData, IMetrics metrics)
     {
         var routingResult = messageRoutes.GetRoute(messageData.Path);
         if (!routingResult.RouteFound || routingResult.ForkLinkType == LinkType.None) return routingResult;
-        
+
         try
         {
             switch (routingResult.ForkLinkType)

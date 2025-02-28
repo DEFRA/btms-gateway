@@ -9,13 +9,13 @@ namespace BtmsGateway.Test.EndToEnd;
 public abstract class TargetRoutingTestBase : IAsyncDisposable
 {
     protected static readonly string FixturesPath = Path.Combine("EndToEnd", "Fixtures");
-    
+
     private static readonly JsonSerializerOptions JsonSerializerOptions = new() { Converters = { new JsonStringEnumConverter() } };
 
     protected readonly TestWebServer TestWebServer;
     protected readonly HttpClient HttpClient;
     protected List<ServiceDescriptor> Services = new();
-    
+
     protected TargetRoutingTestBase()
     {
         var routingConfigJson = File.ReadAllText(Path.Combine(FixturesPath, "TargetRoutingConfig.json"));
@@ -23,6 +23,6 @@ public abstract class TargetRoutingTestBase : IAsyncDisposable
         TestWebServer = TestWebServer.BuildAndRun(Services.ToArray());
         HttpClient = TestWebServer.HttpServiceClient;
     }
-    
+
     public async ValueTask DisposeAsync() => await TestWebServer.DisposeAsync();
 }

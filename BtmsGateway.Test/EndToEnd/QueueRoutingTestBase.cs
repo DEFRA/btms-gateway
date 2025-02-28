@@ -19,9 +19,9 @@ public abstract class QueueRoutingTestBase : TargetRoutingTestBase
     {
         var queuesResult = await Client.ListQueuesAsync("");
         var queue = queuesResult.QueueUrls.Single(q => q.EndsWith(queueName));
-        
+
         var messages = await GetMessagesRecursiveRetry(queue);
-        
+
         return messages.Select(m => JsonSerializer.Deserialize<MessageWrapper>(m.Body).Message).ToList();
     }
 
@@ -32,8 +32,8 @@ public abstract class QueueRoutingTestBase : TargetRoutingTestBase
 
         while (output == null)
         {
-            if(retries++ > 30) throw new TimeoutException();
-            
+            if (retries++ > 30) throw new TimeoutException();
+
             var messagesResponse = await Client.ReceiveMessageAsync(queueUrl);
             if (messagesResponse.Messages.Any())
             {
@@ -44,10 +44,10 @@ public abstract class QueueRoutingTestBase : TargetRoutingTestBase
                 Thread.Sleep(1000);
             }
         }
-        
+
         return output;
     }
-    
+
     static IConfiguration GetConfiguration()
     {
         var builder = new ConfigurationBuilder()
@@ -60,6 +60,6 @@ public abstract class QueueRoutingTestBase : TargetRoutingTestBase
     public class MessageWrapper
     {
         public string MessageId { get; set; }
-        public string Message { get; set; } 
+        public string Message { get; set; }
     }
 }

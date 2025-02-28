@@ -26,8 +26,8 @@ public static class Swagger
             });
         }
     }
-    
+
     private static bool IsSwaggerEnabled(this WebApplicationBuilder builder) => builder.IsDevMode() || builder.Configuration.GetValue<bool>("EnableSwagger");
-    
+
     private static bool IsSwaggerEnabled(this WebApplication app) => app.IsDevMode() || app.Configuration.GetValue<bool>("EnableSwagger");
 }

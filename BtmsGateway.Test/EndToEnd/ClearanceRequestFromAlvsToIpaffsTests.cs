@@ -9,7 +9,7 @@ namespace BtmsGateway.Test.EndToEnd;
 public class ClearanceRequestFromAlvsToIpaffsTests : TargetRoutingTestBase
 {
     private const string UrlPath = "/route/path/alvs-ipaffs/clearance-request";
-    
+
     private readonly string _alvsRequestSoap = File.ReadAllText(Path.Combine(FixturesPath, "AlvsToIpaffsClearanceRequest.xml"));
     private readonly string _alvsResponseSoap = File.ReadAllText(Path.Combine(FixturesPath, "IpaffsResponse.xml"));
     private readonly string _btmsRequestJson = File.ReadAllText(Path.Combine(FixturesPath, "ClearanceRequest.json")).LinuxLineEndings();

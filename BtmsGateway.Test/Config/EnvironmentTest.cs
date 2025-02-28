@@ -4,13 +4,13 @@ namespace BtmsGateway.Test.Config;
 
 public class EnvironmentTest
 {
-   [Fact]
-   public void IsNotDevModeByDefault()
-   {
-      var builder = WebApplication.CreateBuilder();
+    [Fact]
+    public void IsNotDevModeByDefault()
+    {
+        var builder = WebApplication.CreateBuilder();
 
-      var isDev = BtmsGateway.Config.Environment.IsDevMode(builder);
+        var isDev = BtmsGateway.Config.Environment.IsDevMode(builder);
 
-      Assert.False(isDev);
-   }
+        Assert.False(isDev);
+    }
 }

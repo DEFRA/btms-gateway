@@ -62,7 +62,7 @@ public sealed class GeneralEndToEndTests : IAsyncDisposable
     public async Task When_checking_service_health_Then_should_be_healthy()
     {
         var response = await _httpClient.GetAsync("health");
-        
+
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         response.Content.Headers.ContentType?.ToString().Should().Be(MediaTypeNames.Text.Plain);
         (await response.Content.ReadAsStringAsync()).Should().Be("Healthy");
@@ -74,7 +74,7 @@ public sealed class GeneralEndToEndTests : IAsyncDisposable
         _testWebServer.RoutedHttpHandler.SetNextResponse(content: XmlRoutedResponse);
 
         var response = await _httpClient.PostAsync(RoutedPath, _stringContent);
-        
+
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         response.Content.Headers.ContentType?.ToString().Should().Be(MediaTypeNames.Application.Xml);
         response.Headers.Date.Should().BeAfter(_headerDate);
@@ -106,7 +106,7 @@ public sealed class GeneralEndToEndTests : IAsyncDisposable
 
     [Fact]
     public async Task When_routing_forked_request_Then_should_route_correctly()
-    { 
+    {
         const string XmlForkedResponse = "<Envelope><Body><Message><xml>ForkedResponse</xml></Message></Body></Envelope>";
         var jsonContent = $"{{{Environment.NewLine}  \"xml\": \"Content\"{Environment.NewLine}}}";
 
@@ -137,7 +137,7 @@ public sealed class GeneralEndToEndTests : IAsyncDisposable
     public async Task When_routed_request_returns_specific_status_code_Then_should_respond_with_same_status_code(HttpStatusCode targetStatusCode)
     {
         _testWebServer.RoutedHttpHandler.SetNextResponse(statusFunc: () => targetStatusCode);
-        
+
         var response = await _httpClient.PostAsync(RoutedPath, _stringContent);
 
         response.StatusCode.Should().Be(targetStatusCode);
@@ -152,9 +152,9 @@ public sealed class GeneralEndToEndTests : IAsyncDisposable
     public async Task When_forked_request_returns_specific_status_code_Then_should_respond_with_routed_status_code(HttpStatusCode targetStatusCode)
     {
         _testWebServer.ForkedHttpHandler.SetNextResponse(statusFunc: () => targetStatusCode);
-        
+
         var response = await _httpClient.PostAsync(RoutedPath, _stringContent);
-        
+
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
@@ -163,7 +163,7 @@ public sealed class GeneralEndToEndTests : IAsyncDisposable
     {
         var callNum = 0;
         _testWebServer.RoutedHttpHandler.SetNextResponse(statusFunc: () => ++callNum == 1 ? HttpStatusCode.BadGateway : HttpStatusCode.OK);
-        
+
         var response = await _httpClient.PostAsync(RoutedPath, _stringContent);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -175,7 +175,7 @@ public sealed class GeneralEndToEndTests : IAsyncDisposable
     {
         var callNum = 0;
         _testWebServer.ForkedHttpHandler.SetNextResponse(statusFunc: () => ++callNum == 1 ? HttpStatusCode.BadGateway : HttpStatusCode.OK);
-        
+
         var response = await _httpClient.PostAsync(RoutedPath, _stringContent);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);

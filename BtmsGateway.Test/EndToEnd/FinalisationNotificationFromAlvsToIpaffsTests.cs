@@ -9,7 +9,7 @@ namespace BtmsGateway.Test.EndToEnd;
 public class FinalisationNotificationFromAlvsToIpaffsTests : TargetRoutingTestBase
 {
     private const string UrlPath = "/route/path/alvs-ipaffs/finalisation-notification";
-    
+
     private readonly string _alvsRequestSoap = File.ReadAllText(Path.Combine(FixturesPath, "AlvsToIpaffsFinalisationNotification.xml"));
     private readonly string _alvsResponseSoap = File.ReadAllText(Path.Combine(FixturesPath, "IpaffsResponse.xml"));
     private readonly string _btmsRequestJson = File.ReadAllText(Path.Combine(FixturesPath, "FinalisationNotification.json")).LinuxLineEndings();

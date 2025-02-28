@@ -16,9 +16,9 @@ public static class SoapToJsonConverter
         try
         {
             var xElement = XDocument.Parse(xml).Elements().FirstOrDefault(e => e.Name.LocalName == "Envelope")?.Elements().FirstOrDefault(e => e.Name.LocalName == "Body");
-            for (var i = 0; i < messageBodyDepth; i++) 
+            for (var i = 0; i < messageBodyDepth; i++)
                 xElement = xElement?.Elements().LastOrDefault();
-            
+
             return xElement ?? throw new InvalidDataException("The SOAP XML does not contain a valid message");
         }
         catch (Exception ex)

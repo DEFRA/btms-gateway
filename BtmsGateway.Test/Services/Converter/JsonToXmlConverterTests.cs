@@ -8,7 +8,7 @@ namespace BtmsGateway.Test.Services.Converter;
 public class JsonToXmlConverterTests
 {
     private static readonly string TestDataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Services", "Converter", "Fixtures");
-    
+
     [Theory]
     [ClassData(typeof(JsonToXmlTestData))]
     public void When_receiving_valid_json_Then_should_convert_to_xml(string because, string json, string rootName, string expectedXml)
@@ -21,7 +21,7 @@ public class JsonToXmlConverterTests
     {
         var json = File.ReadAllText(Path.Combine(TestDataPath, "ClearanceRequest.json"));
         var expectedXml = File.ReadAllText(Path.Combine(TestDataPath, "ClearanceRequestNotSoap.xml")).LinuxLineEndings();
-        
+
         JsonToXmlConverter.Convert(json, "ALVSClearanceRequest").LinuxLineEndings().Should().Be(expectedXml);
     }
 
@@ -29,7 +29,7 @@ public class JsonToXmlConverterTests
     public void When_receiving_invalid_json_Then_should_fail()
     {
         var act = () => JsonToXmlConverter.Convert("{\"abc\"", "Root");
-        
+
         act.Should().Throw<ArgumentException>();
     }
 }

@@ -27,7 +27,7 @@ public class TestHttpHandler : DelegatingHandler
             StatusCode = _responseStatusFunc(),
             Content = new StringContent(_responseContent, Encoding.UTF8, request.Content?.Headers.ContentType!)
         };
-        
+
         return Task.FromResult(LastResponse);
     }
 }

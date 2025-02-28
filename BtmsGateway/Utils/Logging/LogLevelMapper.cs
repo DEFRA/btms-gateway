@@ -16,11 +16,11 @@ public class LogLevelMapper : ILogEventEnricher
         var logLevel = logEvent.Level switch
         {
             LogEventLevel.Information => "info",
-            LogEventLevel.Debug       => "debug",
-            LogEventLevel.Error       => "error",
-            LogEventLevel.Fatal       => "fatal",
-            LogEventLevel.Warning     => "warn",
-            _                         => "all"
+            LogEventLevel.Debug => "debug",
+            LogEventLevel.Error => "error",
+            LogEventLevel.Fatal => "fatal",
+            LogEventLevel.Warning => "warn",
+            _ => "all"
         };
 
         logEvent.AddOrUpdateProperty(propertyFactory.CreateProperty("log.level", logLevel));

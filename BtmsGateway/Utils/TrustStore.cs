@@ -9,7 +9,7 @@ namespace BtmsGateway.Utils;
 [ExcludeFromCodeCoverage]
 public static class TrustStore
 {
-   public static void AddCustomTrustStore(this IServiceCollection _, Logger logger)
+    public static void AddCustomTrustStore(this IServiceCollection _, Logger logger)
     {
         logger.Information("Loading Certificates into Trust store");
         var certificates = GetCertificates(logger);

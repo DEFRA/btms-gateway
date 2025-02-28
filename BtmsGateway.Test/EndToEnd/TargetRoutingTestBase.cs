@@ -14,11 +14,13 @@ public abstract class TargetRoutingTestBase : IAsyncDisposable
 
     protected readonly TestWebServer TestWebServer;
     protected readonly HttpClient HttpClient;
-
+    protected List<ServiceDescriptor> Services = new();
+    
     protected TargetRoutingTestBase()
     {
         var routingConfigJson = File.ReadAllText(Path.Combine(FixturesPath, "TargetRoutingConfig.json"));
-        TestWebServer = TestWebServer.BuildAndRun(ServiceDescriptor.Singleton(JsonSerializer.Deserialize<RoutingConfig>(routingConfigJson, JsonSerializerOptions)));
+        Services.Add(ServiceDescriptor.Singleton(JsonSerializer.Deserialize<RoutingConfig>(routingConfigJson, JsonSerializerOptions)));
+        TestWebServer = TestWebServer.BuildAndRun(Services.ToArray());
         HttpClient = TestWebServer.HttpServiceClient;
     }
     

@@ -10,20 +10,72 @@ on:
       - reopened
       - synchronize
       - ready_for_review
+      
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+  repository-projects: read
 
 jobs:
   pr-validator:
     name: Run Pull Request Checks
     runs-on: ubuntu-latest
     steps:
-      - name: Check out code
-        uses: actions/checkout@v3
-      - name: Test
-        uses: actions/setup-dotnet@v3
+      - uses: actions/setup-dotnet@v3
         with:
           dotnet-version: |
-            8.0
-      - run: dotnet test
+           8.0
+
+      - name: Check out code
+        uses: actions/checkout@v3
+        with:
+          path: btms-gateway
+        
+      - name: Verify Format
+        run: dotnet format ./btms-gateway/BtmsGateway.sln --verify-no-changes --verbosity diagnostic
+
+      - name: Run docker-compose
+        uses: hoverkraft-tech/compose-action@v2.0.1
+        with:
+          compose-file: "./btms-gateway/compose.yml"
+
+      - name: Make Script Executable
+        run: chmod +x ./btms-gateway/wait-for-docker-logs.sh
+        
+      # - name: Wait for Localstack
+      #   run: |
+      #     ./btms-gateway/wait-for-docker-logs.sh sns-sqs-emulator "Whatever localstack says when it's up and running" 60
+
+      - name: Test
+        run: dotnet test ./btms-gateway/BtmsGateway.sln --logger "GitHubActions;summary.includePassedTests=true;summary.includeSkippedTests=true" --collect:"XPlat Code Coverage" --results-directory ./coverage
+
+      - name: install dotnet coverage
+        run: dotnet tool install --global dotnet-coverage        
+        
+      - name: merge coverage reports
+        run:  dotnet-coverage merge *.cobertura.xml --recursive --output merged.cobertura.xml --output-format cobertura
+  
+      - name: Code Coverage Report
+        uses: irongut/CodeCoverageSummary@v1.3.0
+        with:
+          filename: merged.cobertura.xml
+          badge: true
+          fail_below_min: false
+          format: markdown
+          hide_branch_rate: false
+          hide_complexity: true
+          indicators: true
+          output: both
+          thresholds: '60 80'
+
+      - name: Add Coverage PR Comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        if: github.event_name == 'pull_request'
+        with:
+          recreate: true
+          path: code-coverage-results.md
+
     ## SonarCloud
     ## Uncomment to unable SonarCloud scan
     ## Requires project to be set up in SonarCloud

@@ -120,7 +120,7 @@ public class MessageData
         }
     }
 
-    public PublishRequest CreatePublishRequest(string? routeArn, int messageBodyDepth)
+    public PublishRequest CreatePublishRequest(string? routeArn, int messageBodyDepth, string? messageGroupId = null)
     {
         string content = string.Empty;
         
@@ -140,12 +140,16 @@ public class MessageData
         
         var request = new PublishRequest
         {
-            MessageGroupId = "ThisShouldn'tBeMandatory",
-            MessageDeduplicationId = Guid.NewGuid().ToString("D"),
+            MessageGroupId = string.IsNullOrWhiteSpace(messageGroupId) ? "default" : messageGroupId,
+            MessageDeduplicationId = CorrelationId,
+            MessageAttributes = new Dictionary<string, MessageAttributeValue>
+            {
+                { "CorrelationId", new MessageAttributeValue() { StringValue = CorrelationId, DataType = "String"} }
+            },
             Message = content,
             TopicArn = routeArn
         };
-
+        
         return request;
     }
     

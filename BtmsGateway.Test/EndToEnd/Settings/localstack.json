@@ -1,0 +1,6 @@
+{
+  "AWS": {
+    "ServiceURL": "http://sqs.eu-west-2.localhost.localstack.cloud:4966/",
+    "Region": "eu-west-2"
+  }
+}

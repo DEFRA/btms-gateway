@@ -43,9 +43,8 @@ jobs:
       - name: Make Script Executable
         run: chmod +x ./btms-gateway/wait-for-docker-logs.sh
         
-      # - name: Wait for Localstack
-      #   run: |
-      #     ./btms-gateway/wait-for-docker-logs.sh sns-sqs-emulator "Whatever localstack says when it's up and running" 60
+      - name: Wait for Localstack
+        run: ./btms-gateway/wait-for-docker-logs.sh sns-sqs-emulator "Ready." 60
 
       - name: Test
         run: dotnet test ./btms-gateway/BtmsGateway.sln --logger "GitHubActions;summary.includePassedTests=true;summary.includeSkippedTests=true" --collect:"XPlat Code Coverage" --results-directory ./coverage

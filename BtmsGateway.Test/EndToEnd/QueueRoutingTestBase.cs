@@ -2,6 +2,7 @@ using Amazon.SQS;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.Configuration;
 using System.Text.Json;
+using Amazon;
 using Amazon.SQS.Model;
 
 namespace BtmsGateway.Test.EndToEnd;
@@ -12,7 +13,8 @@ public abstract class QueueRoutingTestBase : TargetRoutingTestBase
     protected QueueRoutingTestBase()
     {
         var configuration = GetConfiguration();
-        Client = configuration.GetAWSOptions().CreateServiceClient<IAmazonSQS>();
+        var awsOptions = configuration.GetAWSOptions();
+        throw new Exception(awsOptions.DefaultClientConfig.ServiceURL);
     }
 
     protected async Task<List<string>> GetMessages(string queueName)

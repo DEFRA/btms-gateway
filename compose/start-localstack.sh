@@ -33,5 +33,5 @@ do
    echo "[$timestamp] SQS Param: $SQS_ARN:$queueName"
    aws --endpoint-url=$ENDPOINT_URL sns create-topic --attributes FifoTopic=true --name $queueName
    aws --endpoint-url=$ENDPOINT_URL sqs create-queue --attributes FifoQueue=true --queue-name $queueName
-   aws --endpoint-url=$ENDPOINT_URL sns subscribe --topic-arn $SNS_ARN:$queueName --protocol sqs --notification-endpoint $SQS_ARN:$queueName
+   aws --endpoint-url=$ENDPOINT_URL sns subscribe --topic-arn $SNS_ARN:$queueName --protocol sqs --notification-endpoint $SQS_ARN:$queueName --attributes '{"RawMessageDelivery": "true"}'
 done

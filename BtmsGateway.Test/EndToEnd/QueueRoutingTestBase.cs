@@ -14,7 +14,7 @@ public abstract class QueueRoutingTestBase : TargetRoutingTestBase
     {
         var configuration = GetConfiguration();
         var awsOptions = configuration.GetAWSOptions();
-        throw new Exception(awsOptions.DefaultClientConfig.ServiceURL);
+        Client = awsOptions.CreateServiceClient<IAmazonSQS>();
     }
 
     protected async Task<List<string>> GetMessages(string queueName)
@@ -24,7 +24,7 @@ public abstract class QueueRoutingTestBase : TargetRoutingTestBase
 
         var messages = await GetMessagesRecursiveRetry(queue);
 
-        return messages.Select(m => JsonSerializer.Deserialize<MessageWrapper>(m.Body).Message).ToList();
+        return messages.Select(m => m.Body).ToList();
     }
 
     private async Task<List<Message>> GetMessagesRecursiveRetry(string queueUrl)

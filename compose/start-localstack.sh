@@ -27,11 +27,9 @@ SQS_ARN=arn:aws:sqs:eu-west-2:000000000000
 for queueName in "${arr[@]}"
 do
    timestamp="$(date +"%T")"
-   echo "[$timestamp] QueueName: $queueName"
-   echo "[$timestamp] Endpoint: $ENDPOINT_URL"
-   echo "[$timestamp] SNS Param: $SNS_ARN:$queueName"
-   echo "[$timestamp] SQS Param: $SQS_ARN:$queueName"
+   echo "[$timestamp] Started setting up queue: $queueName"
    aws --endpoint-url=$ENDPOINT_URL sns create-topic --attributes FifoTopic=true --name $queueName
    aws --endpoint-url=$ENDPOINT_URL sqs create-queue --attributes FifoQueue=true --queue-name $queueName
    aws --endpoint-url=$ENDPOINT_URL sns subscribe --topic-arn $SNS_ARN:$queueName --protocol sqs --notification-endpoint $SQS_ARN:$queueName --attributes '{"RawMessageDelivery": "true"}'
+   echo "[$timestamp] Finished setting up queue: $queueName"
 done

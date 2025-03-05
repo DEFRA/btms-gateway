@@ -14,11 +14,12 @@ public abstract class QueueRoutingTestBase : TargetRoutingTestBase
     {
         var configuration = GetConfiguration();
         var awsOptions = configuration.GetAWSOptions();
+
         if (awsOptions.DefaultClientConfig != null)
         {
             throw new Exception(awsOptions.DefaultClientConfig.ServiceURL);
         }
-        
+
         Client = awsOptions.CreateServiceClient<IAmazonSQS>();
     }
 

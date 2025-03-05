@@ -12,11 +12,12 @@ namespace BtmsGateway.Test.EndToEnd;
 public abstract class QueueRoutingTestBase : TargetRoutingTestBase
 {
     private IAmazonSQS Client { get; }
+    private readonly string ServiceUrl;
     protected QueueRoutingTestBase()
     {
         var configuration = GetConfiguration();
         var awsOptions = configuration.GetAWSOptions();
-
+        ServiceUrl = awsOptions.DefaultClientConfig.ServiceURL;
         Client = awsOptions.CreateServiceClient<IAmazonSQS>();
     }
 
@@ -24,11 +25,8 @@ public abstract class QueueRoutingTestBase : TargetRoutingTestBase
     {
         try
         {
-            var queuesResult = await Client.ListQueuesAsync("");
-
-            var queue = queuesResult.QueueUrls.Single(q => q.EndsWith(queueName));
-
-            var messages = await GetMessagesRecursiveRetry(queue);
+            var queueUrl = Path.Combine(ServiceUrl, "000000000000", queueName);
+            var messages = await GetMessagesRecursiveRetry(queueUrl);
 
             return messages.Select(m => m.Body).ToList();
         }

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ENDPOINT_URL=http://localhost:4966
+ENDPOINT_URL=http://localhost:4566
 
 SNS_ARN=arn:aws:sns:eu-west-2:000000000000
 SQS_ARN=arn:aws:sqs:eu-west-2:000000000000

@@ -4,6 +4,8 @@ using Microsoft.Extensions.Configuration;
 using System.Text.Json;
 using Amazon;
 using Amazon.SQS.Model;
+using Newtonsoft.Json;
+using JsonSerializer = Newtonsoft.Json.JsonSerializer;
 
 namespace BtmsGateway.Test.EndToEnd;
 
@@ -15,22 +17,25 @@ public abstract class QueueRoutingTestBase : TargetRoutingTestBase
         var configuration = GetConfiguration();
         var awsOptions = configuration.GetAWSOptions();
 
-        if (awsOptions.DefaultClientConfig != null)
-        {
-            throw new Exception(awsOptions.DefaultClientConfig.ServiceURL);
-        }
-
         Client = awsOptions.CreateServiceClient<IAmazonSQS>();
     }
 
     protected async Task<List<string>> GetMessages(string queueName)
     {
-        var queuesResult = await Client.ListQueuesAsync("");
-        var queue = queuesResult.QueueUrls.Single(q => q.EndsWith(queueName));
+        try
+        {
+            var queuesResult = await Client.ListQueuesAsync("");
 
-        var messages = await GetMessagesRecursiveRetry(queue);
+            var queue = queuesResult.QueueUrls.Single(q => q.EndsWith(queueName));
 
-        return messages.Select(m => m.Body).ToList();
+            var messages = await GetMessagesRecursiveRetry(queue);
+
+            return messages.Select(m => m.Body).ToList();
+        }   
+        catch (Exception ex)
+        {
+            throw new Exception(JsonConvert.SerializeObject(ex));
+        }
     }
 
     private async Task<List<Message>> GetMessagesRecursiveRetry(string queueUrl)

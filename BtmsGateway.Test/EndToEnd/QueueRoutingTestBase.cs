@@ -31,7 +31,7 @@ public abstract class QueueRoutingTestBase : TargetRoutingTestBase
             var messages = await GetMessagesRecursiveRetry(queue);
 
             return messages.Select(m => m.Body).ToList();
-        }   
+        }
         catch (Exception ex)
         {
             throw new Exception(JsonConvert.SerializeObject(ex));

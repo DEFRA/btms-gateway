@@ -23,16 +23,17 @@ public abstract class QueueRoutingTestBase : TargetRoutingTestBase
 
     protected async Task<List<string>> GetMessages(string queueName)
     {
+        var queueUrl = Path.Combine(ServiceUrl, "000000000000", queueName);
+
         try
         {
-            var queueUrl = Path.Combine(ServiceUrl, "000000000000", queueName);
             var messages = await GetMessagesRecursiveRetry(queueUrl);
 
             return messages.Select(m => m.Body).ToList();
         }
         catch (Exception ex)
         {
-            throw new Exception(JsonConvert.SerializeObject(ex));
+            throw new Exception($"Failed to retrieve messages for queue [{queueUrl}]" + Environment.NewLine + JsonConvert.SerializeObject(ex));
         }
     }
 

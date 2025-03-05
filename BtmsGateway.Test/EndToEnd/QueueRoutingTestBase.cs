@@ -14,6 +14,11 @@ public abstract class QueueRoutingTestBase : TargetRoutingTestBase
     {
         var configuration = GetConfiguration();
         var awsOptions = configuration.GetAWSOptions();
+        if (awsOptions.DefaultClientConfig != null)
+        {
+            throw new Exception(awsOptions.DefaultClientConfig.ServiceURL);
+        }
+        
         Client = awsOptions.CreateServiceClient<IAmazonSQS>();
     }
 
@@ -57,11 +62,5 @@ public abstract class QueueRoutingTestBase : TargetRoutingTestBase
             .AddJsonFile(Path.Combine("EndToEnd", "Settings", "localstack.json"));
 
         return builder.Build();
-    }
-
-    public class MessageWrapper
-    {
-        public string MessageId { get; set; }
-        public string Message { get; set; }
     }
 }

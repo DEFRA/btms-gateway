@@ -47,7 +47,7 @@ public abstract class QueueRoutingTestBase : TargetRoutingTestBase
             if (retries++ > 30) throw new TimeoutException();
 
             var messagesResponse = await Client.ReceiveMessageAsync(queueUrl);
-            if (messagesResponse.Messages.Any())
+            if (messagesResponse.Messages?.Any() == true)
             {
                 output = messagesResponse.Messages;
             }

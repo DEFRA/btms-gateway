@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.Configuration;
 using System.Text.Json;
 using Amazon;
+using Amazon.Extensions.NETCore.Setup;
 using Amazon.SQS.Model;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using JsonSerializer = Newtonsoft.Json.JsonSerializer;
 
@@ -15,15 +17,14 @@ public abstract class QueueRoutingTestBase : TargetRoutingTestBase
     private readonly string ServiceUrl;
     protected QueueRoutingTestBase()
     {
-        var configuration = GetConfiguration();
-        var awsOptions = configuration.GetAWSOptions();
+        var awsOptions = this.TestWebServer.Services.GetService<AWSOptions>();
         ServiceUrl = awsOptions.DefaultClientConfig.ServiceURL;
         Client = awsOptions.CreateServiceClient<IAmazonSQS>();
     }
 
     protected async Task<List<string>> GetMessages(string queueName)
     {
-        var queueUrl = Path.Combine(ServiceUrl, "000000000000", queueName);
+        var queueUrl = (await Client.GetQueueUrlAsync(queueName)).QueueUrl;
 
         try
         {

@@ -1,8 +1,11 @@
+using Amazon.Extensions.NETCore.Setup;
+using Amazon.Runtime;
 using BtmsGateway.Config;
 using BtmsGateway.Middleware;
 using BtmsGateway.Services.Checking;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using NSubstitute;
@@ -35,6 +38,10 @@ public class TestWebServer : IAsyncDisposable
         builder.AddServices(Substitute.For<Serilog.ILogger>());
         foreach (var testService in testServices) builder.Services.Replace(testService);
         builder.Services.AddHealthChecks();
+
+        var options = builder.Configuration.GetAWSOptions();
+        options.Credentials = new BasicAWSCredentials("local", "local");
+        builder.Services.Replace(new ServiceDescriptor(typeof(AWSOptions), options));
 
         RoutedHttpHandler = new TestHttpHandler();
         ConfigureServices.HttpRoutedClientWithRetryBuilder?.AddHttpMessageHandler(() => RoutedHttpHandler);

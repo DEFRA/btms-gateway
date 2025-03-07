@@ -41,6 +41,7 @@ public class TestWebServer : IAsyncDisposable
 
         var options = builder.Configuration.GetAWSOptions();
         options.Credentials = new BasicAWSCredentials("local", "local");
+        options.DefaultClientConfig.ServiceURL = "http://sqs.eu-west-2.localhost.localstack.cloud:4966/";
         builder.Services.Replace(new ServiceDescriptor(typeof(AWSOptions), options));
 
         RoutedHttpHandler = new TestHttpHandler();

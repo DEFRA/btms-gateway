@@ -35,7 +35,7 @@ public class TestWebServer : IAsyncDisposable
         HttpServiceClient = new HttpClient { BaseAddress = new Uri(url) };
 
         var builder = WebApplication.CreateBuilder();
-            builder.Configuration.AddJsonFile(Path.Combine("EndToEnd", "Settings", "localstack.json"));
+        builder.Configuration.AddJsonFile(Path.Combine("EndToEnd", "Settings", "localstack.json"));
         builder.WebHost.UseUrls(url);
         builder.AddServices(Substitute.For<Serilog.ILogger>());
         foreach (var testService in testServices) builder.Services.Replace(testService);

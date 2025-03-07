@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using NSubstitute;
+using Environment = System.Environment;
 
 [assembly: CollectionBehavior(DisableTestParallelization = true)]
 
@@ -34,14 +35,14 @@ public class TestWebServer : IAsyncDisposable
         HttpServiceClient = new HttpClient { BaseAddress = new Uri(url) };
 
         var builder = WebApplication.CreateBuilder();
+            builder.Configuration.AddJsonFile(Path.Combine("EndToEnd", "Settings", "localstack.json"));
         builder.WebHost.UseUrls(url);
         builder.AddServices(Substitute.For<Serilog.ILogger>());
         foreach (var testService in testServices) builder.Services.Replace(testService);
         builder.Services.AddHealthChecks();
 
         var options = builder.Configuration.GetAWSOptions();
-        options.Credentials = new BasicAWSCredentials("local", "local");
-        options.DefaultClientConfig.ServiceURL = "http://sqs.eu-west-2.localhost.localstack.cloud:4966/";
+        options.Credentials = new BasicAWSCredentials(builder.Configuration["AWS_ACCESS_KEY_ID"], builder.Configuration["AWS_SECRET_ACCESS_KEY"]);
         builder.Services.Replace(new ServiceDescriptor(typeof(AWSOptions), options));
 
         RoutedHttpHandler = new TestHttpHandler();

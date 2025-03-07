@@ -1,13 +1,7 @@
 using Amazon.SQS;
-using Microsoft.AspNetCore.Http.Json;
-using Microsoft.Extensions.Configuration;
-using System.Text.Json;
-using Amazon;
 using Amazon.Extensions.NETCore.Setup;
 using Amazon.SQS.Model;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
-using JsonSerializer = Newtonsoft.Json.JsonSerializer;
 
 namespace BtmsGateway.Test.EndToEnd;
 
@@ -22,24 +16,17 @@ public abstract class QueueRoutingTestBase : TargetRoutingTestBase
 
     protected async Task<List<string>> GetMessages(string queueName)
     {
+        var queueUrl = (await Client.GetQueueUrlAsync(queueName)).QueueUrl;
+
         try
         {
-            var queueUrl = (await Client.GetQueueUrlAsync(queueName)).QueueUrl;
+            var messages = await GetMessagesRecursiveRetry(queueUrl);
 
-            try
-            {
-                var messages = await GetMessagesRecursiveRetry(queueUrl);
-
-                return messages.Select(m => m.Body).ToList();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Failed to retrieve messages for queue [{queueUrl}]", ex);
-            }
+            return messages.Select(m => m.Body).ToList();
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            throw new Exception($"Failed to get queue url [{queueName}] {System.Text.Json.JsonSerializer.Serialize(Client.Config)}");
+            throw new Exception($"Failed to retrieve messages for queue [{queueUrl}]", ex);
         }
     }
 
@@ -59,7 +46,7 @@ public abstract class QueueRoutingTestBase : TargetRoutingTestBase
             }
             else
             {
-                Thread.Sleep(1000);
+                await Task.Delay(1000);
             }
         }
 

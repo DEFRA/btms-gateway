@@ -41,7 +41,6 @@ public abstract class QueueRoutingTestBase : TargetRoutingTestBase
         {
             throw new Exception($"Failed to get queue url [{queueName}] {System.Text.Json.JsonSerializer.Serialize(Client.Config)}");
         }
-       
     }
 
     private async Task<List<Message>> GetMessagesRecursiveRetry(string queueUrl)

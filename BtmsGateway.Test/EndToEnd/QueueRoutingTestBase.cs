@@ -14,28 +14,34 @@ namespace BtmsGateway.Test.EndToEnd;
 public abstract class QueueRoutingTestBase : TargetRoutingTestBase
 {
     private IAmazonSQS Client { get; }
-    private readonly string ServiceUrl;
     protected QueueRoutingTestBase()
     {
         var awsOptions = this.TestWebServer.Services.GetService<AWSOptions>();
-        ServiceUrl = awsOptions.DefaultClientConfig.ServiceURL;
         Client = awsOptions.CreateServiceClient<IAmazonSQS>();
     }
 
     protected async Task<List<string>> GetMessages(string queueName)
     {
-        var queueUrl = (await Client.GetQueueUrlAsync(queueName)).QueueUrl;
-
         try
         {
-            var messages = await GetMessagesRecursiveRetry(queueUrl);
+            var queueUrl = (await Client.GetQueueUrlAsync(queueName)).QueueUrl;
 
-            return messages.Select(m => m.Body).ToList();
+            try
+            {
+                var messages = await GetMessagesRecursiveRetry(queueUrl);
+
+                return messages.Select(m => m.Body).ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Failed to retrieve messages for queue [{queueUrl}]", ex);
+            }
         }
-        catch (Exception ex)
+        catch (Exception e)
         {
-            throw new Exception($"Failed to retrieve messages for queue [{queueUrl}]" + Environment.NewLine + JsonConvert.SerializeObject(ex));
+            throw new Exception($"Failed to get queue url [{queueName}] {System.Text.Json.JsonSerializer.Serialize(Client.Config)}");
         }
+       
     }
 
     private async Task<List<Message>> GetMessagesRecursiveRetry(string queueUrl)
@@ -59,14 +65,5 @@ public abstract class QueueRoutingTestBase : TargetRoutingTestBase
         }
 
         return output;
-    }
-
-    static IConfiguration GetConfiguration()
-    {
-        var builder = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile(Path.Combine("EndToEnd", "Settings", "localstack.json"));
-
-        return builder.Build();
     }
 }

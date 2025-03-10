@@ -7,9 +7,9 @@ namespace BtmsGateway.Test.EndToEnd;
 
 public sealed class ClearanceRequestFromCdsToBtmsQueueTests : QueueRoutingTestBase
 {
-    private const string ForkQueueName = "customs_clearance_fork.fifo";
-    private const string RouteQueueName = "customs_clearance_route.fifo";
-
+    protected override string ForkQueueName => "customs_clearance_fork.fifo";
+    protected override string RouteQueueName =>"customs_clearance_route.fifo";
+    
     private const string ForkPath = "/route/path/cds-btms/clearance-request-fork-queue";
     private const string RoutePath = "/route/path/cds-btms/clearance-request-route-queue";
 
@@ -29,7 +29,7 @@ public sealed class ClearanceRequestFromCdsToBtmsQueueTests : QueueRoutingTestBa
         var receivedMessages = await GetMessages(ForkQueueName);
         receivedMessages.Should().NotBeEmpty();
         receivedMessages.Should().HaveCount(1);
-        receivedMessages.FirstOrDefault().Should().Be(_btmsRequestJson);
+        receivedMessages.FirstOrDefault().LinuxLineEndings().Should().Be(_btmsRequestJson);
     }
 
     [Fact]
@@ -45,6 +45,6 @@ public sealed class ClearanceRequestFromCdsToBtmsQueueTests : QueueRoutingTestBa
         var receivedMessages = await GetMessages(RouteQueueName);
         receivedMessages.Should().NotBeEmpty();
         receivedMessages.Should().HaveCount(1);
-        receivedMessages.FirstOrDefault().Should().Be(_btmsRequestJson);
+        receivedMessages.FirstOrDefault().LinuxLineEndings().Should().Be(_btmsRequestJson);
     }
 }

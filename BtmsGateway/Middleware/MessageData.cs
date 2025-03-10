@@ -46,7 +46,7 @@ public class MessageData
             OriginalContentType = RetrieveContentType(request);
             _headers = request.Headers;
             Url = $"{request.Scheme}://{request.Host}{request.Path}{request.QueryString}";
-            HttpString = $"{Method} {Url} {request.Protocol.ToUpper()} {OriginalContentType}";       
+            HttpString = $"{Method} {Url} {request.Protocol.ToUpper()} {OriginalContentType}";
             var correlationId = _headers[CorrelationIdHeaderName].FirstOrDefault();
             CorrelationId = string.IsNullOrWhiteSpace(correlationId) ? Guid.NewGuid().ToString("D") : correlationId;
         }
@@ -71,7 +71,7 @@ public class MessageData
                 : SoapToJsonConverter.Convert(OriginalContentAsString, messageBodyDepth);
             return CreateForwardingRequest(routeUrl, hostHeader, content, MediaTypeNames.Application.Json);
         }
-        
+
         if (OriginalContentType is MediaTypeNames.Application.Json)
         {
             var content = string.IsNullOrWhiteSpace(OriginalContentAsString)
@@ -93,7 +93,7 @@ public class MessageData
         try
         {
             var request = new HttpRequestMessage(new HttpMethod(Method), routeUrl);
-            
+
             foreach (var header in _headers.Where(x => !x.Key.StartsWith("Content-", StringComparison.InvariantCultureIgnoreCase)
                                                        && !string.Equals(x.Key, "Accept", StringComparison.InvariantCultureIgnoreCase)
                                                        && !string.Equals(x.Key, "Host", StringComparison.InvariantCultureIgnoreCase)
@@ -120,41 +120,45 @@ public class MessageData
         }
     }
 
-    public PublishRequest CreatePublishRequest(string? routeArn, int messageBodyDepth)
+    public PublishRequest CreatePublishRequest(string? routeArn, int messageBodyDepth, string? messageGroupId = null)
     {
         string content = string.Empty;
-        
+
         if (OriginalContentType is MediaTypeNames.Application.Xml or MediaTypeNames.Application.Soap or MediaTypeNames.Text.Xml)
         {
             content = string.IsNullOrWhiteSpace(OriginalContentAsString)
                 ? string.Empty
                 : SoapToJsonConverter.Convert(OriginalContentAsString, messageBodyDepth);
         }
-        
+
         if (OriginalContentType is MediaTypeNames.Application.Json)
         {
             content = string.IsNullOrWhiteSpace(OriginalContentAsString)
                 ? string.Empty
                 : OriginalContentAsString;
         }
-        
+
         var request = new PublishRequest
         {
-            MessageGroupId = "ThisShouldn'tBeMandatory",
-            MessageDeduplicationId = Guid.NewGuid().ToString("D"),
+            MessageGroupId = string.IsNullOrWhiteSpace(messageGroupId) ? "default" : messageGroupId,
+            MessageDeduplicationId = CorrelationId,
+            MessageAttributes = new Dictionary<string, MessageAttributeValue>
+            {
+                { "CorrelationId", new MessageAttributeValue() { StringValue = CorrelationId, DataType = "String"} }
+            },
             Message = content,
             TopicArn = routeArn
         };
 
         return request;
     }
-    
+
     public async Task PopulateResponse(HttpResponse response, RoutingResult routingResult)
     {
         try
         {
             response.StatusCode = (int)routingResult.StatusCode;
-            response.ContentType =  OriginalContentType;
+            response.ContentType = OriginalContentType;
             response.Headers.Date = (routingResult.ResponseDate ?? DateTimeOffset.Now).ToString("R");
             response.Headers[CorrelationIdHeaderName] = CorrelationId;
             response.Headers[RequestedPathHeaderName] = routingResult.UrlPath;

@@ -12,7 +12,7 @@ public class RoutingInterceptor(RequestDelegate next, IMessageRouter messageRout
         {
             var metrics = metricsHost.GetMetrics();
             metrics.StartTotalRequest();
-            
+
             var messageData = await MessageData.Create(context.Request, logger);
 
             if (messageData.ShouldProcessRequest)
@@ -22,7 +22,7 @@ public class RoutingInterceptor(RequestDelegate next, IMessageRouter messageRout
                 await Route(context, messageData, metrics);
 
                 await Fork(messageData, metrics);
-                
+
                 metrics.RecordTotalRequest();
                 return;
             }
@@ -60,7 +60,7 @@ public class RoutingInterceptor(RequestDelegate next, IMessageRouter messageRout
             LogRouteFoundResults(messageData, routingResult, "Forking");
         else
             LogRouteNotFoundResults(messageData, routingResult, "Forking");
-        
+
         metrics.RequestForked(messageData, routingResult);
     }
 

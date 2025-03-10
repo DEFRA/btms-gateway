@@ -15,11 +15,11 @@ public static class DomainInfo
     [
         "EntryVersionNumber",
         "PreviousVersionNumber",
-        "DecisionNumber", 
-        "ItemNumber", 
-        "ItemNetMass", 
-        "ItemSupplementaryUnits", 
-        "ItemThirdQuantity", 
+        "DecisionNumber",
+        "ItemNumber",
+        "ItemNetMass",
+        "ItemSupplementaryUnits",
+        "ItemThirdQuantity",
         "DocumentQuantity"
     ];
 }

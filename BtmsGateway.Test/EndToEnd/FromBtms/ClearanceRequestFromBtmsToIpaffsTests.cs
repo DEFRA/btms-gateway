@@ -10,7 +10,7 @@ public class ClearanceRequestFromBtmsToIpaffsTests : TargetRoutingTestBase
 {
     private const string OriginalPath = "/clearance-request/path";
     private const string GatewayPath = $"/alvs_ipaffs{OriginalPath}";
-    
+
     private readonly string _btmsRequestJson = File.ReadAllText(Path.Combine(FixturesPath, "ClearanceRequest.json")).LinuxLineEndings();
     private readonly string _btmsResponseJson = File.ReadAllText(Path.Combine(FixturesPath, "IpaffsResponse.json"));
     private readonly string _ipaffsRequestSoap = File.ReadAllText(Path.Combine(FixturesPath, "AlvsToIpaffsClearanceRequest.xml"));

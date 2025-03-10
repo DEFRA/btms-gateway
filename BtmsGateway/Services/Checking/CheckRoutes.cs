@@ -11,7 +11,7 @@ public class CheckRoutes(HealthCheckConfig healthCheckConfig, IHttpClientFactory
     public async Task<IEnumerable<CheckRouteResult>> CheckAll()
     {
         if (healthCheckConfig.Disabled) return [];
-        
+
         logger.Information("Start route checking");
         var cts = new CancellationTokenSource(TimeSpan.FromSeconds(OverallTimeoutSecs));
         var checkRouteResults = await Task.WhenAll(healthCheckConfig.Urls.Select(GetCheckRouteUrl).Select(x => CheckAll(x, cts)));
@@ -41,7 +41,7 @@ public class CheckRoutes(HealthCheckConfig healthCheckConfig, IHttpClientFactory
         };
         var hostOnlyUrl = $"{checkRouteUrl.Uri.Scheme}://{checkRouteUrl.Uri.Host}";
         if (checkRouteUrl.Url != hostOnlyUrl) checks.Insert(1, CheckHttp(checkRouteUrl with { CheckType = "HTTP HOST", Url = $"{checkRouteUrl.Uri.Scheme}://{checkRouteUrl.Uri.Host}" }, false, cts.Token));
-        
+
         return await Task.WhenAll(checks);
     }
 
@@ -49,7 +49,7 @@ public class CheckRoutes(HealthCheckConfig healthCheckConfig, IHttpClientFactory
     {
         var checkRouteResult = new CheckRouteResult(checkRouteUrl.Name, $"{checkRouteUrl.Method} {checkRouteUrl.Url}", checkRouteUrl.CheckType, checkRouteUrl.HostHeader, string.Empty, TimeSpan.Zero);
         var stopwatch = new Stopwatch();
-    
+
         try
         {
             logger.Information("Start checking HTTP request for {Url}", checkRouteUrl.Url);
@@ -64,10 +64,10 @@ public class CheckRoutes(HealthCheckConfig healthCheckConfig, IHttpClientFactory
         {
             checkRouteResult = checkRouteResult with { ResponseResult = $"\"{ex.Message}\" {(ex.InnerException?.Message != null && ex.InnerException?.Message != ex.Message ? $"\"{ex.InnerException?.Message}\"" : null)}", Elapsed = stopwatch.Elapsed };
         }
-        
+
         stopwatch.Stop();
         logger.Information("Completed checking HTTP request for {Url} with result {Result}", checkRouteUrl.Url, checkRouteResult.ResponseResult);
-        
+
         return checkRouteResult;
     }
 
@@ -81,7 +81,7 @@ public class CheckRoutes(HealthCheckConfig healthCheckConfig, IHttpClientFactory
     {
         var checkRouteResult = new CheckRouteResult(name, arguments, processName, null, string.Empty, TimeSpan.Zero);
         var stopwatch = new Stopwatch();
-    
+
         try
         {
             logger.Information("Start checking {ProcessName} for {Url}", processName, arguments);
@@ -89,17 +89,17 @@ public class CheckRoutes(HealthCheckConfig healthCheckConfig, IHttpClientFactory
             var processTask = RunProcess(processName, arguments);
             var waitedTask = await Task.WhenAny(processTask, GetCancellationTask(token));
             var processOutput = waitedTask == processTask ? processTask.Result : null;
-                
+
             checkRouteResult = checkRouteResult with { ResponseResult = $"{processOutput}", Elapsed = stopwatch.Elapsed };
         }
         catch (Exception ex)
         {
             checkRouteResult = checkRouteResult with { ResponseResult = $"\"{ex.Message}\" {(ex.InnerException?.Message != null && ex.InnerException?.Message != ex.Message ? $"\"{ex.InnerException?.Message}\"" : null)}", Elapsed = stopwatch.Elapsed };
         }
-        
+
         stopwatch.Stop();
         logger.Information("Completed checking {ProcessName} for {Url} with result {Result}", processName, arguments, checkRouteResult.ResponseResult);
-        
+
         return checkRouteResult;
     }
 
@@ -114,7 +114,7 @@ public class CheckRoutes(HealthCheckConfig healthCheckConfig, IHttpClientFactory
             UseShellExecute = false,
             CreateNoWindow = true
         });
-        
+
         using var outputReader = process?.StandardOutput;
         var readToEnd = outputReader?.ReadToEnd();
         return Task.FromResult($"{readToEnd}".Replace("\r\n", "\n").Replace("\n\n", "\n").Trim(' ', '\n'));

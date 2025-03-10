@@ -7,7 +7,7 @@ public record HealthCheckConfig
 }
 
 public record HealthCheckUrl
-{    
+{
     public required bool Disabled { get; init; }
     public required string Method { get; init; }
     public required string Url { get; init; }
@@ -15,7 +15,7 @@ public record HealthCheckUrl
 }
 
 public record CheckRouteUrl
-{    
+{
     public required string Name { get; init; }
     public required bool Disabled { get; init; }
     public required string CheckType { get; init; }

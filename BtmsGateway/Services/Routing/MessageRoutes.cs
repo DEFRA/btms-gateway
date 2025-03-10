@@ -30,7 +30,7 @@ public class MessageRoutes : IMessageRoutes
             throw;
         }
     }
-   
+
     [SuppressMessage("SonarLint", "S3358", Justification = "The second nested ternary in each case (lines 55, 56, 68, 69) is within a string interpolation so is very clearly independent of the first")]
     public RoutingResult GetRoute(string routePath)
     {
@@ -55,7 +55,7 @@ public class MessageRoutes : IMessageRoutes
                         FullForkLink = route.BtmsLinkType == LinkType.None ? null : $"{route.BtmsLink}{(route.BtmsLinkType == LinkType.Url ? routePath : null)}",
                         RouteHostHeader = route.LegacyHostHeader,
                         ForkHostHeader = route.BtmsHostHeader,
-                        MessageBodyDepth = route.MessageBodyDepth, 
+                        MessageBodyDepth = route.MessageBodyDepth,
                         ConvertForkedContentToFromJson = true,
                         UrlPath = routePath
                     },
@@ -69,7 +69,7 @@ public class MessageRoutes : IMessageRoutes
                         FullForkLink = route.LegacyLinkType == LinkType.None ? null : $"{route.LegacyLink}{(route.LegacyLinkType == LinkType.Url ? routePath : null)}",
                         RouteHostHeader = route.BtmsHostHeader,
                         ForkHostHeader = route.LegacyHostHeader,
-                        MessageBodyDepth = route.MessageBodyDepth, 
+                        MessageBodyDepth = route.MessageBodyDepth,
                         ConvertRoutedContentToFromJson = true,
                         UrlPath = routePath
                     },

@@ -27,7 +27,7 @@ public class MessageRoutesTests
         route.ConvertForkedContentToFromJson.Should().BeTrue();
         route.UrlPath.Should().Be("/route/path-1/sub/path");
     }
-    
+
     [Fact]
     public void When_routing_route_2_Then_should_route_correctly()
     {
@@ -48,7 +48,7 @@ public class MessageRoutesTests
         route.ConvertForkedContentToFromJson.Should().BeFalse();
         route.UrlPath.Should().Be("/route/path-2/sub/path");
     }
-    
+
     [Fact]
     public void When_routing_route_3_Then_should_route_correctly()
     {
@@ -69,7 +69,7 @@ public class MessageRoutesTests
         route.ConvertForkedContentToFromJson.Should().BeTrue();
         route.UrlPath.Should().Be("/route/path-3/sub/path");
     }
-   
+
     [Fact]
     public void When_routing_route_4_Then_should_route_correctly()
     {
@@ -90,7 +90,7 @@ public class MessageRoutesTests
         route.ConvertForkedContentToFromJson.Should().BeFalse();
         route.UrlPath.Should().Be("/route/path-4/sub/path");
     }
-    
+
     [Fact]
     public void When_routing_unrecognised_route_Then_should_fail()
     {

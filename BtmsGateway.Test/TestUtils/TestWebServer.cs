@@ -1,11 +1,15 @@
+using Amazon.Extensions.NETCore.Setup;
+using Amazon.Runtime;
 using BtmsGateway.Config;
 using BtmsGateway.Middleware;
 using BtmsGateway.Services.Checking;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using NSubstitute;
+using Environment = System.Environment;
 
 [assembly: CollectionBehavior(DisableTestParallelization = true)]
 
@@ -14,7 +18,7 @@ namespace BtmsGateway.Test.TestUtils;
 public class TestWebServer : IAsyncDisposable
 {
     private static int _portNumber = 5100;
-    
+
     private readonly WebApplication _app;
 
     public TestHttpHandler RoutedHttpHandler { get; }
@@ -31,10 +35,15 @@ public class TestWebServer : IAsyncDisposable
         HttpServiceClient = new HttpClient { BaseAddress = new Uri(url) };
 
         var builder = WebApplication.CreateBuilder();
+        builder.Configuration.AddJsonFile(Path.Combine("EndToEnd", "Settings", "localstack.json"));
         builder.WebHost.UseUrls(url);
         builder.AddServices(Substitute.For<Serilog.ILogger>());
         foreach (var testService in testServices) builder.Services.Replace(testService);
         builder.Services.AddHealthChecks();
+
+        var options = builder.Configuration.GetAWSOptions();
+        options.Credentials = new BasicAWSCredentials(builder.Configuration["AWS_ACCESS_KEY_ID"], builder.Configuration["AWS_SECRET_ACCESS_KEY"]);
+        builder.Services.Replace(new ServiceDescriptor(typeof(AWSOptions), options));
 
         RoutedHttpHandler = new TestHttpHandler();
         ConfigureServices.HttpRoutedClientWithRetryBuilder?.AddHttpMessageHandler(() => RoutedHttpHandler);
@@ -44,9 +53,9 @@ public class TestWebServer : IAsyncDisposable
         var app = builder.Build();
 
         app.UseMiddleware<RoutingInterceptor>();
-   
+
         app.MapHealthChecks("/health");
-        
+
         app.UseCheckRoutesEndpoints();
 
         _app = app;

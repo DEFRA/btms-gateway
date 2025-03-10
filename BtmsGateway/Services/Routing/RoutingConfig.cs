@@ -10,7 +10,7 @@ public record RoutingConfig
             nr.Value.RoutePath, nr.Value.MessageBodyDepth, nr.Value.SendLegacyResponseToBtms, nr.Value.RouteTo });
         var btms = NamedRoutes.Join(NamedLinks, nr => nr.Value.BtmsLinkName, nl => nl.Key, (nr, nl) => new { Name = nr.Key, nl.Value.Link, nl.Value.LinkType, nl.Value.HostHeader,
             nr.Value.RoutePath, nr.Value.MessageBodyDepth, nr.Value.SendLegacyResponseToBtms, nr.Value.RouteTo });
-        return legacy.Join(btms, l => l.Name, b => b.Name, (l, b) => new RoutedLink
+        var output = legacy.Join(btms, l => l.Name, b => b.Name, (l, b) => new RoutedLink
             {
                 Name = l.Name, 
                 LegacyLink = l.Link.TrimEnd('/'), LegacyLinkType = l.LinkType, LegacyHostHeader = l.HostHeader, 
@@ -18,6 +18,8 @@ public record RoutingConfig
                 RoutePath = l.RoutePath.Trim('/'), MessageBodyDepth = l.MessageBodyDepth, SendLegacyResponseToBtms = b.SendLegacyResponseToBtms, RouteTo = b.RouteTo
             })
             .ToArray();
+        
+        return output;
     }
 
     public required Dictionary<string, NamedRoute> NamedRoutes { get; init; } = [];

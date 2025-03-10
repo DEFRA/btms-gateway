@@ -38,7 +38,7 @@ static void BuildWebApplication(WebApplicationBuilder builder)
 
     ConfigureTelemetry(builder);
     var logger = ConfigureLogging(builder);
-
+    
     builder.Services.AddCustomTrustStore(logger);
     builder.AddCustomHealthChecks(healthCheckConfig);
     builder.AddServices(logger);

@@ -3,6 +3,7 @@ using System.Net.Mime;
 using System.Text;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
+using Amazon.SimpleNotificationService.Model;
 using BtmsGateway.Services.Checking;
 using BtmsGateway.Services.Converter;
 using BtmsGateway.Services.Routing;
@@ -120,6 +121,35 @@ public class MessageData
         }
     }
 
+    public PublishRequest CreatePublishRequest(string? routeArn, int messageBodyDepth)
+    {
+        string content = string.Empty;
+        
+        if (OriginalContentType is MediaTypeNames.Application.Xml or MediaTypeNames.Application.Soap or MediaTypeNames.Text.Xml)
+        {
+            content = string.IsNullOrWhiteSpace(OriginalContentAsString)
+                ? string.Empty
+                : SoapToJsonConverter.Convert(OriginalContentAsString, messageBodyDepth);
+        }
+        
+        if (OriginalContentType is MediaTypeNames.Application.Json)
+        {
+            content = string.IsNullOrWhiteSpace(OriginalContentAsString)
+                ? string.Empty
+                : OriginalContentAsString;
+        }
+        
+        var request = new PublishRequest
+        {
+            MessageGroupId = "ThisShouldn'tBeMandatory",
+            MessageDeduplicationId = Guid.NewGuid().ToString("D"),
+            Message = content,
+            TopicArn = routeArn
+        };
+
+        return request;
+    }
+    
     public async Task PopulateResponse(HttpResponse response, RoutingResult routingResult)
     {
         try

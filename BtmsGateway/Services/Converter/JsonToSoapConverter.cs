@@ -15,7 +15,7 @@ public static class JsonToSoapConverter
 
         return soapDocument.ToStringWithDeclaration();
     }
-    
+
     private static XElement AddSoapEnvelope(XElement rootElement, SoapType soapType)
     {
         return soapType switch
@@ -81,7 +81,7 @@ public static class JsonToSoapConverter
     private static XElement AddNamespace(XElement element, XNamespace rootNs)
     {
         element.Name = rootNs + element.Name.LocalName;
-        foreach (var child in element.Elements()) 
+        foreach (var child in element.Elements())
             AddNamespace(child, rootNs);
 
         return element;

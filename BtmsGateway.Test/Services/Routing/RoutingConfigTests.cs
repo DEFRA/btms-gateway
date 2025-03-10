@@ -21,7 +21,7 @@ public class RoutingConfigTests
         route.SendLegacyResponseToBtms.Should().BeTrue();
         route.RouteTo.Should().Be(RouteTo.Legacy);
     }
-    
+
     [Fact]
     public void When_getting_route_2_Then_should_retrieve_routed_links()
     {
@@ -38,7 +38,7 @@ public class RoutingConfigTests
         route.SendLegacyResponseToBtms.Should().BeTrue();
         route.RouteTo.Should().Be(RouteTo.Btms);
     }
-    
+
     [Fact]
     public void When_getting_route_3_Then_should_retrieve_routed_links()
     {

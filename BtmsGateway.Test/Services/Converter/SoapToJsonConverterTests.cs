@@ -7,7 +7,7 @@ namespace BtmsGateway.Test.Services.Converter;
 public class SoapToJsonConverterTests
 {
     private static readonly string TestDataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Services", "Converter", "Fixtures");
-    
+
     [Theory]
     [InlineData("ClearanceRequestSoap.xml", 1, "ClearanceRequest.json")]
     [InlineData("ClearanceRequestSoapForIpaffs.xml", 2, "ClearanceRequest.json")]

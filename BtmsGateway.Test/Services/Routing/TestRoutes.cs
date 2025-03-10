@@ -22,7 +22,7 @@ public static class TestRoutes
             { "none", new NamedLink { Link = "none", LinkType = LinkType.None, HostHeader = null } },
         }
     };
-    
+
     public static readonly RoutingConfig InvalidUrlConfig = new()
     {
         NamedRoutes = new Dictionary<string, NamedRoute>
@@ -34,7 +34,7 @@ public static class TestRoutes
             { "link_name_1", new NamedLink { Link = "link-url", LinkType = LinkType.Url } }
         }
     };
-    
+
     public static readonly RoutingConfig InvalidRouteToConfig = new()
     {
         NamedRoutes = new Dictionary<string, NamedRoute>
@@ -46,7 +46,7 @@ public static class TestRoutes
             { "link_name_1", new NamedLink { Link = "http://link-url", LinkType = LinkType.Url } }
         }
     };
-    
+
     public static readonly RoutingConfig InvalidLinkTypeConfig = new()
     {
         NamedRoutes = new Dictionary<string, NamedRoute>

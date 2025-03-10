@@ -8,7 +8,7 @@ namespace BtmsGateway.Test.Services.Routing;
 
 public static class TestHelpers
 {
-    
+
     public static async Task<(MessageData Message, RoutingResult Routing)> CreateMessageData(
         ILogger logger, bool jsonContent = true)
     {
@@ -25,12 +25,12 @@ public static class TestHelpers
         string jsonString = "{ \"test\": \"test\" }";
         var contentStream = new MemoryStream(Encoding.UTF8.GetBytes(jsonContent ? jsonString : xml));
         var contentType = jsonContent ? "application/json" : "application/xml";
-        
+
         httpContext.Request.Method = "POST";
         httpContext.Request.Path = new PathString(string.Empty);
         httpContext.Request.ContentType = contentType;
         httpContext.Request.Body = contentStream;
-        
+
         var msgData = await MessageData.Create(httpContext.Request, logger);
         var routing = new RoutingResult()
         {
@@ -38,7 +38,7 @@ public static class TestHelpers
             FullRouteLink = path,
             ConvertRoutedContentToFromJson = !jsonContent,
         };
-        
+
         return (msgData, routing);
     }
 }

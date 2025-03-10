@@ -1,0 +1,10 @@
+FROM localstack/localstack:latest
+
+WORKDIR "/"
+
+EXPOSE 4566
+EXPOSE 4510-4559
+
+COPY ./compose/start-localstack.sh /etc/localstack/init/ready.d/
+RUN chmod +x /etc/localstack/init/ready.d/start-localstack.sh
+

@@ -7,7 +7,7 @@ namespace BtmsGateway.Test.Services.Converter;
 public class JsonToSoapConverterTests
 {
     private static readonly string TestDataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Services", "Converter", "Fixtures");
-    
+
     [Theory]
     [InlineData("ClearanceRequestSoap.xml", "ALVSClearanceRequest", SoapType.Cds, "ClearanceRequest.json")]
     [InlineData("ClearanceRequestSoapForIpaffs.xml", "ALVSClearanceRequest", SoapType.AlvsToIpaffs, "ClearanceRequest.json")]
@@ -16,7 +16,7 @@ public class JsonToSoapConverterTests
     {
         var json = File.ReadAllText(Path.Combine(TestDataPath, jsonFileName));
         var soap = File.ReadAllText(Path.Combine(TestDataPath, soapFileName)).LinuxLineEndings();
-        
+
         JsonToSoapConverter.Convert(json, rootName, soapType).LinuxLineEndings().Should().Be(soap);
     }
 }

@@ -6,15 +6,15 @@ public class XmlToJsonTestData : TheoryData<string, string, string>
 {
     public XmlToJsonTestData()
     {
-      Add("Simple self-closing tag", XmlSimpleSelfClosing, JsonSimpleNull.LinuxLineEndings());
-      Add("Simple self-closing tag w/ space", XmlSimpleSelfClosingWithSpace, JsonSimpleNull.LinuxLineEndings());
-      Add("Simple empty tag", XmlSimpleEmpty, JsonSimpleEmpty.LinuxLineEndings());
-      Add("Simple content tag", XmlSimpleContent, JsonSimpleContent.LinuxLineEndings());
-      Add("Complex single level", XmlComplexSingleLevel, JsonComplexSingleLevel.LinuxLineEndings());
-      Add("Complex multi level", XmlComplexMultiLevel, JsonComplexMultiLevel.LinuxLineEndings());
-      Add("Complex multi level w/ Items", XmlComplexMultiLevelWithItems, JsonComplexMultiLevelWithItems.LinuxLineEndings());
-      Add("Complex multi level w/ single item Items", XmlComplexMultiLevelWithSingleItemItems, JsonComplexMultiLevelWithSingleItemItems.LinuxLineEndings());
-      Add("Complex multi level SOAP", XmlComplexMultiLevelWithNamespace, JsonComplexMultiLevel.LinuxLineEndings());
+        Add("Simple self-closing tag", XmlSimpleSelfClosing, JsonSimpleNull.LinuxLineEndings());
+        Add("Simple self-closing tag w/ space", XmlSimpleSelfClosingWithSpace, JsonSimpleNull.LinuxLineEndings());
+        Add("Simple empty tag", XmlSimpleEmpty, JsonSimpleEmpty.LinuxLineEndings());
+        Add("Simple content tag", XmlSimpleContent, JsonSimpleContent.LinuxLineEndings());
+        Add("Complex single level", XmlComplexSingleLevel, JsonComplexSingleLevel.LinuxLineEndings());
+        Add("Complex multi level", XmlComplexMultiLevel, JsonComplexMultiLevel.LinuxLineEndings());
+        Add("Complex multi level w/ Items", XmlComplexMultiLevelWithItems, JsonComplexMultiLevelWithItems.LinuxLineEndings());
+        Add("Complex multi level w/ single item Items", XmlComplexMultiLevelWithSingleItemItems, JsonComplexMultiLevelWithSingleItemItems.LinuxLineEndings());
+        Add("Complex multi level SOAP", XmlComplexMultiLevelWithNamespace, JsonComplexMultiLevel.LinuxLineEndings());
     }
 
     private const string XmlSimpleSelfClosing = "<Root/>";

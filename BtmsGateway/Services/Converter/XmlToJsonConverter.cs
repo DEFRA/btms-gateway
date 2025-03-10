@@ -48,7 +48,7 @@ public static class XmlToJsonConverter
                 {
                     parent[elementName] = childObject;
                 }
-                
+
                 ConvertElementToDictionary(child, ref childObject);
             }
             else

@@ -38,7 +38,7 @@ static void BuildWebApplication(WebApplicationBuilder builder)
 
     ConfigureTelemetry(builder);
     var logger = ConfigureLogging(builder);
-    
+
     builder.Services.AddCustomTrustStore(logger);
     builder.AddCustomHealthChecks(healthCheckConfig);
     builder.AddServices(logger);
@@ -58,7 +58,7 @@ static Logger ConfigureLogging(WebApplicationBuilder builder)
             options.LogsEndpoint = builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"];
             options.ResourceAttributes.Add("service.name", "btms-gateway");
         });
-    
+
     var logger = loggerConfiguration.CreateLogger();
     builder.Logging.AddSerilog(logger);
     logger.Information("Starting application");

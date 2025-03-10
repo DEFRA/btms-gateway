@@ -25,16 +25,16 @@ public static class JsonToXmlConverter
 
     public static XElement ConvertToElement(string json, string rootName)
     {
-            var jsonObject = JsonSerializer.Deserialize<dynamic>(json, Json.SerializerOptions);
-            var rootElement = new XElement(rootName);
-            AddElements(rootElement, jsonObject);
-            return rootElement;
+        var jsonObject = JsonSerializer.Deserialize<dynamic>(json, Json.SerializerOptions);
+        var rootElement = new XElement(rootName);
+        AddElements(rootElement, jsonObject);
+        return rootElement;
     }
-    
+
     private static void AddElements(XElement parentElement, dynamic jsonObject)
     {
         if (jsonObject is not JsonElement jsonElement) return;
-        
+
         switch (jsonElement.ValueKind)
         {
             case JsonValueKind.Object:
@@ -80,7 +80,7 @@ public static class JsonToXmlConverter
             case JsonValueKind.Null:
                 parentElement.Value = "null";
                 break;
-            
+
             case JsonValueKind.Undefined:
                 break;
         }

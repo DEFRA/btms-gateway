@@ -39,17 +39,17 @@ public class Metrics(MetricsHost metricsHost) : IMetrics
             { "status-code", routingResult.StatusCode }
         };
     }
-    
+
     public void RequestRouted(MessageData messageData, RoutingResult routingResult) => metricsHost.RequestRouted.Add(1, CompletedList(messageData, routingResult));
-    
+
     public void RequestForked(MessageData messageData, RoutingResult routingResult) => metricsHost.RequestForked.Add(1, CompletedList(messageData, routingResult));
 
     public void StartTotalRequest() => _totalRequestDuration.Start();
     public void RecordTotalRequest() => metricsHost.TotalRequestDuration.Record(_totalRequestDuration.ElapsedMilliseconds);
-    
+
     public void StartRoutedRequest() => _routedRequestDuration.Start();
     public void RecordRoutedRequest() => metricsHost.RoutedRequestDuration.Record(_routedRequestDuration.ElapsedMilliseconds);
-    
+
     public void StartForkedRequest() => _forkedRequestDuration.Start();
     public void RecordForkedRequest() => metricsHost.ForkedRequestDuration.Record(_forkedRequestDuration.ElapsedMilliseconds);
 

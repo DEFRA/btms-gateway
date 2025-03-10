@@ -22,10 +22,10 @@ public static class ConfigureServices
         HttpRoutedClientWithRetryBuilder = builder.Services.AddHttpProxyRoutedClientWithRetry(logger);
         HttpForkedClientWithRetryBuilder = builder.Services.AddHttpProxyForkedClientWithRetry(logger);
         builder.Services.AddHttpProxyClientWithoutRetry(logger);
-        
+
         builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
         builder.Services.AddAWSService<IAmazonSimpleNotificationService>();
-        
+
         builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
         builder.Services.AddSingleton<IQueueSender, QueueSender>();

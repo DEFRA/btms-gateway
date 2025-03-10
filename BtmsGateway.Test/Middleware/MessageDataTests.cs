@@ -27,7 +27,7 @@ public class MessageDataTests
             }
         }
     };
-    
+
     [Theory]
     [InlineData("/")]
     [InlineData("/cds")]
@@ -41,12 +41,12 @@ public class MessageDataTests
     public async Task When_receiving_a_get_request_that_should_be_processed_Then_it_should_indicate_so(string path)
     {
         _httpContext.Request.Path = new PathString(path);
-        
+
         var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
 
         messageData.ShouldProcessRequest.Should().BeTrue();
     }
-    
+
     [Theory]
     [InlineData("/health")]
     [InlineData("/swagger")]
@@ -54,12 +54,12 @@ public class MessageDataTests
     {
         _httpContext.Request.Method = "POST";
         _httpContext.Request.Path = new PathString(path);
-        
+
         var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
 
         messageData.ShouldProcessRequest.Should().BeTrue();
     }
-    
+
     [Theory]
     [InlineData("/health")]
     [InlineData("/swagger")]
@@ -70,18 +70,18 @@ public class MessageDataTests
     public async Task When_receiving_a_get_request_that_should_not_be_processed_Then_it_should_indicate_so(string path)
     {
         _httpContext.Request.Path = new PathString(path);
-        
+
         var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
 
         messageData.ShouldProcessRequest.Should().BeFalse();
     }
-    
+
     [Fact]
     public async Task When_receiving_a_routable_get_request_without_content_type_or_accept_headers_Then_it_should_break_up_the_request_parts()
     {
         _httpContext.Request.Path = new PathString("/cds/path");
         _httpContext.Request.Query = new QueryCollection(new Dictionary<string, StringValues> { { "a", "b" } });
-        
+
         var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
 
         messageData.HttpString.Should().Be("GET http://localhost:123/cds/path?a=b HTTP/1.1 ");
@@ -99,7 +99,7 @@ public class MessageDataTests
     public async Task When_receiving_a_routable_get_request_with_accept_header_Then_it_should_break_up_the_request_parts()
     {
         _httpContext.Request.Headers.Add(new KeyValuePair<string, StringValues>("Accept", "application/json"));
-        
+
         var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
 
         messageData.OriginalContentType.Should().Be("application/json");
@@ -109,7 +109,7 @@ public class MessageDataTests
     public async Task When_creating_a_routable_get_request_without_host_header_Then_it_should_create_forwarding_request()
     {
         var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
-        
+
         var request = messageData.CreateForwardingRequestAsOriginal("https://localhost:456/cds/path", null);
 
         request.RequestUri!.ToString().Should().Be("https://localhost:456/cds/path");
@@ -120,12 +120,12 @@ public class MessageDataTests
         request.Headers.GetValues(MessageData.CorrelationIdHeaderName).Should().BeEquivalentTo("correlation-id");
         request.Headers.GetValues("X-Custom").Should().BeEquivalentTo("custom");
     }
-    
+
     [Fact]
     public async Task When_creating_a_routable_get_request_with_host_header_Then_it_should_create_forwarding_request()
     {
         var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
-        
+
         var request = messageData.CreateForwardingRequestAsOriginal("https://localhost:456/cds/path", "host-header");
 
         request.Headers.Count().Should().Be(3);
@@ -138,7 +138,7 @@ public class MessageDataTests
         _httpContext.Request.Headers.ContentType = "application/soap+xml";
         _httpContext.Request.Body = new MemoryStream("<root><data>abc</data></root>"u8.ToArray());
         var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
-        
+
         var request = messageData.CreateForwardingRequestAsOriginal("https://localhost:456/cds/path", null);
 
         request.Content.Should().BeNull();
@@ -147,13 +147,13 @@ public class MessageDataTests
         request.Headers.GetValues("X-Custom").Should().BeEquivalentTo("custom");
         request.Headers.GetValues("Accept").Should().BeEquivalentTo("application/soap+xml");
     }
-    
+
     [Fact]
     public async Task When_creating_a_routable_get_request_with_accept_header_Then_it_should_create_forwarding_request()
     {
         _httpContext.Request.Headers.Add(new KeyValuePair<string, StringValues>("Accept", "application/json"));
         var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
-        
+
         var request = messageData.CreateForwardingRequestAsOriginal("https://localhost:456/cds/path", null);
 
         request.Headers.Count().Should().Be(3);
@@ -169,7 +169,7 @@ public class MessageDataTests
         _httpContext.Request.Path = new PathString("/cds/path");
         _httpContext.Request.Headers.ContentType = "application/soap+xml";
         _httpContext.Request.Body = new MemoryStream("<root><data>abc</data></root>"u8.ToArray());
-        
+
         var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
 
         messageData.HttpString.Should().Be("POST http://localhost:123/cds/path HTTP/1.1 application/soap+xml");
@@ -182,7 +182,7 @@ public class MessageDataTests
         messageData.ContentMap.ChedType.Should().Be("");
         messageData.ContentMap.CountryCode.Should().Be("");
     }
-    
+
     [Fact]
     public async Task When_receiving_an_original_routable_post_request_with_mappable_content_Then_it_should_break_up_the_request_parts()
     {
@@ -190,7 +190,7 @@ public class MessageDataTests
         _httpContext.Request.Path = new PathString("/cds/path");
         _httpContext.Request.Headers.ContentType = "application/soap+xml";
         _httpContext.Request.Body = new MemoryStream("<root><ched>CHEDPP</ched><DispatchCountryCode>NI</DispatchCountryCode></root>"u8.ToArray());
-        
+
         var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
 
         messageData.OriginalContentAsString.Should().Be("<root><ched>CHEDPP</ched><DispatchCountryCode>NI</DispatchCountryCode></root>");
@@ -206,7 +206,7 @@ public class MessageDataTests
         _httpContext.Request.Headers.ContentType = "application/soap+xml";
         _httpContext.Request.Body = new MemoryStream("<root><data>abc</data></root>"u8.ToArray());
         var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
-        
+
         var request = messageData.CreateForwardingRequestAsOriginal("https://localhost:456/cds/path", "host-header");
 
         request.RequestUri!.ToString().Should().Be("https://localhost:456/cds/path");
@@ -229,7 +229,7 @@ public class MessageDataTests
         _httpContext.Request.Headers.ContentType = "application/soap+xml";
         _httpContext.Request.Body = new MemoryStream("<Envelope><Body><root><data>abc</data></root></Body></Envelope>"u8.ToArray());
         var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
-        
+
         var request = messageData.CreateConvertedForwardingRequest("https://localhost:456/cds/path", null, 1);
 
         (await request.Content!.ReadAsStringAsync()).LinuxLineEndings().Should().Be("{\n  \"data\": \"abc\"\n}");

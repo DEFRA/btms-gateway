@@ -29,7 +29,7 @@ public class XmlToJsonConverterTests
     public void When_receiving_invalid_xml_Then_should_fail()
     {
         var act = () => XmlToJsonConverter.Convert("<root><not-root>");
-        
+
         act.Should().Throw<ArgumentException>();
     }
 }

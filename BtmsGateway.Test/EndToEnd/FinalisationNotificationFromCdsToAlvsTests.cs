@@ -9,7 +9,7 @@ namespace BtmsGateway.Test.EndToEnd;
 public class FinalisationNotificationFromCdsToAlvsTests : TargetRoutingTestBase
 {
     private const string UrlPath = "/route/path/cds/finalisation-notification";
-    
+
     private readonly string _cdsRequestSoap = File.ReadAllText(Path.Combine(FixturesPath, "CdsToAlvsFinalisationNotification.xml"));
     private readonly string _cdsResponseSoap = File.ReadAllText(Path.Combine(FixturesPath, "AlvsResponse.xml"));
     private readonly string _btmsRequestJson = File.ReadAllText(Path.Combine(FixturesPath, "FinalisationNotification.json")).LinuxLineEndings();

@@ -65,6 +65,83 @@
       "BtmsLinkName": "Btms",
       "SendLegacyResponseToBtms": false,
       "RouteTo": "Btms"
+    },
+    
+    "ALVSDecisionForkToBtmsQueue": {
+      "RoutePath": "/route/path/alvs-btms/decision-fork-queue",
+      "LegacyLinkName": "Cds",
+      "BtmsLinkName": "AlvsDecisionForkQueue",
+      "MessageBodyDepth": 2,
+      "SendLegacyResponseToBtms": false,
+      "RouteTo": "Legacy"
+    },
+    "ALVSDecisionRouteToBtmsQueue": {
+      "RoutePath": "/route/path/alvs-btms/decision-route-queue",
+      "LegacyLinkName": "None",
+      "BtmsLinkName": "AlvsDecisionRouteQueue",
+      "MessageBodyDepth": 2,
+      "SendLegacyResponseToBtms": false,
+      "RouteTo": "Btms"
+    },
+    
+    "ALVSErrorNotificationForkToBtmsQueue": {
+      "RoutePath": "/route/path/alvs-btms/error-fork-queue",
+      "LegacyLinkName": "Cds",
+      "BtmsLinkName": "AlvsErrorForkQueue",
+      "SendLegacyResponseToBtms": false,
+      "RouteTo": "Legacy"
+    },
+    "ALVSErrorNotificationRouteToBtmsQueue": {
+      "RoutePath": "/route/path/alvs-btms/error-route-queue",
+      "LegacyLinkName": "None",
+      "BtmsLinkName": "AlvsErrorRouteQueue",
+      "SendLegacyResponseToBtms": false,
+      "RouteTo": "Btms"
+    },
+
+    "CDSClearanceRequestForkToBtmsQueue": {
+      "RoutePath": "/route/path/cds-btms/clearance-request-fork-queue",
+      "LegacyLinkName": "AlvsCds",
+      "BtmsLinkName": "CustomsClearanceForkQueue",
+      "SendLegacyResponseToBtms": false,
+      "RouteTo": "Legacy"
+    },
+    "CDSClearanceRequestRouteToBtmsQueue": {
+      "RoutePath": "/route/path/cds-btms/clearance-request-route-queue",
+      "LegacyLinkName": "None",
+      "BtmsLinkName": "CustomsClearanceRouteQueue",
+      "SendLegacyResponseToBtms": false,
+      "RouteTo": "Btms"
+    },
+
+    "CDSErrorNotificationForkToBtmsQueue": {
+      "RoutePath": "/route/path/cds-btms/error-fork-queue",
+      "LegacyLinkName": "AlvsCds",
+      "BtmsLinkName": "CustomsErrorForkQueue",
+      "SendLegacyResponseToBtms": false,
+      "RouteTo": "Legacy"
+    },
+    "CDSErrorNotificationRouteToBtmsQueue": {
+      "RoutePath": "/route/path/cds-btms/error-route-queue",
+      "LegacyLinkName": "None",
+      "BtmsLinkName": "CustomsErrorRouteQueue",
+      "SendLegacyResponseToBtms": false,
+      "RouteTo": "Btms"
+    },
+
+    "CDSFinalisationNotificationForkToBtmsQueue": {
+      "RoutePath": "/route/path/cds-btms/finalisation-fork-queue",
+      "LegacyLinkName": "AlvsCds",
+      "BtmsLinkName": "CustomsFinalisationForkQueue",
+      "SendLegacyResponseToBtms": false,
+      "RouteTo": "Legacy"
+    },
+    "CDSFinalisationNotificationRouteToBtmsQueue": {
+      "RoutePath": "/route/path/cds-btms/finalisation-route-queue",
+      "LegacyLinkName": "None",
+      "BtmsLinkName": "CustomsFinalisationRouteQueue",
+      "SendLegacyResponseToBtms": false,
+      "RouteTo": "Btms"
     }
   },
   "NamedLinks": {
@@ -87,6 +164,50 @@
     "Btms": {
       "LinkType": "Url",
       "Link": "http://btms-host/"
+    },
+    "AlvsError": {
+      "LinkType": "Url",
+      "Link": "http://alvs-error-host/"
+    },
+    "AlvsDecisionForkQueue": {
+      "LinkType": "Queue",
+      "Link": "arn:aws:sns:eu-west-2:000000000000:alvs_decision_fork.fifo"
+    },
+    "AlvsDecisionRouteQueue": {
+      "LinkType": "Queue",
+      "Link": "arn:aws:sns:eu-west-2:000000000000:alvs_decision_route.fifo"
+    },
+    "AlvsErrorForkQueue": {
+      "LinkType": "Queue",
+      "Link": "arn:aws:sns:eu-west-2:000000000000:alvs_error_fork.fifo"
+    },
+    "AlvsErrorRouteQueue": {
+      "LinkType": "Queue",
+      "Link": "arn:aws:sns:eu-west-2:000000000000:alvs_error_route.fifo"
+    },
+    "CustomsClearanceForkQueue": {
+      "LinkType": "Queue",
+      "Link": "arn:aws:sns:eu-west-2:000000000000:customs_clearance_fork.fifo"
+    },
+    "CustomsClearanceRouteQueue": {
+      "LinkType": "Queue",
+      "Link": "arn:aws:sns:eu-west-2:000000000000:customs_clearance_route.fifo"
+    },
+    "CustomsErrorForkQueue": {
+      "LinkType": "Queue",
+      "Link": "arn:aws:sns:eu-west-2:000000000000:customs_error_fork.fifo"
+    },
+    "CustomsErrorRouteQueue": {
+      "LinkType": "Queue",
+      "Link": "arn:aws:sns:eu-west-2:000000000000:customs_error_route.fifo"
+    },
+    "CustomsFinalisationForkQueue": {
+      "LinkType": "Queue",
+      "Link": "arn:aws:sns:eu-west-2:000000000000:customs_finalisation_fork.fifo"
+    },
+    "CustomsFinalisationRouteQueue": {
+      "LinkType": "Queue",
+      "Link": "arn:aws:sns:eu-west-2:000000000000:customs_finalisation_route.fifo"
     }
   }
 }

@@ -3,7 +3,7 @@ namespace BtmsGateway.Services.Checking;
 public static class CheckRoutesEndpoints
 {
     public const string Path = "checkroutes";
-    
+
     public static void UseCheckRoutesEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapGet(Path, CheckRoutes).AllowAnonymous();
@@ -17,7 +17,7 @@ public static class CheckRoutesEndpoints
         var results = await checkRoutes.CheckAll();
         return TypedResults.Text(FormatTextResponse(results));
     }
-    
+
     private static async Task<IResult> CheckRoutesAsJson(CheckRoutes checkRoutes)
     {
         var results = await checkRoutes.CheckAll();

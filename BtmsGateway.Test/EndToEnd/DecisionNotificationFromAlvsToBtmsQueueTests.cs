@@ -8,7 +8,7 @@ namespace BtmsGateway.Test.EndToEnd;
 public sealed class DecisionNotificationFromAlvsToBtmsQueueTests : QueueRoutingTestBase
 {
     protected override string ForkQueueName => "alvs_decision_fork.fifo";
-    protected override string RouteQueueName =>"alvs_decision_route.fifo";
+    protected override string RouteQueueName => "alvs_decision_route.fifo";
 
     private const string ForkPath = "/route/path/alvs-btms/decision-fork-queue";
     private const string RoutePath = "/route/path/alvs-btms/decision-route-queue";

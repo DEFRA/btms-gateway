@@ -11,11 +11,11 @@ namespace BtmsGateway.Test.EndToEnd;
 public abstract class QueueRoutingTestBase : TargetRoutingTestBase
 {
     protected abstract string ForkQueueName { get; }
-    protected abstract  string RouteQueueName { get; }
+    protected abstract string RouteQueueName { get; }
 
     private IAmazonSQS SqsClient { get; }
     private IAmazonSimpleNotificationService SnsClient { get; }
-    
+
     protected QueueRoutingTestBase()
     {
         var awsOptions = this.TestWebServer.Services.GetService<AWSOptions>();
@@ -36,7 +36,7 @@ public abstract class QueueRoutingTestBase : TargetRoutingTestBase
                 { "FifoTopic", "true"}
             }
         };
-        
+
         var queueReq = new CreateQueueRequest()
         {
             QueueName = queueName,
@@ -45,13 +45,13 @@ public abstract class QueueRoutingTestBase : TargetRoutingTestBase
                 { "FifoQueue", "true"}
             }
         };
-        
+
         var topicArn = SnsClient.CreateTopicAsync(topicReq).Result.TopicArn;
-        
+
         string queueUrl = SqsClient.CreateQueueAsync(queueReq).Result.QueueUrl;
 
         var queueAttrs = SqsClient.GetQueueAttributesAsync(queueUrl, new List<string> { "QueueArn" }).Result;
-        
+
         var subsReq = new SubscribeRequest()
         {
             TopicArn = topicArn,
@@ -62,13 +62,13 @@ public abstract class QueueRoutingTestBase : TargetRoutingTestBase
                 { "RawMessageDelivery", "true"}
             }
         };
-            
+
         SnsClient.SubscribeAsync(subsReq).Wait();
     }
-    
-    
-    
-    
+
+
+
+
     protected async Task<List<string>> GetMessages(string queueName)
     {
         var queueUrl = (await SqsClient.GetQueueUrlAsync(queueName)).QueueUrl;

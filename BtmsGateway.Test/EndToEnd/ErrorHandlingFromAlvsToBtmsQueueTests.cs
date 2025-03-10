@@ -9,7 +9,7 @@ namespace BtmsGateway.Test.EndToEnd;
 public class ErrorHandlingFromAlvsToBtmsQueueTests : QueueRoutingTestBase
 {
     protected override string ForkQueueName => "alvs_error_fork.fifo";
-    protected override string RouteQueueName =>"alvs_error_route.fifo";
+    protected override string RouteQueueName => "alvs_error_route.fifo";
 
     private const string ForkPath = "/route/path/alvs-btms/error-fork-queue";
     private const string RoutePath = "/route/path/alvs-btms/error-route-queue";

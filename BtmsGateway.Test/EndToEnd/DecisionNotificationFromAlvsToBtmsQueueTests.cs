@@ -7,8 +7,8 @@ namespace BtmsGateway.Test.EndToEnd;
 
 public sealed class DecisionNotificationFromAlvsToBtmsQueueTests : QueueRoutingTestBase
 {
-    private const string ForkQueueName = "alvs_decision_fork.fifo";
-    private const string RouteQueueName = "alvs_decision_route.fifo";
+    protected override string ForkQueueName => "alvs_decision_fork.fifo";
+    protected override string RouteQueueName => "alvs_decision_route.fifo";
 
     private const string ForkPath = "/route/path/alvs-btms/decision-fork-queue";
     private const string RoutePath = "/route/path/alvs-btms/decision-route-queue";
@@ -29,7 +29,7 @@ public sealed class DecisionNotificationFromAlvsToBtmsQueueTests : QueueRoutingT
         var receivedMessages = await GetMessages(ForkQueueName);
         receivedMessages.Should().NotBeEmpty();
         receivedMessages.Should().HaveCount(1);
-        receivedMessages.FirstOrDefault().Should().Be(_btmsRequestJson);
+        receivedMessages.FirstOrDefault().LinuxLineEndings().Should().Be(_btmsRequestJson);
     }
 
     [Fact]
@@ -45,6 +45,6 @@ public sealed class DecisionNotificationFromAlvsToBtmsQueueTests : QueueRoutingT
         var receivedMessages = await GetMessages(RouteQueueName);
         receivedMessages.Should().NotBeEmpty();
         receivedMessages.Should().HaveCount(1);
-        receivedMessages.FirstOrDefault().Should().Be(_btmsRequestJson);
+        receivedMessages.FirstOrDefault().LinuxLineEndings().Should().Be(_btmsRequestJson);
     }
 }

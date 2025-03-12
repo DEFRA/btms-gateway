@@ -26,14 +26,14 @@ jobs:
       - name: Run docker-compose
         uses: hoverkraft-tech/compose-action@v2.0.1
         with:
-          compose-file: "./btms-gateway/compose.yml"
+          compose-file: "./compose.yml"
 
       - name: Make Script Executable
-        run: chmod +x ./btms-gateway/wait-for-docker-logs.sh
+        run: chmod +x ./wait-for-docker-logs.sh
         
       - name: Wait for Localstack
-        run: ./btms-gateway/wait-for-docker-logs.sh sns-sqs-emulator "Ready." 60
-        
+        run: ./wait-for-docker-logs.sh sns-sqs-emulator "Ready." 60
+
       - name: Build and Publish
         uses: DEFRA/cdp-build-action/build@main
         with:

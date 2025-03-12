@@ -9,7 +9,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using NSubstitute;
-using Environment = System.Environment;
 
 [assembly: CollectionBehavior(DisableTestParallelization = true)]
 

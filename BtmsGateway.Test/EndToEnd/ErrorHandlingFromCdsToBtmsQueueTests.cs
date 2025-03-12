@@ -1,4 +1,3 @@
-using System.Net;
 using System.Net.Mime;
 using System.Text;
 using BtmsGateway.Test.TestUtils;
@@ -6,13 +5,10 @@ using FluentAssertions;
 
 namespace BtmsGateway.Test.EndToEnd;
 
-public class ErrorHandlingFromCdsToBtmsQueueTests : QueueRoutingTestBase
+public class ErrorHandlingFromCdsToBtmsQueueTests() : QueueRoutingTestBase("customs_error_route.fifo", "customs_error_fork.fifo")
 {
-    protected override string ForkQueueName => "customs_error_fork.fifo";
-    protected override string RouteQueueName => "customs_error_route.fifo";
-
-    private const string ForkPath = "/route/path/cds-btms/error-fork-queue";
     private const string RoutePath = "/route/path/cds-btms/error-route-queue";
+    private const string ForkPath = "/route/path/cds-btms/error-fork-queue";
 
     private readonly string _cdsRequestSoap = File.ReadAllText(Path.Combine(FixturesPath, "CdsErrorHandling.xml"));
     private readonly string _btmsRequestJson = File.ReadAllText(Path.Combine(FixturesPath, "CdsErrorHandling.json")).LinuxLineEndings();

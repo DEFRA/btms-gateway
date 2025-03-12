@@ -5,13 +5,10 @@ using FluentAssertions;
 
 namespace BtmsGateway.Test.EndToEnd;
 
-public sealed class DecisionNotificationFromAlvsToBtmsQueueTests : QueueRoutingTestBase
+public sealed class DecisionNotificationFromAlvsToBtmsQueueTests() : QueueRoutingTestBase("alvs_decision_route.fifo", "alvs_decision_fork.fifo")
 {
-    protected override string ForkQueueName => "alvs_decision_fork.fifo";
-    protected override string RouteQueueName => "alvs_decision_route.fifo";
-
-    private const string ForkPath = "/route/path/alvs-btms/decision-fork-queue";
     private const string RoutePath = "/route/path/alvs-btms/decision-route-queue";
+    private const string ForkPath = "/route/path/alvs-btms/decision-fork-queue";
 
     private readonly string _alvsRequestSoap = File.ReadAllText(Path.Combine(FixturesPath, "AlvsToCdsDecisionNotification.xml"));
     private readonly string _btmsRequestJson = File.ReadAllText(Path.Combine(FixturesPath, "DecisionNotification.json")).LinuxLineEndings();

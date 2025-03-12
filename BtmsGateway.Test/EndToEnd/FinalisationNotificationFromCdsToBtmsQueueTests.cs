@@ -5,13 +5,10 @@ using FluentAssertions;
 
 namespace BtmsGateway.Test.EndToEnd;
 
-public class FinalisationNotificationFromCdsToBtmsQueueTests : QueueRoutingTestBase
+public class FinalisationNotificationFromCdsToBtmsQueueTests() : QueueRoutingTestBase("customs_finalisation_route.fifo", "customs_finalisation_fork.fifo")
 {
-    protected override string ForkQueueName => "customs_finalisation_fork.fifo";
-    protected override string RouteQueueName => "customs_finalisation_route.fifo";
-
-    private const string ForkPath = "/route/path/cds-btms/finalisation-fork-queue";
     private const string RoutePath = "/route/path/cds-btms/finalisation-route-queue";
+    private const string ForkPath = "/route/path/cds-btms/finalisation-fork-queue";
 
     private readonly string _cdsRequestSoap = File.ReadAllText(Path.Combine(FixturesPath, "CdsToAlvsFinalisationNotification.xml"));
     private readonly string _btmsRequestJson = File.ReadAllText(Path.Combine(FixturesPath, "FinalisationNotification.json")).LinuxLineEndings();

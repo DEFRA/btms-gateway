@@ -3,27 +3,27 @@ using Amazon.Extensions.NETCore.Setup;
 using Amazon.SimpleNotificationService;
 using Amazon.SimpleNotificationService.Model;
 using Amazon.SQS.Model;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BtmsGateway.Test.EndToEnd;
 
 public abstract class QueueRoutingTestBase : TargetRoutingTestBase
 {
-    protected abstract string ForkQueueName { get; }
-    protected abstract string RouteQueueName { get; }
-
+    protected readonly string RouteQueueName;
+    protected readonly string ForkQueueName;
     private IAmazonSQS SqsClient { get; }
     private IAmazonSimpleNotificationService SnsClient { get; }
 
-    protected QueueRoutingTestBase()
+    protected QueueRoutingTestBase(string routeQueueName, string forkQueueName)
     {
+        RouteQueueName = routeQueueName;
+        ForkQueueName = forkQueueName;
         var awsOptions = this.TestWebServer.Services.GetService<AWSOptions>();
-        SqsClient = awsOptions.CreateServiceClient<IAmazonSQS>();
         SnsClient = awsOptions.CreateServiceClient<IAmazonSimpleNotificationService>();
+        SqsClient = awsOptions.CreateServiceClient<IAmazonSQS>();
 
-        SetupQueue(ForkQueueName);
-        SetupQueue(RouteQueueName);
+        SetupQueue(routeQueueName);
+        SetupQueue(forkQueueName);
     }
 
     private void SetupQueue(string queueName)

@@ -10,8 +10,10 @@
     "entryReference": "ALVSCDSTEST00000000688",
     "entryVersionNumber": 2
   },
-  "error": {
-    "errorCode": "HMRCVAL101",
-    "errorMessage": "The EntryReference was not recognised. HMRC is unable to process the decision notification"
-  }
+  "errors": [
+    {
+      "errorCode": "HMRCVAL101",
+      "errorMessage": "The EntryReference was not recognised. HMRC is unable to process the decision notification"
+    }
+  ]
 }

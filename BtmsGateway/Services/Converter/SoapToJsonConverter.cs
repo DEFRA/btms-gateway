@@ -1,3 +1,4 @@
+using System.Web;
 using System.Xml.Linq;
 
 namespace BtmsGateway.Services.Converter;
@@ -6,7 +7,7 @@ public static class SoapToJsonConverter
 {
     public static string Convert(string xml, int messageBodyDepth)
     {
-        var xContainer = ExtractXmlMessage(xml, messageBodyDepth);
+        var xContainer = ExtractXmlMessage(HttpUtility.HtmlDecode(xml), messageBodyDepth);
 
         return XmlToJsonConverter.Convert(xContainer);
     }

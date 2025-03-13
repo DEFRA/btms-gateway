@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Web;
 using System.Xml.Linq;
 
 namespace BtmsGateway.Services.Converter;
@@ -77,7 +78,7 @@ public static class XmlToJsonConverter
     {
         try
         {
-            return XDocument.Parse(xml);
+            return XDocument.Parse(HttpUtility.HtmlDecode(xml));
         }
         catch (Exception ex)
         {

@@ -29,13 +29,6 @@
       "SendLegacyResponseToBtms": false,
       "RouteTo": "Legacy"
     },
-    "ALVSErrorNotificationToCds": {
-      "RoutePath": "/route/path/alvs-cds/error-notification",
-      "LegacyLinkName": "AlvsCds",
-      "BtmsLinkName": "Btms",
-      "SendLegacyResponseToBtms": false,
-      "RouteTo": "Legacy"
-    },
     "ALVSClearanceRequestToIpaffs": {
       "RoutePath": "/route/path/alvs-ipaffs/clearance-request",
       "LegacyLinkName": "AlvsIpaffs",
@@ -66,7 +59,6 @@
       "SendLegacyResponseToBtms": false,
       "RouteTo": "Btms"
     },
-    
     "ALVSDecisionForkToBtmsQueue": {
       "RoutePath": "/route/path/alvs-btms/decision-fork-queue",
       "LegacyLinkName": "Cds",

@@ -12,6 +12,7 @@ public class SoapToJsonConverterTests
     [InlineData("ClearanceRequestSoap.xml", 1, "ClearanceRequest.json")]
     [InlineData("ClearanceRequestSoapForIpaffs.xml", 2, "ClearanceRequest.json")]
     [InlineData("AlvsToCdsDecisionNotification.xml", 2, "DecisionNotification.json")]
+    [InlineData("HmrcErrorNotificationWithHtmlEncoding.xml", 1, "HmrcErrorNotification.json")]
     public void When_receiving_clearance_request_soap_Then_should_convert_to_json(string soapFileName, int messageBodyDepth, string jsonFileName)
     {
         var soap = File.ReadAllText(Path.Combine(TestDataPath, soapFileName));

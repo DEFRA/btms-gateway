@@ -115,7 +115,7 @@ public class XmlToJsonTestData : TheoryData<string, string, string>
                                                                  """;
 
     private const string XmlComplexWithHtmlEncoding = "&lt;Root&gt;&lt;Item&gt;&lt;Tag1&gt;dataA&lt;/Tag1&gt;&lt;EntryVersionNumber&gt;123&lt;/EntryVersionNumber&gt;&lt;/Item&gt;&lt;Item&gt;&lt;Tag1&gt;dataB&lt;/Tag1&gt;&lt;EntryVersionNumber&gt;456&lt;/EntryVersionNumber&gt;&lt;Document&gt;&lt;Tag3&gt;dataC&lt;/Tag3&gt;&lt;Tag4&gt;777&lt;/Tag4&gt;&lt;/Document&gt;&lt;Check&gt;&lt;Tag1&gt;dataD&lt;/Tag1&gt;&lt;EntryVersionNumber&gt;dataE&lt;/EntryVersionNumber&gt;&lt;/Check&gt;&lt;Document&gt;&lt;Tag3&gt;dataD&lt;/Tag3&gt;&lt;Tag4&gt;888&lt;/Tag4&gt;&lt;/Document&gt;&lt;/Item&gt;&lt;/Root&gt;";
-    
+
     private const string JsonSimpleNull = """
                                           {
                                             "root": null

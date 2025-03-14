@@ -8,7 +8,7 @@ public class NetworkHealthCheck(string name, HealthCheckUrl healthCheckUrl, IHtt
 {
     public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = new())
     {
-        var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         cts.CancelAfter(ConfigureHealthChecks.Timeout);
 
         var client = httpClientFactory.CreateClient(Proxy.RoutedClientWithRetry);

@@ -22,7 +22,7 @@ public class QueueHealthCheck : IHealthCheck
 
     public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = new())
     {
-        var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         cts.CancelAfter(ConfigureHealthChecks.Timeout);
 
         Exception? exception = null;
@@ -60,7 +60,7 @@ public class QueueHealthCheck : IHealthCheck
         
         return new HealthCheckResult(
             status: healthStatus, 
-            description: $"Queue route: {string.Join(' ', Regex.Matches(_name, "[A-Z][a-z]+"))}",
+            description: $"Queue route: {string.Join(' ', Regex.Matches(_name, "[A-Z][a-z]+", RegexOptions.None, TimeSpan.FromMilliseconds(200)))}",
             exception: exception,
             data: data);
     }

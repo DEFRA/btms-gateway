@@ -5,11 +5,8 @@ using FluentAssertions;
 
 namespace BtmsGateway.Test.EndToEnd;
 
-public sealed class ClearanceRequestFromCdsToBtmsQueueTests : QueueRoutingTestBase
+public sealed class ClearanceRequestFromCdsToBtmsQueueTests() : QueueRoutingTestBase("customs_clearance_fork.fifo", "customs_clearance_route.fifo")
 {
-    protected override string ForkQueueName => "customs_clearance_fork.fifo";
-    protected override string RouteQueueName => "customs_clearance_route.fifo";
-
     private const string ForkPath = "/route/path/cds-btms/clearance-request-fork-queue";
     private const string RoutePath = "/route/path/cds-btms/clearance-request-route-queue";
 

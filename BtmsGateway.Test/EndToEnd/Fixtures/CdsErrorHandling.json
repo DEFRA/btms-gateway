@@ -2,18 +2,26 @@
   "serviceHeader": {
     "sourceSystem": "ALVS",
     "destinationSystem": "CDS",
-    "correlationId": "000",
-    "serviceCallTimestamp": "2023-05-26T10:11:48.629812"
+    "correlationId": "12585355",
+    "serviceCallTimestamp": "2025-03-10T15:43:48.031"
   },
   "header": {
     "sourceCorrelationId": "101",
-    "entryReference": "23GB5RQJ3MLPIM6AR8",
+    "entryReference": "25GB2Q3M9H9K5MSAR8",
     "entryVersionNumber": 1
   },
   "errors": [
     {
-      "errorCode": "ALVSVAL325",
-      "errorMessage": "The Import Declaration was processed as a New Import Declaration. However the DUCR 3GB00-CDS-ALVST2R08 and no Part Number for Owning Department 100 (NB Code 100=HMRC. If any other code, please contact the ALVS support team at IBM) is already known to ALVS as a currently active DUCR / Part Number. Your service request with Correlation ID 238605 has been terminated."
+      "errorCode": "ALVSVAL312",
+      "errorMessage": "The DocumentControl field (Ex-Heading flag) must be Y or N. Value supplied was null. Your service request with Correlation ID 341735 has been terminated."
+    },
+    {
+      "errorCode": "ALVSVAL318",
+      "errorMessage": "Item 1 has no Item Document defined for it. ALVS requires at least 1 Item Document. Your service request with Correlation ID 341735 has been terminated."
+    },
+    {
+      "errorCode": "ALVSVAL321",
+      "errorMessage": "The Item Check for the PHA-POAO Authority is invalid as there are no Item Documents provided for that Authority on ItemNumber 1. Your service request with Correlation ID 341735 has been terminated."
     }
   ]
 }

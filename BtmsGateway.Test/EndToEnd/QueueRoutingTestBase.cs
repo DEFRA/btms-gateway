@@ -3,7 +3,6 @@ using Amazon.Extensions.NETCore.Setup;
 using Amazon.SimpleNotificationService;
 using Amazon.SimpleNotificationService.Model;
 using Amazon.SQS.Model;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BtmsGateway.Test.EndToEnd;
@@ -11,29 +10,30 @@ namespace BtmsGateway.Test.EndToEnd;
 [Trait("Dependence", "localstack")]
 public abstract class QueueRoutingTestBase : TargetRoutingTestBase, IDisposable
 {
-    protected abstract string ForkQueueName { get; }
-    protected abstract string RouteQueueName { get; }
-
+    protected readonly string ForkQueueName;
+    protected readonly string RouteQueueName;
     private IAmazonSQS SqsClient { get; }
     private IAmazonSimpleNotificationService SnsClient { get; }
 
-    private string forkTopicArn;
-    private string routeTopicArn;
+    private readonly string forkTopicArn;
+    private readonly string routeTopicArn;
 
-    private string forkQueueUrl;
-    private string routeQueueUrl;
+    private readonly string forkQueueUrl;
+    private readonly string routeQueueUrl;
 
-    private string forkSubscriptionArn;
-    private string routeSubscriptionArn;
+    private readonly string forkSubscriptionArn;
+    private readonly string routeSubscriptionArn;
 
-    protected QueueRoutingTestBase()
+    protected QueueRoutingTestBase(string forkQueueName, string routeQueueName)
     {
-        var awsOptions = this.TestWebServer.Services.GetService<AWSOptions>();
+        ForkQueueName = forkQueueName;
+        RouteQueueName = routeQueueName;
+        var awsOptions = TestWebServer.Services.GetService<AWSOptions>();
         SqsClient = awsOptions.CreateServiceClient<IAmazonSQS>();
         SnsClient = awsOptions.CreateServiceClient<IAmazonSimpleNotificationService>();
 
-        var forkDeets = SetupQueue(ForkQueueName);
-        var routeDeets = SetupQueue(RouteQueueName);
+        var forkDeets = SetupQueue(forkQueueName);
+        var routeDeets = SetupQueue(routeQueueName);
 
         forkTopicArn = forkDeets.TopicArn;
         forkQueueUrl = forkDeets.QueueUrl;

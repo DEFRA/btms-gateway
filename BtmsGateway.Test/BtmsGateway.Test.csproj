@@ -46,6 +46,15 @@
     <None Update="Services\Converter\Fixtures\**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Services\Converter\Fixtures\AlvsErrorNotification.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Services\Converter\Fixtures\AlvsErrorNotification.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Services\Converter\Fixtures\HmrcErrorNotification.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   
 </Project>

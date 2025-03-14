@@ -12,7 +12,8 @@ public record HealthCheckUrl
     public required bool Disabled { get; init; }
     public required string Method { get; init; }
     public required string Url { get; init; }
-    public required string? HostHeader { get; init; }
+    public string? HostHeader { get; init; }
+    public string? PostData { get; init; }
     public required bool IncludeInAutomatedHealthCheck { get; init; }
 }
 
@@ -23,6 +24,7 @@ public record CheckRouteUrl
     public required string CheckType { get; init; }
     public required string Method { get; init; }
     public string? HostHeader { get; init; }
+    public string? PostData { get; init; }
     public required string Url { get; init; }
     public Uri Uri => new(Url);
 }

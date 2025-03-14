@@ -16,6 +16,7 @@ public class RouteHealthCheck(string name, HealthCheckUrl healthCheckUrl, IHttpC
         var client = httpClientFactory.CreateClient(Proxy.RoutedClientWithRetry);
         var request = new HttpRequestMessage(HttpMethod.Parse(healthCheckUrl.Method), healthCheckUrl.Url);
         if (healthCheckUrl.HostHeader != null) request.Headers.TryAddWithoutValidation("host", healthCheckUrl.HostHeader);
+        if (healthCheckUrl.PostData != null) request.Content = new StreamContent(new FileStream(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Services", "Fixtures", healthCheckUrl.PostData), FileMode.Open, FileAccess.Read, FileShare.Read));
 
         HttpResponseMessage? response = null;
         string? content = null;

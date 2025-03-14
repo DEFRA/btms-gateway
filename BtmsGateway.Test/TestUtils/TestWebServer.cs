@@ -16,7 +16,7 @@ namespace BtmsGateway.Test.TestUtils;
 public class TestWebServer : IAsyncDisposable
 {
     private static int _portNumber = 5100;
-    
+
     private readonly WebApplication _app;
 
     public TestHttpHandler RoutedHttpHandler { get; }
@@ -48,9 +48,9 @@ public class TestWebServer : IAsyncDisposable
         var app = builder.Build();
 
         app.UseMiddleware<RoutingInterceptor>();
-   
+
         app.MapHealthChecks("/health");
-        
+
         app.UseCheckRoutesEndpoints();
 
         _app = app;

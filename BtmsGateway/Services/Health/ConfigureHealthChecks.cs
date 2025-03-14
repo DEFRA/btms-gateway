@@ -36,7 +36,7 @@ public static class ConfigureHealthChecks
     private static void AddQueueChecks(this IHealthChecksBuilder builder, RoutingConfig? routingConfig)
     {
         if (routingConfig == null || routingConfig.AutomatedHealthCheckDisabled) return;
-    
+
         foreach (var queues in routingConfig.NamedLinks.Where(x => x.Value.LinkType == LinkType.Queue))
         {
             builder.AddTypeActivatedCheck<QueueHealthCheck>(queues.Key, failureStatus: HealthStatus.Unhealthy, args: [queues.Key, queues.Value.Link]);
@@ -50,7 +50,7 @@ public static class ConfigureHealthChecks
             ResponseWriter = (context, healthReport) =>
             {
                 context.Response.ContentType = "application/json; charset=utf-8";
-                return context.Response.WriteAsync(HealthCheckWriter.WriteHealthStatusAsJson(healthReport, excludeHealthy:false, indented:true));
+                return context.Response.WriteAsync(HealthCheckWriter.WriteHealthStatusAsJson(healthReport, excludeHealthy: false, indented: true));
             }
         });
     }

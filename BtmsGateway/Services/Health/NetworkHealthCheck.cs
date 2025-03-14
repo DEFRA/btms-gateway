@@ -48,9 +48,9 @@ public class NetworkHealthCheck(string name, HealthCheckUrl healthCheckUrl, IHtt
             healthStatus = HealthStatus.Unhealthy;
             data.Add("error", $"{exception.Message} - {exception.InnerException?.Message}");
         }
-        
+
         return new HealthCheckResult(
-            status: healthStatus, 
+            status: healthStatus,
             description: $"Network route: {name.Replace('_', ' ')}",
             exception: exception,
             data: data);

@@ -51,15 +51,15 @@ public class QueueHealthCheck : IHealthCheck
             { "approximate-number-of-messages-not-visible", attributes.ApproximateNumberOfMessagesNotVisible },
             { "content-length", attributes.ContentLength }
         };
-        
+
         if (exception != null)
         {
             healthStatus = HealthStatus.Unhealthy;
             data.Add("error", $"{exception.Message} - {exception.InnerException?.Message}");
         }
-        
+
         return new HealthCheckResult(
-            status: healthStatus, 
+            status: healthStatus,
             description: $"Queue route: {string.Join(' ', Regex.Matches(_name, "[A-Z][a-z]+", RegexOptions.None, TimeSpan.FromMilliseconds(200)))}",
             exception: exception,
             data: data);

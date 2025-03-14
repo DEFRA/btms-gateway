@@ -24,7 +24,7 @@ public class TestHttpHandler : DelegatingHandler
     protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         if (_exceptionToThrow != null) throw _exceptionToThrow;
-        
+
         LastRequest = request;
         LastResponse = new HttpResponseMessage
         {

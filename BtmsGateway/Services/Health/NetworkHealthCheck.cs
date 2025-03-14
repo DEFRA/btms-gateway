@@ -4,14 +4,12 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace BtmsGateway.Services.Health;
 
-public class RouteHealthCheck(string name, HealthCheckUrl healthCheckUrl, IHttpClientFactory httpClientFactory) : IHealthCheck
+public class NetworkHealthCheck(string name, HealthCheckUrl healthCheckUrl, IHttpClientFactory httpClientFactory) : IHealthCheck
 {
-    private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(10);
-
     public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = new())
     {
         var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        cts.CancelAfter(Timeout);
+        cts.CancelAfter(ConfigureHealthChecks.Timeout);
 
         var client = httpClientFactory.CreateClient(Proxy.RoutedClientWithRetry);
         var request = new HttpRequestMessage(HttpMethod.Parse(healthCheckUrl.Method), healthCheckUrl.Url);
@@ -28,7 +26,7 @@ public class RouteHealthCheck(string name, HealthCheckUrl healthCheckUrl, IHttpC
         }
         catch (TaskCanceledException)
         {
-            exception = new TimeoutException($"The network check cas cancelled, probably because it timed out after {Timeout.TotalSeconds} seconds");
+            exception = new TimeoutException($"The network check cas cancelled, probably because it timed out after {ConfigureHealthChecks.Timeout.TotalSeconds} seconds");
         }
         catch (Exception ex)
         {
@@ -53,7 +51,7 @@ public class RouteHealthCheck(string name, HealthCheckUrl healthCheckUrl, IHttpC
         
         return new HealthCheckResult(
             status: healthStatus, 
-            description: $"Route to {name.Replace('_', ' ')}",
+            description: $"Network route: {name.Replace('_', ' ')}",
             exception: exception,
             data: data);
     }

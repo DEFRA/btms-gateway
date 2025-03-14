@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Amazon.SimpleNotificationService;
+using Amazon.SQS;
 using BtmsGateway.Services.Checking;
 using BtmsGateway.Services.Routing;
 using BtmsGateway.Utils;
@@ -25,6 +26,7 @@ public static class ConfigureServices
 
         builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
         builder.Services.AddAWSService<IAmazonSimpleNotificationService>();
+        builder.Services.AddAWSService<AmazonSQSClient>();
 
         builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 

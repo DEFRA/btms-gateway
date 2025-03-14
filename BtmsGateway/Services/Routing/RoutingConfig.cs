@@ -2,6 +2,8 @@ namespace BtmsGateway.Services.Routing;
 
 public record RoutingConfig
 {
+    public bool AutomatedHealthCheckDisabled { get; set; }
+    
     public RoutedLink[] AllRoutes => GetAllRoutes();
 
     private RoutedLink[] GetAllRoutes()

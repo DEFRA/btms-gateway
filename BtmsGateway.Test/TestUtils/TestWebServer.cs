@@ -3,7 +3,6 @@ using BtmsGateway.Middleware;
 using BtmsGateway.Services.Checking;
 using BtmsGateway.Services.Routing;
 using BtmsGateway.Utils;
-using BtmsGatewayStub.Utils;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;

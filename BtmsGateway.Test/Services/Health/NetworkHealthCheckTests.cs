@@ -9,7 +9,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace BtmsGateway.Test.Services.Health;
 
-public class RouteHealthCheckTests
+public class NetworkHealthCheckTests
 {
     [Theory]
     [InlineData(HttpStatusCode.OK, HealthStatus.Healthy)]
@@ -73,12 +73,12 @@ public class RouteHealthCheckTests
         result.Data["error"].Should().Be("Error message - Inner error message");
     }
 
-    private static RouteHealthCheck GetRouteHealthCheck(HealthCheckUrl healthCheckUrl, TestHttpHandler testHttpHandler)
+    private static NetworkHealthCheck GetRouteHealthCheck(HealthCheckUrl healthCheckUrl, TestHttpHandler testHttpHandler)
     {
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddHttpClient(Proxy.RoutedClientWithRetry).AddHttpMessageHandler(() => testHttpHandler);
-        serviceCollection.AddSingleton(s => new RouteHealthCheck("Health_Check_Name", healthCheckUrl, s.GetRequiredService<IHttpClientFactory>()));
+        serviceCollection.AddSingleton(s => new NetworkHealthCheck("Health_Check_Name", healthCheckUrl, s.GetRequiredService<IHttpClientFactory>()));
         var services = serviceCollection.BuildServiceProvider();
-        return services.GetRequiredService<RouteHealthCheck>();
+        return services.GetRequiredService<NetworkHealthCheck>();
     }
 }

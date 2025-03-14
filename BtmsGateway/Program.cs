@@ -33,14 +33,14 @@ static void BuildWebApplication(WebApplicationBuilder builder)
 {
     builder.Configuration.AddEnvironmentVariables();
     builder.Configuration.AddIniFile("Properties/local.env", true);
-    builder.ConfigureToType<RoutingConfig>();
+    var routingConfig = builder.ConfigureToType<RoutingConfig>();
     var healthCheckConfig = builder.ConfigureToType<HealthCheckConfig>();
 
     ConfigureTelemetry(builder);
     var logger = ConfigureLogging(builder);
 
     builder.Services.AddCustomTrustStore(logger);
-    builder.AddCustomHealthChecks(healthCheckConfig);
+    builder.AddCustomHealthChecks(healthCheckConfig, routingConfig);
     builder.AddServices(logger);
     builder.ConfigureSwaggerBuilder();
 }

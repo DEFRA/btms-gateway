@@ -12,22 +12,13 @@ public static class Proxy
     public const string RoutedClientWithRetry = "routed-with-retry";
     public const string ForkedClientWithRetry = "forked-with-retry";
 
-    /**
-     * A preconfigured HTTP Client that uses the Platform's outbound proxy.
-     *
-     * Usage:
-     *  1. inject an `IHttpClientFactory` into your class.
-     *  2. Use the IHttpClientFactory to create a named instance of HttpClient:
-     *     `clientFactory.CreateClient(Proxy.ProxyClient);`
-     */
-
     [ExcludeFromCodeCoverage]
     public static IHttpClientBuilder AddHttpProxyClientWithoutRetry(this IServiceCollection services, Serilog.ILogger logger)
     {
         return services.AddHttpClient(ProxyClientWithoutRetry).ConfigurePrimaryHttpMessageHandler(() => ConfigurePrimaryHttpMessageHandler(logger));
     }
 
-    private static readonly AsyncRetryPolicy<HttpResponseMessage> WaitAndRetryAsync = HttpPolicyExtensions.HandleTransientHttpError().WaitAndRetryAsync(3, _ => TimeSpan.FromMilliseconds(100));
+    private static readonly AsyncRetryPolicy<HttpResponseMessage> WaitAndRetryAsync = HttpPolicyExtensions.HandleTransientHttpError().WaitAndRetryAsync(3, _ => TimeSpan.FromMilliseconds(1000));
 
     [ExcludeFromCodeCoverage]
     public static IHttpClientBuilder AddHttpProxyRoutedClientWithRetry(this IServiceCollection services, Serilog.ILogger logger)

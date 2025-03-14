@@ -58,7 +58,8 @@ public class MessageData
     }
 
     public bool ShouldProcessRequest => !(Method == HttpMethods.Get
-                                          && (Path.Equals("health", StringComparison.InvariantCultureIgnoreCase)
+                                          && (Path.StartsWith("health", StringComparison.InvariantCultureIgnoreCase)
+                                              || Path.StartsWith("favicon", StringComparison.InvariantCultureIgnoreCase)
                                               || Path.StartsWith("swagger", StringComparison.InvariantCultureIgnoreCase)
                                               || Path.StartsWith(CheckRoutesEndpoints.Path, StringComparison.InvariantCultureIgnoreCase)));
 

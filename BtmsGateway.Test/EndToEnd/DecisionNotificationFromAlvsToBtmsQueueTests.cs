@@ -2,10 +2,11 @@ using System.Net.Mime;
 using System.Text;
 using BtmsGateway.Test.TestUtils;
 using FluentAssertions;
+using Xunit.Abstractions;
 
 namespace BtmsGateway.Test.EndToEnd;
 
-public sealed class DecisionNotificationFromAlvsToBtmsQueueTests() : QueueRoutingTestBase("alvs_decision_fork.fifo", "alvs_decision_route.fifo")
+public sealed class DecisionNotificationFromAlvsToBtmsQueueTests(ITestOutputHelper testOutputHelper) : QueueRoutingTestBase(testOutputHelper, "alvs_decision_fork.fifo", "alvs_decision_route.fifo")
 {
     private const string ForkPath = "/route/path/alvs-btms/decision-fork-queue";
     private const string RoutePath = "/route/path/alvs-btms/decision-route-queue";

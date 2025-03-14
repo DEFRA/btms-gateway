@@ -3,6 +3,8 @@ using Amazon.Runtime;
 using BtmsGateway.Config;
 using BtmsGateway.Middleware;
 using BtmsGateway.Services.Checking;
+using BtmsGateway.Services.Routing;
+using BtmsGateway.Utils;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -35,6 +37,8 @@ public class TestWebServer : IAsyncDisposable
 
         var builder = WebApplication.CreateBuilder();
         builder.Configuration.AddJsonFile(Path.Combine("EndToEnd", "Settings", "localstack.json"));
+        builder.ConfigureToType<RoutingConfig>();
+        builder.ConfigureToType<HealthCheckConfig>();
         builder.WebHost.UseUrls(url);
         builder.AddServices(Substitute.For<Serilog.ILogger>());
         foreach (var testService in testServices) builder.Services.Replace(testService);

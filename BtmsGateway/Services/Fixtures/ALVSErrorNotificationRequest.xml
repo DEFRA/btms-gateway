@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:oas="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+    <soap:Header>
+        <oas:Security soap:role="system" soap:mustUnderstand="true">
+            <oas:UsernameToken>
+                <oas:Username>systemID=ALVSHMRCCDS,ou=gsi systems,o=cds</oas:Username>
+            </oas:UsernameToken>
+        </oas:Security>
+    </soap:Header>
+    <soap:Body>
+        <ALVSErrorNotificationRequest xmlns="http://alvserrornotification.types.esb.ws.cara.defra.com">
+            <ServiceHeader>
+                <SourceSystem>CDS</SourceSystem>
+                <DestinationSystem>ALVS</DestinationSystem>
+                <CorrelationId>238606</CorrelationId>
+                <ServiceCallTimestamp>2023-05-26T09:16:42Z</ServiceCallTimestamp>
+            </ServiceHeader>
+            <Header>
+                <SourceCorrelationId>10119387</SourceCorrelationId>
+                <EntryReference>ALVSCDSTEST00000000688</EntryReference>
+                <EntryVersionNumber>2</EntryVersionNumber>
+            </Header>
+            <Error>
+                <ErrorCode>HMRCVAL101</ErrorCode>
+                <ErrorMessage>The EntryReference was not recognised. HMRC is unable to process the decision notification</ErrorMessage>
+            </Error>
+        </ALVSErrorNotificationRequest>
+    </soap:Body>
+</soap:Envelope>

@@ -5,11 +5,13 @@ namespace BtmsGateway.Utils;
 
 public static class Extensions
 {
-    public static void ConfigureToType<T>(this WebApplicationBuilder builder, string? sectionName = null) where T : class
+    public static T? ConfigureToType<T>(this WebApplicationBuilder builder, string? sectionName = null) where T : class
     {
         sectionName ??= typeof(T).Name.Replace("Config", "");
-        builder.Services.Configure<T>(builder.Configuration.GetSection(sectionName));
+        var configSection = builder.Configuration.GetSection(sectionName);
+        builder.Services.Configure<T>(configSection);
         builder.Services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<T>>().Value);
+        return configSection.Get<T>();
     }
 
     public static string ToTitleCase(this string text) => char.ToUpper(text[0]) + text[1..];

@@ -32,7 +32,7 @@ public abstract class QueueRoutingTestBase : TargetRoutingTestBase, IDisposable
         var awsOptions = TestWebServer.Services.GetService<AWSOptions>();
         SqsClient = awsOptions.CreateServiceClient<IAmazonSQS>();
         SnsClient = awsOptions.CreateServiceClient<IAmazonSimpleNotificationService>();
-        
+
         testOutputHelper.WriteLine($"Queue names {ForkQueueName}, {RouteQueueName}");
 
         var forkDeets = SetupQueue(forkQueueName);

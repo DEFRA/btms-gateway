@@ -35,7 +35,6 @@ public class CheckRoutes(HealthCheckConfig healthCheckConfig, IHttpClientFactory
         var checks = new List<Task<CheckRouteResult>>
         {
             CheckHttp(checkRouteUrl, false, cts.Token),
-            CheckPing(checkRouteUrl, cts.Token),
             CheckNsLookup(checkRouteUrl, cts.Token),
             CheckDig(checkRouteUrl, cts.Token)
         };
@@ -70,8 +69,6 @@ public class CheckRoutes(HealthCheckConfig healthCheckConfig, IHttpClientFactory
 
         return checkRouteResult;
     }
-
-    private Task<CheckRouteResult> CheckPing(CheckRouteUrl checkRouteUrl, CancellationToken token) => CheckWithProcess(checkRouteUrl.Name, "ping", $"-w 3 {checkRouteUrl.Uri.Host}", token);
 
     private Task<CheckRouteResult> CheckNsLookup(CheckRouteUrl checkRouteUrl, CancellationToken token) => CheckWithProcess(checkRouteUrl.Name, "nslookup", checkRouteUrl.Uri.Host, token);
 

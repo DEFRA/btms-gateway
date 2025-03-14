@@ -1,22 +1,103 @@
 using Amazon.SQS;
 using Amazon.Extensions.NETCore.Setup;
+using Amazon.SimpleNotificationService;
+using Amazon.SimpleNotificationService.Model;
 using Amazon.SQS.Model;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BtmsGateway.Test.EndToEnd;
 
-public abstract class QueueRoutingTestBase : TargetRoutingTestBase
+[Trait("Dependence", "localstack")]
+public abstract class QueueRoutingTestBase : TargetRoutingTestBase, IDisposable
 {
-    private IAmazonSQS Client { get; }
-    protected QueueRoutingTestBase()
+    protected readonly string ForkQueueName;
+    protected readonly string RouteQueueName;
+    private IAmazonSQS SqsClient { get; }
+    private IAmazonSimpleNotificationService SnsClient { get; }
+
+    private readonly string forkTopicArn;
+    private readonly string routeTopicArn;
+
+    private readonly string forkQueueUrl;
+    private readonly string routeQueueUrl;
+
+    private readonly string forkSubscriptionArn;
+    private readonly string routeSubscriptionArn;
+
+    protected QueueRoutingTestBase(string forkQueueName, string routeQueueName)
     {
-        var awsOptions = this.TestWebServer.Services.GetService<AWSOptions>();
-        Client = awsOptions.CreateServiceClient<IAmazonSQS>();
+        ForkQueueName = forkQueueName;
+        RouteQueueName = routeQueueName;
+        var awsOptions = TestWebServer.Services.GetService<AWSOptions>();
+        SqsClient = awsOptions.CreateServiceClient<IAmazonSQS>();
+        SnsClient = awsOptions.CreateServiceClient<IAmazonSimpleNotificationService>();
+
+        var forkDeets = SetupQueue(forkQueueName);
+        var routeDeets = SetupQueue(routeQueueName);
+
+        forkTopicArn = forkDeets.TopicArn;
+        forkQueueUrl = forkDeets.QueueUrl;
+        forkSubscriptionArn = forkDeets.SubscriptionArn;
+        routeTopicArn = routeDeets.TopicArn;
+        routeQueueUrl = routeDeets.QueueUrl;
+        routeSubscriptionArn = routeDeets.SubscriptionArn;
+    }
+
+    private (string TopicArn, string QueueUrl, string SubscriptionArn) SetupQueue(string queueName)
+    {
+        var topicReq = new CreateTopicRequest()
+        {
+            Name = queueName,
+            Attributes = new()
+            {
+                { "FifoTopic", "true"}
+            }
+        };
+
+        var queueReq = new CreateQueueRequest()
+        {
+            QueueName = queueName,
+            Attributes = new()
+            {
+                { "FifoQueue", "true"}
+            }
+        };
+
+        var topicArn = SnsClient.CreateTopicAsync(topicReq).Result.TopicArn;
+
+        string queueUrl = SqsClient.CreateQueueAsync(queueReq).Result.QueueUrl;
+
+        var queueArn = SqsClient.GetQueueAttributesAsync(queueUrl, new List<string> { "QueueArn" }).Result.QueueARN;
+
+        var subsReq = new SubscribeRequest()
+        {
+            TopicArn = topicArn,
+            Endpoint = queueArn,
+            Protocol = "sqs",
+            Attributes = new()
+            {
+                { "RawMessageDelivery", "true"}
+            }
+        };
+
+        var subscriptionArn = SnsClient.SubscribeAsync(subsReq).Result.SubscriptionArn;
+
+        return (topicArn, queueUrl, subscriptionArn);
+    }
+
+    private void TearDownQueues()
+    {
+        SnsClient.UnsubscribeAsync(forkSubscriptionArn).Wait();
+        SnsClient.UnsubscribeAsync(routeSubscriptionArn).Wait();
+        SqsClient.DeleteQueueAsync(forkQueueUrl).Wait();
+        SqsClient.DeleteQueueAsync(routeQueueUrl).Wait();
+        SnsClient.DeleteTopicAsync(forkTopicArn).Wait();
+        SnsClient.DeleteTopicAsync(routeTopicArn).Wait();
     }
 
     protected async Task<List<string>> GetMessages(string queueName)
     {
-        var queueUrl = (await Client.GetQueueUrlAsync(queueName)).QueueUrl;
+        var queueUrl = (await SqsClient.GetQueueUrlAsync(queueName)).QueueUrl;
 
         try
         {
@@ -39,7 +120,7 @@ public abstract class QueueRoutingTestBase : TargetRoutingTestBase
         {
             if (retries++ > 30) throw new TimeoutException();
 
-            var messagesResponse = await Client.ReceiveMessageAsync(queueUrl);
+            var messagesResponse = await SqsClient.ReceiveMessageAsync(queueUrl);
             if (messagesResponse.Messages?.Any() == true)
             {
                 output = messagesResponse.Messages;
@@ -51,5 +132,22 @@ public abstract class QueueRoutingTestBase : TargetRoutingTestBase
         }
 
         return output;
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            TearDownQueues();
+
+            SqsClient?.Dispose();
+            SnsClient?.Dispose();
+        }
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
     }
 }

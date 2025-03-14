@@ -8,7 +8,8 @@ public static class DomainInfo
     [
         new() { ItemName = "Item", ArrayName = "Items" },
         new() { ItemName = "Document", ArrayName = "Documents" },
-        new() { ItemName = "Check", ArrayName = "Checks" }
+        new() { ItemName = "Check", ArrayName = "Checks" },
+        new() { ItemName = "Error", ArrayName = "Errors" }
     ];
 
     public static readonly string[] KnownNumbers =

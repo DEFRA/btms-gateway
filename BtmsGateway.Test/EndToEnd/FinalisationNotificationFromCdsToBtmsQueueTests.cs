@@ -5,11 +5,8 @@ using FluentAssertions;
 
 namespace BtmsGateway.Test.EndToEnd;
 
-public class FinalisationNotificationFromCdsToBtmsQueueTests : QueueRoutingTestBase
+public class FinalisationNotificationFromCdsToBtmsQueueTests() : QueueRoutingTestBase("customs_finalisation_fork.fifo", "customs_finalisation_route.fifo")
 {
-    private const string ForkQueueName = "customs_finalisation_fork.fifo";
-    private const string RouteQueueName = "customs_finalisation_route.fifo";
-
     private const string ForkPath = "/route/path/cds-btms/finalisation-fork-queue";
     private const string RoutePath = "/route/path/cds-btms/finalisation-route-queue";
 
@@ -29,7 +26,7 @@ public class FinalisationNotificationFromCdsToBtmsQueueTests : QueueRoutingTestB
         var receivedMessages = await GetMessages(ForkQueueName);
         receivedMessages.Should().NotBeEmpty();
         receivedMessages.Should().HaveCount(1);
-        receivedMessages.FirstOrDefault().Should().Be(_btmsRequestJson);
+        receivedMessages.FirstOrDefault().LinuxLineEndings().Should().Be(_btmsRequestJson);
     }
 
     [Fact]
@@ -45,6 +42,6 @@ public class FinalisationNotificationFromCdsToBtmsQueueTests : QueueRoutingTestB
         var receivedMessages = await GetMessages(RouteQueueName);
         receivedMessages.Should().NotBeEmpty();
         receivedMessages.Should().HaveCount(1);
-        receivedMessages.FirstOrDefault().Should().Be(_btmsRequestJson);
+        receivedMessages.FirstOrDefault().LinuxLineEndings().Should().Be(_btmsRequestJson);
     }
 }

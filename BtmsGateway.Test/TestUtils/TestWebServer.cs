@@ -1,3 +1,5 @@
+using Amazon.Extensions.NETCore.Setup;
+using Amazon.Runtime;
 using BtmsGateway.Config;
 using BtmsGateway.Middleware;
 using BtmsGateway.Services.Checking;
@@ -41,7 +43,11 @@ public class TestWebServer : IAsyncDisposable
         builder.AddServices(Substitute.For<Serilog.ILogger>());
         foreach (var testService in testServices) builder.Services.Replace(testService);
         builder.Services.AddHealthChecks();
-
+        
+        var options = builder.Configuration.GetAWSOptions();
+        options.Credentials = new BasicAWSCredentials(builder.Configuration["AWS_ACCESS_KEY_ID"], builder.Configuration["AWS_SECRET_ACCESS_KEY"]);
+        builder.Services.Replace(new ServiceDescriptor(typeof(AWSOptions), options));
+        
         RoutedHttpHandler = new TestHttpHandler();
         ConfigureServices.HttpRoutedClientWithRetryBuilder?.AddHttpMessageHandler(() => RoutedHttpHandler);
         ForkedHttpHandler = new TestHttpHandler();

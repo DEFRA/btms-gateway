@@ -42,7 +42,7 @@ public class NetworkHealthCheckTests
 
         var result = await routeHealthCheck.CheckHealthAsync(new HealthCheckContext());
 
-        result.Description.Should().Be("Route to Health Check Name");
+        result.Description.Should().Be("Network route: Health Check Name");
         result.Exception.Should().BeNull();
         result.Data["route"].Should().Be(healthCheckUrl.Url);
         result.Data["host"].Should().Be(healthCheckUrl.HostHeader);
@@ -63,7 +63,7 @@ public class NetworkHealthCheckTests
         var result = await routeHealthCheck.CheckHealthAsync(new HealthCheckContext());
 
         result.Status.Should().Be(HealthStatus.Unhealthy);
-        result.Description.Should().Be("Route to Health Check Name");
+        result.Description.Should().Be("Network route: Health Check Name");
         result.Exception.Should().Be(exceptionToThrow);
         result.Data["route"].Should().Be(healthCheckUrl.Url);
         result.Data["host"].Should().Be(healthCheckUrl.HostHeader);

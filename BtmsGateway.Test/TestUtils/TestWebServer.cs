@@ -5,6 +5,7 @@ using BtmsGateway.Services.Routing;
 using BtmsGateway.Utils;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using NSubstitute;
@@ -33,6 +34,7 @@ public class TestWebServer : IAsyncDisposable
         HttpServiceClient = new HttpClient { BaseAddress = new Uri(url) };
 
         var builder = WebApplication.CreateBuilder();
+        builder.Configuration.AddJsonFile(Path.Combine("EndToEnd", "Settings", "localstack.json"));
         builder.ConfigureToType<RoutingConfig>();
         builder.ConfigureToType<HealthCheckConfig>();
         builder.WebHost.UseUrls(url);

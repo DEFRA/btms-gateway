@@ -2,10 +2,11 @@ using System.Net.Mime;
 using System.Text;
 using BtmsGateway.Test.TestUtils;
 using FluentAssertions;
+using Xunit.Abstractions;
 
 namespace BtmsGateway.Test.EndToEnd;
 
-public class ErrorHandlingFromAlvsToBtmsQueueTests() : QueueRoutingTestBase("alvs_error_fork.fifo", "alvs_error_route.fifo")
+public class ErrorHandlingFromAlvsToBtmsQueueTests(ITestOutputHelper testOutputHelper) : QueueRoutingTestBase(testOutputHelper, "alvs_error_fork.fifo", "alvs_error_route.fifo")
 {
     private const string ForkPath = "/route/path/alvs-btms/error-fork-queue";
     private const string RoutePath = "/route/path/alvs-btms/error-route-queue";

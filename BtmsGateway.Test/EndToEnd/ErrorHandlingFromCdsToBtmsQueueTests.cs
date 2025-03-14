@@ -2,10 +2,11 @@ using System.Net.Mime;
 using System.Text;
 using BtmsGateway.Test.TestUtils;
 using FluentAssertions;
+using Xunit.Abstractions;
 
 namespace BtmsGateway.Test.EndToEnd;
 
-public class ErrorHandlingFromCdsToBtmsQueueTests() : QueueRoutingTestBase("customs_error_fork.fifo", "customs_error_route.fifo")
+public class ErrorHandlingFromCdsToBtmsQueueTests(ITestOutputHelper testOutputHelper) : QueueRoutingTestBase(testOutputHelper, "customs_error_fork.fifo", "customs_error_route.fifo")
 {
     private const string ForkPath = "/route/path/cds-btms/error-fork-queue";
     private const string RoutePath = "/route/path/cds-btms/error-route-queue";

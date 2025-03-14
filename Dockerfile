@@ -21,7 +21,7 @@ COPY . .
 WORKDIR "/src"
 
 # unit test and code coverage
-RUN dotnet test BtmsGateway.Test
+RUN dotnet test BtmsGateway.Test --filter Dependence!=localstack
 
 FROM build AS publish
 RUN dotnet publish BtmsGateway -c Release -o /app/publish /p:UseAppHost=false

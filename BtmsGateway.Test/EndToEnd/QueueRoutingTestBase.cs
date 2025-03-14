@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace BtmsGateway.Test.EndToEnd;
 
 [Trait("Dependence", "localstack")]
-public abstract class QueueRoutingTestBase : TargetRoutingTestBase
+public abstract class QueueRoutingTestBase : TargetRoutingTestBase, IDisposable
 {
     protected abstract string ForkQueueName { get; }
     protected abstract string RouteQueueName { get; }
@@ -17,17 +17,33 @@ public abstract class QueueRoutingTestBase : TargetRoutingTestBase
     private IAmazonSQS SqsClient { get; }
     private IAmazonSimpleNotificationService SnsClient { get; }
 
+    private string forkTopicArn;
+    private string routeTopicArn;
+
+    private string forkQueueUrl;
+    private string routeQueueUrl;
+
+    private string forkSubscriptionArn;
+    private string routeSubscriptionArn;
+
     protected QueueRoutingTestBase()
     {
         var awsOptions = this.TestWebServer.Services.GetService<AWSOptions>();
         SqsClient = awsOptions.CreateServiceClient<IAmazonSQS>();
         SnsClient = awsOptions.CreateServiceClient<IAmazonSimpleNotificationService>();
 
-        SetupQueue(ForkQueueName);
-        SetupQueue(RouteQueueName);
+        var forkDeets = SetupQueue(ForkQueueName);
+        var routeDeets = SetupQueue(RouteQueueName);
+
+        forkTopicArn = forkDeets.TopicArn;
+        forkQueueUrl = forkDeets.QueueUrl;
+        forkSubscriptionArn = forkDeets.SubscriptionArn;
+        routeTopicArn = routeDeets.TopicArn;
+        routeQueueUrl = routeDeets.QueueUrl;
+        routeSubscriptionArn = routeDeets.SubscriptionArn;
     }
 
-    private void SetupQueue(string queueName)
+    private (string TopicArn, string QueueUrl, string SubscriptionArn) SetupQueue(string queueName)
     {
         var topicReq = new CreateTopicRequest()
         {
@@ -51,12 +67,12 @@ public abstract class QueueRoutingTestBase : TargetRoutingTestBase
 
         string queueUrl = SqsClient.CreateQueueAsync(queueReq).Result.QueueUrl;
 
-        var queueAttrs = SqsClient.GetQueueAttributesAsync(queueUrl, new List<string> { "QueueArn" }).Result;
+        var queueArn = SqsClient.GetQueueAttributesAsync(queueUrl, new List<string> { "QueueArn" }).Result.QueueARN;
 
         var subsReq = new SubscribeRequest()
         {
             TopicArn = topicArn,
-            Endpoint = queueAttrs.QueueARN,
+            Endpoint = queueArn,
             Protocol = "sqs",
             Attributes = new()
             {
@@ -64,11 +80,20 @@ public abstract class QueueRoutingTestBase : TargetRoutingTestBase
             }
         };
 
-        SnsClient.SubscribeAsync(subsReq).Wait();
+        var subscriptionArn = SnsClient.SubscribeAsync(subsReq).Result.SubscriptionArn;
+
+        return (topicArn, queueUrl, subscriptionArn);
     }
 
-
-
+    private void TearDownQueues()
+    {
+        SnsClient.UnsubscribeAsync(forkSubscriptionArn).Wait();
+        SnsClient.UnsubscribeAsync(routeSubscriptionArn).Wait();
+        SqsClient.DeleteQueueAsync(forkQueueUrl).Wait();
+        SqsClient.DeleteQueueAsync(routeQueueUrl).Wait();
+        SnsClient.DeleteTopicAsync(forkTopicArn).Wait();
+        SnsClient.DeleteTopicAsync(routeTopicArn).Wait();
+    }
 
     protected async Task<List<string>> GetMessages(string queueName)
     {
@@ -107,5 +132,22 @@ public abstract class QueueRoutingTestBase : TargetRoutingTestBase
         }
 
         return output;
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            TearDownQueues();
+
+            SqsClient?.Dispose();
+            SnsClient?.Dispose();
+        }
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
     }
 }

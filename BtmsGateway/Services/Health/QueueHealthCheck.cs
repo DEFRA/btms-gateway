@@ -16,7 +16,7 @@ public class QueueHealthCheck : IHealthCheck
     {
         _name = name;
         _sqsClient = sqsClient;
-        _queueName = topicArn.Split(':').Last();
+        _queueName = topicArn.Split(':')[^1];
         _queueUrl = _sqsClient.GetQueueUrlAsync(_queueName).Result.QueueUrl;
     }
 

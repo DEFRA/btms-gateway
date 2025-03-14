@@ -38,11 +38,11 @@ public static class HealthCheckWriter
             jsonWriter.WriteString("status", healthReportEntry.Value.Status.ToString());
             jsonWriter.WriteString("description", healthReportEntry.Value.Description);
             jsonWriter.WriteNumber("durationMs", healthReportEntry.Value.Duration.TotalMilliseconds);
-            if (healthReportEntry.Value.Exception != null) 
+            if (healthReportEntry.Value.Exception != null)
                 jsonWriter.WriteString("exception", $"{healthReportEntry.Value.Exception?.GetType().Name}  {healthReportEntry.Value.Exception?.InnerException?.GetType().Name}".Trim());
 
             WriteTags(healthReportEntry, jsonWriter);
-     
+
             WriteData(jsonWriter, healthReportEntry);
 
             jsonWriter.WriteEndObject();

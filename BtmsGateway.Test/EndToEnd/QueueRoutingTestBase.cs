@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace BtmsGateway.Test.EndToEnd;
 
+[Trait("Dependence", "localstack")]
 public abstract class QueueRoutingTestBase : TargetRoutingTestBase
 {
     protected abstract string ForkQueueName { get; }

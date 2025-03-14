@@ -19,13 +19,13 @@ public abstract class QueueRoutingTestBase : TargetRoutingTestBase, IDisposable
 
     private string forkTopicArn;
     private string routeTopicArn;
-    
+
     private string forkQueueUrl;
     private string routeQueueUrl;
-    
+
     private string forkSubscriptionArn;
     private string routeSubscriptionArn;
-    
+
     protected QueueRoutingTestBase()
     {
         var awsOptions = this.TestWebServer.Services.GetService<AWSOptions>();
@@ -34,7 +34,7 @@ public abstract class QueueRoutingTestBase : TargetRoutingTestBase, IDisposable
 
         var forkDeets = SetupQueue(ForkQueueName);
         var routeDeets = SetupQueue(RouteQueueName);
-        
+
         forkTopicArn = forkDeets.TopicArn;
         forkQueueUrl = forkDeets.QueueUrl;
         forkSubscriptionArn = forkDeets.SubscriptionArn;
@@ -81,10 +81,10 @@ public abstract class QueueRoutingTestBase : TargetRoutingTestBase, IDisposable
         };
 
         var subscriptionArn = SnsClient.SubscribeAsync(subsReq).Result.SubscriptionArn;
-        
+
         return (topicArn, queueUrl, subscriptionArn);
     }
-    
+
     private void TearDownQueues()
     {
         SnsClient.UnsubscribeAsync(forkSubscriptionArn).Wait();
@@ -139,7 +139,7 @@ public abstract class QueueRoutingTestBase : TargetRoutingTestBase, IDisposable
         if (disposing)
         {
             TearDownQueues();
-            
+
             SqsClient?.Dispose();
             SnsClient?.Dispose();
         }

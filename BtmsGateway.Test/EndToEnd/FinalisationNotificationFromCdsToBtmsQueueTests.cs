@@ -2,10 +2,11 @@ using System.Net.Mime;
 using System.Text;
 using BtmsGateway.Test.TestUtils;
 using FluentAssertions;
+using Xunit.Abstractions;
 
 namespace BtmsGateway.Test.EndToEnd;
 
-public class FinalisationNotificationFromCdsToBtmsQueueTests() : QueueRoutingTestBase("customs_finalisation_fork.fifo", "customs_finalisation_route.fifo")
+public class FinalisationNotificationFromCdsToBtmsQueueTests(ITestOutputHelper testOutputHelper) : QueueRoutingTestBase(testOutputHelper, "customs_finalisation_fork.fifo", "customs_finalisation_route.fifo")
 {
     private const string ForkPath = "/route/path/cds-btms/finalisation-fork-queue";
     private const string RoutePath = "/route/path/cds-btms/finalisation-route-queue";

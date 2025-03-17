@@ -2,10 +2,11 @@ using System.Net.Mime;
 using System.Text;
 using BtmsGateway.Test.TestUtils;
 using FluentAssertions;
+using Xunit.Abstractions;
 
 namespace BtmsGateway.Test.EndToEnd;
 
-public sealed class ClearanceRequestFromCdsToBtmsQueueTests() : QueueRoutingTestBase("customs_clearance_fork.fifo", "customs_clearance_route.fifo")
+public sealed class ClearanceRequestFromCdsToBtmsQueueTests(ITestOutputHelper testOutputHelper) : QueueRoutingTestBase(testOutputHelper, "customs_clearance_fork.fifo", "customs_clearance_route.fifo")
 {
     private const string ForkPath = "/route/path/cds-btms/clearance-request-fork-queue";
     private const string RoutePath = "/route/path/cds-btms/clearance-request-route-queue";

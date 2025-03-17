@@ -59,16 +59,6 @@ public sealed class GeneralEndToEndTests : IAsyncDisposable
     public async ValueTask DisposeAsync() => await _testWebServer.DisposeAsync();
 
     [Fact]
-    public async Task When_checking_service_health_Then_should_be_healthy()
-    {
-        var response = await _httpClient.GetAsync("health");
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        response.Content.Headers.ContentType?.ToString().Should().Be(MediaTypeNames.Text.Plain);
-        (await response.Content.ReadAsStringAsync()).Should().Be("Healthy");
-    }
-
-    [Fact]
     public async Task When_routing_request_Then_should_respond_from_routed_request()
     {
         _testWebServer.RoutedHttpHandler.SetNextResponse(content: XmlRoutedResponse);

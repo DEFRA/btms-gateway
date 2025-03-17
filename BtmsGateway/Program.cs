@@ -6,6 +6,8 @@ using System.Diagnostics.CodeAnalysis;
 using BtmsGateway.Config;
 using BtmsGateway.Middleware;
 using BtmsGateway.Services.Checking;
+using BtmsGateway.Services.Health;
+using BtmsGateway.Services.Routing;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
@@ -19,49 +21,28 @@ static WebApplication CreateWebApplication(string[] args)
 {
     var builder = WebApplication.CreateBuilder(args);
 
-    ConfigureWebApplication(builder);
-    builder.ConfigureSwaggerBuilder();
+    BuildWebApplication(builder);
 
     var app = builder.Build();
 
-    app.UseMiddleware<RoutingInterceptor>();
-    app.MapHealthChecks("/health");
-    app.UseCheckRoutesEndpoints();
-
-    app.ConfigureSwaggerApp();
-
-    return app;
+    return ConfigureWebApplication(app);
 }
 
 [ExcludeFromCodeCoverage]
-static void ConfigureWebApplication(WebApplicationBuilder builder)
+static void BuildWebApplication(WebApplicationBuilder builder)
 {
     builder.Configuration.AddEnvironmentVariables();
     builder.Configuration.AddIniFile("Properties/local.env", true);
+    var routingConfig = builder.ConfigureToType<RoutingConfig>();
+    var healthCheckConfig = builder.ConfigureToType<HealthCheckConfig>();
 
-    builder.Services.AddOpenTelemetry()
-        .WithMetrics(metrics =>
-        {
-            metrics.AddRuntimeInstrumentation()
-                   .AddMeter(
-                       "Microsoft.AspNetCore.Hosting",
-                       "Microsoft.AspNetCore.Server.Kestrel",
-                       "System.Net.Http",
-                       MetricsHost.MeterName);
-        })
-        .WithTracing(tracing =>
-        {
-            tracing.AddAspNetCoreInstrumentation()
-                   .AddHttpClientInstrumentation()
-                   .AddSource(MetricsHost.MeterName);
-        })
-        .UseOtlpExporter();
-
+    ConfigureTelemetry(builder);
     var logger = ConfigureLogging(builder);
 
     builder.Services.AddCustomTrustStore(logger);
-    builder.Services.AddHealthChecks();
+    builder.AddCustomHealthChecks(healthCheckConfig, routingConfig);
     builder.AddServices(logger);
+    builder.ConfigureSwaggerBuilder();
 }
 
 [ExcludeFromCodeCoverage]
@@ -82,4 +63,39 @@ static Logger ConfigureLogging(WebApplicationBuilder builder)
     builder.Logging.AddSerilog(logger);
     logger.Information("Starting application");
     return logger;
+}
+
+[ExcludeFromCodeCoverage]
+static void ConfigureTelemetry(WebApplicationBuilder builder)
+{
+    builder.Services.AddOpenTelemetry()
+        .WithMetrics(metrics =>
+        {
+            metrics.AddRuntimeInstrumentation()
+                .AddMeter(
+                    "Microsoft.AspNetCore.Hosting",
+                    "Microsoft.AspNetCore.Server.Kestrel",
+                    "System.Net.Http",
+                    MetricsHost.MeterName);
+        })
+        .WithTracing(tracing =>
+        {
+            tracing.AddAspNetCoreInstrumentation()
+                .AddHttpClientInstrumentation()
+                .AddSource(MetricsHost.MeterName);
+        })
+        .UseOtlpExporter();
+}
+
+[ExcludeFromCodeCoverage]
+static WebApplication ConfigureWebApplication(WebApplication app)
+{
+    app.UseEmfExporter();
+    app.UseMiddleware<RoutingInterceptor>();
+    app.UseCustomHealthChecks();
+    app.UseCheckRoutesEndpoints();
+
+    app.ConfigureSwaggerApp();
+
+    return app;
 }

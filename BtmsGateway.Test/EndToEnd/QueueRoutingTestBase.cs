@@ -4,6 +4,7 @@ using Amazon.SimpleNotificationService;
 using Amazon.SimpleNotificationService.Model;
 using Amazon.SQS.Model;
 using Microsoft.Extensions.DependencyInjection;
+using Xunit.Abstractions;
 
 namespace BtmsGateway.Test.EndToEnd;
 
@@ -24,13 +25,15 @@ public abstract class QueueRoutingTestBase : TargetRoutingTestBase, IDisposable
     private readonly string forkSubscriptionArn;
     private readonly string routeSubscriptionArn;
 
-    protected QueueRoutingTestBase(string forkQueueName, string routeQueueName)
+    protected QueueRoutingTestBase(ITestOutputHelper testOutputHelper, string forkQueueName, string routeQueueName)
     {
         ForkQueueName = forkQueueName;
         RouteQueueName = routeQueueName;
         var awsOptions = TestWebServer.Services.GetService<AWSOptions>();
         SqsClient = awsOptions.CreateServiceClient<IAmazonSQS>();
         SnsClient = awsOptions.CreateServiceClient<IAmazonSimpleNotificationService>();
+
+        testOutputHelper.WriteLine($"Queue names {ForkQueueName}, {RouteQueueName}");
 
         var forkDeets = SetupQueue(forkQueueName);
         var routeDeets = SetupQueue(routeQueueName);
@@ -65,9 +68,9 @@ public abstract class QueueRoutingTestBase : TargetRoutingTestBase, IDisposable
 
         var topicArn = SnsClient.CreateTopicAsync(topicReq).Result.TopicArn;
 
-        string queueUrl = SqsClient.CreateQueueAsync(queueReq).Result.QueueUrl;
+        var queueUrl = SqsClient.CreateQueueAsync(queueReq).Result.QueueUrl;
 
-        var queueArn = SqsClient.GetQueueAttributesAsync(queueUrl, new List<string> { "QueueArn" }).Result.QueueARN;
+        var queueArn = SqsClient.GetQueueAttributesAsync(queueUrl, ["QueueArn"]).Result.QueueARN;
 
         var subsReq = new SubscribeRequest()
         {

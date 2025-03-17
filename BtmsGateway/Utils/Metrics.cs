@@ -10,33 +10,32 @@ public interface IMetrics
 
     public void RequestForked(MessageData messageData, RoutingResult routingResult);
     public void StartTotalRequest();
-    public void RecordTotalRequest();
+    public void RecordTotalRequest(MessageData messageData);
 
     public void StartRoutedRequest();
-    public void RecordRoutedRequest();
+    public void RecordRoutedRequest(MessageData messageData, RoutingResult routingResult);
 
     public void StartForkedRequest();
-    public void RecordForkedRequest();
+    public void RecordForkedRequest(MessageData messageData, RoutingResult routingResult);
 }
 
 public class Metrics(MetricsHost metricsHost) : IMetrics
 {
-    private static TagList CompletedList(MessageData messageData, RoutingResult routingResult)
+    private static ReadOnlySpan<KeyValuePair<string, object?>> CompletedList(MessageData messageData, RoutingResult? routingResult = null)
     {
-        return new TagList
+        return new KeyValuePair<string, object?>[]
         {
-            { "correlation-id", messageData.CorrelationId },
-            { "originating-url", messageData.Url },
-            { "method", messageData.Method },
-            { "content-type", messageData.OriginalContentType },
-            { "path", messageData.Path },
-            { "ched-type", messageData.ContentMap.ChedType },
-            { "country-code", messageData.ContentMap.CountryCode },
-            { "route-name", routingResult.RouteName },
-            { "route-found", routingResult.RouteFound },
-            { "routing-successful", routingResult.RoutingSuccessful },
-            { "forward-url", routingResult.FullRouteLink },
-            { "status-code", routingResult.StatusCode }
+            new("correlation-id", messageData.CorrelationId),
+            new("originating-url", messageData.Url),
+            new("method", messageData.Method),
+            new("content-type", messageData.OriginalContentType),
+            new("path", messageData.Path),
+            new("country-code", messageData.ContentMap.CountryCode),
+            new("route-name", routingResult?.RouteName),
+            new("route-found", routingResult?.RouteFound),
+            new("routing-successful", routingResult?.RoutingSuccessful),
+            new("forward-url", routingResult?.FullRouteLink),
+            new("status-code", routingResult?.StatusCode)
         };
     }
 
@@ -45,13 +44,16 @@ public class Metrics(MetricsHost metricsHost) : IMetrics
     public void RequestForked(MessageData messageData, RoutingResult routingResult) => metricsHost.RequestForked.Add(1, CompletedList(messageData, routingResult));
 
     public void StartTotalRequest() => _totalRequestDuration.Start();
-    public void RecordTotalRequest() => metricsHost.TotalRequestDuration.Record(_totalRequestDuration.ElapsedMilliseconds);
+    public void RecordTotalRequest(MessageData messageData) 
+        => metricsHost.TotalRequestDuration.Record(_totalRequestDuration.ElapsedMilliseconds, CompletedList(messageData));
 
     public void StartRoutedRequest() => _routedRequestDuration.Start();
-    public void RecordRoutedRequest() => metricsHost.RoutedRequestDuration.Record(_routedRequestDuration.ElapsedMilliseconds);
+    public void RecordRoutedRequest(MessageData messageData, RoutingResult routingResult) 
+        => metricsHost.RoutedRequestDuration.Record(_routedRequestDuration.ElapsedMilliseconds, CompletedList(messageData, routingResult));
 
     public void StartForkedRequest() => _forkedRequestDuration.Start();
-    public void RecordForkedRequest() => metricsHost.ForkedRequestDuration.Record(_forkedRequestDuration.ElapsedMilliseconds);
+    public void RecordForkedRequest(MessageData messageData, RoutingResult routingResult) 
+        => metricsHost.ForkedRequestDuration.Record(_forkedRequestDuration.ElapsedMilliseconds, CompletedList(messageData, routingResult));
 
     private readonly Stopwatch _totalRequestDuration = new();
     private readonly Stopwatch _routedRequestDuration = new();

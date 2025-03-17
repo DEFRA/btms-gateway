@@ -25,7 +25,7 @@ public class RoutingInterceptor(RequestDelegate next, IMessageRouter messageRout
 
                 await Fork(messageData, metrics);
 
-                metrics.RecordTotalRequest();
+                metrics.RecordTotalRequest(messageData);
                 return;
             }
 

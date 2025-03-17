@@ -8,7 +8,7 @@ public class MetricsHost
 
     public const string UnitsMs = "ms";
     public const string UnitsRequests = "requests";
-    
+
     public readonly Counter<long> RequestRouted;
     public readonly Counter<long> RequestForked;
     public readonly Histogram<long> TotalRequestDuration;

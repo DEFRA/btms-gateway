@@ -28,6 +28,15 @@ public static class EmfExporter
     private static readonly MeterListener MeterListener = new();
     private static ILogger _log = null!;
     private static string? _awsNamespace;
+
+    private const string DefaultUnitCount = "Count";
+    private static readonly Dictionary<string, Unit> UnitsMapper = new()
+    {
+        { DefaultUnitCount, Unit.COUNT },
+        { MetricsHost.UnitsRequests, Unit.COUNT },
+        { MetricsHost.UnitsMs, Unit.MILLISECONDS },
+    };
+
     public static void Init(ILogger logger, string? awsNamespace)
     {
         _log = logger;
@@ -60,7 +69,16 @@ public static class EmfExporter
             var dimensionSet = new DimensionSet();
             foreach (var tag in tags)
             {
-                dimensionSet.AddDimension(tag.Key, tag.Value?.ToString());
+                try
+                {
+                    if (string.IsNullOrWhiteSpace(tag.Value?.ToString())) continue;
+                    dimensionSet.AddDimension(tag.Key, tag.Value?.ToString());
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    throw;
+                }
             }
 
             // If the request contains a w3c trace id, let's embed it in the logs
@@ -69,7 +87,7 @@ public static class EmfExporter
             // https://www.w3.org/TR/trace-context/#traceparent-header
             if (!string.IsNullOrEmpty(Activity.Current?.Id))
             {
-                metricsLogger.PutProperty("TraceId", Activity.Current.TraceStateString);
+                metricsLogger.PutProperty("TraceId", Activity.Current.Id);
             }
 
             if (!string.IsNullOrEmpty(Activity.Current?.TraceStateString))
@@ -77,13 +95,13 @@ public static class EmfExporter
                 metricsLogger.PutProperty("TraceState", Activity.Current.TraceStateString);
             }
             metricsLogger.SetDimensions(dimensionSet);
-            var name = instrument.Name.Dehumanize().Camelize();
-            metricsLogger.PutMetric(name, Convert.ToDouble(measurement), instrument.Unit == "ea" ? Unit.COUNT : Unit.MILLISECONDS);
+            var name = instrument.Name.Dehumanize().Pascalize();
+            metricsLogger.PutMetric(name, Convert.ToDouble(measurement), UnitsMapper[instrument.Unit ?? DefaultUnitCount]);
             metricsLogger.Flush();
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            _log.LogError(e, "Failed to push EMF metric");
+            _log.LogWarning(ex, "Failed to push EMF metric");
         }
     }
 }

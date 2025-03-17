@@ -37,9 +37,9 @@ public class ApiSender(IHttpClientFactory clientFactory) : IApiSender
         var content = response.StatusCode == HttpStatusCode.NoContent ? null : await response.Content.ReadAsStringAsync();
 
         if (fork)
-            metrics.RecordForkedRequest();
+            metrics.RecordForkedRequest(messageData, routingResult);
         else
-            metrics.RecordRoutedRequest();
+            metrics.RecordRoutedRequest(messageData, routingResult);
 
         return routingResult with
         {

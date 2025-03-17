@@ -25,9 +25,9 @@ public class QueueSender(IAmazonSimpleNotificationService snsService) : IQueueSe
         var response = await snsService.PublishAsync(request);
 
         if (fork)
-            metrics.RecordForkedRequest();
+            metrics.RecordForkedRequest(messageData, routingResult);
         else
-            metrics.RecordRoutedRequest();
+            metrics.RecordRoutedRequest(messageData, routingResult);
 
         return routingResult
          with

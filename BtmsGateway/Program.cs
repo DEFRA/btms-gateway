@@ -88,13 +88,14 @@ static void ConfigureTelemetry(WebApplicationBuilder builder)
 }
 
 [ExcludeFromCodeCoverage]
-static WebApplication ConfigureWebApplication(WebApplication webApplication)
+static WebApplication ConfigureWebApplication(WebApplication app)
 {
-    webApplication.UseMiddleware<RoutingInterceptor>();
-    webApplication.UseCustomHealthChecks();
-    webApplication.UseCheckRoutesEndpoints();
+    app.UseEmfExporter();
+    app.UseMiddleware<RoutingInterceptor>();
+    app.UseCustomHealthChecks();
+    app.UseCheckRoutesEndpoints();
 
-    webApplication.ConfigureSwaggerApp();
+    app.ConfigureSwaggerApp();
 
-    return webApplication;
+    return app;
 }

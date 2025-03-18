@@ -19,7 +19,6 @@ public class RoutingInterceptor(RequestDelegate next, IMessageRouter messageRout
             if (messageData.ShouldProcessRequest)
             {
                 logger.Information("{CorrelationId} Received routing instruction {HttpString} {Content}", messageData.CorrelationId, messageData.HttpString, messageData.OriginalContentAsString);
-                logger.Information("{CorrelationId} Received routing instruction Base64 {HttpString} {Content}", messageData.CorrelationId, messageData.HttpString, messageData.OriginalContentAsString == null ? null : Convert.ToBase64String(Encoding.UTF8.GetBytes(messageData.OriginalContentAsString)));
 
                 await Route(context, messageData, metrics);
 

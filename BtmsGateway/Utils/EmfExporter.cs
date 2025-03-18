@@ -3,6 +3,7 @@ using System.Diagnostics.Metrics;
 using Amazon.CloudWatch.EMF.Logger;
 using Amazon.CloudWatch.EMF.Model;
 using Humanizer;
+using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Utils;
 
@@ -16,7 +17,7 @@ public static class EmfExportExtensions
         if (enabled)
         {
             var ns = config.GetValue<string>("AWS_EMF_NAMESPACE");
-            EmfExporter.Init(builder.ApplicationServices.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(EmfExporter)), ns!);
+            EmfExporter.Init(builder.ApplicationServices.GetRequiredService<ILogger>(), ns!);
         }
 
         return builder;
@@ -26,7 +27,7 @@ public static class EmfExportExtensions
 public static class EmfExporter
 {
     private static readonly MeterListener MeterListener = new();
-    private static ILogger _log = null!;
+    private static ILogger _logger = null!;
     private static string? _awsNamespace;
 
     private const string DefaultUnitCount = "Count";
@@ -39,13 +40,14 @@ public static class EmfExporter
 
     public static void Init(ILogger logger, string? awsNamespace)
     {
-        _log = logger;
+        _logger = logger;
         _awsNamespace = awsNamespace;
         MeterListener.InstrumentPublished = (instrument, listener) =>
         {
             if (instrument.Meter.Name is MetricsHost.MeterName)
             {
                 listener.EnableMeasurementEvents(instrument);
+                _logger.Information("METRICS - Enable monitoring events");
             }
         };
 
@@ -69,16 +71,8 @@ public static class EmfExporter
             var dimensionSet = new DimensionSet();
             foreach (var tag in tags)
             {
-                try
-                {
-                    if (string.IsNullOrWhiteSpace(tag.Value?.ToString())) continue;
-                    dimensionSet.AddDimension(tag.Key, tag.Value?.ToString());
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                    throw;
-                }
+                if (string.IsNullOrWhiteSpace(tag.Value?.ToString())) continue;
+                dimensionSet.AddDimension(tag.Key, tag.Value?.ToString());
             }
 
             // If the request contains a w3c trace id, let's embed it in the logs
@@ -94,14 +88,20 @@ public static class EmfExporter
             {
                 metricsLogger.PutProperty("TraceState", Activity.Current.TraceStateString);
             }
+            
             metricsLogger.SetDimensions(dimensionSet);
             var name = instrument.Name.Dehumanize().Pascalize();
+            
+            _logger.Information("METRICS - Set metadata for instrument {Name}", name);
+
             metricsLogger.PutMetric(name, Convert.ToDouble(measurement), UnitsMapper[instrument.Unit ?? DefaultUnitCount]);
             metricsLogger.Flush();
+            
+            _logger.Information("METRICS - Set and flush measurement {Measurement} {Unit} for instrument {Name}", measurement, instrument.Unit, name);
         }
         catch (Exception ex)
         {
-            _log.LogWarning(ex, "Failed to push EMF metric");
+            _logger.Warning(ex, "Failed to push EMF metric");
         }
     }
 }

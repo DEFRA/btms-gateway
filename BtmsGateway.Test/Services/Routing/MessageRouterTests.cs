@@ -21,12 +21,16 @@ public class MessageRouterTests
         var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger);
 
         // Act
-        var response = await sut.Fork(msgData.Message, mocks.Metrics);
+        var response = await sut.Fork(msgData.MessageData, mocks.Metrics);
 
         // Assert
         response.RouteFound.Should().BeFalse();
         response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
         response.ErrorMessage.Should().Be("Route not found");
+        mocks.Metrics.DidNotReceive().StartRoutedRequest();
+        mocks.Metrics.DidNotReceive().RecordRoutedRequest(msgData.MessageData, Arg.Any<RoutingResult>());
+        mocks.Metrics.DidNotReceive().StartForkedRequest();
+        mocks.Metrics.DidNotReceive().RecordForkedRequest(msgData.MessageData, Arg.Any<RoutingResult>());
     }
 
     [Fact]
@@ -42,12 +46,16 @@ public class MessageRouterTests
         var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger);
 
         // Act
-        var response = await sut.Fork(msgData.Message, mocks.Metrics);
+        var response = await sut.Fork(msgData.MessageData, mocks.Metrics);
 
         // Assert
         response.RouteFound.Should().BeTrue();
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         response.ErrorMessage.Should().BeNull();
+        mocks.Metrics.DidNotReceive().StartRoutedRequest();
+        mocks.Metrics.DidNotReceive().RecordRoutedRequest(msgData.MessageData, Arg.Any<RoutingResult>());
+        mocks.Metrics.Received().StartForkedRequest();
+        mocks.Metrics.Received().RecordForkedRequest(msgData.MessageData, Arg.Any<RoutingResult>());
     }
 
     [Fact]
@@ -63,12 +71,16 @@ public class MessageRouterTests
         var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger);
 
         // Act
-        var response = await sut.Fork(msgData.Message, mocks.Metrics);
+        var response = await sut.Fork(msgData.MessageData, mocks.Metrics);
 
         // Assert
         response.RouteFound.Should().BeTrue();
         response.StatusCode.Should().Be(HttpStatusCode.ServiceUnavailable);
         response.ErrorMessage.Should().StartWith("Error fork");
+        mocks.Metrics.DidNotReceive().StartRoutedRequest();
+        mocks.Metrics.DidNotReceive().RecordRoutedRequest(msgData.MessageData, Arg.Any<RoutingResult>());
+        mocks.Metrics.Received().StartForkedRequest();
+        mocks.Metrics.Received().RecordForkedRequest(msgData.MessageData, Arg.Any<RoutingResult>());
     }
 
     [Fact]
@@ -84,12 +96,16 @@ public class MessageRouterTests
         var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger);
 
         // Act
-        var response = await sut.Fork(msgData.Message, mocks.Metrics);
+        var response = await sut.Fork(msgData.MessageData, mocks.Metrics);
 
         // Assert
         response.RouteFound.Should().BeTrue();
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         response.ErrorMessage.Should().BeNull();
+        mocks.Metrics.DidNotReceive().StartRoutedRequest();
+        mocks.Metrics.DidNotReceive().RecordRoutedRequest(msgData.MessageData, Arg.Any<RoutingResult>());
+        mocks.Metrics.Received().StartForkedRequest();
+        mocks.Metrics.Received().RecordForkedRequest(msgData.MessageData, Arg.Any<RoutingResult>());
     }
 
     [Fact]
@@ -105,12 +121,16 @@ public class MessageRouterTests
         var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger);
 
         // Act
-        var response = await sut.Fork(msgData.Message, mocks.Metrics);
+        var response = await sut.Fork(msgData.MessageData, mocks.Metrics);
 
         // Assert
         response.RouteFound.Should().BeTrue();
         response.StatusCode.Should().Be(HttpStatusCode.ServiceUnavailable);
         response.ErrorMessage.Should().StartWith("Error fork");
+        mocks.Metrics.DidNotReceive().StartRoutedRequest();
+        mocks.Metrics.DidNotReceive().RecordRoutedRequest(msgData.MessageData, Arg.Any<RoutingResult>());
+        mocks.Metrics.Received().StartForkedRequest();
+        mocks.Metrics.Received().RecordForkedRequest(msgData.MessageData, Arg.Any<RoutingResult>());
     }
 
     [Fact]
@@ -123,11 +143,15 @@ public class MessageRouterTests
         var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger);
 
         // Act
-        var response = await sut.Route(msgData.Message, mocks.Metrics);
+        var response = await sut.Route(msgData.MessageData, mocks.Metrics);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
         response.ErrorMessage.Should().Be("Route not found");
+        mocks.Metrics.DidNotReceive().StartForkedRequest();
+        mocks.Metrics.DidNotReceive().RecordRoutedRequest(msgData.MessageData, Arg.Any<RoutingResult>());
+        mocks.Metrics.DidNotReceive().StartRoutedRequest();
+        mocks.Metrics.DidNotReceive().RecordForkedRequest(msgData.MessageData, Arg.Any<RoutingResult>());
     }
 
     [Fact]
@@ -143,12 +167,16 @@ public class MessageRouterTests
         var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger);
 
         // Act
-        var response = await sut.Route(msgData.Message, mocks.Metrics);
+        var response = await sut.Route(msgData.MessageData, mocks.Metrics);
 
         // Assert
         response.RouteFound.Should().BeTrue();
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         response.ErrorMessage.Should().BeNull();
+        mocks.Metrics.Received().StartRoutedRequest();
+        mocks.Metrics.Received().RecordRoutedRequest(msgData.MessageData, Arg.Any<RoutingResult>());
+        mocks.Metrics.DidNotReceive().StartForkedRequest();
+        mocks.Metrics.DidNotReceive().RecordForkedRequest(msgData.MessageData, Arg.Any<RoutingResult>());
     }
 
     [Fact]
@@ -164,12 +192,16 @@ public class MessageRouterTests
         var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger);
 
         // Act
-        var response = await sut.Route(msgData.Message, mocks.Metrics);
+        var response = await sut.Route(msgData.MessageData, mocks.Metrics);
 
         // Assert
         response.RouteFound.Should().BeTrue();
         response.StatusCode.Should().Be(HttpStatusCode.ServiceUnavailable);
         response.ErrorMessage.Should().StartWith("Error routing");
+        mocks.Metrics.Received().StartRoutedRequest();
+        mocks.Metrics.Received().RecordRoutedRequest(msgData.MessageData, Arg.Any<RoutingResult>());
+        mocks.Metrics.DidNotReceive().StartForkedRequest();
+        mocks.Metrics.DidNotReceive().RecordForkedRequest(msgData.MessageData, Arg.Any<RoutingResult>());
     }
 
     [Fact]
@@ -185,12 +217,16 @@ public class MessageRouterTests
         var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger);
 
         // Act
-        var response = await sut.Route(msgData.Message, mocks.Metrics);
+        var response = await sut.Route(msgData.MessageData, mocks.Metrics);
 
         // Assert
         response.RouteFound.Should().BeTrue();
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         response.ErrorMessage.Should().BeNull();
+        mocks.Metrics.Received().StartRoutedRequest();
+        mocks.Metrics.Received().RecordRoutedRequest(msgData.MessageData, Arg.Any<RoutingResult>());
+        mocks.Metrics.DidNotReceive().StartForkedRequest();
+        mocks.Metrics.DidNotReceive().RecordForkedRequest(msgData.MessageData, Arg.Any<RoutingResult>());
     }
 
     [Fact]
@@ -206,12 +242,16 @@ public class MessageRouterTests
         var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger);
 
         // Act
-        var response = await sut.Route(msgData.Message, mocks.Metrics);
+        var response = await sut.Route(msgData.MessageData, mocks.Metrics);
 
         // Assert
         response.RouteFound.Should().BeTrue();
         response.StatusCode.Should().Be(HttpStatusCode.ServiceUnavailable);
         response.ErrorMessage.Should().StartWith("Error routing");
+        mocks.Metrics.Received().StartRoutedRequest();
+        mocks.Metrics.Received().RecordRoutedRequest(msgData.MessageData, Arg.Any<RoutingResult>());
+        mocks.Metrics.DidNotReceive().StartForkedRequest();
+        mocks.Metrics.DidNotReceive().RecordForkedRequest(msgData.MessageData, Arg.Any<RoutingResult>());
     }
 
     private (IMessageRoutes Routes, IApiSender ApiSender, IQueueSender QueueSender, ILogger Logger, IMetrics Metrics)
@@ -237,7 +277,7 @@ public class MessageRouterTests
 
         if (apiSuccess)
         {
-            apiSender.Send(Arg.Any<RoutingResult>(), Arg.Any<MessageData>(), Arg.Any<IMetrics>(), Arg.Any<bool>())
+            apiSender.Send(Arg.Any<RoutingResult>(), Arg.Any<MessageData>(), Arg.Any<bool>())
                 .Returns(routingResult
                     with
                 {
@@ -248,7 +288,7 @@ public class MessageRouterTests
         }
         else
         {
-            apiSender.Send(Arg.Any<RoutingResult>(), Arg.Any<MessageData>(), Arg.Any<IMetrics>(), Arg.Any<bool>())
+            apiSender.Send(Arg.Any<RoutingResult>(), Arg.Any<MessageData>(), Arg.Any<bool>())
                 .ThrowsAsync<Exception>();
         }
 
@@ -256,7 +296,7 @@ public class MessageRouterTests
 
         if (queueSuccess)
         {
-            queueSender.Send(Arg.Any<RoutingResult>(), Arg.Any<MessageData>(), Arg.Any<IMetrics>(), Arg.Any<bool>())
+            queueSender.Send(Arg.Any<RoutingResult>(), Arg.Any<MessageData>(), Arg.Any<string>())
                 .Returns(routingResult
                     with
                 {
@@ -267,7 +307,7 @@ public class MessageRouterTests
         }
         else
         {
-            queueSender.Send(Arg.Any<RoutingResult>(), Arg.Any<MessageData>(), Arg.Any<IMetrics>(), Arg.Any<bool>())
+            queueSender.Send(Arg.Any<RoutingResult>(), Arg.Any<MessageData>(), Arg.Any<string>())
                 .ThrowsAsync<Exception>();
         }
 

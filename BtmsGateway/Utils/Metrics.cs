@@ -6,12 +6,6 @@ namespace BtmsGateway.Utils;
 
 public interface IMetrics
 {
-    public void RequestRouted(MessageData messageData, RoutingResult routingResult);
-
-    public void RequestForked(MessageData messageData, RoutingResult routingResult);
-    public void StartTotalRequest();
-    public void RecordTotalRequest(MessageData messageData);
-
     public void StartRoutedRequest();
     public void RecordRoutedRequest(MessageData messageData, RoutingResult routingResult);
 
@@ -39,20 +33,12 @@ public class Metrics(MetricsHost metricsHost) : IMetrics
         };
     }
 
-    public void RequestRouted(MessageData messageData, RoutingResult routingResult) => metricsHost.RequestRouted.Add(1, CompletedList(messageData, routingResult));
-
-    public void RequestForked(MessageData messageData, RoutingResult routingResult) => metricsHost.RequestForked.Add(1, CompletedList(messageData, routingResult));
-
-    public void StartTotalRequest() => _totalRequestDuration.Start();
-    public void RecordTotalRequest(MessageData messageData) => metricsHost.TotalRequestDuration.Record(_totalRequestDuration.ElapsedMilliseconds, CompletedList(messageData));
-
     public void StartRoutedRequest() => _routedRequestDuration.Start();
     public void RecordRoutedRequest(MessageData messageData, RoutingResult routingResult) => metricsHost.RoutedRequestDuration.Record(_routedRequestDuration.ElapsedMilliseconds, CompletedList(messageData, routingResult));
 
     public void StartForkedRequest() => _forkedRequestDuration.Start();
     public void RecordForkedRequest(MessageData messageData, RoutingResult routingResult) => metricsHost.ForkedRequestDuration.Record(_forkedRequestDuration.ElapsedMilliseconds, CompletedList(messageData, routingResult));
 
-    private readonly Stopwatch _totalRequestDuration = new();
     private readonly Stopwatch _routedRequestDuration = new();
     private readonly Stopwatch _forkedRequestDuration = new();
 }

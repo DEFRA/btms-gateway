@@ -2,6 +2,7 @@ using System.Text.RegularExpressions;
 using Amazon.SQS;
 using Amazon.SQS.Model;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Services.Health;
 
@@ -10,20 +11,37 @@ public class QueueHealthCheck : IHealthCheck
     private readonly string _queueName;
     private readonly string _name;
     private readonly AmazonSQSClient _sqsClient;
-    private readonly string _queueUrl;
+    private readonly ILogger _logger;
+    private readonly string? _queueUrl;
+    private readonly Exception? _getQueueUrlException;
 
-    public QueueHealthCheck(string name, string topicArn, AmazonSQSClient sqsClient)
+    public QueueHealthCheck(string name, string topicArn, AmazonSQSClient sqsClient, ILogger logger)
     {
         _name = name;
         _sqsClient = sqsClient;
+        _logger = logger;
         _queueName = topicArn.Split(':')[^1];
-        _queueUrl = _sqsClient.GetQueueUrlAsync(_queueName).Result.QueueUrl;
+        try
+        {
+            _queueUrl = _sqsClient.GetQueueUrlAsync(_queueName).Result.QueueUrl;
+        }
+        catch (Exception ex)
+        {
+            _logger.Warning(ex, "HEALTH - Unable to retrieve the queue URL for {QueueName}", _queueName);
+            _getQueueUrlException = ex;
+        }
     }
 
     public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = new())
     {
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         cts.CancelAfter(ConfigureHealthChecks.Timeout);
+
+        if (_queueUrl == null)
+        {
+            _logger.Warning("HEALTH - Retrieving attributes timed out for queue {QueueUrl}", _queueUrl);
+            return new HealthCheckResult(status: HealthStatus.Unhealthy, exception: _getQueueUrlException, data: new Dictionary<string, object> { { "name", _queueName } });
+        }
 
         Exception? exception = null;
         GetQueueAttributesResponse? attributes = null;
@@ -33,10 +51,12 @@ public class QueueHealthCheck : IHealthCheck
         }
         catch (TaskCanceledException)
         {
+            _logger.Warning("HEALTH - Retrieving attributes timed out for queue {QueueUrl}", _queueUrl);
             exception = new TimeoutException($"The queue check cas cancelled, probably because it timed out after {ConfigureHealthChecks.Timeout.TotalSeconds} seconds");
         }
         catch (Exception ex)
         {
+            _logger.Warning(ex, "HEALTH - Retrieving attributes failed for queue {QueueUrl}", _queueUrl);
             exception = ex;
         }
 

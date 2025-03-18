@@ -20,20 +20,23 @@ public class MessageRouter(IMessageRoutes messageRoutes, IApiSender apiSender, I
 
         try
         {
-            switch (routingResult.RouteLinkType)
+            metrics.StartRoutedRequest();
+
+            return routingResult.RouteLinkType switch
             {
-                case LinkType.Queue:
-                    return await queueSender.Send(routingResult, messageData, metrics);
-                case LinkType.Url:
-                    return await apiSender.Send(routingResult, messageData, metrics);
-                default:
-                    return routingResult;
-            }
+                LinkType.Queue => await queueSender.Send(routingResult, messageData, routingResult.FullRouteLink),
+                LinkType.Url => await apiSender.Send(routingResult, messageData, fork: false),
+                _ => routingResult
+            };
         }
         catch (Exception ex)
         {
             logger.Error(ex, "Error routing");
             return routingResult with { StatusCode = HttpStatusCode.ServiceUnavailable, ErrorMessage = $"Error routing - {ex.Message} - {ex.InnerException?.Message}" };
+        }
+        finally
+        {
+            metrics.RecordRoutedRequest(messageData, routingResult);
         }
     }
 
@@ -44,20 +47,23 @@ public class MessageRouter(IMessageRoutes messageRoutes, IApiSender apiSender, I
 
         try
         {
-            switch (routingResult.ForkLinkType)
+            metrics.StartForkedRequest();
+
+            return routingResult.ForkLinkType switch
             {
-                case LinkType.Queue:
-                    return await queueSender.Send(routingResult, messageData, metrics, true);
-                case LinkType.Url:
-                    return await apiSender.Send(routingResult, messageData, metrics, true);
-                default:
-                    return routingResult;
-            }
+                LinkType.Queue => await queueSender.Send(routingResult, messageData, routingResult.FullForkLink),
+                LinkType.Url => await apiSender.Send(routingResult, messageData, fork: true),
+                _ => routingResult
+            };
         }
         catch (Exception ex)
         {
             logger.Error(ex, "Error forking");
             return routingResult with { StatusCode = HttpStatusCode.ServiceUnavailable, ErrorMessage = $"Error forking - {ex.Message} - {ex.InnerException?.Message}" };
+        }
+        finally
+        {
+            metrics.RecordForkedRequest(messageData, routingResult);
         }
     }
 }

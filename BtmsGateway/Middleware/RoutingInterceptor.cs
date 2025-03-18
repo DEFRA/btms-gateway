@@ -1,4 +1,3 @@
-using System.Text;
 using BtmsGateway.Services.Routing;
 using BtmsGateway.Utils;
 using ILogger = Serilog.ILogger;
@@ -12,7 +11,6 @@ public class RoutingInterceptor(RequestDelegate next, IMessageRouter messageRout
         try
         {
             var metrics = metricsHost.GetMetrics();
-            metrics.StartTotalRequest();
 
             var messageData = await MessageData.Create(context.Request, logger);
 
@@ -24,7 +22,6 @@ public class RoutingInterceptor(RequestDelegate next, IMessageRouter messageRout
 
                 await Fork(messageData, metrics);
 
-                metrics.RecordTotalRequest(messageData);
                 return;
             }
 
@@ -49,8 +46,6 @@ public class RoutingInterceptor(RequestDelegate next, IMessageRouter messageRout
             LogRouteNotFoundResults(messageData, routingResult, "Routing");
 
         await messageData.PopulateResponse(context.Response, routingResult);
-
-        metrics.RequestRouted(messageData, routingResult);
     }
 
     private async Task Fork(MessageData messageData, IMetrics metrics)
@@ -61,8 +56,6 @@ public class RoutingInterceptor(RequestDelegate next, IMessageRouter messageRout
             LogRouteFoundResults(messageData, routingResult, "Forking");
         else
             LogRouteNotFoundResults(messageData, routingResult, "Forking");
-
-        metrics.RequestForked(messageData, routingResult);
     }
 
     private void LogRouteFoundResults(MessageData messageData, RoutingResult routingResult, string action)

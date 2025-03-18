@@ -1,7 +1,6 @@
 using System.Net;
 using System.Reflection;
 using BtmsGateway.Services.Routing;
-using BtmsGateway.Utils;
 using FluentAssertions;
 using NSubstitute;
 using Serilog;
@@ -19,13 +18,11 @@ public class ApiSenderTests
         var sut = new ApiSender(mocks.Factory);
 
         // Act
-        var response = await sut.Send(msgData.Routing, msgData.Message, mocks.Metrics, true);
+        var response = await sut.Send(msgData.Routing, msgData.MessageData, fork: true);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         response.RoutingSuccessful.Should().BeFalse();
-        mocks.Metrics.Received().StartForkedRequest();
-        mocks.Metrics.DidNotReceive().StartRoutedRequest();
     }
 
     [Fact]
@@ -37,13 +34,11 @@ public class ApiSenderTests
         var sut = new ApiSender(mocks.Factory);
 
         // Act
-        var response = await sut.Send(msgData.Routing, msgData.Message, mocks.Metrics, true);
+        var response = await sut.Send(msgData.Routing, msgData.MessageData, fork: true);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         response.RoutingSuccessful.Should().BeTrue();
-        mocks.Metrics.Received().StartForkedRequest();
-        mocks.Metrics.DidNotReceive().StartRoutedRequest();
     }
 
     [Fact]
@@ -55,13 +50,11 @@ public class ApiSenderTests
         var sut = new ApiSender(mocks.Factory);
 
         // Act
-        var response = await sut.Send(msgData.Routing, msgData.Message, mocks.Metrics);
+        var response = await sut.Send(msgData.Routing, msgData.MessageData, fork: false);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         response.RoutingSuccessful.Should().BeFalse();
-        mocks.Metrics.DidNotReceive().StartForkedRequest();
-        mocks.Metrics.Received().StartRoutedRequest();
     }
 
     [Fact]
@@ -73,13 +66,11 @@ public class ApiSenderTests
         var sut = new ApiSender(mocks.Factory);
 
         // Act
-        var response = await sut.Send(msgData.Routing, msgData.Message, mocks.Metrics);
+        var response = await sut.Send(msgData.Routing, msgData.MessageData, fork: false);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         response.RoutingSuccessful.Should().BeTrue();
-        mocks.Metrics.DidNotReceive().StartForkedRequest();
-        mocks.Metrics.Received().StartRoutedRequest();
     }
 
     [Fact]
@@ -91,16 +82,14 @@ public class ApiSenderTests
         var sut = new ApiSender(mocks.Factory);
 
         // Act
-        var response = await sut.Send(msgData.Routing, msgData.Message, mocks.Metrics);
+        var response = await sut.Send(msgData.Routing, msgData.MessageData, fork: false);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         response.RoutingSuccessful.Should().BeTrue();
-        mocks.Metrics.DidNotReceive().StartForkedRequest();
-        mocks.Metrics.Received().StartRoutedRequest();
     }
 
-    private (HttpClientHandler Handler, IHttpClientFactory Factory, ILogger Logger, IMetrics Metrics) CreateMocks(HttpStatusCode statusCode = HttpStatusCode.OK)
+    private static (HttpClientHandler Handler, IHttpClientFactory Factory, ILogger Logger) CreateMocks(HttpStatusCode statusCode = HttpStatusCode.OK)
     {
         var response = new HttpResponseMessage(statusCode);
 
@@ -116,8 +105,7 @@ public class ApiSenderTests
         mockFactory.CreateClient(Arg.Any<string>()).Returns(mockClient);
 
         var logger = Substitute.For<ILogger>();
-        var metrics = Substitute.For<IMetrics>();
 
-        return (handler, mockFactory, logger, metrics);
+        return (handler, mockFactory, logger);
     }
 }

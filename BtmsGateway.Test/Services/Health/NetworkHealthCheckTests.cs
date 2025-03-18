@@ -6,6 +6,7 @@ using BtmsGateway.Utils.Http;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Serilog.Core;
 
 namespace BtmsGateway.Test.Services.Health;
 
@@ -77,7 +78,7 @@ public class NetworkHealthCheckTests
     {
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddHttpClient(Proxy.RoutedClientWithRetry).AddHttpMessageHandler(() => testHttpHandler);
-        serviceCollection.AddSingleton(s => new NetworkHealthCheck("Health_Check_Name", healthCheckUrl, s.GetRequiredService<IHttpClientFactory>()));
+        serviceCollection.AddSingleton(s => new NetworkHealthCheck("Health_Check_Name", healthCheckUrl, s.GetRequiredService<IHttpClientFactory>(), Logger.None));
         var services = serviceCollection.BuildServiceProvider();
         return services.GetRequiredService<NetworkHealthCheck>();
     }

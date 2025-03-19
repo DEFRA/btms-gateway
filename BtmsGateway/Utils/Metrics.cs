@@ -15,21 +15,18 @@ public interface IMetrics
 
 public class Metrics(MetricsHost metricsHost) : IMetrics
 {
-    private static ReadOnlySpan<KeyValuePair<string, object?>> CompletedList(MessageData messageData, RoutingResult? routingResult = null)
+    private static ReadOnlySpan<KeyValuePair<string, object?>> CompletedList(MessageData messageData, RoutingResult routingResult)
     {
         return new KeyValuePair<string, object?>[]
         {
-            new("correlation-id", messageData.CorrelationId),
-            new("originating-url", messageData.Url),
-            new("method", messageData.Method),
-            new("content-type", messageData.OriginalContentType),
+            new("route-found", routingResult.RouteFound),
+            new("routing-successful", routingResult.RoutingSuccessful),
             new("path", messageData.Path),
-            new("country-code", messageData.ContentMap.CountryCode),
-            new("route-name", routingResult?.RouteName),
-            new("route-found", routingResult?.RouteFound),
-            new("routing-successful", routingResult?.RoutingSuccessful),
-            new("forward-url", routingResult?.FullRouteLink),
-            new("status-code", routingResult?.StatusCode)
+            new("originating-url", messageData.Url),
+            new("route-name", routingResult.RouteName),
+            new("route-link", routingResult.FullRouteLink),
+            new("fork-link", routingResult.FullForkLink),
+            new("country-code", messageData.ContentMap.CountryCode)
         };
     }
 

@@ -69,11 +69,6 @@ public static class EmfExporter
 
             metricsLogger.SetNamespace(_awsNamespace);
             var dimensionSet = new DimensionSet();
-            foreach (var tag in tags)
-            {
-                if (string.IsNullOrWhiteSpace(tag.Value?.ToString())) continue;
-                dimensionSet.AddDimension(tag.Key, tag.Value?.ToString());
-            }
 
             // If the request contains a w3c trace id, let's embed it in the logs
             // Otherwise we'll include the TraceIdentifier which is the connectionId:requestCount
@@ -94,7 +89,7 @@ public static class EmfExporter
 
             _logger.Information("METRICS - Set metadata for instrument {Name}", name);
 
-            metricsLogger.PutMetric(name, Convert.ToDouble(measurement), UnitsMapper[instrument.Unit ?? DefaultUnitCount]);
+            metricsLogger.PutMetric(name, Convert.ToDouble(measurement), Unit.MILLISECONDS);
             metricsLogger.Flush();
 
             _logger.Information("METRICS - Set and flush measurement {Measurement} {Unit} for instrument {Name}", measurement, instrument.Unit, name);

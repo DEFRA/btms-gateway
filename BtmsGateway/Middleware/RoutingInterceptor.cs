@@ -16,6 +16,7 @@ public class RoutingInterceptor(RequestDelegate next, IMessageRouter messageRout
 
             if (messageData.ShouldProcessRequest)
             {
+                logger.Information("Received routing instruction empty log repeat");
                 logger.Information("{CorrelationId} Received routing instruction {HttpString} {Content}", messageData.CorrelationId, messageData.HttpString, messageData.OriginalContentAsString);
 
                 await Route(context, messageData, metrics);

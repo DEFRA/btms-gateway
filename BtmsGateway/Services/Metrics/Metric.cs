@@ -14,7 +14,7 @@ public interface IMetrics
 
 public class Metric(MetricsHost metricsHost) : IMetrics
 {
-    private static ReadOnlySpan<KeyValuePair<string, object?>> CompletedList(RoutingResult routingResult)
+    private static ReadOnlySpan<KeyValuePair<string, object?>> RequestDurationArgs(RoutingResult routingResult)
     {
         return new KeyValuePair<string, object?>[]
         {
@@ -24,10 +24,22 @@ public class Metric(MetricsHost metricsHost) : IMetrics
     }
 
     public void StartRoutedRequest() => _routedRequestDuration.Start();
-    public void RecordRoutedRequest(RoutingResult routingResult) => metricsHost.RoutedRequestDuration.Record(_routedRequestDuration.ElapsedMilliseconds, CompletedList(routingResult));
+
+    public void RecordRoutedRequest(RoutingResult routingResult)
+    {
+        metricsHost.RoutedRequestDuration.Record(_routedRequestDuration.ElapsedMilliseconds, RequestDurationArgs(routingResult));
+        if (!routingResult.RoutingSuccessful)
+            metricsHost.RoutingError.Add(1, new KeyValuePair<string, object?>[] { new("route-url", routingResult.FullRouteLink) });
+    }
 
     public void StartForkedRequest() => _forkedRequestDuration.Start();
-    public void RecordForkedRequest(RoutingResult routingResult) => metricsHost.ForkedRequestDuration.Record(_forkedRequestDuration.ElapsedMilliseconds, CompletedList(routingResult));
+
+    public void RecordForkedRequest(RoutingResult routingResult)
+    {
+        metricsHost.ForkedRequestDuration.Record(_forkedRequestDuration.ElapsedMilliseconds, RequestDurationArgs(routingResult));
+        if (!routingResult.RoutingSuccessful)
+            metricsHost.RoutingError.Add(1, new KeyValuePair<string, object?>[] { new("route-url", routingResult.FullForkLink) });
+    }
 
     private readonly Stopwatch _routedRequestDuration = new();
     private readonly Stopwatch _forkedRequestDuration = new();

@@ -123,7 +123,7 @@ public class MessageData
 
     public PublishRequest CreatePublishRequest(string? routeArn, int messageBodyDepth, string? messageGroupId = null)
     {
-        string content = string.Empty;
+        var content = string.Empty;
 
         if (OriginalContentType is MediaTypeNames.Application.Xml or MediaTypeNames.Application.Soap or MediaTypeNames.Text.Xml)
         {
@@ -138,6 +138,8 @@ public class MessageData
                 ? string.Empty
                 : OriginalContentAsString;
         }
+
+        _logger.Information("Publish JSON content to {Content}", content);
 
         var request = new PublishRequest
         {

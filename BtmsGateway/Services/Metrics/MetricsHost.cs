@@ -11,12 +11,14 @@ public class MetricsHost
 
     public readonly Histogram<long> RoutedRequestDuration;
     public readonly Histogram<long> ForkedRequestDuration;
+    public readonly Counter<long> RoutingError;
 
     public MetricsHost(IMeterFactory meterFactory)
     {
         var meter = meterFactory.Create(MeterName);
-        RoutedRequestDuration = meter.CreateHistogram<long>("RoutedRequestDuration", UnitsMs, "Duration of routed request/response");
-        ForkedRequestDuration = meter.CreateHistogram<long>("ForkedRequestDuration", UnitsMs, "Duration of forked request/response");
+        RoutedRequestDuration = meter.CreateHistogram<long>("RoutedRequestDuration", UnitsMs, "Duration of routed request to Exiating");
+        ForkedRequestDuration = meter.CreateHistogram<long>("BtmsQueuedDuration", UnitsMs, "Duration of queued request to BTMS");
+        RoutingError = meter.CreateCounter<long>("RoutingError", UnitsRequests, "Count of routing errors");
     }
 
     public IMetrics GetMetrics() => new Metric(this);

@@ -19,5 +19,5 @@ public static class Extensions
 
     public static string ToStringWithDeclaration(this XDocument xDocument) => $"{xDocument.Declaration}{Environment.NewLine}{xDocument}";
 
-    public static bool IsSuccessStatusCode(this HttpStatusCode statusCode) => (int)statusCode < 200 || (int)statusCode > 299;
+    public static bool IsSuccessStatusCode(this HttpStatusCode statusCode) => (int)statusCode >= 200 && (int)statusCode <= 299;
 }

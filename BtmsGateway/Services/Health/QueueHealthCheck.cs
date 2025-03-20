@@ -36,7 +36,7 @@ public class QueueHealthCheck(string name, string topicArn, IAmazonSimpleNotific
         var data = new Dictionary<string, object> { { "topic-arn", topicArn } };
         if (attributes != null)
         {
-            if (attributes.HttpStatusCode.IsSuccessStatusCode()) healthStatus = HealthStatus.Degraded;
+            if (!attributes.HttpStatusCode.IsSuccessStatusCode()) healthStatus = HealthStatus.Degraded;
 
             data.Add("content-length", attributes.ContentLength);
             data.Add("http-status-code", attributes.HttpStatusCode);

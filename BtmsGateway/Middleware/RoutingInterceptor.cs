@@ -1,5 +1,5 @@
+using BtmsGateway.Services.Metrics;
 using BtmsGateway.Services.Routing;
-using BtmsGateway.Utils;
 using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Middleware;

@@ -1,6 +1,6 @@
 using System.Diagnostics.Metrics;
 
-namespace BtmsGateway.Utils;
+namespace BtmsGateway.Services.Metrics;
 
 public class MetricsHost
 {
@@ -19,5 +19,5 @@ public class MetricsHost
         ForkedRequestDuration = meter.CreateHistogram<long>("ForkedRequestDuration", UnitsMs, "Duration of forked request/response");
     }
 
-    public IMetrics GetMetrics() => new Metrics(this);
+    public IMetrics GetMetrics() => new Metric(this);
 }

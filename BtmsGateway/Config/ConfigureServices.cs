@@ -1,8 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 using Amazon.SimpleNotificationService;
 using BtmsGateway.Services.Checking;
+using BtmsGateway.Services.Metrics;
 using BtmsGateway.Services.Routing;
-using BtmsGateway.Utils;
 using BtmsGateway.Utils.Http;
 using FluentValidation;
 using ILogger = Serilog.ILogger;

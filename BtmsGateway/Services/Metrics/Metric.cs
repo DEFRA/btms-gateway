@@ -2,7 +2,7 @@ using System.Diagnostics;
 using BtmsGateway.Middleware;
 using BtmsGateway.Services.Routing;
 
-namespace BtmsGateway.Utils;
+namespace BtmsGateway.Services.Metrics;
 
 public interface IMetrics
 {
@@ -13,13 +13,12 @@ public interface IMetrics
     public void RecordForkedRequest(MessageData messageData, RoutingResult routingResult);
 }
 
-public class Metrics(MetricsHost metricsHost) : IMetrics
+public class Metric(MetricsHost metricsHost) : IMetrics
 {
     private static ReadOnlySpan<KeyValuePair<string, object?>> CompletedList(MessageData messageData, RoutingResult routingResult)
     {
         return new KeyValuePair<string, object?>[]
         {
-            new("route-found", routingResult.RouteFound),
             new("routing-successful", routingResult.RoutingSuccessful),
             new("path", messageData.Path),
             new("originating-url", messageData.Url),

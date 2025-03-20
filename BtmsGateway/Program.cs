@@ -7,6 +7,7 @@ using BtmsGateway.Config;
 using BtmsGateway.Middleware;
 using BtmsGateway.Services.Checking;
 using BtmsGateway.Services.Health;
+using BtmsGateway.Services.Metrics;
 using BtmsGateway.Services.Routing;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;

@@ -1,7 +1,7 @@
 using System.Net;
 using BtmsGateway.Middleware;
+using BtmsGateway.Services.Metrics;
 using BtmsGateway.Services.Routing;
-using BtmsGateway.Utils;
 using FluentAssertions;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;

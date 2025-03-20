@@ -5,7 +5,7 @@ using Amazon.CloudWatch.EMF.Model;
 using Humanizer;
 using ILogger = Serilog.ILogger;
 
-namespace BtmsGateway.Utils;
+namespace BtmsGateway.Services.Metrics;
 
 public static class EmfExportExtensions
 {

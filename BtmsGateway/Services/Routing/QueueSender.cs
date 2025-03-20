@@ -1,6 +1,7 @@
 using System.Net;
 using Amazon.SimpleNotificationService;
 using BtmsGateway.Middleware;
+using BtmsGateway.Utils;
 
 namespace BtmsGateway.Services.Routing;
 
@@ -19,7 +20,7 @@ public class QueueSender(IAmazonSimpleNotificationService snsService) : IQueueSe
 
         return routingResult with
         {
-            RoutingSuccessful = response.HttpStatusCode == HttpStatusCode.OK,
+            RoutingSuccessful = response.HttpStatusCode.IsSuccessStatusCode(),
             ResponseContent = $"Successfully published MessageId: {response.MessageId}",
             StatusCode = response.HttpStatusCode
         };

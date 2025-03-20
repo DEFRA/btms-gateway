@@ -1,3 +1,4 @@
+using System.Net;
 using System.Xml.Linq;
 using Microsoft.Extensions.Options;
 
@@ -17,4 +18,6 @@ public static class Extensions
     public static string ToTitleCase(this string text) => char.ToUpper(text[0]) + text[1..];
 
     public static string ToStringWithDeclaration(this XDocument xDocument) => $"{xDocument.Declaration}{Environment.NewLine}{xDocument}";
+
+    public static bool IsSuccessStatusCode(this HttpStatusCode statusCode) => (int)statusCode < 200 || (int)statusCode > 299;
 }

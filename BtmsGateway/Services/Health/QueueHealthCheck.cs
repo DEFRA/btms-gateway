@@ -1,6 +1,7 @@
 using System.Text.RegularExpressions;
 using Amazon.SimpleNotificationService;
 using Amazon.SimpleNotificationService.Model;
+using BtmsGateway.Utils;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using ILogger = Serilog.ILogger;
 
@@ -35,7 +36,7 @@ public class QueueHealthCheck(string name, string topicArn, IAmazonSimpleNotific
         var data = new Dictionary<string, object> { { "topic-arn", topicArn } };
         if (attributes != null)
         {
-            if ((int)attributes.HttpStatusCode < 200 || (int)attributes.HttpStatusCode > 299) healthStatus = HealthStatus.Degraded;
+            if (attributes.HttpStatusCode.IsSuccessStatusCode()) healthStatus = HealthStatus.Degraded;
 
             data.Add("content-length", attributes.ContentLength);
             data.Add("http-status-code", attributes.HttpStatusCode);

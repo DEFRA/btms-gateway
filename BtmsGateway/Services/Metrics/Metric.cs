@@ -20,12 +20,7 @@ public class Metric(MetricsHost metricsHost) : IMetrics
         return new KeyValuePair<string, object?>[]
         {
             new("routing-successful", routingResult.RoutingSuccessful),
-            new("path", messageData.Path),
-            new("originating-url", messageData.Url),
-            new("route-name", routingResult.RouteName),
-            new("route-link", routingResult.FullRouteLink),
-            new("fork-link", routingResult.FullForkLink),
-            new("country-code", messageData.ContentMap.CountryCode)
+            new("path", messageData.Path)
         };
     }
 

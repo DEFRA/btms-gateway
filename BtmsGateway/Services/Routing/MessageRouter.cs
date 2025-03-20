@@ -22,12 +22,14 @@ public class MessageRouter(IMessageRoutes messageRoutes, IApiSender apiSender, I
         {
             metrics.StartRoutedRequest();
 
-            return routingResult.RouteLinkType switch
+            routingResult = routingResult.RouteLinkType switch
             {
                 LinkType.Queue => await queueSender.Send(routingResult, messageData, routingResult.FullRouteLink),
                 LinkType.Url => await apiSender.Send(routingResult, messageData, fork: false),
                 _ => routingResult
             };
+
+            return routingResult;
         }
         catch (Exception ex)
         {
@@ -49,12 +51,14 @@ public class MessageRouter(IMessageRoutes messageRoutes, IApiSender apiSender, I
         {
             metrics.StartForkedRequest();
 
-            return routingResult.ForkLinkType switch
+            routingResult = routingResult.ForkLinkType switch
             {
                 LinkType.Queue => await queueSender.Send(routingResult, messageData, routingResult.FullForkLink),
                 LinkType.Url => await apiSender.Send(routingResult, messageData, fork: true),
                 _ => routingResult
             };
+
+            return routingResult;
         }
         catch (Exception ex)
         {

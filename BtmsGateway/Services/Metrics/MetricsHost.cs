@@ -16,7 +16,7 @@ public class MetricsHost
     public MetricsHost(IMeterFactory meterFactory)
     {
         var meter = meterFactory.Create(MeterName);
-        RoutedRequestDuration = meter.CreateHistogram<long>("RoutedRequestDuration", UnitsMs, "Duration of routed request to Exiating");
+        RoutedRequestDuration = meter.CreateHistogram<long>("RoutedRequestDuration", UnitsMs, "Duration of routed request to Existing");
         ForkedRequestDuration = meter.CreateHistogram<long>("BtmsQueuedDuration", UnitsMs, "Duration of queued request to BTMS");
         RoutingError = meter.CreateCounter<long>("RoutingError", UnitsRequests, "Count of routing errors");
     }

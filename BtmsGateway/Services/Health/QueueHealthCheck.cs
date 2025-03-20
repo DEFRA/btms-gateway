@@ -7,8 +7,7 @@ using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Services.Health;
 
-public class QueueHealthCheck(string name, string topicArn, IAmazonSimpleNotificationService snsClient, ILogger logger)
-    : IHealthCheck
+public class QueueHealthCheck(string name, string topicArn, IAmazonSimpleNotificationService snsClient, ILogger logger) : IHealthCheck
 {
     public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = new())
     {

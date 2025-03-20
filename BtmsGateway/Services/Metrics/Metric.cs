@@ -10,6 +10,8 @@ public interface IMetrics
 
     public void StartForkedRequest();
     public void RecordForkedRequest(RoutingResult routingResult);
+
+    public void RecordRoutingError(string routeLink);
 }
 
 public class Metric(MetricsHost metricsHost) : IMetrics
@@ -23,13 +25,17 @@ public class Metric(MetricsHost metricsHost) : IMetrics
         };
     }
 
+    private static ReadOnlySpan<KeyValuePair<string, object?>> RoutingErrorArgs(string? routLink)
+    {
+        return new KeyValuePair<string, object?>[] { new("route-link", routLink) };
+    }
+
     public void StartRoutedRequest() => _routedRequestDuration.Start();
 
     public void RecordRoutedRequest(RoutingResult routingResult)
     {
         metricsHost.RoutedRequestDuration.Record(_routedRequestDuration.ElapsedMilliseconds, RequestDurationArgs(routingResult));
-        if (!routingResult.RoutingSuccessful)
-            metricsHost.RoutingError.Add(1, new KeyValuePair<string, object?>[] { new("route-url", routingResult.FullRouteLink) });
+        if (!routingResult.RoutingSuccessful) RecordRoutingError(routingResult.FullRouteLink ?? "Unknown");
     }
 
     public void StartForkedRequest() => _forkedRequestDuration.Start();
@@ -37,8 +43,12 @@ public class Metric(MetricsHost metricsHost) : IMetrics
     public void RecordForkedRequest(RoutingResult routingResult)
     {
         metricsHost.ForkedRequestDuration.Record(_forkedRequestDuration.ElapsedMilliseconds, RequestDurationArgs(routingResult));
-        if (!routingResult.RoutingSuccessful)
-            metricsHost.RoutingError.Add(1, new KeyValuePair<string, object?>[] { new("route-url", routingResult.FullForkLink) });
+        if (!routingResult.RoutingSuccessful) RecordRoutingError(routingResult.FullForkLink ?? "Unknown");
+    }
+
+    public void RecordRoutingError(string routeLink)
+    {
+        metricsHost.RoutingError.Add(1, RoutingErrorArgs(routeLink));
     }
 
     private readonly Stopwatch _routedRequestDuration = new();

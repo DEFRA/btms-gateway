@@ -47,7 +47,6 @@ public static class EmfExporter
             if (instrument.Meter.Name is MetricsHost.MeterName)
             {
                 listener.EnableMeasurementEvents(instrument);
-                _logger.Information("METRICS - Enable monitoring events");
             }
         };
 
@@ -92,12 +91,8 @@ public static class EmfExporter
             metricsLogger.SetDimensions(dimensionSet);
             var name = instrument.Name.Dehumanize().Pascalize();
 
-            _logger.Information("METRICS - Set metadata for instrument {Name}", name);
-
             metricsLogger.PutMetric(name, Convert.ToDouble(measurement), UnitsMapper[instrument.Unit ?? DefaultUnitCount]);
             metricsLogger.Flush();
-
-            _logger.Information("METRICS - Set and flush measurement {Measurement} {Unit} for instrument {Name}", measurement, instrument.Unit, name);
         }
         catch (Exception ex)
         {

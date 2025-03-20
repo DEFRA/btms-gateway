@@ -49,6 +49,7 @@ public class MessageRoutes : IMessageRoutes
                     {
                         RouteFound = true,
                         RouteName = route.Name,
+                        Legend = route.Legend,
                         RouteLinkType = route.LegacyLinkType,
                         ForkLinkType = route.BtmsLinkType,
                         FullRouteLink = route.LegacyLinkType == LinkType.None ? null : $"{route.LegacyLink}{(route.LegacyLinkType == LinkType.Url ? routePath : null)}",
@@ -63,6 +64,7 @@ public class MessageRoutes : IMessageRoutes
                     {
                         RouteFound = true,
                         RouteName = route.Name,
+                        Legend = route.Legend,
                         RouteLinkType = route.BtmsLinkType,
                         ForkLinkType = route.LegacyLinkType,
                         FullRouteLink = route.BtmsLinkType == LinkType.None ? null : $"{route.BtmsLink}{(route.BtmsLinkType == LinkType.Url ? routePath : null)}",

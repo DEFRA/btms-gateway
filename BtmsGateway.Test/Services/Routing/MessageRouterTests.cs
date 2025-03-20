@@ -28,9 +28,9 @@ public class MessageRouterTests
         response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
         response.ErrorMessage.Should().Be("Route not found");
         mocks.Metrics.DidNotReceive().StartRoutedRequest();
-        mocks.Metrics.DidNotReceive().RecordRoutedRequest(msgData.MessageData, Arg.Any<RoutingResult>());
+        mocks.Metrics.DidNotReceive().RecordRoutedRequest(Arg.Any<RoutingResult>());
         mocks.Metrics.DidNotReceive().StartForkedRequest();
-        mocks.Metrics.DidNotReceive().RecordForkedRequest(msgData.MessageData, Arg.Any<RoutingResult>());
+        mocks.Metrics.DidNotReceive().RecordForkedRequest(Arg.Any<RoutingResult>());
     }
 
     [Fact]
@@ -53,9 +53,9 @@ public class MessageRouterTests
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         response.ErrorMessage.Should().BeNull();
         mocks.Metrics.DidNotReceive().StartRoutedRequest();
-        mocks.Metrics.DidNotReceive().RecordRoutedRequest(msgData.MessageData, Arg.Any<RoutingResult>());
+        mocks.Metrics.DidNotReceive().RecordRoutedRequest(Arg.Any<RoutingResult>());
         mocks.Metrics.Received().StartForkedRequest();
-        mocks.Metrics.Received().RecordForkedRequest(msgData.MessageData, Arg.Any<RoutingResult>());
+        mocks.Metrics.Received().RecordForkedRequest(Arg.Any<RoutingResult>());
     }
 
     [Fact]
@@ -78,9 +78,9 @@ public class MessageRouterTests
         response.StatusCode.Should().Be(HttpStatusCode.ServiceUnavailable);
         response.ErrorMessage.Should().StartWith("Error fork");
         mocks.Metrics.DidNotReceive().StartRoutedRequest();
-        mocks.Metrics.DidNotReceive().RecordRoutedRequest(msgData.MessageData, Arg.Any<RoutingResult>());
+        mocks.Metrics.DidNotReceive().RecordRoutedRequest(Arg.Any<RoutingResult>());
         mocks.Metrics.Received().StartForkedRequest();
-        mocks.Metrics.Received().RecordForkedRequest(msgData.MessageData, Arg.Any<RoutingResult>());
+        mocks.Metrics.Received().RecordForkedRequest(Arg.Any<RoutingResult>());
     }
 
     [Fact]
@@ -103,9 +103,9 @@ public class MessageRouterTests
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         response.ErrorMessage.Should().BeNull();
         mocks.Metrics.DidNotReceive().StartRoutedRequest();
-        mocks.Metrics.DidNotReceive().RecordRoutedRequest(msgData.MessageData, Arg.Any<RoutingResult>());
+        mocks.Metrics.DidNotReceive().RecordRoutedRequest(Arg.Any<RoutingResult>());
         mocks.Metrics.Received().StartForkedRequest();
-        mocks.Metrics.Received().RecordForkedRequest(msgData.MessageData, Arg.Any<RoutingResult>());
+        mocks.Metrics.Received().RecordForkedRequest(Arg.Any<RoutingResult>());
     }
 
     [Fact]
@@ -128,9 +128,9 @@ public class MessageRouterTests
         response.StatusCode.Should().Be(HttpStatusCode.ServiceUnavailable);
         response.ErrorMessage.Should().StartWith("Error fork");
         mocks.Metrics.DidNotReceive().StartRoutedRequest();
-        mocks.Metrics.DidNotReceive().RecordRoutedRequest(msgData.MessageData, Arg.Any<RoutingResult>());
+        mocks.Metrics.DidNotReceive().RecordRoutedRequest(Arg.Any<RoutingResult>());
         mocks.Metrics.Received().StartForkedRequest();
-        mocks.Metrics.Received().RecordForkedRequest(msgData.MessageData, Arg.Any<RoutingResult>());
+        mocks.Metrics.Received().RecordForkedRequest(Arg.Any<RoutingResult>());
     }
 
     [Fact]
@@ -149,9 +149,9 @@ public class MessageRouterTests
         response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
         response.ErrorMessage.Should().Be("Route not found");
         mocks.Metrics.DidNotReceive().StartForkedRequest();
-        mocks.Metrics.DidNotReceive().RecordRoutedRequest(msgData.MessageData, Arg.Any<RoutingResult>());
+        mocks.Metrics.DidNotReceive().RecordRoutedRequest(Arg.Any<RoutingResult>());
         mocks.Metrics.DidNotReceive().StartRoutedRequest();
-        mocks.Metrics.DidNotReceive().RecordForkedRequest(msgData.MessageData, Arg.Any<RoutingResult>());
+        mocks.Metrics.DidNotReceive().RecordForkedRequest(Arg.Any<RoutingResult>());
     }
 
     [Fact]
@@ -174,9 +174,9 @@ public class MessageRouterTests
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         response.ErrorMessage.Should().BeNull();
         mocks.Metrics.Received().StartRoutedRequest();
-        mocks.Metrics.Received().RecordRoutedRequest(msgData.MessageData, Arg.Any<RoutingResult>());
+        mocks.Metrics.Received().RecordRoutedRequest(Arg.Any<RoutingResult>());
         mocks.Metrics.DidNotReceive().StartForkedRequest();
-        mocks.Metrics.DidNotReceive().RecordForkedRequest(msgData.MessageData, Arg.Any<RoutingResult>());
+        mocks.Metrics.DidNotReceive().RecordForkedRequest(Arg.Any<RoutingResult>());
     }
 
     [Fact]
@@ -199,9 +199,9 @@ public class MessageRouterTests
         response.StatusCode.Should().Be(HttpStatusCode.ServiceUnavailable);
         response.ErrorMessage.Should().StartWith("Error routing");
         mocks.Metrics.Received().StartRoutedRequest();
-        mocks.Metrics.Received().RecordRoutedRequest(msgData.MessageData, Arg.Any<RoutingResult>());
+        mocks.Metrics.Received().RecordRoutedRequest(Arg.Any<RoutingResult>());
         mocks.Metrics.DidNotReceive().StartForkedRequest();
-        mocks.Metrics.DidNotReceive().RecordForkedRequest(msgData.MessageData, Arg.Any<RoutingResult>());
+        mocks.Metrics.DidNotReceive().RecordForkedRequest(Arg.Any<RoutingResult>());
     }
 
     [Fact]
@@ -224,9 +224,9 @@ public class MessageRouterTests
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         response.ErrorMessage.Should().BeNull();
         mocks.Metrics.Received().StartRoutedRequest();
-        mocks.Metrics.Received().RecordRoutedRequest(msgData.MessageData, Arg.Any<RoutingResult>());
+        mocks.Metrics.Received().RecordRoutedRequest(Arg.Any<RoutingResult>());
         mocks.Metrics.DidNotReceive().StartForkedRequest();
-        mocks.Metrics.DidNotReceive().RecordForkedRequest(msgData.MessageData, Arg.Any<RoutingResult>());
+        mocks.Metrics.DidNotReceive().RecordForkedRequest(Arg.Any<RoutingResult>());
     }
 
     [Fact]
@@ -249,9 +249,9 @@ public class MessageRouterTests
         response.StatusCode.Should().Be(HttpStatusCode.ServiceUnavailable);
         response.ErrorMessage.Should().StartWith("Error routing");
         mocks.Metrics.Received().StartRoutedRequest();
-        mocks.Metrics.Received().RecordRoutedRequest(msgData.MessageData, Arg.Any<RoutingResult>());
+        mocks.Metrics.Received().RecordRoutedRequest(Arg.Any<RoutingResult>());
         mocks.Metrics.DidNotReceive().StartForkedRequest();
-        mocks.Metrics.DidNotReceive().RecordForkedRequest(msgData.MessageData, Arg.Any<RoutingResult>());
+        mocks.Metrics.DidNotReceive().RecordForkedRequest(Arg.Any<RoutingResult>());
     }
 
     private (IMessageRoutes Routes, IApiSender ApiSender, IQueueSender QueueSender, ILogger Logger, IMetrics Metrics)

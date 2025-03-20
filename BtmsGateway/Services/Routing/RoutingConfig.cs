@@ -15,6 +15,7 @@ public record RoutingConfig
             nl.Value.LinkType,
             nl.Value.HostHeader,
             nr.Value.RoutePath,
+            nr.Value.Legend,
             nr.Value.MessageBodyDepth,
             nr.Value.SendLegacyResponseToBtms,
             nr.Value.RouteTo
@@ -26,6 +27,7 @@ public record RoutingConfig
             nl.Value.LinkType,
             nl.Value.HostHeader,
             nr.Value.RoutePath,
+            nr.Value.Legend,
             nr.Value.MessageBodyDepth,
             nr.Value.SendLegacyResponseToBtms,
             nr.Value.RouteTo
@@ -33,6 +35,7 @@ public record RoutingConfig
         var output = legacy.Join(btms, l => l.Name, b => b.Name, (l, b) => new RoutedLink
         {
             Name = l.Name,
+            Legend = l.Legend,
             LegacyLink = l.Link.TrimEnd('/'),
             LegacyLinkType = l.LinkType,
             LegacyHostHeader = l.HostHeader,
@@ -56,6 +59,7 @@ public record RoutingConfig
 public record NamedRoute
 {
     public required string RoutePath { get; init; }
+    public string Legend { get; init; }
     public string? LegacyLinkName { get; init; }
     public string? BtmsLinkName { get; init; }
     public required bool SendLegacyResponseToBtms { get; init; }
@@ -75,6 +79,7 @@ public enum LinkType { None, Url, Queue }
 public record RoutedLink
 {
     public required string Name { get; init; }
+    public required string Legend { get; init; }
     public required string RoutePath { get; init; }
     public string? LegacyLink { get; init; }
     public required LinkType LegacyLinkType { get; init; }

@@ -38,7 +38,7 @@ public class MessageRouter(IMessageRoutes messageRoutes, IApiSender apiSender, I
         }
         finally
         {
-            metrics.RecordRoutedRequest(messageData, routingResult);
+            metrics.RecordRoutedRequest(routingResult);
         }
     }
 
@@ -67,7 +67,7 @@ public class MessageRouter(IMessageRoutes messageRoutes, IApiSender apiSender, I
         }
         finally
         {
-            metrics.RecordForkedRequest(messageData, routingResult);
+            metrics.RecordForkedRequest(routingResult);
         }
     }
 }

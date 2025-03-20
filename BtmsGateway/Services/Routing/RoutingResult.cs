@@ -5,6 +5,7 @@ namespace BtmsGateway.Services.Routing;
 public record RoutingResult
 {
     public string? RouteName { get; init; }
+    public string? Legend { get; init; }
     public bool RouteFound { get; init; }
     public bool RoutingSuccessful { get; init; }
     public LinkType RouteLinkType { get; init; }

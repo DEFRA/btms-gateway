@@ -16,6 +16,7 @@ public class MessageRoutesTests
 
         route.RouteFound.Should().BeTrue();
         route.RouteName.Should().Be("route-1");
+        route.Legend.Should().Be("Route 1");
         route.RouteLinkType.Should().Be(LinkType.Url);
         route.FullRouteLink.Should().Be("http://legacy-link-url/route/path-1/sub/path");
         route.RouteHostHeader.Should().Be("legacy-host-header");

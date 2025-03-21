@@ -2,6 +2,8 @@
   "NamedRoutes": {
     "CDSClearanceRequestToAlvs": {
       "RoutePath": "/route/path/cds/clearance-request",
+      "MessageSubXPath": "ALVSClearanceRequest",
+      "Legend": "Legend",
       "LegacyLinkName": "Cds",
       "BtmsLinkName": "Btms",
       "SendLegacyResponseToBtms": false,
@@ -9,6 +11,8 @@
     },
     "CDSFinalisationNotificationToAlvs": {
       "RoutePath": "/route/path/cds/finalisation-notification",
+      "MessageSubXPath": "FinalisationNotificationRequest",
+      "Legend": "Legend",
       "LegacyLinkName": "Cds",
       "BtmsLinkName": "Btms",
       "SendLegacyResponseToBtms": false,
@@ -16,6 +20,8 @@
     },
     "CDSErrorNotificationToAlvs": {
       "RoutePath": "/route/path/cds/error-notification",
+      "MessageSubXPath": "ALVSErrorNotificationRequest",
+      "Legend": "Legend",
       "LegacyLinkName": "Cds",
       "BtmsLinkName": "Btms",
       "SendLegacyResponseToBtms": false,
@@ -23,6 +29,18 @@
     },
     "ALVSDecisionNotificationToCds": {
       "RoutePath": "/route/path/alvs-cds/decision-notification",
+      "MessageSubXPath": "DecisionNotification/DecisionNotification",
+      "Legend": "Legend",
+      "LegacyLinkName": "AlvsCds",
+      "BtmsLinkName": "Btms",
+      "MessageBodyDepth": 2,
+      "SendLegacyResponseToBtms": false,
+      "RouteTo": "Legacy"
+    },
+    "ALVSErrorNotificationToCds": {
+      "RoutePath": "/route/path/alvs-cds/decision-notification",
+      "MessageSubXPath": "HMRCErrorNotification/HMRCErrorNotification",
+      "Legend": "Legend",
       "LegacyLinkName": "AlvsCds",
       "BtmsLinkName": "Btms",
       "MessageBodyDepth": 2,
@@ -31,6 +49,8 @@
     },
     "ALVSClearanceRequestToIpaffs": {
       "RoutePath": "/route/path/alvs-ipaffs/clearance-request",
+      "MessageSubXPath": "ALVSClearanceRequestPost/ALVSClearanceRequest",
+      "Legend": "Legend",
       "LegacyLinkName": "AlvsIpaffs",
       "BtmsLinkName": "Btms",
       "MessageBodyDepth": 2,
@@ -39,6 +59,8 @@
     },
     "ALVSFinalisationNotificationToIpaffs": {
       "RoutePath": "/route/path/alvs-ipaffs/finalisation-notification",
+      "MessageSubXPath": "FinalisationNotificationRequestPost/FinalisationNotificationRequest",
+      "Legend": "Legend",
       "LegacyLinkName": "AlvsIpaffs",
       "BtmsLinkName": "Btms",
       "MessageBodyDepth": 2,
@@ -47,6 +69,8 @@
     },
     "BTMSDecisionNotificationToCds": {
       "RoutePath": "/route/path/btms-cds/decision-notification",
+      "MessageSubXPath": "DecisionNotification/DecisionNotification",
+      "Legend": "Legend",
       "LegacyLinkName": "Cds",
       "BtmsLinkName": "None",
       "SendLegacyResponseToBtms": false,
@@ -54,6 +78,8 @@
     },
     "CDSClearanceRequestToBtms": {
       "RoutePath": "/route/path/cds-btms/clearance-request",
+      "MessageSubXPath": "ALVSClearanceRequest",
+      "Legend": "Legend",
       "LegacyLinkName": "None",
       "BtmsLinkName": "Btms",
       "SendLegacyResponseToBtms": false,
@@ -61,6 +87,8 @@
     },
     "ALVSDecisionForkToBtmsQueue": {
       "RoutePath": "/route/path/alvs-btms/decision-fork-queue",
+      "MessageSubXPath": "DecisionNotification/DecisionNotification",
+      "Legend": "Legend",
       "LegacyLinkName": "Cds",
       "BtmsLinkName": "AlvsDecisionForkQueue",
       "MessageBodyDepth": 2,
@@ -69,6 +97,8 @@
     },
     "ALVSDecisionRouteToBtmsQueue": {
       "RoutePath": "/route/path/alvs-btms/decision-route-queue",
+      "MessageSubXPath": "DecisionNotification/DecisionNotification",
+      "Legend": "Legend",
       "LegacyLinkName": "None",
       "BtmsLinkName": "AlvsDecisionRouteQueue",
       "MessageBodyDepth": 2,
@@ -78,21 +108,29 @@
     
     "ALVSErrorNotificationForkToBtmsQueue": {
       "RoutePath": "/route/path/alvs-btms/error-fork-queue",
+      "MessageSubXPath": "HMRCErrorNotification/HMRCErrorNotification",
+      "Legend": "Legend",
       "LegacyLinkName": "Cds",
       "BtmsLinkName": "AlvsErrorForkQueue",
+      "MessageBodyDepth": 2,
       "SendLegacyResponseToBtms": false,
       "RouteTo": "Legacy"
     },
     "ALVSErrorNotificationRouteToBtmsQueue": {
       "RoutePath": "/route/path/alvs-btms/error-route-queue",
+      "MessageSubXPath": "HMRCErrorNotification/HMRCErrorNotification",
+      "Legend": "Legend",
       "LegacyLinkName": "None",
       "BtmsLinkName": "AlvsErrorRouteQueue",
+      "MessageBodyDepth": 2,
       "SendLegacyResponseToBtms": false,
       "RouteTo": "Btms"
     },
 
     "CDSClearanceRequestForkToBtmsQueue": {
       "RoutePath": "/route/path/cds-btms/clearance-request-fork-queue",
+      "MessageSubXPath": "ALVSClearanceRequest",
+      "Legend": "Legend",
       "LegacyLinkName": "AlvsCds",
       "BtmsLinkName": "CustomsClearanceForkQueue",
       "SendLegacyResponseToBtms": false,
@@ -100,6 +138,8 @@
     },
     "CDSClearanceRequestRouteToBtmsQueue": {
       "RoutePath": "/route/path/cds-btms/clearance-request-route-queue",
+      "MessageSubXPath": "ALVSClearanceRequest",
+      "Legend": "Legend",
       "LegacyLinkName": "None",
       "BtmsLinkName": "CustomsClearanceRouteQueue",
       "SendLegacyResponseToBtms": false,
@@ -108,6 +148,8 @@
 
     "CDSErrorNotificationForkToBtmsQueue": {
       "RoutePath": "/route/path/cds-btms/error-fork-queue",
+      "MessageSubXPath": "ALVSErrorNotificationRequest",
+      "Legend": "Legend",
       "LegacyLinkName": "AlvsCds",
       "BtmsLinkName": "CustomsErrorForkQueue",
       "SendLegacyResponseToBtms": false,
@@ -115,6 +157,8 @@
     },
     "CDSErrorNotificationRouteToBtmsQueue": {
       "RoutePath": "/route/path/cds-btms/error-route-queue",
+      "MessageSubXPath": "ALVSErrorNotificationRequest",
+      "Legend": "Legend",
       "LegacyLinkName": "None",
       "BtmsLinkName": "CustomsErrorRouteQueue",
       "SendLegacyResponseToBtms": false,
@@ -123,6 +167,8 @@
 
     "CDSFinalisationNotificationForkToBtmsQueue": {
       "RoutePath": "/route/path/cds-btms/finalisation-fork-queue",
+      "MessageSubXPath": "FinalisationNotificationRequest",
+      "Legend": "Legend",
       "LegacyLinkName": "AlvsCds",
       "BtmsLinkName": "CustomsFinalisationForkQueue",
       "SendLegacyResponseToBtms": false,
@@ -130,6 +176,8 @@
     },
     "CDSFinalisationNotificationRouteToBtmsQueue": {
       "RoutePath": "/route/path/cds-btms/finalisation-route-queue",
+      "MessageSubXPath": "FinalisationNotificationRequest",
+      "Legend": "Legend",
       "LegacyLinkName": "None",
       "BtmsLinkName": "CustomsFinalisationRouteQueue",
       "SendLegacyResponseToBtms": false,

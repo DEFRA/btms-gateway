@@ -1,12 +1,13 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
+using BtmsGateway.Services.Converter;
 using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Services.Routing;
 
 public interface IMessageRoutes
 {
-    RoutingResult GetRoute(string routePath);
+    RoutingResult GetRoute(string routePath, string? soapContent);
 }
 
 public class MessageRoutes : IMessageRoutes
@@ -32,13 +33,13 @@ public class MessageRoutes : IMessageRoutes
     }
 
     [SuppressMessage("SonarLint", "S3358", Justification = "The second nested ternary in each case (lines 55, 56, 68, 69) is within a string interpolation so is very clearly independent of the first")]
-    public RoutingResult GetRoute(string routePath)
+    public RoutingResult GetRoute(string routePath, string? soapContent)
     {
         string routeName;
         try
         {
             routeName = routePath.Trim('/');
-            var route = _routes.SingleOrDefault(x => x.RoutePath.Equals(routeName, StringComparison.InvariantCultureIgnoreCase));
+            var route = _routes.FirstOrDefault(x => x.RoutePath.Equals(routeName, StringComparison.InvariantCultureIgnoreCase) && Soap.HasMessage(soapContent, x.MessageSubXPath));
             routePath = $"/{routeName.Trim('/')}";
 
             return route == null

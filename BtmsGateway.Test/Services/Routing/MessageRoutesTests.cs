@@ -7,12 +7,14 @@ namespace BtmsGateway.Test.Services.Routing;
 
 public class MessageRoutesTests
 {
+    private string GetSoap(string messageName) => $"<Envelope><Body><{messageName}><Data>{messageName}</Data></{messageName}></Body></Envelope>";
+    
     [Fact]
     public void When_routing_route_1_Then_should_route_correctly()
     {
         var messageRoutes = new MessageRoutes(TestRoutes.RoutingConfig, Substitute.For<ILogger>());
 
-        var route = messageRoutes.GetRoute("/route/path-1/sub/path/");
+        var route = messageRoutes.GetRoute("/route/path-1/sub/path/", GetSoap("Message1"));
 
         route.RouteFound.Should().BeTrue();
         route.RouteName.Should().Be("route-1");
@@ -34,7 +36,7 @@ public class MessageRoutesTests
     {
         var messageRoutes = new MessageRoutes(TestRoutes.RoutingConfig, Substitute.For<ILogger>());
 
-        var route = messageRoutes.GetRoute("/route/path-2/sub/path/");
+        var route = messageRoutes.GetRoute("/route/path-2/sub/path/", GetSoap("Message2"));
 
         route.RouteFound.Should().BeTrue();
         route.RouteName.Should().Be("route-2");
@@ -55,7 +57,7 @@ public class MessageRoutesTests
     {
         var messageRoutes = new MessageRoutes(TestRoutes.RoutingConfig, Substitute.For<ILogger>());
 
-        var route = messageRoutes.GetRoute("/route/path-3/sub/path/");
+        var route = messageRoutes.GetRoute("/route/path-3/sub/path/", GetSoap("Message3"));
 
         route.RouteFound.Should().BeTrue();
         route.RouteName.Should().Be("route-3");
@@ -76,7 +78,7 @@ public class MessageRoutesTests
     {
         var messageRoutes = new MessageRoutes(TestRoutes.RoutingConfig, Substitute.For<ILogger>());
 
-        var route = messageRoutes.GetRoute("/route/path-4/sub/path/");
+        var route = messageRoutes.GetRoute("/route/path-4/sub/path/", GetSoap("Message4"));
 
         route.RouteFound.Should().BeTrue();
         route.RouteName.Should().Be("route-4");
@@ -97,7 +99,7 @@ public class MessageRoutesTests
     {
         var messageRoutes = new MessageRoutes(TestRoutes.RoutingConfig, Substitute.For<ILogger>());
 
-        var route = messageRoutes.GetRoute("/route-99/sub/path/");
+        var route = messageRoutes.GetRoute("/route-99/sub/path/", GetSoap("Message1"));
 
         route.RouteFound.Should().BeFalse();
         route.RouteName.Should().BeNull();

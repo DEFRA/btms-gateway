@@ -8,7 +8,6 @@ namespace BtmsGateway.Test.Services.Routing;
 
 public static class TestHelpers
 {
-
     public static async Task<(MessageData MessageData, RoutingResult Routing)> CreateMessageData(ILogger logger, bool jsonContent = true)
     {
         const string Path = "http://localhost/some/path";

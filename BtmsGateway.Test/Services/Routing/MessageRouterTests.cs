@@ -208,7 +208,7 @@ public class MessageRouterTests
     public async Task Route_UrlLinkType_SuccessfullyRouted_ReturnsSuccess()
     {
         // Arrange
-        var mocks = CreateMocks(new RoutingResult()
+        var mocks = CreateMocks(new RoutingResult
         {
             RouteLinkType = LinkType.Url
         }, true, false);
@@ -271,7 +271,7 @@ public class MessageRouterTests
             FullRouteLink = "full-route-link",
         };
 
-        routes.GetRoute(Arg.Any<string>()).Returns(routingResult);
+        routes.GetRoute(Arg.Any<string>(), Arg.Any<string>()).Returns(routingResult);
 
         var apiSender = Substitute.For<IApiSender>();
 

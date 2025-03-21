@@ -11,8 +11,8 @@ public class ErrorHandlingFromAlvsToBtmsQueueTests(ITestOutputHelper testOutputH
     private const string ForkPath = "/route/path/alvs-btms/error-fork-queue";
     private const string RoutePath = "/route/path/alvs-btms/error-route-queue";
 
-    private readonly string _alvsRequestSoap = File.ReadAllText(Path.Combine(FixturesPath, "AlvsErrorHandling.xml"));
-    private readonly string _btmsRequestJson = File.ReadAllText(Path.Combine(FixturesPath, "AlvsErrorHandling.json")).LinuxLineEndings();
+    private readonly string _alvsRequestSoap = File.ReadAllText(Path.Combine(FixturesPath, "CdsErrorHandling.xml"));
+    private readonly string _btmsRequestJson = File.ReadAllText(Path.Combine(FixturesPath, "CdsErrorHandling.json")).LinuxLineEndings();
 
     [Fact]
     public async Task When_receiving_request_from_alvs_Then_should_fork_converted_json_to_btms_queue()

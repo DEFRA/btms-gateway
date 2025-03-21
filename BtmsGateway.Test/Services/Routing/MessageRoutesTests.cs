@@ -8,7 +8,7 @@ namespace BtmsGateway.Test.Services.Routing;
 public class MessageRoutesTests
 {
     private string GetSoap(string messageName) => $"<Envelope><Body><{messageName}><Data>{messageName}</Data></{messageName}></Body></Envelope>";
-    
+
     [Fact]
     public void When_routing_route_1_Then_should_route_correctly()
     {

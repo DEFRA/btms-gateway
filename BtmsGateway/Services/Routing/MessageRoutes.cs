@@ -50,6 +50,7 @@ public class MessageRoutes : IMessageRoutes
                     {
                         RouteFound = true,
                         RouteName = route.Name,
+                        MessageSubXPath = route.MessageSubXPath,
                         Legend = route.Legend,
                         RouteLinkType = route.LegacyLinkType,
                         ForkLinkType = route.BtmsLinkType,
@@ -57,7 +58,6 @@ public class MessageRoutes : IMessageRoutes
                         FullForkLink = route.BtmsLinkType == LinkType.None ? null : $"{route.BtmsLink}{(route.BtmsLinkType == LinkType.Url ? routePath : null)}",
                         RouteHostHeader = route.LegacyHostHeader,
                         ForkHostHeader = route.BtmsHostHeader,
-                        MessageBodyDepth = route.MessageBodyDepth,
                         ConvertForkedContentToFromJson = true,
                         UrlPath = routePath
                     },
@@ -65,6 +65,7 @@ public class MessageRoutes : IMessageRoutes
                     {
                         RouteFound = true,
                         RouteName = route.Name,
+                        MessageSubXPath = route.MessageSubXPath,
                         Legend = route.Legend,
                         RouteLinkType = route.BtmsLinkType,
                         ForkLinkType = route.LegacyLinkType,
@@ -72,7 +73,6 @@ public class MessageRoutes : IMessageRoutes
                         FullForkLink = route.LegacyLinkType == LinkType.None ? null : $"{route.LegacyLink}{(route.LegacyLinkType == LinkType.Url ? routePath : null)}",
                         RouteHostHeader = route.BtmsHostHeader,
                         ForkHostHeader = route.LegacyHostHeader,
-                        MessageBodyDepth = route.MessageBodyDepth,
                         ConvertRoutedContentToFromJson = true,
                         UrlPath = routePath
                     },

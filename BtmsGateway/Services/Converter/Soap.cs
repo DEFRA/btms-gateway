@@ -15,7 +15,7 @@ public static class Soap
         doc.LoadXml(soap);
         var messageNode = doc.DocumentElement?.SelectSingleNode(xpath);
 
-        return messageNode?.InnerXml;
+        return messageNode?.OuterXml;
     }
 
     public static bool HasMessage(string? soap, string messageSubXPath)

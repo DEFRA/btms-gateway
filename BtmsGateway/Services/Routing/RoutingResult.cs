@@ -5,6 +5,7 @@ namespace BtmsGateway.Services.Routing;
 public record RoutingResult
 {
     public string? RouteName { get; init; }
+    public string? MessageSubXPath { get; set; }
     public string? Legend { get; init; }
     public bool RouteFound { get; init; }
     public bool RoutingSuccessful { get; init; }
@@ -16,7 +17,6 @@ public record RoutingResult
     public string? FullForkLink { get; init; }
     public string? ForkHostHeader { get; init; }
     public bool ConvertForkedContentToFromJson { get; init; }
-    public int MessageBodyDepth { get; init; }
     public string? UrlPath { get; init; }
     public string? ResponseContent { get; init; }
     public DateTimeOffset? ResponseDate { get; init; }

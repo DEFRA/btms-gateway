@@ -1,4 +1,3 @@
-using System.Net;
 using Amazon.SimpleNotificationService;
 using BtmsGateway.Middleware;
 using BtmsGateway.Utils;
@@ -14,7 +13,7 @@ public class QueueSender(IAmazonSimpleNotificationService snsService) : IQueueSe
 {
     public async Task<RoutingResult> Send(RoutingResult routingResult, MessageData messageData, string? route)
     {
-        var request = messageData.CreatePublishRequest(route, routingResult.MessageBodyDepth);
+        var request = messageData.CreatePublishRequest(route, routingResult.MessageSubXPath);
 
         var response = await snsService.PublishAsync(request);
 

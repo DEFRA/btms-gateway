@@ -12,7 +12,7 @@ public class SoapTests
     {
         var message = $"{Declaration}<Envelope><Body><Message1><Data>111</Data></Message1></Body></Envelope>";
 
-        Soap.GetMessage(message, "Message1").Should().Be("<Data>111</Data>");
+        Soap.GetMessage(message, "Message1").Should().Be("<Message1><Data>111</Data></Message1>");
     }
 
     [Fact]
@@ -20,7 +20,7 @@ public class SoapTests
     {
         var message = $"{Declaration}<s:Envelope xmlns:s=\"http://www.w3.org/2003/05/soap-envelope\"><s:Body><m:Message1 xmlns:m=\"http://local1\"><Data xmlns=\"http://local2\">111</Data></m:Message1></s:Body></s:Envelope>";
 
-        Soap.GetMessage(message, "Message1").Should().Be("<Data xmlns=\"http://local2\">111</Data>");
+        Soap.GetMessage(message, "Message1").Should().Be("<m:Message1 xmlns:m=\"http://local1\"><Data xmlns=\"http://local2\">111</Data></m:Message1>");
     }
 
     [Fact]
@@ -28,7 +28,7 @@ public class SoapTests
     {
         var message = $"{Declaration}<Envelope><Body><Message1><Message2><Data>111</Data></Message2></Message1></Body></Envelope>";
 
-        Soap.GetMessage(message, "Message1/Message2").Should().Be("<Data>111</Data>");
+        Soap.GetMessage(message, "Message1/Message2").Should().Be("<Message2><Data>111</Data></Message2>");
     }
 
     [Fact]
@@ -36,7 +36,7 @@ public class SoapTests
     {
         var message = $"{Declaration}<s:Envelope xmlns:s=\"http://www.w3.org/2003/05/soap-envelope\"><s:Body><m:Message1 xmlns:m=\"http://local1\"><n:Message2 xmlns:n=\"http://local3\"><Data xmlns=\"http://local2\">111</Data></n:Message2></m:Message1></s:Body></s:Envelope>";
 
-        Soap.GetMessage(message, "Message1/Message2").Should().Be("<Data xmlns=\"http://local2\">111</Data>");
+        Soap.GetMessage(message, "Message1/Message2").Should().Be("<n:Message2 xmlns:n=\"http://local3\"><Data xmlns=\"http://local2\">111</Data></n:Message2>");
     }
 
     [Fact]

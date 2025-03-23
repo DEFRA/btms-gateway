@@ -16,7 +16,6 @@ public class RoutingConfigTests
         route.LegacyLink.Should().Be("http://legacy-link-url");
         route.LegacyLinkType.Should().Be(LinkType.Url);
         route.LegacyHostHeader.Should().Be("legacy-host-header");
-        route.MessageBodyDepth.Should().Be(1);
         route.BtmsLink.Should().Be("btms-link-queue");
         route.BtmsLinkType.Should().Be(LinkType.Queue);
         route.BtmsHostHeader.Should().BeNull();
@@ -35,7 +34,6 @@ public class RoutingConfigTests
         route.LegacyLink.Should().Be("legacy-link-queue");
         route.LegacyLinkType.Should().Be(LinkType.Queue);
         route.LegacyHostHeader.Should().BeNull();
-        route.MessageBodyDepth.Should().Be(2);
         route.BtmsLink.Should().Be("http://btms-link-url");
         route.BtmsLinkType.Should().Be(LinkType.Url);
         route.BtmsHostHeader.Should().Be("btms-host-header");
@@ -54,7 +52,6 @@ public class RoutingConfigTests
         route.LegacyLink.Should().Be("http://legacy-link-url");
         route.LegacyLinkType.Should().Be(LinkType.Url);
         route.LegacyHostHeader.Should().Be("legacy-host-header");
-        route.MessageBodyDepth.Should().Be(1);
         route.BtmsLink.Should().Be("none");
         route.BtmsLinkType.Should().Be(LinkType.None);
         route.BtmsHostHeader.Should().BeNull();
@@ -73,7 +70,6 @@ public class RoutingConfigTests
         route.LegacyLink.Should().Be("none");
         route.LegacyLinkType.Should().Be(LinkType.None);
         route.LegacyHostHeader.Should().BeNull();
-        route.MessageBodyDepth.Should().Be(1);
         route.BtmsLink.Should().Be("http://btms-link-url");
         route.BtmsLinkType.Should().Be(LinkType.Url);
         route.BtmsHostHeader.Should().Be("btms-host-header");

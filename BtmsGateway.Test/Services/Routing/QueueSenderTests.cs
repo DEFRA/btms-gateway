@@ -79,7 +79,7 @@ public class QueueSenderTests
     {
         // Arrange
         var mocks = CreateMocks();
-        var msgData = await TestHelpers.CreateMessageData(mocks.Logger, false);
+        var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
         var sut = new QueueSender(mocks.SnsService);
 
         // Act

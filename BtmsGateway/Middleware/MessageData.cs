@@ -12,10 +12,9 @@ namespace BtmsGateway.Middleware;
 
 public class MessageData
 {
-    public const string CorrelationIdHeaderName = "X-Correlation-ID";
+    public const string CorrelationIdHeaderName = "CorrelationId";
     public const string RequestedPathHeaderName = "x-requested-path";
 
-    public string CorrelationId { get; }
     public string? OriginalContentAsString { get; }
     public string HttpString { get; }
     public string Url { get; }
@@ -46,8 +45,6 @@ public class MessageData
             _headers = request.Headers;
             Url = $"{request.Scheme}://{request.Host}{request.Path}{request.QueryString}";
             HttpString = $"{Method} {Url} {request.Protocol.ToUpper()} {OriginalContentType}";
-            var correlationId = _headers[CorrelationIdHeaderName].FirstOrDefault();
-            CorrelationId = string.IsNullOrWhiteSpace(correlationId) ? Guid.NewGuid().ToString("D") : correlationId;
         }
         catch (Exception ex)
         {
@@ -101,7 +98,7 @@ public class MessageData
             {
                 request.Headers.Add(header.Key, header.Value.ToArray());
             }
-            request.Headers.Add(CorrelationIdHeaderName, CorrelationId);
+            request.Headers.Add(CorrelationIdHeaderName, ContentMap.CorrelationId);
             request.Headers.Add("Accept", contentType);
             if (!string.IsNullOrWhiteSpace(hostHeader)) request.Headers.TryAddWithoutValidation("host", hostHeader);
 
@@ -143,10 +140,10 @@ public class MessageData
         var request = new PublishRequest
         {
             MessageGroupId = ContentMap.EntryReference,
-            MessageDeduplicationId = CorrelationId,
+            MessageDeduplicationId = ContentMap.CorrelationId,
             MessageAttributes = new Dictionary<string, MessageAttributeValue>
             {
-                { "CorrelationId", new MessageAttributeValue { StringValue = CorrelationId, DataType = "String"} }
+                { "CorrelationId", new MessageAttributeValue { StringValue = ContentMap.CorrelationId, DataType = "String"} }
             },
             Message = content,
             TopicArn = routeArn
@@ -162,7 +159,7 @@ public class MessageData
             response.StatusCode = (int)routingResult.StatusCode;
             response.ContentType = OriginalContentType;
             response.Headers.Date = (routingResult.ResponseDate ?? DateTimeOffset.Now).ToString("R");
-            response.Headers[CorrelationIdHeaderName] = CorrelationId;
+            response.Headers[CorrelationIdHeaderName] = ContentMap.CorrelationId;
             response.Headers[RequestedPathHeaderName] = routingResult.UrlPath;
             if (!string.IsNullOrWhiteSpace($"{routingResult.ResponseContent}{routingResult.ErrorMessage}") && response.StatusCode != (int)HttpStatusCode.NoContent)
                 await response.BodyWriter.WriteAsync(new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes($"{routingResult.ResponseContent}{routingResult.ErrorMessage}")));
@@ -196,4 +193,5 @@ public class ContentMap(string? content)
 {
     public string? EntryReference => Soap.GetProperty(content, "EntryReference");
     public string? CountryCode => Soap.GetProperty(content, "DispatchCountryCode");
+    public string? CorrelationId => Soap.GetProperty(content, "CorrelationId");
 }

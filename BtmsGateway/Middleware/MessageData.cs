@@ -63,13 +63,13 @@ public class MessageData
                                               || Path.StartsWith("swagger", StringComparison.InvariantCultureIgnoreCase)
                                               || Path.StartsWith(CheckRoutesEndpoints.Path, StringComparison.InvariantCultureIgnoreCase)));
 
-    public HttpRequestMessage CreateConvertedForwardingRequest(string? routeUrl, string? hostHeader, int messageBodyDepth)
+    public HttpRequestMessage CreateConvertedForwardingRequest(string? routeUrl, string? hostHeader, string? messageSubXPath)
     {
         if (OriginalContentType is MediaTypeNames.Application.Xml or MediaTypeNames.Application.Soap or MediaTypeNames.Text.Xml)
         {
             var content = string.IsNullOrWhiteSpace(OriginalContentAsString)
                 ? string.Empty
-                : SoapToJsonConverter.Convert(OriginalContentAsString, messageBodyDepth);
+                : SoapToJsonConverter.Convert(OriginalContentAsString, messageSubXPath);
             return CreateForwardingRequest(routeUrl, hostHeader, content, MediaTypeNames.Application.Json);
         }
 
@@ -121,7 +121,7 @@ public class MessageData
         }
     }
 
-    public PublishRequest CreatePublishRequest(string? routeArn, int messageBodyDepth, string? messageGroupId = null)
+    public PublishRequest CreatePublishRequest(string? routeArn, string? messageSubXPath, string? messageGroupId = null)
     {
         var content = string.Empty;
 
@@ -129,7 +129,7 @@ public class MessageData
         {
             content = string.IsNullOrWhiteSpace(OriginalContentAsString)
                 ? string.Empty
-                : SoapToJsonConverter.Convert(OriginalContentAsString, messageBodyDepth);
+                : SoapToJsonConverter.Convert(OriginalContentAsString, messageSubXPath);
         }
 
         if (OriginalContentType is MediaTypeNames.Application.Json)

@@ -8,7 +8,6 @@ namespace BtmsGateway.Test.Services.Routing;
 
 public static class TestHelpers
 {
-
     public static async Task<(MessageData MessageData, RoutingResult Routing)> CreateMessageData(ILogger logger, bool jsonContent = true)
     {
         const string Path = "http://localhost/some/path";
@@ -18,6 +17,7 @@ public static class TestHelpers
                            "xmlns:oas=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\">\n" +
                            "<soap:Header>\n    </soap:Header>\n    <soap:Body>\n        <ALVSClearanceRequest " +
                            "xmlns=\"http://submitimportdocumenthmrcfacade.types.esb.ws.cara.defra.com\">\n " +
+                           "            <Content>Data</Content>" +
                            "</ALVSClearanceRequest>\n    </soap:Body>\n</soap:Envelope>";
 
         const string JsonString = "{ \"test\": \"test\" }";
@@ -30,11 +30,12 @@ public static class TestHelpers
         httpContext.Request.Body = contentStream;
 
         var msgData = await MessageData.Create(httpContext.Request, logger);
-        var routing = new RoutingResult()
+        var routing = new RoutingResult
         {
+            MessageSubXPath = "ALVSClearanceRequest",
             FullForkLink = Path,
             FullRouteLink = Path,
-            ConvertRoutedContentToFromJson = !jsonContent,
+            ConvertRoutedContentToFromJson = !jsonContent
         };
 
         return (msgData, routing);

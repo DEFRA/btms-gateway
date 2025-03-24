@@ -11,8 +11,7 @@ namespace BtmsGateway.Test.EndToEnd;
 
 public sealed class GeneralEndToEndTests : IAsyncDisposable
 {
-    private const string XmlRoutedResponse = "<root><xml>RoutedResponse</xml></root>";
-    private const string XmlContent = "<Envelope><Body><Message><xml>Content</xml></Message></Body></Envelope>";
+    private const string SoapContent = "<Envelope><Body><Message><xml>Content</xml></Message></Body></Envelope>";
     private const string RoutedPath = "/test/path";
 
     private readonly string _headerCorrelationId = Guid.NewGuid().ToString("D");
@@ -35,6 +34,8 @@ public sealed class GeneralEndToEndTests : IAsyncDisposable
                         RoutePath = "test/path",
                         LegacyLinkName = "TestPath",
                         BtmsLinkName = "BtmsPath",
+                        Legend = "legend",
+                        MessageSubXPath = "Message",
                         RouteTo = RouteTo.Legacy,
                         SendLegacyResponseToBtms = false
                     }
@@ -53,7 +54,7 @@ public sealed class GeneralEndToEndTests : IAsyncDisposable
 
         _expectedRoutedUrl = $"http://testurlpath{RoutedPath}";
         _expectedForkedUrl = $"http://btmsurlpath/forked{RoutedPath}";
-        _stringContent = new StringContent(XmlContent, Encoding.UTF8, MediaTypeNames.Application.Xml);
+        _stringContent = new StringContent(SoapContent, Encoding.UTF8, MediaTypeNames.Application.Xml);
     }
 
     public async ValueTask DisposeAsync() => await _testWebServer.DisposeAsync();
@@ -61,7 +62,7 @@ public sealed class GeneralEndToEndTests : IAsyncDisposable
     [Fact]
     public async Task When_routing_request_Then_should_respond_from_routed_request()
     {
-        _testWebServer.RoutedHttpHandler.SetNextResponse(content: XmlRoutedResponse);
+        _testWebServer.RoutedHttpHandler.SetNextResponse(content: SoapContent);
 
         var response = await _httpClient.PostAsync(RoutedPath, _stringContent);
 
@@ -70,20 +71,20 @@ public sealed class GeneralEndToEndTests : IAsyncDisposable
         response.Headers.Date.Should().BeAfter(_headerDate);
         response.Headers.GetValues(MessageData.CorrelationIdHeaderName).FirstOrDefault().Should().Be(_headerCorrelationId);
         response.Headers.GetValues(MessageData.RequestedPathHeaderName).FirstOrDefault().Should().Be(RoutedPath);
-        (await response.Content.ReadAsStringAsync()).Should().Be(XmlRoutedResponse);
+        (await response.Content.ReadAsStringAsync()).Should().Be(SoapContent);
     }
 
     [Fact]
     public async Task When_routing_routed_request_Then_should_route_correctly()
     {
-        _testWebServer.RoutedHttpHandler.SetNextResponse(content: XmlRoutedResponse);
+        _testWebServer.RoutedHttpHandler.SetNextResponse(content: SoapContent);
 
         await _httpClient.PostAsync(RoutedPath, _stringContent);
 
         var request = _testWebServer.RoutedHttpHandler.LastRequest;
         request?.RequestUri?.ToString().Should().Be(_expectedRoutedUrl);
         request?.Method.ToString().Should().Be("POST");
-        (await request?.Content?.ReadAsStringAsync()!).Should().Be(XmlContent);
+        (await request?.Content?.ReadAsStringAsync()!).Should().Be(SoapContent);
         request?.Content?.Headers.ContentType?.ToString().Should().StartWith(MediaTypeNames.Application.Xml);
         request?.Headers.Date?.Should().Be(_headerDate);
         request?.Headers.GetValues(MessageData.CorrelationIdHeaderName).FirstOrDefault().Should().Be(_headerCorrelationId);
@@ -91,7 +92,7 @@ public sealed class GeneralEndToEndTests : IAsyncDisposable
         var response = _testWebServer.RoutedHttpHandler.LastResponse;
         response?.StatusCode.Should().Be(HttpStatusCode.OK);
         response?.Content.Headers.ContentType?.ToString().Should().StartWith(MediaTypeNames.Application.Xml);
-        (await response?.Content.ReadAsStringAsync()!).Should().Be(XmlRoutedResponse);
+        (await response?.Content.ReadAsStringAsync()!).Should().Be(SoapContent);
     }
 
     [Fact]

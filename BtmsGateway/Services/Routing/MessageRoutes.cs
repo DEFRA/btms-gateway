@@ -1,12 +1,13 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
+using BtmsGateway.Services.Converter;
 using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Services.Routing;
 
 public interface IMessageRoutes
 {
-    RoutingResult GetRoute(string routePath);
+    RoutingResult GetRoute(string routePath, string? soapContent);
 }
 
 public class MessageRoutes : IMessageRoutes
@@ -31,57 +32,67 @@ public class MessageRoutes : IMessageRoutes
         }
     }
 
-    [SuppressMessage("SonarLint", "S3358", Justification = "The second nested ternary in each case (lines 55, 56, 68, 69) is within a string interpolation so is very clearly independent of the first")]
-    public RoutingResult GetRoute(string routePath)
+    public RoutingResult GetRoute(string routePath, string? soapContent)
     {
         string routeName;
         try
         {
             routeName = routePath.Trim('/');
-            var route = _routes.SingleOrDefault(x => x.RoutePath.Equals(routeName, StringComparison.InvariantCultureIgnoreCase));
+            var route = _routes.FirstOrDefault(x => x.RoutePath.Equals(routeName, StringComparison.InvariantCultureIgnoreCase) && Soap.HasMessage(soapContent, x.MessageSubXPath));
             routePath = $"/{routeName.Trim('/')}";
 
             return route == null
                 ? new RoutingResult { RouteFound = false, RouteName = null, UrlPath = routePath, StatusCode = HttpStatusCode.InternalServerError, ErrorMessage = "Route not found" }
-                : route.RouteTo switch
-                {
-                    RouteTo.Legacy => new RoutingResult
-                    {
-                        RouteFound = true,
-                        RouteName = route.Name,
-                        Legend = route.Legend,
-                        RouteLinkType = route.LegacyLinkType,
-                        ForkLinkType = route.BtmsLinkType,
-                        FullRouteLink = route.LegacyLinkType == LinkType.None ? null : $"{route.LegacyLink}{(route.LegacyLinkType == LinkType.Url ? routePath : null)}",
-                        FullForkLink = route.BtmsLinkType == LinkType.None ? null : $"{route.BtmsLink}{(route.BtmsLinkType == LinkType.Url ? routePath : null)}",
-                        RouteHostHeader = route.LegacyHostHeader,
-                        ForkHostHeader = route.BtmsHostHeader,
-                        MessageBodyDepth = route.MessageBodyDepth,
-                        ConvertForkedContentToFromJson = true,
-                        UrlPath = routePath
-                    },
-                    RouteTo.Btms => new RoutingResult
-                    {
-                        RouteFound = true,
-                        RouteName = route.Name,
-                        Legend = route.Legend,
-                        RouteLinkType = route.BtmsLinkType,
-                        ForkLinkType = route.LegacyLinkType,
-                        FullRouteLink = route.BtmsLinkType == LinkType.None ? null : $"{route.BtmsLink}{(route.BtmsLinkType == LinkType.Url ? routePath : null)}",
-                        FullForkLink = route.LegacyLinkType == LinkType.None ? null : $"{route.LegacyLink}{(route.LegacyLinkType == LinkType.Url ? routePath : null)}",
-                        RouteHostHeader = route.BtmsHostHeader,
-                        ForkHostHeader = route.LegacyHostHeader,
-                        MessageBodyDepth = route.MessageBodyDepth,
-                        ConvertRoutedContentToFromJson = true,
-                        UrlPath = routePath
-                    },
-                    _ => throw new ArgumentOutOfRangeException(nameof(route.RouteTo), "Can only route to 'Legacy' or 'Btms'")
-                };
+                : SelectRoute(route, routePath);
         }
         catch (Exception ex)
         {
             _logger.Error(ex, "Error getting route");
             return new RoutingResult { RouteFound = false, RouteName = routePath, UrlPath = routePath, StatusCode = HttpStatusCode.InternalServerError, ErrorMessage = $"Error getting route - {ex.Message} - {ex.InnerException?.Message}" };
         }
+    }
+
+    private static RoutingResult SelectRoute(RoutedLink route, string routePath)
+    {
+        return route.RouteTo switch
+        {
+            RouteTo.Legacy => new RoutingResult
+            {
+                RouteFound = true,
+                RouteName = route.Name,
+                MessageSubXPath = route.MessageSubXPath,
+                Legend = route.Legend,
+                RouteLinkType = route.LegacyLinkType,
+                ForkLinkType = route.BtmsLinkType,
+                FullRouteLink = SelectLink(route.LegacyLinkType, route.LegacyLink, routePath),
+                FullForkLink = SelectLink(route.BtmsLinkType, route.BtmsLink, routePath),
+                RouteHostHeader = route.LegacyHostHeader,
+                ForkHostHeader = route.BtmsHostHeader,
+                ConvertForkedContentToFromJson = true,
+                UrlPath = routePath
+            },
+            RouteTo.Btms => new RoutingResult
+            {
+                RouteFound = true,
+                RouteName = route.Name,
+                MessageSubXPath = route.MessageSubXPath,
+                Legend = route.Legend,
+                RouteLinkType = route.BtmsLinkType,
+                ForkLinkType = route.LegacyLinkType,
+                FullRouteLink = SelectLink(route.BtmsLinkType, route.BtmsLink, routePath),
+                FullForkLink = SelectLink(route.LegacyLinkType, route.LegacyLink, routePath),
+                RouteHostHeader = route.BtmsHostHeader,
+                ForkHostHeader = route.LegacyHostHeader,
+                ConvertRoutedContentToFromJson = true,
+                UrlPath = routePath
+            },
+            _ => throw new ArgumentOutOfRangeException(nameof(route.RouteTo), "Can only route to 'Legacy' or 'Btms'")
+        };
+    }
+
+    [SuppressMessage("SonarLint", "S3358", Justification = "The second nested ternary in each case (lines 55, 56, 68, 69) is within a string interpolation so is very clearly independent of the first")]
+    private static string? SelectLink(LinkType linkType, string? link, string routePath)
+    {
+        return linkType == LinkType.None ? null : $"{link}{(linkType == LinkType.Url ? routePath : null)}";
     }
 }

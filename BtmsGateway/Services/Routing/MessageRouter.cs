@@ -15,7 +15,7 @@ public class MessageRouter(IMessageRoutes messageRoutes, IApiSender apiSender, I
 {
     public async Task<RoutingResult> Route(MessageData messageData, IMetrics metrics)
     {
-        var routingResult = messageRoutes.GetRoute(messageData.Path);
+        var routingResult = messageRoutes.GetRoute(messageData.Path, messageData.OriginalContentAsString);
         if (!routingResult.RouteFound || routingResult.RouteLinkType == LinkType.None) return routingResult;
 
         try
@@ -44,7 +44,7 @@ public class MessageRouter(IMessageRoutes messageRoutes, IApiSender apiSender, I
 
     public async Task<RoutingResult> Fork(MessageData messageData, IMetrics metrics)
     {
-        var routingResult = messageRoutes.GetRoute(messageData.Path);
+        var routingResult = messageRoutes.GetRoute(messageData.Path, messageData.OriginalContentAsString);
         if (!routingResult.RouteFound || routingResult.ForkLinkType == LinkType.None) return routingResult;
 
         try

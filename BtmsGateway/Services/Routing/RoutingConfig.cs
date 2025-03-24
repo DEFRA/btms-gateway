@@ -2,7 +2,7 @@ namespace BtmsGateway.Services.Routing;
 
 public record RoutingConfig
 {
-    public bool AutomatedHealthCheckDisabled { get; set; }
+    public bool AutomatedHealthCheckDisabled { get; init; }
 
     public RoutedLink[] AllRoutes => GetAllRoutes();
 
@@ -15,8 +15,8 @@ public record RoutingConfig
             nl.Value.LinkType,
             nl.Value.HostHeader,
             nr.Value.RoutePath,
+            nr.Value.MessageSubXPath,
             nr.Value.Legend,
-            nr.Value.MessageBodyDepth,
             nr.Value.SendLegacyResponseToBtms,
             nr.Value.RouteTo
         });
@@ -27,8 +27,8 @@ public record RoutingConfig
             nl.Value.LinkType,
             nl.Value.HostHeader,
             nr.Value.RoutePath,
+            nr.Value.MessageSubXPath,
             nr.Value.Legend,
-            nr.Value.MessageBodyDepth,
             nr.Value.SendLegacyResponseToBtms,
             nr.Value.RouteTo
         });
@@ -43,7 +43,7 @@ public record RoutingConfig
             BtmsLinkType = b.LinkType,
             BtmsHostHeader = b.HostHeader,
             RoutePath = l.RoutePath.Trim('/'),
-            MessageBodyDepth = l.MessageBodyDepth,
+            MessageSubXPath = l.MessageSubXPath,
             SendLegacyResponseToBtms = b.SendLegacyResponseToBtms,
             RouteTo = b.RouteTo
         })
@@ -59,11 +59,11 @@ public record RoutingConfig
 public record NamedRoute
 {
     public required string RoutePath { get; init; }
-    public string Legend { get; init; }
+    public required string Legend { get; init; }
+    public required string MessageSubXPath { get; init; }
     public string? LegacyLinkName { get; init; }
     public string? BtmsLinkName { get; init; }
     public required bool SendLegacyResponseToBtms { get; init; }
-    public int MessageBodyDepth { get; init; } = 1;
     public required RouteTo RouteTo { get; init; }
 }
 
@@ -81,13 +81,13 @@ public record RoutedLink
     public required string Name { get; init; }
     public required string Legend { get; init; }
     public required string RoutePath { get; init; }
+    public required string MessageSubXPath { get; init; }
     public string? LegacyLink { get; init; }
     public required LinkType LegacyLinkType { get; init; }
     public string? LegacyHostHeader { get; init; }
     public string? BtmsLink { get; init; }
     public required LinkType BtmsLinkType { get; init; }
     public string? BtmsHostHeader { get; init; }
-    public int MessageBodyDepth { get; init; } = 1;
     public required bool SendLegacyResponseToBtms { get; init; }
     public required RouteTo RouteTo { get; init; }
 }

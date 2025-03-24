@@ -20,13 +20,13 @@ public class ApiSender(IHttpClientFactory clientFactory) : IApiSender
         if (fork)
         {
             request = routingResult.ConvertForkedContentToFromJson
-                ? messageData.CreateConvertedForwardingRequest(routingResult.FullForkLink, routingResult.ForkHostHeader, routingResult.MessageBodyDepth)
+                ? messageData.CreateConvertedForwardingRequest(routingResult.FullForkLink, routingResult.ForkHostHeader, routingResult.MessageSubXPath)
                 : messageData.CreateForwardingRequestAsOriginal(routingResult.FullForkLink, routingResult.ForkHostHeader);
         }
         else
         {
             request = routingResult.ConvertRoutedContentToFromJson
-                ? messageData.CreateConvertedForwardingRequest(routingResult.FullRouteLink, routingResult.RouteHostHeader, routingResult.MessageBodyDepth)
+                ? messageData.CreateConvertedForwardingRequest(routingResult.FullRouteLink, routingResult.RouteHostHeader, routingResult.MessageSubXPath)
                 : messageData.CreateForwardingRequestAsOriginal(routingResult.FullRouteLink, routingResult.RouteHostHeader);
         }
 

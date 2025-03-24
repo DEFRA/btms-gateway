@@ -9,17 +9,17 @@ public class SoapToJsonConverterTests
     private static readonly string TestDataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Services", "Converter", "Fixtures");
 
     [Theory]
-    [InlineData("ClearanceRequestSoap.xml", 1, "ClearanceRequest.json")]
-    [InlineData("ClearanceRequestSoapForIpaffs.xml", 2, "ClearanceRequest.json")]
-    [InlineData("AlvsToCdsDecisionNotification.xml", 2, "DecisionNotification.json")]
-    [InlineData("AlvsErrorNotification.xml", 1, "AlvsErrorNotification.json")]
-    [InlineData("HmrcErrorNotification.xml", 2, "HmrcErrorNotification.json")]
-    [InlineData("HmrcErrorNotificationWithHtmlEncoding.xml", 2, "HmrcErrorNotification.json")]
-    public void When_receiving_clearance_request_soap_Then_should_convert_to_json(string soapFileName, int messageBodyDepth, string jsonFileName)
+    [InlineData("ClearanceRequestSoap.xml", "ALVSClearanceRequest", "ClearanceRequest.json")]
+    [InlineData("ClearanceRequestSoapForIpaffs.xml", "ALVSClearanceRequestPost/ALVSClearanceRequest", "ClearanceRequest.json")]
+    [InlineData("AlvsToCdsDecisionNotification.xml", "DecisionNotification/DecisionNotification", "DecisionNotification.json")]
+    [InlineData("AlvsErrorNotification.xml", "ALVSErrorNotificationRequest", "AlvsErrorNotification.json")]
+    [InlineData("HmrcErrorNotification.xml", "HMRCErrorNotification/HMRCErrorNotification", "HmrcErrorNotification.json")]
+    [InlineData("HmrcErrorNotificationWithHtmlEncoding.xml", "HMRCErrorNotification/HMRCErrorNotification", "HmrcErrorNotification.json")]
+    public void When_receiving_clearance_request_soap_Then_should_convert_to_json(string soapFileName, string messageSubXPath, string jsonFileName)
     {
         var soap = File.ReadAllText(Path.Combine(TestDataPath, soapFileName));
         var json = File.ReadAllText(Path.Combine(TestDataPath, jsonFileName)).LinuxLineEndings();
 
-        SoapToJsonConverter.Convert(soap, messageBodyDepth).LinuxLineEndings().Should().Be(json);
+        SoapToJsonConverter.Convert(soap, messageSubXPath).LinuxLineEndings().Should().Be(json);
     }
 }

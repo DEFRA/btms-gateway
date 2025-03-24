@@ -2,7 +2,6 @@ using System.Net;
 using System.Net.Mime;
 using System.Text;
 using System.Text.Json.Nodes;
-using System.Text.RegularExpressions;
 using Amazon.SimpleNotificationService.Model;
 using BtmsGateway.Services.Checking;
 using BtmsGateway.Services.Converter;
@@ -121,7 +120,7 @@ public class MessageData
         }
     }
 
-    public PublishRequest CreatePublishRequest(string? routeArn, string? messageSubXPath, string? messageGroupId = null)
+    public PublishRequest CreatePublishRequest(string? routeArn, string? messageSubXPath)
     {
         var content = string.Empty;
 
@@ -143,11 +142,11 @@ public class MessageData
 
         var request = new PublishRequest
         {
-            MessageGroupId = string.IsNullOrWhiteSpace(messageGroupId) ? "default" : messageGroupId,
+            MessageGroupId = ContentMap.EntryReference,
             MessageDeduplicationId = CorrelationId,
             MessageAttributes = new Dictionary<string, MessageAttributeValue>
             {
-                { "CorrelationId", new MessageAttributeValue() { StringValue = CorrelationId, DataType = "String"} }
+                { "CorrelationId", new MessageAttributeValue { StringValue = CorrelationId, DataType = "String"} }
             },
             Message = content,
             TopicArn = routeArn

@@ -32,7 +32,6 @@ public class MessageRoutes : IMessageRoutes
         }
     }
 
-    [SuppressMessage("SonarLint", "S3358", Justification = "The second nested ternary in each case (lines 55, 56, 68, 69) is within a string interpolation so is very clearly independent of the first")]
     public RoutingResult GetRoute(string routePath, string? soapContent)
     {
         string routeName;
@@ -65,8 +64,8 @@ public class MessageRoutes : IMessageRoutes
                 Legend = route.Legend,
                 RouteLinkType = route.LegacyLinkType,
                 ForkLinkType = route.BtmsLinkType,
-                FullRouteLink = route.LegacyLinkType == LinkType.None ? null : $"{route.LegacyLink}{(route.LegacyLinkType == LinkType.Url ? routePath : null)}",
-                FullForkLink = route.BtmsLinkType == LinkType.None ? null : $"{route.BtmsLink}{(route.BtmsLinkType == LinkType.Url ? routePath : null)}",
+                FullRouteLink = SelectLink(route.LegacyLinkType, route.LegacyLink, routePath),
+                FullForkLink = SelectLink(route.BtmsLinkType, route.BtmsLink, routePath),
                 RouteHostHeader = route.LegacyHostHeader,
                 ForkHostHeader = route.BtmsHostHeader,
                 ConvertForkedContentToFromJson = true,
@@ -80,8 +79,8 @@ public class MessageRoutes : IMessageRoutes
                 Legend = route.Legend,
                 RouteLinkType = route.BtmsLinkType,
                 ForkLinkType = route.LegacyLinkType,
-                FullRouteLink = route.BtmsLinkType == LinkType.None ? null : $"{route.BtmsLink}{(route.BtmsLinkType == LinkType.Url ? routePath : null)}",
-                FullForkLink = route.LegacyLinkType == LinkType.None ? null : $"{route.LegacyLink}{(route.LegacyLinkType == LinkType.Url ? routePath : null)}",
+                FullRouteLink = SelectLink(route.BtmsLinkType, route.BtmsLink, routePath),
+                FullForkLink = SelectLink(route.LegacyLinkType, route.LegacyLink, routePath),
                 RouteHostHeader = route.BtmsHostHeader,
                 ForkHostHeader = route.LegacyHostHeader,
                 ConvertRoutedContentToFromJson = true,
@@ -89,5 +88,11 @@ public class MessageRoutes : IMessageRoutes
             },
             _ => throw new ArgumentOutOfRangeException(nameof(route.RouteTo), "Can only route to 'Legacy' or 'Btms'")
         };
+    }
+
+    [SuppressMessage("SonarLint", "S3358", Justification = "The second nested ternary in each case (lines 55, 56, 68, 69) is within a string interpolation so is very clearly independent of the first")]
+    private static string? SelectLink(LinkType linkType, string? link, string routePath)
+    {
+        return linkType == LinkType.None ? null : $"{link}{(linkType == LinkType.Url ? routePath : null)}";
     }
 }

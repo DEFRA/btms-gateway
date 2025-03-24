@@ -193,11 +193,8 @@ public class MessageData
     }
 }
 
-public partial class ContentMap(string? content)
+public class ContentMap(string? content)
 {
-    [GeneratedRegex("CHED[A-Z]+")] private static partial Regex RegexChed();
-    [GeneratedRegex("DispatchCountryCode>(.+?)<")] private static partial Regex RegexCountry();
-
-    public string? ChedType => content == null ? null : RegexChed().Match(content).Value;
-    public string? CountryCode => content == null ? null : RegexCountry().Match(content).Groups[1].Value;
+    public string? EntryReference => Soap.GetProperty(content, "EntryReference");
+    public string? CountryCode => Soap.GetProperty(content, "DispatchCountryCode");
 }

@@ -91,7 +91,7 @@ public class MessageDataTests
         messageData.CorrelationId.Should().Be("correlation-id");
         messageData.OriginalContentType.Should().Be("");
         messageData.OriginalContentAsString.Should().BeNull();
-        messageData.ContentMap.ChedType.Should().BeNull();
+        messageData.ContentMap.EntryReference.Should().BeNull();
         messageData.ContentMap.CountryCode.Should().BeNull();
     }
 
@@ -179,8 +179,8 @@ public class MessageDataTests
         messageData.CorrelationId.Should().Be("correlation-id");
         messageData.OriginalContentType.Should().Be("application/soap+xml");
         messageData.OriginalContentAsString.Should().Be("<root><data>abc</data></root>");
-        messageData.ContentMap.ChedType.Should().Be("");
-        messageData.ContentMap.CountryCode.Should().Be("");
+        messageData.ContentMap.EntryReference.Should().BeNull();
+        messageData.ContentMap.CountryCode.Should().BeNull();
     }
 
     [Fact]
@@ -189,12 +189,11 @@ public class MessageDataTests
         _httpContext.Request.Method = "POST";
         _httpContext.Request.Path = new PathString("/cds/path");
         _httpContext.Request.Headers.ContentType = "application/soap+xml";
-        _httpContext.Request.Body = new MemoryStream("<root><ched>CHEDPP</ched><DispatchCountryCode>NI</DispatchCountryCode></root>"u8.ToArray());
+        _httpContext.Request.Body = new MemoryStream("<s:Envelope xmlns:s=\"http://soap\"><s:Body><ALVSClearanceRequest><Header><EntryReference>ALVSCDSTEST00000000688</EntryReference><DispatchCountryCode>NI</DispatchCountryCode></Header></ALVSClearanceRequest></s:Body></s:Envelope>"u8.ToArray());
 
         var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
 
-        messageData.OriginalContentAsString.Should().Be("<root><ched>CHEDPP</ched><DispatchCountryCode>NI</DispatchCountryCode></root>");
-        messageData.ContentMap.ChedType.Should().Be("CHEDPP");
+        messageData.ContentMap.EntryReference.Should().Be("ALVSCDSTEST00000000688");
         messageData.ContentMap.CountryCode.Should().Be("NI");
     }
 

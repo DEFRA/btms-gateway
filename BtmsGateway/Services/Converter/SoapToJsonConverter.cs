@@ -1,22 +1,21 @@
-using System.Web;
 using System.Xml.Linq;
 
 namespace BtmsGateway.Services.Converter;
 
 public static class SoapToJsonConverter
 {
-    public static string Convert(string soap, string? messageSubXPath)
+    public static string Convert(SoapContent soapContent, string? messageSubXPath)
     {
-        var xContainer = ExtractXmlMessage(HttpUtility.HtmlDecode(soap), messageSubXPath);
+        var xContainer = ExtractXmlMessage(soapContent, messageSubXPath);
 
         return XmlToJsonConverter.Convert(xContainer);
     }
 
-    private static XContainer ExtractXmlMessage(string soap, string? messageSubXPath)
+    private static XContainer ExtractXmlMessage(SoapContent soapContent, string? messageSubXPath)
     {
         try
         {
-            var xml = Soap.GetMessage(soap, messageSubXPath);
+            var xml = soapContent.GetMessage(messageSubXPath);
             if (xml == null) throw new InvalidDataException("The SOAP XML does not contain a message");
 
             var xElement = XElement.Parse(xml);

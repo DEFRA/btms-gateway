@@ -1,3 +1,4 @@
+using BtmsGateway.Services.Converter;
 using BtmsGateway.Services.Routing;
 using FluentAssertions;
 using NSubstitute;
@@ -7,6 +8,8 @@ namespace BtmsGateway.Test.Services.Routing;
 
 public class DifferentMessageTypesOnSameRouteTests
 {
+    private static SoapContent CreateSoap(string messageName) => new($"<?xml version=\"1.0\" encoding=\"utf-8\"?><s:Envelope xmlns:s=\"http://www.w3.org/2003/05/soap-envelope\"><s:Body><m:{messageName} xmlns:m=\"http://local1\"><n:Message xmlns:n=\"http://local3\"><Data xmlns=\"http://local2\">111</Data></n:Message></m:{messageName}></s:Body></s:Envelope>");
+
     [Fact]
     public void When_routing_first_message_type_to_first_route_without_attributes_Then_should_reach_first_target_route()
     {
@@ -31,11 +34,5 @@ public class DifferentMessageTypesOnSameRouteTests
         route.RouteName.Should().Be("route-2");
         route.FullRouteLink.Should().Be("http://legacy-link-2-url/route/path-A/sub/path");
         route.FullForkLink.Should().Be("btms-link-2-queue");
-    }
-
-    private string CreateSoap(string messageName)
-    {
-        return $"<?xml version=\"1.0\" encoding=\"utf-8\"?><s:Envelope xmlns:s=\"http://www.w3.org/2003/05/soap-envelope\"><s:Body><m:{messageName} xmlns:m=\"http://local1\"><n:Message xmlns:n=\"http://local3\"><Data xmlns=\"http://local2\">111</Data></n:Message></m:{messageName}></s:Body></s:Envelope>";
-
     }
 }

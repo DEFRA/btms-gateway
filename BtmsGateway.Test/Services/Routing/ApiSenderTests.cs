@@ -78,7 +78,7 @@ public class ApiSenderTests
     {
         // Arrange
         var mocks = CreateMocks();
-        var msgData = await TestHelpers.CreateMessageData(mocks.Logger, false);
+        var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
         var sut = new ApiSender(mocks.Factory);
 
         // Act

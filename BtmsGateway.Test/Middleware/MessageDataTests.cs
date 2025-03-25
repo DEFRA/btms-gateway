@@ -1,4 +1,5 @@
 using System.Net;
+using System.Text;
 using BtmsGateway.Middleware;
 using BtmsGateway.Services.Routing;
 using BtmsGateway.Test.TestUtils;
@@ -11,6 +12,8 @@ namespace BtmsGateway.Test.Middleware;
 
 public class MessageDataTests
 {
+    private const string RequestBody = "<Envelope><Body><Root><Data>abc</Data><CorrelationId>correlation-id</CorrelationId></Root></Body></Envelope>";
+
     private readonly DefaultHttpContext _httpContext = new()
     {
         Request =
@@ -19,10 +22,10 @@ public class MessageDataTests
             Scheme = "http",
             Method = "GET",
             Host = new HostString("localhost", 123),
+            Body = new MemoryStream(Encoding.UTF8.GetBytes(RequestBody)),
             Headers =
             {
                 new KeyValuePair<string, StringValues>("Content-Length", "999"),
-                new KeyValuePair<string, StringValues>("X-Correlation-ID", "correlation-id"),
                 new KeyValuePair<string, StringValues>("X-Custom", "custom")
             }
         }
@@ -77,25 +80,6 @@ public class MessageDataTests
     }
 
     [Fact]
-    public async Task When_receiving_a_routable_get_request_without_content_type_or_accept_headers_Then_it_should_break_up_the_request_parts()
-    {
-        _httpContext.Request.Path = new PathString("/cds/path");
-        _httpContext.Request.Query = new QueryCollection(new Dictionary<string, StringValues> { { "a", "b" } });
-
-        var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
-
-        messageData.HttpString.Should().Be("GET http://localhost:123/cds/path?a=b HTTP/1.1 ");
-        messageData.Method.Should().Be("GET");
-        messageData.Path.Should().Be("cds/path");
-        messageData.Url.Should().Be("http://localhost:123/cds/path?a=b");
-        messageData.CorrelationId.Should().Be("correlation-id");
-        messageData.OriginalContentType.Should().Be("");
-        messageData.OriginalContentAsString.Should().BeNull();
-        messageData.ContentMap.ChedType.Should().BeNull();
-        messageData.ContentMap.CountryCode.Should().BeNull();
-    }
-
-    [Fact]
     public async Task When_receiving_a_routable_get_request_with_accept_header_Then_it_should_break_up_the_request_parts()
     {
         _httpContext.Request.Headers.Add(new KeyValuePair<string, StringValues>("Accept", "application/json"));
@@ -110,7 +94,7 @@ public class MessageDataTests
     {
         var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
 
-        var request = messageData.CreateForwardingRequestAsOriginal("https://localhost:456/cds/path", null);
+        var request = messageData.CreateOriginalSoapRequest("https://localhost:456/cds/path", null);
 
         request.RequestUri!.ToString().Should().Be("https://localhost:456/cds/path");
         request.Method.Should().Be(HttpMethod.Get);
@@ -126,7 +110,7 @@ public class MessageDataTests
     {
         var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
 
-        var request = messageData.CreateForwardingRequestAsOriginal("https://localhost:456/cds/path", "host-header");
+        var request = messageData.CreateOriginalSoapRequest("https://localhost:456/cds/path", "host-header");
 
         request.Headers.Count().Should().Be(3);
         request.Headers.GetValues("host").Should().BeEquivalentTo("host-header");
@@ -136,10 +120,9 @@ public class MessageDataTests
     public async Task When_creating_a_routable_get_request_with_content_Then_it_should_create_forwarding_request()
     {
         _httpContext.Request.Headers.ContentType = "application/soap+xml";
-        _httpContext.Request.Body = new MemoryStream("<root><data>abc</data></root>"u8.ToArray());
         var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
 
-        var request = messageData.CreateForwardingRequestAsOriginal("https://localhost:456/cds/path", null);
+        var request = messageData.CreateOriginalSoapRequest("https://localhost:456/cds/path", null);
 
         request.Content.Should().BeNull();
         request.Headers.Count().Should().Be(3);
@@ -154,7 +137,7 @@ public class MessageDataTests
         _httpContext.Request.Headers.Add(new KeyValuePair<string, StringValues>("Accept", "application/json"));
         var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
 
-        var request = messageData.CreateForwardingRequestAsOriginal("https://localhost:456/cds/path", null);
+        var request = messageData.CreateOriginalSoapRequest("https://localhost:456/cds/path", null);
 
         request.Headers.Count().Should().Be(3);
         request.Headers.GetValues(MessageData.CorrelationIdHeaderName).Should().BeEquivalentTo("correlation-id");
@@ -168,7 +151,6 @@ public class MessageDataTests
         _httpContext.Request.Method = "POST";
         _httpContext.Request.Path = new PathString("/cds/path");
         _httpContext.Request.Headers.ContentType = "application/soap+xml";
-        _httpContext.Request.Body = new MemoryStream("<root><data>abc</data></root>"u8.ToArray());
 
         var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
 
@@ -176,11 +158,10 @@ public class MessageDataTests
         messageData.Method.Should().Be("POST");
         messageData.Path.Should().Be("cds/path");
         messageData.Url.Should().Be("http://localhost:123/cds/path");
-        messageData.CorrelationId.Should().Be("correlation-id");
         messageData.OriginalContentType.Should().Be("application/soap+xml");
-        messageData.OriginalContentAsString.Should().Be("<root><data>abc</data></root>");
-        messageData.ContentMap.ChedType.Should().Be("");
-        messageData.ContentMap.CountryCode.Should().Be("");
+        messageData.OriginalSoapContent.SoapString.Should().Be(RequestBody);
+        messageData.ContentMap.EntryReference.Should().BeNull();
+        messageData.ContentMap.CountryCode.Should().BeNull();
     }
 
     [Fact]
@@ -189,13 +170,13 @@ public class MessageDataTests
         _httpContext.Request.Method = "POST";
         _httpContext.Request.Path = new PathString("/cds/path");
         _httpContext.Request.Headers.ContentType = "application/soap+xml";
-        _httpContext.Request.Body = new MemoryStream("<root><ched>CHEDPP</ched><DispatchCountryCode>NI</DispatchCountryCode></root>"u8.ToArray());
+        _httpContext.Request.Body = new MemoryStream("<s:Envelope xmlns:s=\"http://soap\"><s:Body><ALVSClearanceRequest><Header><EntryReference>ALVSCDSTEST00000000688</EntryReference><DispatchCountryCode>NI</DispatchCountryCode><CorrelationId>123456789</CorrelationId></Header></ALVSClearanceRequest></s:Body></s:Envelope>"u8.ToArray());
 
         var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
 
-        messageData.OriginalContentAsString.Should().Be("<root><ched>CHEDPP</ched><DispatchCountryCode>NI</DispatchCountryCode></root>");
-        messageData.ContentMap.ChedType.Should().Be("CHEDPP");
+        messageData.ContentMap.EntryReference.Should().Be("ALVSCDSTEST00000000688");
         messageData.ContentMap.CountryCode.Should().Be("NI");
+        messageData.ContentMap.CorrelationId.Should().Be("123456789");
     }
 
     [Fact]
@@ -204,15 +185,14 @@ public class MessageDataTests
         _httpContext.Request.Method = "POST";
         _httpContext.Request.Path = new PathString("/cds/path");
         _httpContext.Request.Headers.ContentType = "application/soap+xml";
-        _httpContext.Request.Body = new MemoryStream("<root><data>abc</data></root>"u8.ToArray());
         var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
 
-        var request = messageData.CreateForwardingRequestAsOriginal("https://localhost:456/cds/path", "host-header");
+        var request = messageData.CreateOriginalSoapRequest("https://localhost:456/cds/path", "host-header");
 
         request.RequestUri!.ToString().Should().Be("https://localhost:456/cds/path");
         request.Method.Should().Be(HttpMethod.Post);
         request.Version.Should().Be(Version.Parse("1.1"));
-        (await request.Content!.ReadAsStringAsync()).Should().Be("<root><data>abc</data></root>");
+        (await request.Content!.ReadAsStringAsync()).Should().Be(RequestBody);
         request.Content!.Headers.ContentType!.ToString().Should().Be("application/soap+xml; charset=utf-8");
         request.Headers.Count().Should().Be(4);
         request.Headers.GetValues(MessageData.CorrelationIdHeaderName).Should().BeEquivalentTo("correlation-id");
@@ -227,12 +207,11 @@ public class MessageDataTests
         _httpContext.Request.Method = "POST";
         _httpContext.Request.Path = new PathString("/cds/path");
         _httpContext.Request.Headers.ContentType = "application/soap+xml";
-        _httpContext.Request.Body = new MemoryStream("<Envelope><Body><root><data>abc</data></root></Body></Envelope>"u8.ToArray());
         var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
 
-        var request = messageData.CreateConvertedForwardingRequest("https://localhost:456/cds/path", null, "root");
+        var request = messageData.CreateConvertedJsonRequest("https://localhost:456/cds/path", null, "Root");
 
-        (await request.Content!.ReadAsStringAsync()).LinuxLineEndings().Should().Be("{\n  \"data\": \"abc\"\n}");
+        (await request.Content!.ReadAsStringAsync()).LinuxLineEndings().Should().Be("{\n  \"data\": \"abc\",\n  \"correlationId\": \"correlation-id\"\n}");
         request.Content!.Headers.ContentType!.ToString().Should().Be("application/json; charset=utf-8");
         request.Headers.Count().Should().Be(3);
         request.Headers.GetValues("Accept").Should().BeEquivalentTo("application/json");
@@ -245,7 +224,6 @@ public class MessageDataTests
         _httpContext.Request.Method = "POST";
         _httpContext.Request.Path = new PathString("/cds/path");
         _httpContext.Request.Headers.ContentType = "application/soap+xml";
-        _httpContext.Request.Body = new MemoryStream("<Envelope><Body><root><data>abc</data></root></Body></Envelope>"u8.ToArray());
         var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
         var responseBody = new MemoryStream();
         _httpContext.Response.Body = responseBody;

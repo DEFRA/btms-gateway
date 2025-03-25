@@ -159,7 +159,7 @@ public class MessageDataTests
         messageData.Path.Should().Be("cds/path");
         messageData.Url.Should().Be("http://localhost:123/cds/path");
         messageData.OriginalContentType.Should().Be("application/soap+xml");
-        messageData.OriginalSoapContent.SoapString.Should().Be(RequestBody);
+        messageData.OriginalSoapContent.SoapString?.Should().Be(RequestBody);
         messageData.ContentMap.EntryReference.Should().BeNull();
         messageData.ContentMap.CountryCode.Should().BeNull();
     }

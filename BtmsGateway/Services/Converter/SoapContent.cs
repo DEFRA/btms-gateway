@@ -5,16 +5,15 @@ namespace BtmsGateway.Services.Converter;
 
 public class SoapContent
 {
-    public string SoapString { get; }
+    public string? SoapString { get; }
 
-    private readonly XmlNode _soapXmlNode;
+    private readonly XmlNode? _soapXmlNode;
 
     public SoapContent(string? soapString)
     {
-        if (string.IsNullOrWhiteSpace(soapString)) throw new ArgumentNullException(soapString, "Soap content is null");
         SoapString = HttpUtility.HtmlDecode(soapString);
         var soapXmlNode = GetElement(SoapString);
-        _soapXmlNode = soapXmlNode ?? throw new ArgumentNullException(SoapString, "Soap is invalid");
+        _soapXmlNode = soapXmlNode;
     }
 
     public bool HasMessage(string messageSubXPath)
@@ -29,7 +28,7 @@ public class SoapContent
         var localNameXPath = MakeLocalNameXPath(messageSubXPath);
         var xpath = $"/*[local-name()='Envelope']/*[local-name()='Body']/{localNameXPath}";
 
-        return _soapXmlNode.SelectSingleNode(xpath)?.OuterXml;
+        return _soapXmlNode?.SelectSingleNode(xpath)?.OuterXml;
     }
 
     public string? GetProperty(string? propertyXPath)
@@ -39,7 +38,7 @@ public class SoapContent
         var localNameXPath = MakeLocalNameXPath(propertyXPath);
         var xpath = $"//{localNameXPath}";
 
-        return _soapXmlNode.SelectSingleNode(xpath)?.InnerXml;
+        return _soapXmlNode?.SelectSingleNode(xpath)?.InnerXml;
     }
 
     private static string MakeLocalNameXPath(string messageSubXPath)
@@ -47,8 +46,9 @@ public class SoapContent
         return string.Join('/', messageSubXPath.Trim('/').Split('/').Select(element => $"*[local-name()='{element}']"));
     }
 
-    private static XmlNode? GetElement(string soapString)
+    private static XmlNode? GetElement(string? soapString)
     {
+        if (string.IsNullOrWhiteSpace(soapString)) return null;
         var doc = new XmlDocument();
         doc.LoadXml(soapString);
         return doc.DocumentElement;

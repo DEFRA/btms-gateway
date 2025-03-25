@@ -26,8 +26,8 @@ public class SoapContent
     {
         if (messageSubXPath == null) return null;
 
-        var subXPath = string.Join('/', messageSubXPath.Trim('/').Split('/').Select(element => $"*[local-name()='{element}']"));
-        var xpath = $"/*[local-name()='Envelope']/*[local-name()='Body']/{subXPath}";
+        var localNameXPath = MakeLocalNameXPath(messageSubXPath);
+        var xpath = $"/*[local-name()='Envelope']/*[local-name()='Body']/{localNameXPath}";
 
         return _soapXmlNode.SelectSingleNode(xpath)?.OuterXml;
     }
@@ -36,9 +36,15 @@ public class SoapContent
     {
         if (propertyXPath == null) return null;
 
-        var xpath = $"//*[local-name()='{propertyXPath}']";
+        var localNameXPath = MakeLocalNameXPath(propertyXPath);
+        var xpath = $"//{localNameXPath}";
 
         return _soapXmlNode.SelectSingleNode(xpath)?.InnerXml;
+    }
+
+    private static string MakeLocalNameXPath(string messageSubXPath)
+    {
+        return string.Join('/', messageSubXPath.Trim('/').Split('/').Select(element => $"*[local-name()='{element}']"));
     }
 
     private static XmlNode? GetElement(string soapString)

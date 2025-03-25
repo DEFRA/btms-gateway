@@ -7,7 +7,7 @@ namespace BtmsGateway.Services.Routing;
 
 public interface IMessageRoutes
 {
-    RoutingResult GetRoute(string routePath, string? soapContent);
+    RoutingResult GetRoute(string routePath, SoapContent soapContent);
 }
 
 public class MessageRoutes : IMessageRoutes
@@ -32,13 +32,13 @@ public class MessageRoutes : IMessageRoutes
         }
     }
 
-    public RoutingResult GetRoute(string routePath, string? soapContent)
+    public RoutingResult GetRoute(string routePath, SoapContent soapContent)
     {
         string routeName;
         try
         {
             routeName = routePath.Trim('/');
-            var route = _routes.FirstOrDefault(x => x.RoutePath.Equals(routeName, StringComparison.InvariantCultureIgnoreCase) && Soap.HasMessage(soapContent, x.MessageSubXPath));
+            var route = _routes.FirstOrDefault(x => x.RoutePath.Equals(routeName, StringComparison.InvariantCultureIgnoreCase) && soapContent.HasMessage(x.MessageSubXPath));
             routePath = $"/{routeName.Trim('/')}";
 
             return route == null

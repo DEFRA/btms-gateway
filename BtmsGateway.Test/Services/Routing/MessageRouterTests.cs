@@ -1,5 +1,6 @@
 using System.Net;
 using BtmsGateway.Middleware;
+using BtmsGateway.Services.Converter;
 using BtmsGateway.Services.Metrics;
 using BtmsGateway.Services.Routing;
 using FluentAssertions;
@@ -271,7 +272,7 @@ public class MessageRouterTests
             FullRouteLink = "full-route-link",
         };
 
-        routes.GetRoute(Arg.Any<string>(), Arg.Any<string>()).Returns(routingResult);
+        routes.GetRoute(Arg.Any<string>(), Arg.Any<SoapContent>()).Returns(routingResult);
 
         var apiSender = Substitute.For<IApiSender>();
 

@@ -17,9 +17,9 @@ public class SoapToJsonConverterTests
     [InlineData("HmrcErrorNotificationWithHtmlEncoding.xml", "HMRCErrorNotification/HMRCErrorNotification", "HmrcErrorNotification.json")]
     public void When_receiving_clearance_request_soap_Then_should_convert_to_json(string soapFileName, string messageSubXPath, string jsonFileName)
     {
-        var soap = File.ReadAllText(Path.Combine(TestDataPath, soapFileName));
+        var soapContent = new SoapContent(File.ReadAllText(Path.Combine(TestDataPath, soapFileName)));
         var json = File.ReadAllText(Path.Combine(TestDataPath, jsonFileName)).LinuxLineEndings();
 
-        SoapToJsonConverter.Convert(soap, messageSubXPath).LinuxLineEndings().Should().Be(json);
+        SoapToJsonConverter.Convert(soapContent, messageSubXPath).LinuxLineEndings().Should().Be(json);
     }
 }

@@ -15,7 +15,7 @@ public class MessageData
     public const string CorrelationIdHeaderName = "CorrelationId";
     public const string RequestedPathHeaderName = "x-requested-path";
 
-    public string? OriginalContentAsString { get; }
+    public SoapContent OriginalSoapContent { get; }
     public string HttpString { get; }
     public string Url { get; }
     public string Path { get; }
@@ -37,8 +37,8 @@ public class MessageData
         _logger = logger;
         try
         {
-            OriginalContentAsString = contentAsString;
-            ContentMap = new ContentMap(contentAsString);
+            OriginalSoapContent = new SoapContent(contentAsString);
+            ContentMap = new ContentMap(OriginalSoapContent);
             Method = request.Method;
             Path = request.Path.HasValue ? request.Path.Value.Trim('/') : string.Empty;
             OriginalContentType = RetrieveContentType(request);
@@ -59,30 +59,15 @@ public class MessageData
                                               || Path.StartsWith("swagger", StringComparison.InvariantCultureIgnoreCase)
                                               || Path.StartsWith(CheckRoutesEndpoints.Path, StringComparison.InvariantCultureIgnoreCase)));
 
-    public HttpRequestMessage CreateConvertedForwardingRequest(string? routeUrl, string? hostHeader, string? messageSubXPath)
+    public HttpRequestMessage CreateConvertedJsonRequest(string? routeUrl, string? hostHeader, string? messageSubXPath)
     {
-        if (OriginalContentType is MediaTypeNames.Application.Xml or MediaTypeNames.Application.Soap or MediaTypeNames.Text.Xml)
-        {
-            var content = string.IsNullOrWhiteSpace(OriginalContentAsString)
-                ? string.Empty
-                : SoapToJsonConverter.Convert(OriginalContentAsString, messageSubXPath);
-            return CreateForwardingRequest(routeUrl, hostHeader, content, MediaTypeNames.Application.Json);
-        }
-
-        if (OriginalContentType is MediaTypeNames.Application.Json)
-        {
-            var content = string.IsNullOrWhiteSpace(OriginalContentAsString)
-                ? string.Empty
-                : JsonToSoapConverter.Convert(OriginalContentAsString, "FinalisationNotificationRequest", SoapType.Cds);
-            return CreateForwardingRequest(routeUrl, hostHeader, content, MediaTypeNames.Application.Xml);
-        }
-
-        return CreateForwardingRequestAsOriginal(routeUrl, hostHeader);
+        var content = SoapToJsonConverter.Convert(OriginalSoapContent, messageSubXPath);
+        return CreateForwardingRequest(routeUrl, hostHeader, content, MediaTypeNames.Application.Json);
     }
 
-    public HttpRequestMessage CreateForwardingRequestAsOriginal(string? routeUrl, string? hostHeader)
+    public HttpRequestMessage CreateOriginalSoapRequest(string? routeUrl, string? hostHeader)
     {
-        return CreateForwardingRequest(routeUrl, hostHeader, OriginalContentAsString, OriginalContentType);
+        return CreateForwardingRequest(routeUrl, hostHeader, OriginalSoapContent.SoapString, OriginalContentType);
     }
 
     private HttpRequestMessage CreateForwardingRequest(string? routeUrl, string? hostHeader, string? contentAsString, string contentType)
@@ -119,23 +104,9 @@ public class MessageData
 
     public PublishRequest CreatePublishRequest(string? routeArn, string? messageSubXPath)
     {
-        var content = string.Empty;
+        var content = SoapToJsonConverter.Convert(OriginalSoapContent, messageSubXPath);
 
-        if (OriginalContentType is MediaTypeNames.Application.Xml or MediaTypeNames.Application.Soap or MediaTypeNames.Text.Xml)
-        {
-            content = string.IsNullOrWhiteSpace(OriginalContentAsString)
-                ? string.Empty
-                : SoapToJsonConverter.Convert(OriginalContentAsString, messageSubXPath);
-        }
-
-        if (OriginalContentType is MediaTypeNames.Application.Json)
-        {
-            content = string.IsNullOrWhiteSpace(OriginalContentAsString)
-                ? string.Empty
-                : OriginalContentAsString;
-        }
-
-        _logger.Information("Publish JSON content to {Content}", content);
+        _logger.Information("{CorrelationId} Publish JSON content to {Content}", ContentMap.CorrelationId, content);
 
         var request = new PublishRequest
         {
@@ -189,9 +160,9 @@ public class MessageData
     }
 }
 
-public class ContentMap(string? content)
+public class ContentMap(SoapContent soapContent)
 {
-    public string? EntryReference => Soap.GetProperty(content, "EntryReference");
-    public string? CountryCode => Soap.GetProperty(content, "DispatchCountryCode");
-    public string? CorrelationId => Soap.GetProperty(content, "CorrelationId");
+    public string? EntryReference => soapContent.GetProperty("EntryReference");
+    public string? CountryCode => soapContent.GetProperty("DispatchCountryCode");
+    public string? CorrelationId => soapContent.GetProperty("CorrelationId");
 }

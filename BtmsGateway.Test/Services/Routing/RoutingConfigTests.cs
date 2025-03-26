@@ -19,7 +19,6 @@ public class RoutingConfigTests
         route.BtmsLink.Should().Be("btms-link-queue");
         route.BtmsLinkType.Should().Be(LinkType.Queue);
         route.BtmsHostHeader.Should().BeNull();
-        route.SendLegacyResponseToBtms.Should().BeTrue();
         route.RouteTo.Should().Be(RouteTo.Legacy);
     }
 
@@ -37,7 +36,6 @@ public class RoutingConfigTests
         route.BtmsLink.Should().Be("http://btms-link-url");
         route.BtmsLinkType.Should().Be(LinkType.Url);
         route.BtmsHostHeader.Should().Be("btms-host-header");
-        route.SendLegacyResponseToBtms.Should().BeTrue();
         route.RouteTo.Should().Be(RouteTo.Btms);
     }
 
@@ -55,7 +53,6 @@ public class RoutingConfigTests
         route.BtmsLink.Should().Be("none");
         route.BtmsLinkType.Should().Be(LinkType.None);
         route.BtmsHostHeader.Should().BeNull();
-        route.SendLegacyResponseToBtms.Should().BeFalse();
         route.RouteTo.Should().Be(RouteTo.Legacy);
     }
 
@@ -73,7 +70,6 @@ public class RoutingConfigTests
         route.BtmsLink.Should().Be("http://btms-link-url");
         route.BtmsLinkType.Should().Be(LinkType.Url);
         route.BtmsHostHeader.Should().Be("btms-host-header");
-        route.SendLegacyResponseToBtms.Should().BeFalse();
         route.RouteTo.Should().Be(RouteTo.Btms);
     }
 }

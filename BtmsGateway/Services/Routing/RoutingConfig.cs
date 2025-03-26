@@ -17,7 +17,6 @@ public record RoutingConfig
             nr.Value.RoutePath,
             nr.Value.MessageSubXPath,
             nr.Value.Legend,
-            nr.Value.SendLegacyResponseToBtms,
             nr.Value.RouteTo
         });
         var btms = NamedRoutes.Join(NamedLinks, nr => nr.Value.BtmsLinkName, nl => nl.Key, (nr, nl) => new
@@ -29,7 +28,6 @@ public record RoutingConfig
             nr.Value.RoutePath,
             nr.Value.MessageSubXPath,
             nr.Value.Legend,
-            nr.Value.SendLegacyResponseToBtms,
             nr.Value.RouteTo
         });
         var output = legacy.Join(btms, l => l.Name, b => b.Name, (l, b) => new RoutedLink
@@ -44,7 +42,6 @@ public record RoutingConfig
             BtmsHostHeader = b.HostHeader,
             RoutePath = l.RoutePath.Trim('/'),
             MessageSubXPath = l.MessageSubXPath,
-            SendLegacyResponseToBtms = b.SendLegacyResponseToBtms,
             RouteTo = b.RouteTo
         })
             .ToArray();
@@ -63,7 +60,6 @@ public record NamedRoute
     public required string MessageSubXPath { get; init; }
     public string? LegacyLinkName { get; init; }
     public string? BtmsLinkName { get; init; }
-    public required bool SendLegacyResponseToBtms { get; init; }
     public required RouteTo RouteTo { get; init; }
 }
 
@@ -88,7 +84,6 @@ public record RoutedLink
     public string? BtmsLink { get; init; }
     public required LinkType BtmsLinkType { get; init; }
     public string? BtmsHostHeader { get; init; }
-    public required bool SendLegacyResponseToBtms { get; init; }
     public required RouteTo RouteTo { get; init; }
 }
 

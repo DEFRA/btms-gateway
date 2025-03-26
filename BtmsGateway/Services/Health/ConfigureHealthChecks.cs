@@ -9,7 +9,7 @@ namespace BtmsGateway.Services.Health;
 [ExcludeFromCodeCoverage]
 public static class ConfigureHealthChecks
 {
-    public static readonly TimeSpan Timeout = TimeSpan.FromSeconds(10);
+    public static readonly TimeSpan Timeout = TimeSpan.FromSeconds(15);
 
     public static void AddCustomHealthChecks(this WebApplicationBuilder builder, HealthCheckConfig? healthCheckConfig, RoutingConfig? routingConfig)
     {
@@ -17,7 +17,11 @@ public static class ConfigureHealthChecks
                         .AddResourceUtilizationHealthCheck()
                         .AddNetworkChecks(healthCheckConfig)
                         .AddQueueChecks(routingConfig);
-        builder.Services.Configure<HealthCheckPublisherOptions>(options => options.Delay = TimeSpan.FromSeconds(15));
+        builder.Services.Configure<HealthCheckPublisherOptions>(options =>
+        {
+            options.Delay = TimeSpan.FromSeconds(30);
+            options.Period = TimeSpan.FromMinutes(5);
+        });
         builder.Services.AddSingleton<IHealthCheckPublisher, HealthCheckPublisher>();
     }
 
@@ -45,7 +49,8 @@ public static class ConfigureHealthChecks
 
     public static void UseCustomHealthChecks(this WebApplication app)
     {
-        app.MapHealthChecks("/health", new HealthCheckOptions
+        app.MapGet("/health", () => Results.Ok()).AllowAnonymous();
+        app.MapHealthChecks("/health-dotnet", new HealthCheckOptions
         {
             ResponseWriter = (context, healthReport) =>
             {

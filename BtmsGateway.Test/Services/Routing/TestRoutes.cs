@@ -8,10 +8,10 @@ public static class TestRoutes
     {
         NamedRoutes = new Dictionary<string, NamedRoute>
         {
-            { "route-1", new NamedRoute { RoutePath = "/route/path-1/sub/path", Legend = "Route 1", LegacyLinkName = "legacy_link_name_1", BtmsLinkName = "btms_link_name_1", SendLegacyResponseToBtms = true, MessageSubXPath = "Message1", RouteTo = RouteTo.Legacy } },
-            { "route-2", new NamedRoute { RoutePath = "/route/path-2/sub/path", Legend = "Route 2", LegacyLinkName = "legacy_link_name_2", BtmsLinkName = "btms_link_name_2", SendLegacyResponseToBtms = true, MessageSubXPath = "Message2", RouteTo = RouteTo.Btms } },
-            { "route-3", new NamedRoute { RoutePath = "/route/path-3/sub/path", Legend = "Route 3", LegacyLinkName = "legacy_link_name_1", BtmsLinkName = "none", SendLegacyResponseToBtms = false, MessageSubXPath = "Message3", RouteTo = RouteTo.Legacy } },
-            { "route-4", new NamedRoute { RoutePath = "/route/path-4/sub/path", Legend = "Route 4", LegacyLinkName = "none", BtmsLinkName = "btms_link_name_2", SendLegacyResponseToBtms = false, MessageSubXPath = "Message4", RouteTo = RouteTo.Btms } }
+            { "route-1", new NamedRoute { RoutePath = "/route/path-1/sub/path", Legend = "Route 1", LegacyLinkName = "legacy_link_name_1", BtmsLinkName = "btms_link_name_1", MessageSubXPath = "Message1", RouteTo = RouteTo.Legacy } },
+            { "route-2", new NamedRoute { RoutePath = "/route/path-2/sub/path", Legend = "Route 2", LegacyLinkName = "legacy_link_name_2", BtmsLinkName = "btms_link_name_2", MessageSubXPath = "Message2", RouteTo = RouteTo.Btms } },
+            { "route-3", new NamedRoute { RoutePath = "/route/path-3/sub/path", Legend = "Route 3", LegacyLinkName = "legacy_link_name_1", BtmsLinkName = "none", MessageSubXPath = "Message3", RouteTo = RouteTo.Legacy } },
+            { "route-4", new NamedRoute { RoutePath = "/route/path-4/sub/path", Legend = "Route 4", LegacyLinkName = "none", BtmsLinkName = "btms_link_name_2", MessageSubXPath = "Message4", RouteTo = RouteTo.Btms } }
         },
         NamedLinks = new Dictionary<string, NamedLink>
         {
@@ -27,8 +27,8 @@ public static class TestRoutes
     {
         NamedRoutes = new Dictionary<string, NamedRoute>
         {
-            { "route-1", new NamedRoute { RoutePath = "/route/path-A/sub/path", LegacyLinkName = "legacy_link_name_1", BtmsLinkName = "btms_link_name_1", MessageSubXPath = "Message1/Message", Legend = "Route 1", SendLegacyResponseToBtms = true, RouteTo = RouteTo.Legacy } },
-            { "route-2", new NamedRoute { RoutePath = "/route/path-A/sub/path", LegacyLinkName = "legacy_link_name_2", BtmsLinkName = "btms_link_name_2", MessageSubXPath = "Message2/Message", Legend = "Route 2", SendLegacyResponseToBtms = true, RouteTo = RouteTo.Legacy } }
+            { "route-1", new NamedRoute { RoutePath = "/route/path-A/sub/path", LegacyLinkName = "legacy_link_name_1", BtmsLinkName = "btms_link_name_1", MessageSubXPath = "Message1/Message", Legend = "Route 1", RouteTo = RouteTo.Legacy } },
+            { "route-2", new NamedRoute { RoutePath = "/route/path-A/sub/path", LegacyLinkName = "legacy_link_name_2", BtmsLinkName = "btms_link_name_2", MessageSubXPath = "Message2/Message", Legend = "Route 2", RouteTo = RouteTo.Legacy } }
         },
         NamedLinks = new Dictionary<string, NamedLink>
         {
@@ -43,7 +43,7 @@ public static class TestRoutes
     {
         NamedRoutes = new Dictionary<string, NamedRoute>
         {
-            { "route-1", new NamedRoute { RoutePath = "/route/path-1", LegacyLinkName = "link_name_1", BtmsLinkName = "link_name_1", MessageSubXPath = "Message1", Legend = "legend", SendLegacyResponseToBtms = true, RouteTo = RouteTo.Legacy } }
+            { "route-1", new NamedRoute { RoutePath = "/route/path-1", LegacyLinkName = "link_name_1", BtmsLinkName = "link_name_1", MessageSubXPath = "Message1", Legend = "legend", RouteTo = RouteTo.Legacy } }
         },
         NamedLinks = new Dictionary<string, NamedLink>
         {
@@ -55,7 +55,7 @@ public static class TestRoutes
     {
         NamedRoutes = new Dictionary<string, NamedRoute>
         {
-            { "route-1", new NamedRoute { RoutePath = "/route/path-1", LegacyLinkName = "link_name_1", BtmsLinkName = "link_name_1", MessageSubXPath = "Message1", Legend = "legend", SendLegacyResponseToBtms = true, RouteTo = (RouteTo)99 } }
+            { "route-1", new NamedRoute { RoutePath = "/route/path-1", LegacyLinkName = "link_name_1", BtmsLinkName = "link_name_1", MessageSubXPath = "Message1", Legend = "legend", RouteTo = (RouteTo)99 } }
         },
         NamedLinks = new Dictionary<string, NamedLink>
         {
@@ -67,7 +67,7 @@ public static class TestRoutes
     {
         NamedRoutes = new Dictionary<string, NamedRoute>
         {
-            { "route-1", new NamedRoute { RoutePath = "/route/path-1", LegacyLinkName = "link_name_1", BtmsLinkName = "link_name_1", MessageSubXPath = "Message1", Legend = "legend", SendLegacyResponseToBtms = true, RouteTo = RouteTo.Legacy } }
+            { "route-1", new NamedRoute { RoutePath = "/route/path-1", LegacyLinkName = "link_name_1", BtmsLinkName = "link_name_1", MessageSubXPath = "Message1", Legend = "legend", RouteTo = RouteTo.Legacy } }
         },
         NamedLinks = new Dictionary<string, NamedLink>
         {

@@ -37,8 +37,7 @@ public sealed class GeneralEndToEndTests : IAsyncDisposable
                         BtmsLinkName = "BtmsPath",
                         Legend = "legend",
                         MessageSubXPath = "Message",
-                        RouteTo = RouteTo.Legacy,
-                        SendLegacyResponseToBtms = false
+                        RouteTo = RouteTo.Legacy
                     }
                 }
             },

@@ -6,7 +6,6 @@
       "Legend": "Legend",
       "LegacyLinkName": "Cds",
       "BtmsLinkName": "Btms",
-      "SendLegacyResponseToBtms": false,
       "RouteTo": "Legacy"
     },
     "CDSFinalisationNotificationToAlvs": {
@@ -15,7 +14,6 @@
       "Legend": "Legend",
       "LegacyLinkName": "Cds",
       "BtmsLinkName": "Btms",
-      "SendLegacyResponseToBtms": false,
       "RouteTo": "Legacy"
     },
     "CDSErrorNotificationToAlvs": {
@@ -24,7 +22,6 @@
       "Legend": "Legend",
       "LegacyLinkName": "Cds",
       "BtmsLinkName": "Btms",
-      "SendLegacyResponseToBtms": false,
       "RouteTo": "Legacy"
     },
     "ALVSDecisionNotificationToCds": {
@@ -34,7 +31,6 @@
       "LegacyLinkName": "AlvsCds",
       "BtmsLinkName": "Btms",
       "MessageBodyDepth": 2,
-      "SendLegacyResponseToBtms": false,
       "RouteTo": "Legacy"
     },
     "ALVSErrorNotificationToCds": {
@@ -44,7 +40,6 @@
       "LegacyLinkName": "AlvsCds",
       "BtmsLinkName": "Btms",
       "MessageBodyDepth": 2,
-      "SendLegacyResponseToBtms": false,
       "RouteTo": "Legacy"
     },
     "ALVSClearanceRequestToIpaffs": {
@@ -54,7 +49,6 @@
       "LegacyLinkName": "AlvsIpaffs",
       "BtmsLinkName": "Btms",
       "MessageBodyDepth": 2,
-      "SendLegacyResponseToBtms": false,
       "RouteTo": "Legacy"
     },
     "ALVSFinalisationNotificationToIpaffs": {
@@ -64,7 +58,6 @@
       "LegacyLinkName": "AlvsIpaffs",
       "BtmsLinkName": "Btms",
       "MessageBodyDepth": 2,
-      "SendLegacyResponseToBtms": false,
       "RouteTo": "Legacy"
     },
     "BTMSDecisionNotificationToCds": {
@@ -73,7 +66,6 @@
       "Legend": "Legend",
       "LegacyLinkName": "Cds",
       "BtmsLinkName": "None",
-      "SendLegacyResponseToBtms": false,
       "RouteTo": "Legacy"
     },
     "CDSClearanceRequestToBtms": {
@@ -82,7 +74,6 @@
       "Legend": "Legend",
       "LegacyLinkName": "None",
       "BtmsLinkName": "Btms",
-      "SendLegacyResponseToBtms": false,
       "RouteTo": "Btms"
     },
     "ALVSDecisionForkToBtmsQueue": {
@@ -92,7 +83,6 @@
       "LegacyLinkName": "Cds",
       "BtmsLinkName": "AlvsDecisionForkQueue",
       "MessageBodyDepth": 2,
-      "SendLegacyResponseToBtms": false,
       "RouteTo": "Legacy"
     },
     "ALVSDecisionRouteToBtmsQueue": {
@@ -102,7 +92,6 @@
       "LegacyLinkName": "None",
       "BtmsLinkName": "AlvsDecisionRouteQueue",
       "MessageBodyDepth": 2,
-      "SendLegacyResponseToBtms": false,
       "RouteTo": "Btms"
     },
     
@@ -113,7 +102,6 @@
       "LegacyLinkName": "Cds",
       "BtmsLinkName": "AlvsErrorForkQueue",
       "MessageBodyDepth": 2,
-      "SendLegacyResponseToBtms": false,
       "RouteTo": "Legacy"
     },
     "ALVSErrorNotificationRouteToBtmsQueue": {
@@ -123,7 +111,6 @@
       "LegacyLinkName": "None",
       "BtmsLinkName": "AlvsErrorRouteQueue",
       "MessageBodyDepth": 2,
-      "SendLegacyResponseToBtms": false,
       "RouteTo": "Btms"
     },
 
@@ -133,7 +120,6 @@
       "Legend": "Legend",
       "LegacyLinkName": "AlvsCds",
       "BtmsLinkName": "CustomsClearanceForkQueue",
-      "SendLegacyResponseToBtms": false,
       "RouteTo": "Legacy"
     },
     "CDSClearanceRequestRouteToBtmsQueue": {
@@ -142,7 +128,6 @@
       "Legend": "Legend",
       "LegacyLinkName": "None",
       "BtmsLinkName": "CustomsClearanceRouteQueue",
-      "SendLegacyResponseToBtms": false,
       "RouteTo": "Btms"
     },
 
@@ -152,7 +137,6 @@
       "Legend": "Legend",
       "LegacyLinkName": "AlvsCds",
       "BtmsLinkName": "CustomsErrorForkQueue",
-      "SendLegacyResponseToBtms": false,
       "RouteTo": "Legacy"
     },
     "CDSErrorNotificationRouteToBtmsQueue": {
@@ -161,7 +145,6 @@
       "Legend": "Legend",
       "LegacyLinkName": "None",
       "BtmsLinkName": "CustomsErrorRouteQueue",
-      "SendLegacyResponseToBtms": false,
       "RouteTo": "Btms"
     },
 
@@ -171,7 +154,6 @@
       "Legend": "Legend",
       "LegacyLinkName": "AlvsCds",
       "BtmsLinkName": "CustomsFinalisationForkQueue",
-      "SendLegacyResponseToBtms": false,
       "RouteTo": "Legacy"
     },
     "CDSFinalisationNotificationRouteToBtmsQueue": {
@@ -180,7 +162,6 @@
       "Legend": "Legend",
       "LegacyLinkName": "None",
       "BtmsLinkName": "CustomsFinalisationRouteQueue",
-      "SendLegacyResponseToBtms": false,
       "RouteTo": "Btms"
     }
   },

@@ -15,7 +15,6 @@ public class NetworkHealthCheck(string name, HealthCheckUrl healthCheckUrl, IHtt
         var client = httpClientFactory.CreateClient(Proxy.RoutedClientWithRetry);
         var request = new HttpRequestMessage(HttpMethod.Parse(healthCheckUrl.Method), healthCheckUrl.Url);
         if (healthCheckUrl.HostHeader != null) request.Headers.TryAddWithoutValidation("host", healthCheckUrl.HostHeader);
-        if (healthCheckUrl.PostData != null) request.Content = new StreamContent(new FileStream(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Services", "Fixtures", healthCheckUrl.PostData), FileMode.Open, FileAccess.Read, FileShare.Read));
 
         HttpResponseMessage? response = null;
         string? content = null;
@@ -48,7 +47,7 @@ public class NetworkHealthCheck(string name, HealthCheckUrl healthCheckUrl, IHtt
         var healthStatus = response?.IsSuccessStatusCode == true ? HealthStatus.Healthy : HealthStatus.Degraded;
         if (exception != null)
         {
-            healthStatus = HealthStatus.Unhealthy;
+            healthStatus = HealthStatus.Degraded;
             data.Add("error", $"{exception.Message} - {exception.InnerException?.Message}");
         }
 

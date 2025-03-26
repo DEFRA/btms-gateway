@@ -43,7 +43,7 @@ public class QueueHealthCheck(string name, string topicArn, IAmazonSimpleNotific
 
         if (exception != null)
         {
-            healthStatus = HealthStatus.Unhealthy;
+            healthStatus = HealthStatus.Degraded;
             data.Add("error", $"{exception.Message} - {exception.InnerException?.Message}");
         }
 

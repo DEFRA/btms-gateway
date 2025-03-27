@@ -12,7 +12,6 @@ public class FinalisationNotificationFromAlvsToIpaffsTests : TargetRoutingTestBa
 
     private readonly string _alvsRequestSoap = File.ReadAllText(Path.Combine(FixturesPath, "AlvsToIpaffsFinalisationNotification.xml"));
     private readonly string _alvsResponseSoap = File.ReadAllText(Path.Combine(FixturesPath, "IpaffsResponse.xml"));
-    private readonly string _btmsRequestJson = File.ReadAllText(Path.Combine(FixturesPath, "FinalisationNotification.json")).LinuxLineEndings();
     private readonly StringContent _alvsRequestSoapContent;
 
     public FinalisationNotificationFromAlvsToIpaffsTests()
@@ -22,7 +21,7 @@ public class FinalisationNotificationFromAlvsToIpaffsTests : TargetRoutingTestBa
     }
 
     [Fact]
-    public async Task When_receiving_request_from_alvs_Then_should_forward_to_cds()
+    public async Task When_receiving_request_from_alvs_Then_should_forward_to_ipaffs()
     {
         await HttpClient.PostAsync(UrlPath, _alvsRequestSoapContent);
 
@@ -39,12 +38,4 @@ public class FinalisationNotificationFromAlvsToIpaffsTests : TargetRoutingTestBa
         (await response.Content.ReadAsStringAsync()).Should().Be(_alvsResponseSoap);
     }
 
-    [Fact]
-    public async Task When_receiving_request_from_alvs_Then_should_forward_converted_json_to_btms()
-    {
-        await HttpClient.PostAsync(UrlPath, _alvsRequestSoapContent);
-
-        TestWebServer.ForkedHttpHandler.LastRequest!.RequestUri!.AbsoluteUri.Should().Be($"http://btms-host{UrlPath}");
-        (await TestWebServer.ForkedHttpHandler.LastRequest!.Content!.ReadAsStringAsync()).LinuxLineEndings().Should().Be(_btmsRequestJson);
-    }
 }

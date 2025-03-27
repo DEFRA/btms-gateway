@@ -60,6 +60,24 @@
       "MessageBodyDepth": 2,
       "RouteTo": "Legacy"
     },
+    "ALVSSearchCertificateToIpaffs": {
+      "RoutePath": "/soapsearch/pre/sanco/traces_ws/searchCertificate",
+      "MessageSubXPath": "CertificateRequest/Request",
+      "Legend": "Legend",
+      "LegacyLinkName": "AlvsIpaffs",
+      "BtmsLinkName": "None",
+      "MessageBodyDepth": 2,
+      "RouteTo": "Legacy"
+    },
+    "ALVSDecisionNotificationToIpaffs": {
+      "RoutePath": "/soapsearch/pre/sanco/traces_ws/sendALVSDecisionNotification",
+      "MessageSubXPath": "DecisionNotificationRequestPost/DecisionNotification",
+      "Legend": "Legend",
+      "LegacyLinkName": "AlvsIpaffs",
+      "BtmsLinkName": "None",
+      "MessageBodyDepth": 2,
+      "RouteTo": "Legacy"
+    },
     "BTMSDecisionNotificationToCds": {
       "RoutePath": "/route/path/btms-cds/decision-notification",
       "MessageSubXPath": "DecisionNotification/DecisionNotification",

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<NS1:Envelope xmlns:NS1="http://www.w3.org/2003/05/soap-envelope">
+  <NS1:Header/>
+  <NS1:Body>
+    <NS2:CertificateRequest xmlns:NS2="traceswsns">
+      <NS2:XMLSchemaVersion>2.0</NS2:XMLSchemaVersion>
+      <NS2:UserIdentification>username</NS2:UserIdentification>
+      <NS2:UserPassword>password</NS2:UserPassword>
+      <NS2:SendingDate>2025-03-27 11:07</NS2:SendingDate>
+      <NS2:Request>
+        <NS2:SearchCriterionCVEDAnimal>
+          <NS2:ModifiedBetween>
+            <NS2:StartDate>2025-03-27 11:06</NS2:StartDate>
+            <NS2:EndDate>2025-03-27 12:06</NS2:EndDate>
+          </NS2:ModifiedBetween>
+          <NS2:CountryOfDestination>GB</NS2:CountryOfDestination>
+          <NS2:FetchAmount>100</NS2:FetchAmount>
+        </NS2:SearchCriterionCVEDAnimal>
+      </NS2:Request>
+    </NS2:CertificateRequest>
+  </NS1:Body>
+</NS1:Envelope>

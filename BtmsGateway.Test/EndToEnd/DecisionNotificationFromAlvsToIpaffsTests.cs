@@ -8,7 +8,7 @@ namespace BtmsGateway.Test.EndToEnd;
 
 public class DecisionNotificationFromAlvsToIpaffsTests : TargetRoutingTestBase
 {
-    private const string UrlPath = "/soapsearch/pre/sanco/traces_ws/sendALVSDecisionNotification";
+    private const string UrlPath = "/soapsearch/tst/sanco/traces_ws/sendALVSDecisionNotification";
 
     private readonly string _alvsRequestSoap = File.ReadAllText(Path.Combine(FixturesPath, "AlvsToIpaffsDecisionNotificationRequest.xml"));
     private readonly string _ipaffsResponseSoap = File.ReadAllText(Path.Combine(FixturesPath, "IpaffsResponse.xml"));

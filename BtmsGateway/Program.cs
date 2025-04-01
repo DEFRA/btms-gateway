@@ -99,6 +99,7 @@ static void ConfigureTelemetry(WebApplicationBuilder builder)
 static WebApplication ConfigureWebApplication(WebApplication app)
 {
     app.UseEmfExporter();
+    app.UseHttpLogging();
     app.UseMiddleware<RoutingInterceptor>();
     app.UseCustomHealthChecks();
     app.UseCheckRoutesEndpoints();

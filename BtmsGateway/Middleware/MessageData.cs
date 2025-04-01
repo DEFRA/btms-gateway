@@ -122,7 +122,14 @@ public class MessageData
 
         if (!string.IsNullOrEmpty(traceHeaderKey))
         {
-            request.MessageAttributes.Add(traceHeaderKey, new MessageAttributeValue { StringValue = _headers[traceHeaderKey], DataType = "String" });
+            //If the trace header hasn't been set, then set it
+            string traceValue = Guid.NewGuid().ToString();
+            if (!string.IsNullOrEmpty(_headers[traceHeaderKey]))
+            {
+                traceValue = _headers[traceHeaderKey];
+            }
+           
+            request.MessageAttributes.Add(traceHeaderKey, new MessageAttributeValue { StringValue = traceValue, DataType = "String" });
         }
 
         return request;

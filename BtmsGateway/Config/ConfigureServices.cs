@@ -18,7 +18,7 @@ public static class ConfigureServices
     public static void AddServices(this WebApplicationBuilder builder, ILogger logger)
     {
         builder.Services.AddSingleton(logger);
-
+        builder.Services.AddHttpLogging(o => { });
         HttpRoutedClientWithRetryBuilder = builder.Services.AddHttpProxyRoutedClientWithRetry(logger);
         HttpForkedClientWithRetryBuilder = builder.Services.AddHttpProxyForkedClientWithRetry(logger);
         builder.Services.AddHttpProxyClientWithoutRetry(logger);

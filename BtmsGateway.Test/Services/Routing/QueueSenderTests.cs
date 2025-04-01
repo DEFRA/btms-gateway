@@ -1,8 +1,10 @@
+using System.Configuration;
 using System.Net;
 using Amazon.SimpleNotificationService;
 using Amazon.SimpleNotificationService.Model;
 using BtmsGateway.Services.Routing;
 using FluentAssertions;
+using Microsoft.Extensions.Configuration;
 using NSubstitute;
 using Serilog;
 
@@ -10,13 +12,15 @@ namespace BtmsGateway.Test.Services.Routing;
 
 public class QueueSenderTests
 {
+    IConfiguration config = new ConfigurationBuilder().AddInMemoryCollection(new List<KeyValuePair<string, string>>() { new("traceHeader", "trace-header") }).Build();
+
     [Fact]
     public async Task SendAsync_WithFork_EncountersError_ReturnsErrorResult()
     {
         // Arrange
         var mocks = CreateMocks(HttpStatusCode.BadRequest);
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
-        var sut = new QueueSender(mocks.SnsService);
+        var sut = new QueueSender(mocks.SnsService, config);
 
         // Act
         var response = await sut.Send(msgData.Routing, msgData.MessageData, "");
@@ -32,7 +36,7 @@ public class QueueSenderTests
         // Arrange
         var mocks = CreateMocks();
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
-        var sut = new QueueSender(mocks.SnsService);
+        var sut = new QueueSender(mocks.SnsService, config);
 
         // Act
         var response = await sut.Send(msgData.Routing, msgData.MessageData, "");
@@ -48,7 +52,7 @@ public class QueueSenderTests
         // Arrange
         var mocks = CreateMocks(HttpStatusCode.BadRequest);
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
-        var sut = new QueueSender(mocks.SnsService);
+        var sut = new QueueSender(mocks.SnsService, config);
 
         // Act
         var response = await sut.Send(msgData.Routing, msgData.MessageData, "");
@@ -64,7 +68,7 @@ public class QueueSenderTests
         // Arrange
         var mocks = CreateMocks();
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
-        var sut = new QueueSender(mocks.SnsService);
+        var sut = new QueueSender(mocks.SnsService, config);
 
         // Act
         var response = await sut.Send(msgData.Routing, msgData.MessageData, "");
@@ -80,7 +84,7 @@ public class QueueSenderTests
         // Arrange
         var mocks = CreateMocks();
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
-        var sut = new QueueSender(mocks.SnsService);
+        var sut = new QueueSender(mocks.SnsService, config);
 
         // Act
         var response = await sut.Send(msgData.Routing, msgData.MessageData, "");

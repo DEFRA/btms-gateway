@@ -9,11 +9,12 @@ public interface IQueueSender
     Task<RoutingResult> Send(RoutingResult routingResult, MessageData messageData, string? route);
 }
 
-public class QueueSender(IAmazonSimpleNotificationService snsService) : IQueueSender
+public class QueueSender(IAmazonSimpleNotificationService snsService, IConfiguration configuration) : IQueueSender
 {
     public async Task<RoutingResult> Send(RoutingResult routingResult, MessageData messageData, string? route)
     {
-        var request = messageData.CreatePublishRequest(route, routingResult.MessageSubXPath);
+        var traceIdHeader = configuration.GetValue<string>("TraceHeader");
+        var request = messageData.CreatePublishRequest(route, routingResult.MessageSubXPath, traceIdHeader);
 
         var response = await snsService.PublishAsync(request);
 

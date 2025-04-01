@@ -102,7 +102,7 @@ public class MessageData
         }
     }
 
-    public PublishRequest CreatePublishRequest(string? routeArn, string? messageSubXPath)
+    public PublishRequest CreatePublishRequest(string? routeArn, string? messageSubXPath, string? traceHeaderKey)
     {
         var content = SoapToJsonConverter.Convert(OriginalSoapContent, messageSubXPath);
 
@@ -119,6 +119,18 @@ public class MessageData
             Message = content,
             TopicArn = routeArn
         };
+
+        if (!string.IsNullOrEmpty(traceHeaderKey))
+        {
+            //If the trace header hasn't been set, then set it
+            string traceValue = Guid.NewGuid().ToString();
+            if (!string.IsNullOrEmpty(_headers[traceHeaderKey]))
+            {
+                traceValue = _headers[traceHeaderKey];
+            }
+
+            request.MessageAttributes.Add(traceHeaderKey, new MessageAttributeValue { StringValue = traceValue, DataType = "String" });
+        }
 
         return request;
     }

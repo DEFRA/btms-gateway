@@ -106,7 +106,7 @@ public class MessageData
     {
         var content = SoapToJsonConverter.Convert(OriginalSoapContent, messageSubXPath);
 
-        _logger.Information("{CorrelationId} Publish JSON content to {Content}", ContentMap.CorrelationId, content);
+        _logger.Information("{ContentCorrelationId} Publish JSON content to {Content}", ContentMap.CorrelationId, content);
 
         var request = new PublishRequest
         {

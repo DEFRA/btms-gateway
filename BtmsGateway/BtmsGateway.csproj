@@ -47,6 +47,7 @@
     <PackageReference Include="Serilog.Settings.Configuration" Version="8.0.2" />
     <PackageReference Include="Serilog.Sinks.OpenTelemetry" Version="4.1.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
+    <PackageReference Include="Serilog.Enrichers.ClientInfo" Version="2.1.2"/>
   </ItemGroup>
 
   <ItemGroup>

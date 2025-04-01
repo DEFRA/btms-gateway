@@ -50,6 +50,7 @@ static void BuildWebApplication(WebApplicationBuilder builder)
 static Logger ConfigureLogging(WebApplicationBuilder builder)
 {
     var traceIdHeader = builder.Configuration.GetValue<string>("TraceHeader");
+    builder.Services.AddHttpContextAccessor();
 
     builder.Logging.ClearProviders();
     var loggerConfiguration = new LoggerConfiguration()

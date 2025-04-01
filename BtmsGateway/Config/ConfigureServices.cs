@@ -18,7 +18,11 @@ public static class ConfigureServices
     public static void AddServices(this WebApplicationBuilder builder, ILogger logger)
     {
         builder.Services.AddSingleton(logger);
-        builder.Services.AddHttpLogging(o => { });
+        builder.Services.AddHttpLogging(o =>
+        {
+            o.RequestHeaders.Add("X-cdp-request-id");
+            o.RequestHeaders.Add("X-Amzn-Trace-Id");
+        });
         HttpRoutedClientWithRetryBuilder = builder.Services.AddHttpProxyRoutedClientWithRetry(logger);
         HttpForkedClientWithRetryBuilder = builder.Services.AddHttpProxyForkedClientWithRetry(logger);
         builder.Services.AddHttpProxyClientWithoutRetry(logger);

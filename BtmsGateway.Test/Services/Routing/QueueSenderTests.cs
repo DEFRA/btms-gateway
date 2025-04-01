@@ -34,7 +34,7 @@ public class QueueSenderTests
     public async Task SendAsync_WithFork_SendsCorrectly_ReturnsOKResult()
     {
         // Arrange
-       var mocks = CreateMocks();
+        var mocks = CreateMocks();
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
         var sut = new QueueSender(mocks.SnsService, config);
 

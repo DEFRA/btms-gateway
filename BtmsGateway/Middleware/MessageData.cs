@@ -128,7 +128,7 @@ public class MessageData
             {
                 traceValue = _headers[traceHeaderKey];
             }
-           
+
             request.MessageAttributes.Add(traceHeaderKey, new MessageAttributeValue { StringValue = traceValue, DataType = "String" });
         }
 

@@ -49,6 +49,8 @@ static void BuildWebApplication(WebApplicationBuilder builder)
 [ExcludeFromCodeCoverage]
 static Logger ConfigureLogging(WebApplicationBuilder builder)
 {
+    var traceIdHeader = builder.Configuration.GetValue<string>("TraceHeader");
+
     builder.Logging.ClearProviders();
     var loggerConfiguration = new LoggerConfiguration()
         .ReadFrom.Configuration(builder.Configuration)
@@ -59,6 +61,11 @@ static Logger ConfigureLogging(WebApplicationBuilder builder)
             options.LogsEndpoint = builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"];
             options.ResourceAttributes.Add("service.name", "btms-gateway");
         });
+
+    if (traceIdHeader != null)
+    {
+        loggerConfiguration.Enrich.WithCorrelationId(traceIdHeader);
+    }
 
     var logger = loggerConfiguration.CreateLogger();
     builder.Logging.AddSerilog(logger);

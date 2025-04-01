@@ -102,7 +102,7 @@ public class MessageData
         }
     }
 
-    public PublishRequest CreatePublishRequest(string? routeArn, string? messageSubXPath)
+    public PublishRequest CreatePublishRequest(string? routeArn, string? messageSubXPath, string? traceHeaderKey)
     {
         var content = SoapToJsonConverter.Convert(OriginalSoapContent, messageSubXPath);
 
@@ -119,6 +119,11 @@ public class MessageData
             Message = content,
             TopicArn = routeArn
         };
+
+        if (!string.IsNullOrEmpty(traceHeaderKey))
+        {
+            request.MessageAttributes.Add(traceHeaderKey, new MessageAttributeValue { StringValue = _headers[traceHeaderKey], DataType = "String" });
+        }
 
         return request;
     }

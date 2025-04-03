@@ -122,14 +122,16 @@ public class MessageData
 
         if (!string.IsNullOrEmpty(traceHeaderKey))
         {
-            //If the trace header hasn't been set, then set it
-            string traceValue = Guid.NewGuid().ToString();
             if (!string.IsNullOrEmpty(_headers[traceHeaderKey]))
             {
-                traceValue = _headers[traceHeaderKey];
+                string traceValue = _headers[traceHeaderKey];
+                request.MessageAttributes.Add(traceHeaderKey, new MessageAttributeValue { StringValue = traceValue, DataType = "String" });
+                _logger.Information("{ContentCorrelationId} TraceHeaderKey found and set to {TraceValue}", ContentMap.CorrelationId, traceValue);
             }
-
-            request.MessageAttributes.Add(traceHeaderKey, new MessageAttributeValue { StringValue = traceValue, DataType = "String" });
+            else
+            {
+                _logger.Information("{ContentCorrelationId} TraceHeaderKey not found {TraceHeaderKey}", ContentMap.CorrelationId, traceHeaderKey);
+            }
         }
 
         return request;

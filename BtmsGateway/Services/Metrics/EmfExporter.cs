@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Metrics;
 using Amazon.CloudWatch.EMF.Logger;
 using Amazon.CloudWatch.EMF.Model;
@@ -7,6 +8,7 @@ using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Services.Metrics;
 
+[ExcludeFromCodeCoverage]
 public static class EmfExportExtensions
 {
     public static IApplicationBuilder UseEmfExporter(this IApplicationBuilder builder)

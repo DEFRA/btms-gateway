@@ -36,6 +36,7 @@ public static class ConfigureServices
         builder.Services.AddSingleton<IApiSender, ApiSender>();
         builder.Services.AddSingleton<IMessageRouter, MessageRouter>();
         builder.Services.AddSingleton<IMessageRoutes, MessageRoutes>();
+        builder.Services.AddSingleton<IProcessRunner, ProcessRunner>();
         builder.Services.AddSingleton<CheckRoutes>();
         builder.Services.AddSingleton<MetricsHost>();
     }

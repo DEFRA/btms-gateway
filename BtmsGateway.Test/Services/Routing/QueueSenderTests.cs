@@ -1,4 +1,3 @@
-using System.Configuration;
 using System.Net;
 using Amazon.SimpleNotificationService;
 using Amazon.SimpleNotificationService.Model;

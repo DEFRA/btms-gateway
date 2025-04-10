@@ -76,6 +76,7 @@ dotnet_naming_rule.static_fields_should_have_prefix.style    = static_prefix_sty
 dotnet_naming_symbols.static_fields.applicable_kinds   = field
 dotnet_naming_symbols.static_fields.required_modifiers = static
 dotnet_naming_symbols.static_fields.applicable_accessibilities = private, internal, private_protected
+dotnet_naming_style.static_prefix_style.required_prefix = s_
 dotnet_naming_style.static_prefix_style.capitalization = camel_case
 
 # internal and private fields should be _camelCase
@@ -96,3 +97,6 @@ indent_size = 2
 
 [*.json]
 indent_size = 2
+
+[Makefile]
+indent_style = tab

@@ -1,7 +1,6 @@
 using System.Net;
 using System.Net.Mime;
 using System.Text;
-using BtmsGateway.Test.TestUtils;
 using FluentAssertions;
 
 namespace BtmsGateway.Test.EndToEnd;

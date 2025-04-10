@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace BtmsGateway.Services.Checking;
 
+[ExcludeFromCodeCoverage]
 public static class CheckRoutesEndpoints
 {
     public const string Path = "checkroutes";

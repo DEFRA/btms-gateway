@@ -4,7 +4,7 @@ using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Services.Checking;
 
-public class CheckRoutes(HealthCheckConfig healthCheckConfig, IHttpClientFactory clientFactory, ILogger logger)
+public class CheckRoutes(HealthCheckConfig healthCheckConfig, IHttpClientFactory clientFactory, ILogger logger, IProcessRunner processRunner)
 {
     public const int OverallTimeoutSecs = 50;
 
@@ -83,7 +83,7 @@ public class CheckRoutes(HealthCheckConfig healthCheckConfig, IHttpClientFactory
         {
             logger.Information("Start checking {ProcessName} for {Url}", processName, arguments);
 
-            var processTask = RunProcess(processName, arguments);
+            var processTask = processRunner.RunProcess(processName, arguments);
             var waitedTask = await Task.WhenAny(processTask, GetCancellationTask(token));
             var processOutput = waitedTask == processTask ? processTask.Result : null;
 
@@ -98,23 +98,6 @@ public class CheckRoutes(HealthCheckConfig healthCheckConfig, IHttpClientFactory
         logger.Information("Completed checking {ProcessName} for {Url} with result {Result}", processName, arguments, checkRouteResult.ResponseResult);
 
         return checkRouteResult;
-    }
-
-    private static Task<string> RunProcess(string fileName, string arguments)
-    {
-        using var process = Process.Start(new ProcessStartInfo
-        {
-            FileName = fileName,
-            Arguments = arguments,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            UseShellExecute = false,
-            CreateNoWindow = true
-        });
-
-        using var outputReader = process?.StandardOutput;
-        var readToEnd = outputReader?.ReadToEnd();
-        return Task.FromResult($"{readToEnd}".Replace("\r\n", "\n").Replace("\n\n", "\n").Trim(' ', '\n'));
     }
 
     private static Task GetCancellationTask(CancellationToken token)

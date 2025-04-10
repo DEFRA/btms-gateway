@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text;
+using Amazon.SimpleNotificationService.Model;
 using BtmsGateway.Middleware;
 using BtmsGateway.Services.Routing;
 using BtmsGateway.Test.TestUtils;
@@ -12,6 +13,7 @@ namespace BtmsGateway.Test.Middleware;
 
 public class MessageDataTests
 {
+    private const string TraceHeaderKey = "x-cdp-request-id";
     private const string RequestBody = "<Envelope><Body><Root><Data>abc</Data><CorrelationId>correlation-id</CorrelationId></Root></Body></Envelope>";
 
     private readonly DefaultHttpContext _httpContext = new()
@@ -48,6 +50,15 @@ public class MessageDataTests
         var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
 
         messageData.ShouldProcessRequest.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task When_creating_message_data_and_exception_occurs_Then_should_throw_the_exception()
+    {
+        _httpContext.Request.Path = new PathString("/");
+        _httpContext.Request.Protocol = null!;
+
+        await Assert.ThrowsAsync<NullReferenceException>(() => MessageData.Create(_httpContext.Request, Logger.None));
     }
 
     [Theory]
@@ -218,6 +229,15 @@ public class MessageDataTests
     }
 
     [Fact]
+    public async Task When_creating_a_routable_converted_post_request_and_exception_occurs_Then_it_should_throw_the_exception()
+    {
+        _httpContext.Request.Method = "";
+        var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
+
+        Assert.Throws<ArgumentException>(() => messageData.CreateConvertedJsonRequest("https://localhost:456/cds/path", null, "Root"));
+    }
+
+    [Fact]
     public async Task When_populating_a_response_with_content_and_existing_date_Then_it_should_populate_response()
     {
         var responseDate = DateTimeOffset.Now;
@@ -308,5 +328,19 @@ public class MessageDataTests
         responseBody.Position = 0;
         var body = await new StreamReader(responseBody).ReadToEndAsync();
         body.Should().Be("");
+    }
+
+    [Fact]
+    public async Task When_creating_publish_request_and_trace_header_value_is_present_Then_request_should_contain_trace_header_as_message_attribute()
+    {
+        const string traceHeaderValue = "some-request-guid";
+        _httpContext.Request.Path = new PathString("/");
+        _httpContext.Request.Headers.Append(TraceHeaderKey, traceHeaderValue);
+        var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
+
+        var publishRequest = messageData.CreatePublishRequest("route-arn", "Root", TraceHeaderKey);
+
+        publishRequest.MessageAttributes.Should().ContainKey(TraceHeaderKey)
+            .WhoseValue.Should().Match<MessageAttributeValue>(messageAtributeValue => messageAtributeValue.StringValue == traceHeaderValue);
     }
 }

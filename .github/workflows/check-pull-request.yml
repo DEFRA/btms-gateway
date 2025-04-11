@@ -22,13 +22,14 @@ jobs:
     name: Run Pull Request Checks
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-dotnet@v3
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
            8.0
 
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           path: btms-gateway
         
@@ -74,13 +75,8 @@ jobs:
         with:
           recreate: true
           path: code-coverage-results.md
-
-    ## SonarCloud
-    ## Uncomment to unable SonarCloud scan
-    ## Requires project to be set up in SonarCloud
-    ## and the SonarCloud token to be set in the repository secrets
-#   sonarcloud-scan:
-#     name: CDP SonarCloud Scan
-#     uses: ./.github/workflows/sonarcloud.yml
-#     needs: pr-validator
-#     secrets: inherit
+#  sonarcloud-scan:
+#    name: CDP SonarCloud Scan
+#    uses: ./.github/workflows/sonarcloud.yml
+#    needs: pr-validator
+#    secrets: inherit

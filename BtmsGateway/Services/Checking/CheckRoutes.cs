@@ -12,7 +12,7 @@ public class CheckRoutes(HealthCheckConfig healthCheckConfig, IHttpClientFactory
     {
         if (healthCheckConfig.Disabled) return [];
 
-        logger.Information("Start route checking");
+        logger.Debug("Start route checking");
         var cts = new CancellationTokenSource(TimeSpan.FromSeconds(OverallTimeoutSecs));
         var checkRouteResults = await Task.WhenAll(healthCheckConfig.Urls.Select(GetCheckRouteUrl).Where(x => !x.Disabled).Select(x => CheckAll(x, cts)));
         return checkRouteResults.SelectMany(routeResults => routeResults);
@@ -20,7 +20,7 @@ public class CheckRoutes(HealthCheckConfig healthCheckConfig, IHttpClientFactory
 
     public async Task<IEnumerable<CheckRouteResult>> CheckIpaffs()
     {
-        logger.Information("Start route checking");
+        logger.Debug("Start route checking");
         var cts = new CancellationTokenSource(TimeSpan.FromSeconds(OverallTimeoutSecs));
         return (await Task.WhenAll(healthCheckConfig.Urls.Where(x => !x.Value.Disabled && x.Key.StartsWith("IPAFFS")).Select(x => CheckAll(GetCheckRouteUrl(x), cts)))).SelectMany(routeResults => routeResults);
     }
@@ -51,7 +51,7 @@ public class CheckRoutes(HealthCheckConfig healthCheckConfig, IHttpClientFactory
 
         try
         {
-            logger.Information("Start checking HTTP request for {Url}", checkRouteUrl.Url);
+            logger.Debug("Start checking HTTP request for {Url}", checkRouteUrl.Url);
             var client = clientFactory.CreateClient(Proxy.ProxyClientWithoutRetry);
             var request = new HttpRequestMessage(new HttpMethod(checkRouteUrl.Method), checkRouteUrl.Url);
             if (checkRouteUrl.HostHeader != null) request.Headers.TryAddWithoutValidation("host", checkRouteUrl.HostHeader);
@@ -65,7 +65,7 @@ public class CheckRoutes(HealthCheckConfig healthCheckConfig, IHttpClientFactory
         }
 
         stopwatch.Stop();
-        logger.Information("Completed checking HTTP request for {Url} with result {Result}", checkRouteUrl.Url, checkRouteResult.ResponseResult);
+        logger.Debug("Completed checking HTTP request for {Url} with result {Result}", checkRouteUrl.Url, checkRouteResult.ResponseResult);
 
         return checkRouteResult;
     }
@@ -81,7 +81,7 @@ public class CheckRoutes(HealthCheckConfig healthCheckConfig, IHttpClientFactory
 
         try
         {
-            logger.Information("Start checking {ProcessName} for {Url}", processName, arguments);
+            logger.Debug("Start checking {ProcessName} for {Url}", processName, arguments);
 
             var processTask = processRunner.RunProcess(processName, arguments);
             var waitedTask = await Task.WhenAny(processTask, GetCancellationTask(token));
@@ -95,7 +95,7 @@ public class CheckRoutes(HealthCheckConfig healthCheckConfig, IHttpClientFactory
         }
 
         stopwatch.Stop();
-        logger.Information("Completed checking {ProcessName} for {Url} with result {Result}", processName, arguments, checkRouteResult.ResponseResult);
+        logger.Debug("Completed checking {ProcessName} for {Url} with result {Result}", processName, arguments, checkRouteResult.ResponseResult);
 
         return checkRouteResult;
     }

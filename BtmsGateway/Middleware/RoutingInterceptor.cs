@@ -16,7 +16,10 @@ public class RoutingInterceptor(RequestDelegate next, IMessageRouter messageRout
 
             if (messageData.ShouldProcessRequest)
             {
-                logger.Information("{ContentCorrelationId} Received routing instruction {HttpString} {Content}", messageData.ContentMap.CorrelationId, messageData.HttpString, messageData.OriginalSoapContent.SoapString);
+                logger.Information("{ContentCorrelationId} {MessageReference} Received routing instruction {HttpString}",
+                    messageData.ContentMap.CorrelationId,
+                    messageData.ContentMap.MessageReference,
+                    messageData.HttpString);
 
                 await Route(context, messageData, metrics);
 
@@ -60,11 +63,23 @@ public class RoutingInterceptor(RequestDelegate next, IMessageRouter messageRout
 
     private void LogRouteFoundResults(MessageData messageData, RoutingResult routingResult, string action)
     {
-        logger.Information("{ContentCorrelationId} {Action} {Success} for route {RouteUrl} with response {StatusCode} \"{Content}\"", messageData.ContentMap.CorrelationId, action, routingResult.RoutingSuccessful ? "successful" : "failed", routingResult.FullRouteLink, routingResult.StatusCode, routingResult.ResponseContent);
+        logger.Information("{ContentCorrelationId} {MessageReference} {Action} {Success} for route {RouteUrl} with response {StatusCode} \"{Content}\"",
+            messageData.ContentMap.CorrelationId,
+            messageData.ContentMap.MessageReference,
+            action,
+            routingResult.RoutingSuccessful ? "successful" : "failed",
+            routingResult.FullRouteLink,
+            routingResult.StatusCode,
+            routingResult.ResponseContent);
     }
 
     private void LogRouteNotFoundResults(MessageData messageData, RoutingResult routingResult, string action)
     {
-        logger.Information("{ContentCorrelationId} {Action} not {Reason} for [{HttpString}]", messageData.ContentMap.CorrelationId, action, routingResult.RouteLinkType == LinkType.None ? "configured" : "supported", messageData.HttpString);
+        logger.Information("{ContentCorrelationId} {MessageReference} {Action} not {Reason} for [{HttpString}]",
+            messageData.ContentMap.CorrelationId,
+            messageData.ContentMap.MessageReference,
+            action,
+            routingResult.RouteLinkType == LinkType.None ? "configured" : "supported",
+            messageData.HttpString);
     }
 }

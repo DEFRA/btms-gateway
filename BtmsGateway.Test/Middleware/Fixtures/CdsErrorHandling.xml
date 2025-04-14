@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:oas="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+    <soap:Header>
+        <oas:Security soap:role="system" soap:mustUnderstand="true">
+            <oas:UsernameToken>
+                <oas:Username>systemID=ALVSHMRCCDS,ou=gsi systems,o=defra</oas:Username>
+                <oas:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText">password</oas:Password>
+            </oas:UsernameToken>
+        </oas:Security>
+    </soap:Header>
+    <soap:Body>
+        <HMRCErrorNotification xmlns="http://uk.gov.hmrc.ITSW2.ws">
+            <HMRCErrorNotification xmlns="http://www.hmrc.gov.uk/webservices/itsw/ws/hmrcerrornotification">
+                <ServiceHeader>
+                    <SourceSystem>ALVS</SourceSystem>
+                    <DestinationSystem>CDS</DestinationSystem>
+                    <CorrelationId>12585355</CorrelationId>
+                    <ServiceCallTimestamp>2025-03-10T15:43:48.031</ServiceCallTimestamp>
+                </ServiceHeader>
+                <Header>
+                    <SourceCorrelationId>101</SourceCorrelationId>
+                    <EntryReference>25GB2Q3M9H9K5MSAR8</EntryReference>
+                    <EntryVersionNumber>1</EntryVersionNumber>
+                </Header>
+                <Error>
+                    <ErrorCode>ALVSVAL312</ErrorCode>
+                    <ErrorMessage>The DocumentControl field (Ex-Heading flag) must be Y or N. Value supplied was null. Your service request with Correlation ID 341735 has been terminated.</ErrorMessage>
+                </Error>
+                <Error>
+                    <ErrorCode>ALVSVAL318</ErrorCode>
+                    <ErrorMessage>Item 1 has no Item Document defined for it. ALVS requires at least 1 Item Document. Your service request with Correlation ID 341735 has been terminated.</ErrorMessage>
+                </Error>
+                <Error>
+                    <ErrorCode>ALVSVAL321</ErrorCode>
+                    <ErrorMessage>The Item Check for the PHA-POAO Authority is invalid as there are no Item Documents provided for that Authority on ItemNumber 1. Your service request with Correlation ID 341735 has been terminated.</ErrorMessage>
+                </Error>
+            </HMRCErrorNotification>
+        </HMRCErrorNotification>
+    </soap:Body>
+</soap:Envelope>

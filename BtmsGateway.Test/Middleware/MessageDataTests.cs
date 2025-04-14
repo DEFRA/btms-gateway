@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text;
 using Amazon.SimpleNotificationService.Model;
+using BtmsGateway.Domain;
 using BtmsGateway.Middleware;
 using BtmsGateway.Services.Routing;
 using BtmsGateway.Test.TestUtils;
@@ -342,5 +343,60 @@ public class MessageDataTests
 
         publishRequest.MessageAttributes.Should().ContainKey(TraceHeaderKey)
             .WhoseValue.Should().Match<MessageAttributeValue>(messageAtributeValue => messageAtributeValue.StringValue == traceHeaderValue);
+    }
+
+    [Fact]
+    public async Task When_creating_publish_request_for_alvs_clearance_request_Then_request_should_contain_message_type_message_attribute()
+    {
+        var alvsClearanceRequest = File.ReadAllText(Path.Combine(Path.Combine("Middleware", "Fixtures"), "CdsToAlvsClearanceRequest.xml"));
+        _httpContext.Request.Path = new PathString("/");
+        _httpContext.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(alvsClearanceRequest));
+        var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
+
+        var publishRequest = messageData.CreatePublishRequest("route-arn", MessagingConstants.SoapMessageTypes.ALVSClearanceRequest, TraceHeaderKey);
+
+        publishRequest.MessageAttributes.Should().ContainKey(MessagingConstants.MessageAttributeKeys.MessageType)
+            .WhoseValue.Should().Match<MessageAttributeValue>(messageAtributeValue => messageAtributeValue.StringValue == MessagingConstants.MessageTypes.ClearanceRequest);
+    }
+
+    [Fact]
+    public async Task When_creating_publish_request_for_finalisation_notification_request_Then_request_should_contain_message_type_message_attribute()
+    {
+        var finalisationNotificationRequest = File.ReadAllText(Path.Combine(Path.Combine("Middleware", "Fixtures"), "CdsToAlvsFinalisationNotification.xml"));
+        _httpContext.Request.Path = new PathString("/");
+        _httpContext.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(finalisationNotificationRequest));
+        var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
+
+        var publishRequest = messageData.CreatePublishRequest("route-arn", MessagingConstants.SoapMessageTypes.FinalisationNotificationRequest, TraceHeaderKey);
+
+        publishRequest.MessageAttributes.Should().ContainKey(MessagingConstants.MessageAttributeKeys.MessageType)
+            .WhoseValue.Should().Match<MessageAttributeValue>(messageAtributeValue => messageAtributeValue.StringValue == MessagingConstants.MessageTypes.Finalisation);
+    }
+
+    [Fact]
+    public async Task When_creating_publish_request_for_error_notification_request_Then_request_should_contain_message_type_message_attribute()
+    {
+        var errorNotificationRequest = File.ReadAllText(Path.Combine(Path.Combine("Middleware", "Fixtures"), "AlvsErrorHandling.xml"));
+        _httpContext.Request.Path = new PathString("/");
+        _httpContext.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(errorNotificationRequest));
+        var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
+
+        var publishRequest = messageData.CreatePublishRequest("route-arn", MessagingConstants.SoapMessageTypes.ALVSErrorNotificationRequest, TraceHeaderKey);
+
+        publishRequest.MessageAttributes.Should().ContainKey(MessagingConstants.MessageAttributeKeys.MessageType)
+            .WhoseValue.Should().Match<MessageAttributeValue>(messageAtributeValue => messageAtributeValue.StringValue == MessagingConstants.MessageTypes.InboundError);
+    }
+
+    [Fact]
+    public async Task When_creating_publish_request_for_other_request_Then_request_should_not_contain_message_type_message_attribute()
+    {
+        var errorNotificationRequest = File.ReadAllText(Path.Combine(Path.Combine("Middleware", "Fixtures"), "CdsErrorHandling.xml"));
+        _httpContext.Request.Path = new PathString("/");
+        _httpContext.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(errorNotificationRequest));
+        var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
+
+        var publishRequest = messageData.CreatePublishRequest("route-arn", "HMRCErrorNotification/HMRCErrorNotification", TraceHeaderKey);
+
+        publishRequest.MessageAttributes.Should().NotContainKey(MessagingConstants.MessageAttributeKeys.MessageType);
     }
 }

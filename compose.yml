@@ -1,4 +1,4 @@
-name: topics-and-queues-emulator
+name: gateway-topics-and-queues
 
 services:
 
@@ -10,4 +10,4 @@ services:
       - "4966:4566"
       - "4910-4959:4510-4559"
     environment:
-      - SERVICES=s3,sns,sqs
+      - SERVICES=sns,sqs

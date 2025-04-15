@@ -20,6 +20,10 @@ public static class TestRoutes
             { "btms_link_name_1", new NamedLink { Link = "btms-link-queue", LinkType = LinkType.Queue } },
             { "btms_link_name_2", new NamedLink { Link = "http://btms-link-url", LinkType = LinkType.Url, HostHeader = "btms-host-header" } },
             { "none", new NamedLink { Link = "none", LinkType = LinkType.None, HostHeader = null } },
+        },
+        Destinations = new Dictionary<string, Destination>
+        {
+            { "destination-1", new Destination { LinkType = LinkType.Url, Link = "http://destination-url", RoutePath = "/route/path-1", ContentType = "application/soap+xml", HostHeader = "syst32.hmrc.gov.uk", Method = "POST" } }
         }
     };
 
@@ -36,6 +40,10 @@ public static class TestRoutes
             { "legacy_link_name_2", new NamedLink { Link = "http://legacy-link-2-url", LinkType = LinkType.Url } },
             { "btms_link_name_1", new NamedLink { Link = "btms-link-1-queue", LinkType = LinkType.Queue } },
             { "btms_link_name_2", new NamedLink { Link = "btms-link-2-queue", LinkType = LinkType.Queue, HostHeader = "btms-host-header" } }
+        },
+        Destinations = new Dictionary<string, Destination>
+        {
+            { "destination-1", new Destination { LinkType = LinkType.Url, Link = "http://destination-url", RoutePath = "/route/path-1", ContentType = "application/soap+xml", HostHeader = "syst32.hmrc.gov.uk", Method = "POST" } }
         }
     };
 
@@ -48,6 +56,10 @@ public static class TestRoutes
         NamedLinks = new Dictionary<string, NamedLink>
         {
             { "link_name_1", new NamedLink { Link = "link-url", LinkType = LinkType.Url } }
+        },
+        Destinations = new Dictionary<string, Destination>
+        {
+            { "destination-1", new Destination { LinkType = LinkType.Url, Link = "http://destination-url", RoutePath = "/route/path-1", ContentType = "application/soap+xml", HostHeader = "syst32.hmrc.gov.uk", Method = "POST" } }
         }
     };
 
@@ -60,6 +72,10 @@ public static class TestRoutes
         NamedLinks = new Dictionary<string, NamedLink>
         {
             { "link_name_1", new NamedLink { Link = "http://link-url", LinkType = LinkType.Url } }
+        },
+        Destinations = new Dictionary<string, Destination>
+        {
+            { "destination-1", new Destination { LinkType = LinkType.Url, Link = "http://destination-url", RoutePath = "/route/path-1", ContentType = "application/soap+xml", HostHeader = "syst32.hmrc.gov.uk", Method = "POST" } }
         }
     };
 
@@ -72,6 +88,10 @@ public static class TestRoutes
         NamedLinks = new Dictionary<string, NamedLink>
         {
             { "link_name_1", new NamedLink { Link = "http://link-url", LinkType = (LinkType)99 } }
+        },
+        Destinations = new Dictionary<string, Destination>
+        {
+            { "destination-1", new Destination { LinkType = LinkType.Url, Link = "http://destination-url", RoutePath = "/route/path-1", ContentType = "application/soap+xml", HostHeader = "syst32.hmrc.gov.uk", Method = "POST" } }
         }
     };
 }

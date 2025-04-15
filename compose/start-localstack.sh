@@ -15,21 +15,26 @@ CFN=customs_finalisation_notification.fifo
 CEN=customs_error_notification.fifo
 ADN=alvs_decision_notification.fifo
 AEN=alvs_error_notification.fifo
-ICDR=trade_imports_inbound_customs_declaration_received.fifo
+ICDR_Topic=trade_imports_inbound_customs_declaration_received.fifo
+ICDR_Queue=trade_imports_inbound_customs_declarations.fifo
+OCD_Topic=trade_imports_outbound_clearance_decision_created.fifo
+OCD_Queue=trade_imports_outbound_clearance_decisions.fifo
 
 aws --endpoint-url=$ENDPOINT_URL sns create-topic --attributes FifoTopic=true --name $CCR
 aws --endpoint-url=$ENDPOINT_URL sns create-topic --attributes FifoTopic=true --name $CFN
 aws --endpoint-url=$ENDPOINT_URL sns create-topic --attributes FifoTopic=true --name $CEN
 aws --endpoint-url=$ENDPOINT_URL sns create-topic --attributes FifoTopic=true --name $ADN
 aws --endpoint-url=$ENDPOINT_URL sns create-topic --attributes FifoTopic=true --name $AEN
-aws --endpoint-url=$ENDPOINT_URL sns create-topic --attributes FifoTopic=true --name $ICDR
+aws --endpoint-url=$ENDPOINT_URL sns create-topic --attributes FifoTopic=true --name $ICDR_Topic
+aws --endpoint-url=$ENDPOINT_URL sns create-topic --attributes FifoTopic=true --name $OCD_Topic
 
 aws --endpoint-url=$ENDPOINT_URL sqs create-queue --attributes FifoQueue=true --queue-name $CCR
 aws --endpoint-url=$ENDPOINT_URL sqs create-queue --attributes FifoQueue=true --queue-name $CFN
 aws --endpoint-url=$ENDPOINT_URL sqs create-queue --attributes FifoQueue=true --queue-name $CEN
 aws --endpoint-url=$ENDPOINT_URL sqs create-queue --attributes FifoQueue=true --queue-name $ADN
 aws --endpoint-url=$ENDPOINT_URL sqs create-queue --attributes FifoQueue=true --queue-name $AEN
-aws --endpoint-url=$ENDPOINT_URL sqs create-queue --attributes FifoQueue=true --queue-name $ICDR
+aws --endpoint-url=$ENDPOINT_URL sqs create-queue --attributes FifoQueue=true --queue-name $ICDR_Queue
+aws --endpoint-url=$ENDPOINT_URL sqs create-queue --attributes FifoQueue=true --queue-name $OCD_Queue
 
 SNS_ARN=arn:aws:sns:eu-west-2:000000000000
 SQS_ARN=arn:aws:sqs:eu-west-2:000000000000
@@ -39,4 +44,5 @@ aws --endpoint-url=$ENDPOINT_URL sns subscribe --topic-arn $SNS_ARN:$CFN --proto
 aws --endpoint-url=$ENDPOINT_URL sns subscribe --topic-arn $SNS_ARN:$CEN --protocol sqs --notification-endpoint $SQS_ARN:$CEN --attributes '{"RawMessageDelivery": "true"}'
 aws --endpoint-url=$ENDPOINT_URL sns subscribe --topic-arn $SNS_ARN:$ADN --protocol sqs --notification-endpoint $SQS_ARN:$ADN --attributes '{"RawMessageDelivery": "true"}'
 aws --endpoint-url=$ENDPOINT_URL sns subscribe --topic-arn $SNS_ARN:$AEN --protocol sqs --notification-endpoint $SQS_ARN:$AEN --attributes '{"RawMessageDelivery": "true"}'
-aws --endpoint-url=$ENDPOINT_URL sns subscribe --topic-arn $SNS_ARN:$ICDR --protocol sqs --notification-endpoint $SQS_ARN:$ICDR --attributes '{"RawMessageDelivery": "true"}'
+aws --endpoint-url=$ENDPOINT_URL sns subscribe --topic-arn $SNS_ARN:$ICDR_Topic --protocol sqs --notification-endpoint $SQS_ARN:$ICDR_Queue --attributes '{"RawMessageDelivery": "true"}'
+aws --endpoint-url=$ENDPOINT_URL sns subscribe --topic-arn $SNS_ARN:$OCD_Topic --protocol sqs --notification-endpoint $SQS_ARN:$OCD_Queue --attributes '{"RawMessageDelivery": "true"}'

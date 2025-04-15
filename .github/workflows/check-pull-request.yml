@@ -16,22 +16,28 @@ permissions:
   contents: read
   pull-requests: write
   repository-projects: read
+  packages: read
 
 jobs:
   pr-validator:
     name: Run Pull Request Checks
     runs-on: ubuntu-latest
-    steps:
-      - name: Setup dotnet
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: |
-           8.0
-
+    steps:   
       - name: Check out code
         uses: actions/checkout@v4
         with:
           path: btms-gateway
+          
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            9.0
+            
+      - name: Update NuGet.config
+        run: |
+          dotnet nuget remove source defra --configfile ./btms-gateway/NuGet.config
+          dotnet nuget add source --username USERNAME --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name defra "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --configfile ./btms-gateway/NuGet.config
         
       - name: Verify Format
         run: dotnet format ./btms-gateway/BtmsGateway.sln --verify-no-changes --verbosity diagnostic

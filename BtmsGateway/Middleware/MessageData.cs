@@ -174,7 +174,7 @@ public class MessageData
 
         if (!string.IsNullOrWhiteSpace(attributeValue))
         {
-            messageAttributes.Add(MessagingConstants.MessageAttributeKeys.HmrcInboundMessageType,
+            messageAttributes.Add(MessagingConstants.MessageAttributeKeys.InboundHmrcMessageType,
                 new MessageAttributeValue { DataType = "String", StringValue = attributeValue });
             _logger.Debug("{ContentCorrelationId} Message Type Attribute Value {AttributeValue} added for SOAP message type {SOAPMessageType}",
                 ContentMap.CorrelationId,

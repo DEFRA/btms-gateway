@@ -355,7 +355,7 @@ public class MessageDataTests
 
         var publishRequest = messageData.CreatePublishRequest("route-arn", MessagingConstants.SoapMessageTypes.ALVSClearanceRequest, TraceHeaderKey);
 
-        publishRequest.MessageAttributes.Should().ContainKey(MessagingConstants.MessageAttributeKeys.MessageType)
+        publishRequest.MessageAttributes.Should().ContainKey(MessagingConstants.MessageAttributeKeys.HmrcInboundMessageType)
             .WhoseValue.Should().Match<MessageAttributeValue>(messageAtributeValue => messageAtributeValue.StringValue == MessagingConstants.MessageTypes.ClearanceRequest);
     }
 
@@ -369,7 +369,7 @@ public class MessageDataTests
 
         var publishRequest = messageData.CreatePublishRequest("route-arn", MessagingConstants.SoapMessageTypes.FinalisationNotificationRequest, TraceHeaderKey);
 
-        publishRequest.MessageAttributes.Should().ContainKey(MessagingConstants.MessageAttributeKeys.MessageType)
+        publishRequest.MessageAttributes.Should().ContainKey(MessagingConstants.MessageAttributeKeys.HmrcInboundMessageType)
             .WhoseValue.Should().Match<MessageAttributeValue>(messageAtributeValue => messageAtributeValue.StringValue == MessagingConstants.MessageTypes.Finalisation);
     }
 
@@ -383,7 +383,7 @@ public class MessageDataTests
 
         var publishRequest = messageData.CreatePublishRequest("route-arn", MessagingConstants.SoapMessageTypes.ALVSErrorNotificationRequest, TraceHeaderKey);
 
-        publishRequest.MessageAttributes.Should().ContainKey(MessagingConstants.MessageAttributeKeys.MessageType)
+        publishRequest.MessageAttributes.Should().ContainKey(MessagingConstants.MessageAttributeKeys.HmrcInboundMessageType)
             .WhoseValue.Should().Match<MessageAttributeValue>(messageAtributeValue => messageAtributeValue.StringValue == MessagingConstants.MessageTypes.InboundError);
     }
 
@@ -397,6 +397,6 @@ public class MessageDataTests
 
         var publishRequest = messageData.CreatePublishRequest("route-arn", "HMRCErrorNotification/HMRCErrorNotification", TraceHeaderKey);
 
-        publishRequest.MessageAttributes.Should().NotContainKey(MessagingConstants.MessageAttributeKeys.MessageType);
+        publishRequest.MessageAttributes.Should().NotContainKey(MessagingConstants.MessageAttributeKeys.HmrcInboundMessageType);
     }
 }

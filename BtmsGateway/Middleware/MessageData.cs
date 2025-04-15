@@ -3,6 +3,7 @@ using System.Net.Mime;
 using System.Text;
 using System.Text.Json.Nodes;
 using Amazon.SimpleNotificationService.Model;
+using BtmsGateway.Domain;
 using BtmsGateway.Services.Checking;
 using BtmsGateway.Services.Converter;
 using BtmsGateway.Services.Routing;
@@ -112,10 +113,7 @@ public class MessageData
         {
             MessageGroupId = ContentMap.EntryReference,
             MessageDeduplicationId = ContentMap.CorrelationId,
-            MessageAttributes = new Dictionary<string, MessageAttributeValue>
-            {
-                { "CorrelationId", new MessageAttributeValue { StringValue = ContentMap.CorrelationId, DataType = "String"} }
-            },
+            MessageAttributes = GetMessageAttributes(messageSubXPath),
             Message = content,
             TopicArn = routeArn
         };
@@ -154,6 +152,43 @@ public class MessageData
             _logger.Error(ex, "Error populating response");
             throw;
         }
+    }
+
+    private Dictionary<string, MessageAttributeValue> GetMessageAttributes(string? messageSubXPath)
+    {
+        var messageAttributes = new Dictionary<string, MessageAttributeValue>
+        {
+            {
+                MessagingConstants.MessageAttributeKeys.CorrelationId,
+                new MessageAttributeValue { StringValue = ContentMap.CorrelationId, DataType = "String" }
+            }
+        };
+
+        var attributeValue = messageSubXPath switch
+        {
+            MessagingConstants.SoapMessageTypes.ALVSClearanceRequest => MessagingConstants.MessageTypes.ClearanceRequest,
+            MessagingConstants.SoapMessageTypes.FinalisationNotificationRequest => MessagingConstants.MessageTypes.Finalisation,
+            MessagingConstants.SoapMessageTypes.ALVSErrorNotificationRequest => MessagingConstants.MessageTypes.InboundError,
+            _ => string.Empty
+        };
+
+        if (!string.IsNullOrWhiteSpace(attributeValue))
+        {
+            messageAttributes.Add(MessagingConstants.MessageAttributeKeys.InboundHmrcMessageType,
+                new MessageAttributeValue { DataType = "String", StringValue = attributeValue });
+            _logger.Debug("{ContentCorrelationId} Message Type Attribute Value {AttributeValue} added for SOAP message type {SOAPMessageType}",
+                ContentMap.CorrelationId,
+                attributeValue,
+                messageSubXPath);
+        }
+        else
+        {
+            _logger.Debug("{ContentCorrelationId} Message Type Attribute Value not added for SOAP message type {SOAPMessageType}",
+                ContentMap.CorrelationId,
+                messageSubXPath);
+        }
+
+        return messageAttributes;
     }
 
     private static async Task<string?> RetrieveContent(HttpRequest request)

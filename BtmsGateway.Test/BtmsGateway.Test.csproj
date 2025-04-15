@@ -55,6 +55,18 @@
     <None Update="Services\Converter\Fixtures\HmrcErrorNotification.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Middleware\Fixtures\CdsToAlvsClearanceRequest.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Middleware\Fixtures\CdsToAlvsFinalisationNotification.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Middleware\Fixtures\AlvsErrorHandling.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Middleware\Fixtures\CdsErrorHandling.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   
 </Project>

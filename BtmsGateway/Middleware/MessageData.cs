@@ -106,7 +106,7 @@ public class MessageData
     {
         var content = SoapToJsonConverter.Convert(OriginalSoapContent, messageSubXPath);
 
-        _logger.Information("{ContentCorrelationId} Publish JSON content to {Content}", ContentMap.CorrelationId, content);
+        _logger.Debug("{ContentCorrelationId} Publish JSON content", ContentMap.CorrelationId);
 
         var request = new PublishRequest
         {
@@ -126,11 +126,11 @@ public class MessageData
             {
                 string traceValue = _headers[traceHeaderKey];
                 request.MessageAttributes.Add(traceHeaderKey, new MessageAttributeValue { StringValue = traceValue, DataType = "String" });
-                _logger.Information("{ContentCorrelationId} TraceHeaderKey found and set to {TraceValue}", ContentMap.CorrelationId, traceValue);
+                _logger.Debug("{ContentCorrelationId} TraceHeaderKey found and set to {TraceValue}", ContentMap.CorrelationId, traceValue);
             }
             else
             {
-                _logger.Information("{ContentCorrelationId} TraceHeaderKey not found {TraceHeaderKey}", ContentMap.CorrelationId, traceHeaderKey);
+                _logger.Debug("{ContentCorrelationId} TraceHeaderKey not found {TraceHeaderKey}", ContentMap.CorrelationId, traceHeaderKey);
             }
         }
 
@@ -179,4 +179,6 @@ public class ContentMap(SoapContent soapContent)
     public string? EntryReference => soapContent.GetProperty("EntryReference");
     public string? CountryCode => soapContent.GetProperty("DispatchCountryCode");
     public string? CorrelationId => soapContent.GetProperty("CorrelationId");
+    public string? RequestIdentifier => soapContent.GetProperty("RequestIdentifier");
+    public string? MessageReference => EntryReference ?? RequestIdentifier ?? "NO MESSAGE REFERENCE";
 }

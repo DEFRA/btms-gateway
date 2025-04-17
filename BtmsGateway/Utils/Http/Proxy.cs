@@ -9,6 +9,7 @@ namespace BtmsGateway.Utils.Http;
 public static class Proxy
 {
     public const string ProxyClientWithoutRetry = "proxy";
+    public const string ProxyClientWithRetry = "proxy-with-retry";
     public const string RoutedClientWithRetry = "routed-with-retry";
     public const string ForkedClientWithRetry = "forked-with-retry";
 
@@ -30,6 +31,12 @@ public static class Proxy
     public static IHttpClientBuilder AddHttpProxyForkedClientWithRetry(this IServiceCollection services, Serilog.ILogger logger)
     {
         return services.AddHttpClient(ForkedClientWithRetry).ConfigurePrimaryHttpMessageHandler(() => ConfigurePrimaryHttpMessageHandler(logger)).AddPolicyHandler(_ => WaitAndRetryAsync);
+    }
+
+    [ExcludeFromCodeCoverage]
+    public static IHttpClientBuilder AddHttpProxyClientWithRetry(this IServiceCollection services, Serilog.ILogger logger)
+    {
+        return services.AddHttpClient(ProxyClientWithRetry).ConfigurePrimaryHttpMessageHandler(() => ConfigurePrimaryHttpMessageHandler(logger)).AddPolicyHandler(_ => WaitAndRetryAsync);
     }
 
     [ExcludeFromCodeCoverage]

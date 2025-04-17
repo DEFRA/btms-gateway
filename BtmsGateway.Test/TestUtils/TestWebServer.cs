@@ -24,6 +24,7 @@ public class TestWebServer : IAsyncDisposable
 
     public TestHttpHandler RoutedHttpHandler { get; }
     public TestHttpHandler ForkedHttpHandler { get; }
+    public TestHttpHandler ClientWithRetryHttpHandler { get; }
     public HttpClient HttpServiceClient { get; }
     public IServiceProvider Services => _app.Services;
 
@@ -37,6 +38,7 @@ public class TestWebServer : IAsyncDisposable
 
         var builder = WebApplication.CreateBuilder();
         builder.Configuration.AddJsonFile(Path.Combine("EndToEnd", "Settings", "localstack.json"));
+        builder.Configuration.AddJsonFile(Path.Combine("EndToEnd", "Settings", "ConsumerSettings.json"));
         builder.ConfigureToType<RoutingConfig>();
         builder.ConfigureToType<HealthCheckConfig>();
         builder.WebHost.UseUrls(url);
@@ -52,6 +54,8 @@ public class TestWebServer : IAsyncDisposable
         ConfigureServices.HttpRoutedClientWithRetryBuilder?.AddHttpMessageHandler(() => RoutedHttpHandler);
         ForkedHttpHandler = new TestHttpHandler();
         ConfigureServices.HttpForkedClientWithRetryBuilder?.AddHttpMessageHandler(() => ForkedHttpHandler);
+        ClientWithRetryHttpHandler = new TestHttpHandler();
+        ConfigureServices.HttpClientWithRetryBuilder?.AddHttpMessageHandler(() => ClientWithRetryHttpHandler);
 
         var app = builder.Build();
 

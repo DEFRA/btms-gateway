@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace BtmsGateway.Test.EndToEnd;
 
-public sealed class GeneralEndToEndTests : IAsyncDisposable
+public sealed class GeneralEndToEndTests : IDisposable
 {
     private const string RoutedPath = "/test/path";
 
@@ -45,6 +45,10 @@ public sealed class GeneralEndToEndTests : IAsyncDisposable
             {
                 { "TestPath", new NamedLink { Link = "http://TestUrlPath", LinkType = LinkType.Url } },
                 { "BtmsPath", new NamedLink { Link = "http://BtmsUrlPath/forked", LinkType = LinkType.Url } }
+            },
+            Destinations = new Dictionary<string, Destination>
+            {
+                { "destination-1", new Destination { LinkType = LinkType.Url, Link = "http://destination-url", RoutePath = "/route/path-1", ContentType = "application/soap+xml", HostHeader = "syst32.hmrc.gov.uk", Method = "POST" } },
             }
         };
         _testWebServer = TestWebServer.BuildAndRun(ServiceDescriptor.Singleton(routingConfig));
@@ -57,7 +61,7 @@ public sealed class GeneralEndToEndTests : IAsyncDisposable
         _stringContent = new StringContent(_soapContent, Encoding.UTF8, MediaTypeNames.Application.Xml);
     }
 
-    public async ValueTask DisposeAsync() => await _testWebServer.DisposeAsync();
+    public void Dispose() => _testWebServer.DisposeAsync().GetAwaiter().GetResult();
 
     [Fact]
     public async Task When_routing_request_Then_should_respond_from_routed_request()

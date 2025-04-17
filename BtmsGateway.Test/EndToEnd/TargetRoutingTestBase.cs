@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace BtmsGateway.Test.EndToEnd;
 
-public abstract class TargetRoutingTestBase : IAsyncDisposable
+public abstract class TargetRoutingTestBase : IDisposable
 {
     protected static readonly string FixturesPath = Path.Combine("EndToEnd", "Fixtures");
 
@@ -24,5 +24,5 @@ public abstract class TargetRoutingTestBase : IAsyncDisposable
         HttpClient = TestWebServer.HttpServiceClient;
     }
 
-    public async ValueTask DisposeAsync() => await TestWebServer.DisposeAsync();
+    public void Dispose() => TestWebServer.DisposeAsync().GetAwaiter().GetResult();
 }

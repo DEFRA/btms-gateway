@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope">
+  <soap:Header>
+    <oas:Security soap:role="system" soap:mustUnderstand="true" xmlns:oas="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+      <oas:UsernameToken>
+        <oas:Username>ibmtest</oas:Username>
+        <oas:Password>password</oas:Password>
+      </oas:UsernameToken>
+    </oas:Security>
+  </soap:Header>
+  <soap:Body>
+    <DecisionNotification xmlns="http://uk.gov.hmrc.ITSW2.ws">
+      <DecisionNotification xmlns="http://www.hmrc.gov.uk/webservices/itsw/ws/decisionnotification">
+        <ServiceHeader>
+          <SourceSystem>ALVS</SourceSystem>
+          <DestinationSystem>CDS</DestinationSystem>
+          <CorrelationId>external-correlation-id</CorrelationId>
+          <ServiceCallTimestamp>2025-01-01T00:00:00.00</ServiceCallTimestamp>
+        </ServiceHeader>
+        <Header>
+          <EntryReference>MRN123</EntryReference>
+          <EntryVersionNumber>1</EntryVersionNumber>
+          <DecisionNumber>1</DecisionNumber>
+        </Header>
+        <Item>
+          <ItemNumber>1</ItemNumber>
+          <Check>
+            <CheckCode>H218</CheckCode>
+            <DecisionCode>C02</DecisionCode>
+            <DecisionValidUntil>202501010000</DecisionValidUntil>
+            <DecisionReason>Some decision reason</DecisionReason>
+          </Check>
+        </Item>
+      </DecisionNotification>
+    </DecisionNotification>
+  </soap:Body>
+</soap:Envelope>

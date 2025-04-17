@@ -257,5 +257,15 @@
       "LinkType": "Queue",
       "Link": "arn:aws:sns:eu-west-2:000000000000:customs_finalisation_route.fifo"
     }
+  },
+  "Destinations": {
+    "BtmsCds": {
+      "LinkType": "Url",
+      "Link": "http://alvs-cds-host/",
+      "RoutePath": "/ws/CDS/defra/alvsclearanceinbound/v1",
+      "ContentType": "application/soap+xml",
+      "HostHeader": "syst32.hmrc.gov.uk",
+      "Method": "POST"
+    }
   }
 }

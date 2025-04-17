@@ -1,6 +1,8 @@
 {
   "AWS_ACCESS_KEY_ID": "local",
   "AWS_SECRET_ACCESS_KEY": "local",
+  "AWS_REGION": "eu-west-2",
+  "SQS_ENDPOINT": "http://sqs.eu-west-2.localhost.localstack.cloud:4966",
   "AWS": {
     "ServiceURL": "http://sqs.eu-west-2.localhost.localstack.cloud:4966/",
     "Region": "eu-west-2"

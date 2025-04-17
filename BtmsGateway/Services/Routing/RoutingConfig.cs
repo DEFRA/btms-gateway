@@ -51,6 +51,7 @@ public record RoutingConfig
 
     public required Dictionary<string, NamedRoute> NamedRoutes { get; init; } = [];
     public required Dictionary<string, NamedLink> NamedLinks { get; init; } = [];
+    public required Dictionary<string, Destination> Destinations { get; init; } = [];
 }
 
 public record NamedRoute
@@ -68,6 +69,16 @@ public record NamedLink
     public required string Link { get; init; }
     public required LinkType LinkType { get; init; }
     public string? HostHeader { get; init; }
+}
+
+public record Destination
+{
+    public required LinkType LinkType { get; init; }
+    public required string Link { get; init; }
+    public required string RoutePath { get; init; }
+    public required string ContentType { get; init; }
+    public string? HostHeader { get; init; }
+    public string? Method { get; init; }
 }
 
 public enum LinkType { None, Url, Queue }

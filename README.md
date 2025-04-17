@@ -26,7 +26,7 @@ The available health endpoints can be viewed by visiting the swagger endpoint <c
 
 ### Prerequisites
 
-- .NET 8 SDK
+- .NET 9 SDK
 - NSLookup and Dig for performing health checks
 - Docker
   - For testing locally using SNS/SQS queues setup with localstack
@@ -34,7 +34,7 @@ The available health endpoints can be viewed by visiting the swagger endpoint <c
 
 ### Setup Process
 
-- Install the .NET 8 SDK installed
+- Install the .NET 9 SDK installed
 - Ensure you have NSLookup and Dig available on your machine if you wish to execute the Health Checks locally
 - Install Docker
   - Run the following Docker Compose to set up locally running queues for testing

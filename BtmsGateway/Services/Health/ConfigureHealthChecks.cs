@@ -41,7 +41,7 @@ public static class ConfigureHealthChecks
     {
         if (routingConfig == null || routingConfig.AutomatedHealthCheckDisabled) return;
 
-        foreach (var queues in routingConfig.NamedLinks.Where(x => x.Value.LinkType == LinkType.Queue))
+        foreach (var queues in routingConfig.NamedLinks.Where(x => x.Value.LinkType == LinkType.Queue && x.Key != "InboundCustomsDeclarationReceivedTopic"))
         {
             builder.AddTypeActivatedCheck<QueueHealthCheck>(queues.Key, failureStatus: HealthStatus.Unhealthy, args: [queues.Key, queues.Value.Link]);
         }

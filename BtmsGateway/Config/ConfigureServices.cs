@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Amazon.SimpleNotificationService;
+using BtmsGateway.Extensions;
 using BtmsGateway.Services.Checking;
 using BtmsGateway.Services.Metrics;
 using BtmsGateway.Services.Routing;
@@ -13,6 +14,7 @@ public static class ConfigureServices
 {
     public static IHttpClientBuilder? HttpRoutedClientWithRetryBuilder { get; private set; }
     public static IHttpClientBuilder? HttpForkedClientWithRetryBuilder { get; private set; }
+    public static IHttpClientBuilder? HttpClientWithRetryBuilder { get; private set; }
 
     [ExcludeFromCodeCoverage]
     public static void AddServices(this WebApplicationBuilder builder, ILogger logger)
@@ -25,10 +27,14 @@ public static class ConfigureServices
         });
         HttpRoutedClientWithRetryBuilder = builder.Services.AddHttpProxyRoutedClientWithRetry(logger);
         HttpForkedClientWithRetryBuilder = builder.Services.AddHttpProxyForkedClientWithRetry(logger);
+        HttpClientWithRetryBuilder = builder.Services.AddHttpProxyClientWithRetry(logger);
         builder.Services.AddHttpProxyClientWithoutRetry(logger);
+        builder.Services.AddDataApiHttpClient();
 
         builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
         builder.Services.AddAWSService<IAmazonSimpleNotificationService>();
+
+        builder.Services.AddConsumers(builder.Configuration);
 
         builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 

@@ -53,7 +53,7 @@ public static class ServiceCollectionExtensions
 
         return services;
     }
-    
+
     public static IServiceCollection AddTracingForConsumers(this IServiceCollection services)
     {
         services.AddScoped(typeof(IConsumerInterceptor<>), typeof(TraceContextInterceptor<>));

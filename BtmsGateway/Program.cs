@@ -56,7 +56,7 @@ static Logger ConfigureLoggingAndTracing(WebApplicationBuilder builder)
 {
     var traceIdHeader = builder.Configuration.GetValue<string>("TraceHeader");
     builder.Services.AddHttpContextAccessor();
-    
+
     builder.Services.TryAddSingleton<ITraceContextAccessor, TraceContextAccessor>();
     builder
         .Services.AddOptions<TraceHeader>()
@@ -64,7 +64,7 @@ static Logger ConfigureLoggingAndTracing(WebApplicationBuilder builder)
         .ValidateDataAnnotations()
         .ValidateOnStart();
     builder.Services.AddTracingForConsumers();
-    
+
     builder.Services.AddSingleton<IConfigureOptions<HeaderPropagationOptions>>(sp =>
     {
         var traceHeader = sp.GetRequiredService<IOptions<TraceHeader>>().Value;

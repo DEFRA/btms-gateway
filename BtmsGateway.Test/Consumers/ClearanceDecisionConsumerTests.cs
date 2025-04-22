@@ -151,7 +151,7 @@ public class ClearanceDecisionConsumerTests
             .ReturnsNull();
 
         var thrownException = await Assert.ThrowsAsync<ClearanceDecisionProcessingException>(() => _consumer.OnHandle(_context, CancellationToken.None));
-        thrownException.Message.Should().Be("24GB123456789AB012 Failed to process clearance decision.");
+        thrownException.Message.Should().Be("24GB123456789AB012 Failed to process clearance decision resource event.");
         thrownException.InnerException.Should().BeAssignableTo<InvalidOperationException>();
         thrownException.InnerException?.Message.Should().Be("24GB123456789AB012 Customs Declaration not found from Data API.");
     }
@@ -172,7 +172,7 @@ public class ClearanceDecisionConsumerTests
             .Returns(customsDeclaration);
 
         var thrownException = await Assert.ThrowsAsync<ClearanceDecisionProcessingException>(() => _consumer.OnHandle(_context, CancellationToken.None));
-        thrownException.Message.Should().Be("24GB123456789AB012 Failed to process clearance decision.");
+        thrownException.Message.Should().Be("24GB123456789AB012 Failed to process clearance decision resource event.");
         thrownException.InnerException.Should().BeAssignableTo<InvalidOperationException>();
         thrownException.InnerException?.Message.Should().Be("24GB123456789AB012 Customs Declaration does not contain a Clearance Decision.");
     }
@@ -191,7 +191,7 @@ public class ClearanceDecisionConsumerTests
             .ThrowsAsync(new Exception("Something went wrong"));
 
         var thrownException = await Assert.ThrowsAsync<ClearanceDecisionProcessingException>(() => _consumer.OnHandle(_context, CancellationToken.None));
-        thrownException.Message.Should().Be("24GB123456789AB012 Failed to process clearance decision.");
+        thrownException.Message.Should().Be("24GB123456789AB012 Failed to process clearance decision resource event.");
         thrownException.InnerException.Should().BeAssignableTo<Exception>();
         thrownException.InnerException?.Message.Should().Be("Something went wrong");
     }
@@ -210,7 +210,7 @@ public class ClearanceDecisionConsumerTests
             .Returns(new HttpResponseMessage(HttpStatusCode.BadRequest));
 
         var thrownException = await Assert.ThrowsAsync<ClearanceDecisionProcessingException>(() => _consumer.OnHandle(_context, CancellationToken.None));
-        thrownException.Message.Should().Be("24GB123456789AB012 Failed to process clearance decision.");
+        thrownException.Message.Should().Be("24GB123456789AB012 Failed to process clearance decision resource event.");
         thrownException.InnerException.Should().BeAssignableTo<ClearanceDecisionProcessingException>();
         thrownException.InnerException?.Message.Should().Be("24GB123456789AB012 Failed to send clearance decision to CDS.");
     }
@@ -229,7 +229,7 @@ public class ClearanceDecisionConsumerTests
             .ReturnsNull();
 
         var thrownException = await Assert.ThrowsAsync<ClearanceDecisionProcessingException>(() => _consumer.OnHandle(_context, CancellationToken.None));
-        thrownException.Message.Should().Be("24GB123456789AB012 Failed to process clearance decision.");
+        thrownException.Message.Should().Be("24GB123456789AB012 Failed to process clearance decision resource event.");
         thrownException.InnerException.Should().BeAssignableTo<ClearanceDecisionProcessingException>();
         thrownException.InnerException?.Message.Should().Be("24GB123456789AB012 Failed to send clearance decision to CDS.");
     }

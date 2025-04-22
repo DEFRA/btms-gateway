@@ -4,11 +4,16 @@ using Serilog;
 using Serilog.Core;
 using System.Diagnostics.CodeAnalysis;
 using BtmsGateway.Config;
+using BtmsGateway.Extensions;
 using BtmsGateway.Middleware;
 using BtmsGateway.Services.Checking;
 using BtmsGateway.Services.Health;
 using BtmsGateway.Services.Metrics;
 using BtmsGateway.Services.Routing;
+using Elastic.Serilog.Enrichers.Web;
+using Microsoft.AspNetCore.HeaderPropagation;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
@@ -38,7 +43,7 @@ static void BuildWebApplication(WebApplicationBuilder builder)
     var healthCheckConfig = builder.ConfigureToType<HealthCheckConfig>();
 
     ConfigureTelemetry(builder);
-    var logger = ConfigureLogging(builder);
+    var logger = ConfigureLoggingAndTracing(builder);
 
     builder.Services.AddCustomTrustStore(logger);
     builder.AddCustomHealthChecks(healthCheckConfig, routingConfig);
@@ -47,14 +52,37 @@ static void BuildWebApplication(WebApplicationBuilder builder)
 }
 
 [ExcludeFromCodeCoverage]
-static Logger ConfigureLogging(WebApplicationBuilder builder)
+static Logger ConfigureLoggingAndTracing(WebApplicationBuilder builder)
 {
     var traceIdHeader = builder.Configuration.GetValue<string>("TraceHeader");
     builder.Services.AddHttpContextAccessor();
+    
+    builder.Services.TryAddSingleton<ITraceContextAccessor, TraceContextAccessor>();
+    builder
+        .Services.AddOptions<TraceHeader>()
+        .Bind(builder.Configuration)
+        .ValidateDataAnnotations()
+        .ValidateOnStart();
+    builder.Services.AddTracingForConsumers();
+    
+    builder.Services.AddSingleton<IConfigureOptions<HeaderPropagationOptions>>(sp =>
+    {
+        var traceHeader = sp.GetRequiredService<IOptions<TraceHeader>>().Value;
+        return new ConfigureOptions<HeaderPropagationOptions>(options =>
+        {
+            if (!string.IsNullOrWhiteSpace(traceHeader.Name))
+                options.Headers.Add(traceHeader.Name);
+        });
+    });
+    builder.Services.TryAddSingleton<HeaderPropagationValues>();
 
     builder.Logging.ClearProviders();
+    var httpAccessor = builder.Services.GetHttpContextAccessor();
     var loggerConfiguration = new LoggerConfiguration()
         .ReadFrom.Configuration(builder.Configuration)
+        .Enrich.WithEcsHttpContext(httpAccessor)
+        .Enrich.FromLogContext()
+        .Enrich.With(new TraceContextEnricher())
         .Enrich.With<LogLevelMapper>()
         .Enrich.WithProperty("service.version", Environment.GetEnvironmentVariable("SERVICE_VERSION"))
         .WriteTo.OpenTelemetry(options =>

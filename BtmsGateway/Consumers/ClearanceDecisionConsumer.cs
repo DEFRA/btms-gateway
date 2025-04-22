@@ -21,7 +21,7 @@ public class ClearanceDecisionConsumer(RoutingConfig? routingConfig,
 
     public async Task OnHandle(IConsumerContext<ResourceEvent<CustomsDeclaration>> context, CancellationToken cancellationToken)
     {
-        logger.Information("Clearance Decision received from queue.");
+        logger.Information("Clearance Decision Resource Event received from queue.");
 
         if (routingConfig?.Destinations?.TryGetValue(BtmsToCdsDestinationConfigurationKey, out var btmsToCdsDestination) ?? false)
         {
@@ -77,18 +77,18 @@ public class ClearanceDecisionConsumer(RoutingConfig? routingConfig,
                     throw new ClearanceDecisionProcessingException($"{mrn} Failed to send clearance decision to CDS.");
                 }
 
-                logger.Information("{MRN} Clearance Decision successfully processed by ClearanceDecisionConsumer.",
+                logger.Information("{MRN} Clearance Decision Resource Event successfully processed by ClearanceDecisionConsumer.",
                     mrn);
             }
             catch (Exception ex)
             {
-                logger.Error(ex, "{MRN} Failed to process clearance decision.", mrn);
-                throw new ClearanceDecisionProcessingException($"{mrn} Failed to process clearance decision.", ex);
+                logger.Error(ex, "{MRN} Failed to process clearance decision resource event.", mrn);
+                throw new ClearanceDecisionProcessingException($"{mrn} Failed to process clearance decision resource event.", ex);
             }
         }
         else
         {
-            logger.Error("BTMS to CDS destination configuration could not be found for processing Clearance Decisions. Please confirm application configuration contains a Destination configuration for {BtmsToCdsDestinationConfigurationKey}",
+            logger.Error("BTMS to CDS destination configuration could not be found for processing Clearance Decision Resource Events. Please confirm application configuration contains a Destination configuration for {BtmsToCdsDestinationConfigurationKey}",
                 BtmsToCdsDestinationConfigurationKey);
             throw new ArgumentException("BTMS to CDS destination configuration could not be found.");
         }

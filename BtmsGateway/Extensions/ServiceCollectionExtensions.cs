@@ -1,10 +1,12 @@
 using System.Net;
 using System.Net.Http.Headers;
 using BtmsGateway.Config;
+using BtmsGateway.Utils.Logging;
 using Defra.TradeImportsDataApi.Api.Client;
 using Microsoft.Extensions.Http.Resilience;
 using Microsoft.Extensions.Options;
 using SlimMessageBus.Host;
+using SlimMessageBus.Host.Interceptor;
 
 namespace BtmsGateway.Extensions;
 
@@ -43,11 +45,24 @@ public static class ServiceCollectionExtensions
                         c.DefaultRequestVersion = HttpVersion.Version20;
                 }
             )
+            .AddHeaderPropagation()
             .AddStandardResilienceHandler(o =>
             {
                 o.Retry.DisableForUnsafeHttpMethods();
             });
 
         return services;
+    }
+    
+    public static IServiceCollection AddTracingForConsumers(this IServiceCollection services)
+    {
+        services.AddScoped(typeof(IConsumerInterceptor<>), typeof(TraceContextInterceptor<>));
+
+        return services;
+    }
+
+    public static IHttpContextAccessor GetHttpContextAccessor(this IServiceCollection services)
+    {
+        return services.BuildServiceProvider().GetRequiredService<IHttpContextAccessor>();
     }
 }

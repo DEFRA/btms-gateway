@@ -14,10 +14,10 @@ public class ReadOnlyDictionaryExtensionsTests
         };
 
         var result = headers.GetTraceId("trace-id-header");
-        
+
         result.Should().Be("traceidheadervalue");
     }
-    
+
     [Fact]
     public async Task When_getting_trace_id_and_header_does_not_exist_Then_should_return_empty()
     {

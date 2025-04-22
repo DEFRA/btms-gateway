@@ -11,33 +11,39 @@ public class DataApiOptionsTests
     {
         var dataApiOptions = new DataApiOptions
         {
-            BaseAddress = "https://some-uri", Username = "user", Password = "password"
+            BaseAddress = "https://some-uri",
+            Username = "user",
+            Password = "password"
         };
-        
+
         var expectedResult = Convert.ToBase64String(Encoding.UTF8.GetBytes($"user:password"));
-        
+
         dataApiOptions.BasicAuthCredential.Should().Be(expectedResult);
     }
-    
+
     [Fact]
     public async Task When_getting_basic_auth_credentials_and_username_is_empty_Then_no_credentials_are_returned()
     {
         var dataApiOptions = new DataApiOptions
         {
-            BaseAddress = "https://some-uri", Username = null, Password = "password"
+            BaseAddress = "https://some-uri",
+            Username = null,
+            Password = "password"
         };
-        
+
         dataApiOptions.BasicAuthCredential.Should().BeNullOrEmpty();
     }
-    
+
     [Fact]
     public async Task When_getting_basic_auth_credentials_and_password_is_empty_Then_no_credentials_are_returned()
     {
         var dataApiOptions = new DataApiOptions
         {
-            BaseAddress = "https://some-uri", Username = "user", Password = null
+            BaseAddress = "https://some-uri",
+            Username = "user",
+            Password = null
         };
-        
+
         dataApiOptions.BasicAuthCredential.Should().BeNullOrEmpty();
     }
 }

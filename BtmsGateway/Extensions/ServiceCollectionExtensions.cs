@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http.Headers;
 using BtmsGateway.Config;
@@ -10,6 +11,7 @@ using SlimMessageBus.Host.Interceptor;
 
 namespace BtmsGateway.Extensions;
 
+[ExcludeFromCodeCoverage]
 public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddConsumers(this IServiceCollection services, IConfiguration configuration)

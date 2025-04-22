@@ -89,6 +89,24 @@ public class ApiSenderTests
         response.RoutingSuccessful.Should().BeTrue();
     }
 
+    [Fact]
+    public async Task SendSoapMessageAsync_SendCorrectly_ReturnsOKResult()
+    {
+        var mocks = CreateMocks(HttpStatusCode.OK);
+        var sut = new ApiSender(mocks.Factory);
+
+        var response = await sut.SendSoapMessageAsync(
+            "POST",
+            "http://some-url",
+            "application/soap+xml",
+            "foo.com",
+            new Dictionary<string, string> { { "foo", "bar" } },
+            "soap message",
+            CancellationToken.None);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+
     private static (HttpClientHandler Handler, IHttpClientFactory Factory, ILogger Logger) CreateMocks(HttpStatusCode statusCode = HttpStatusCode.OK)
     {
         var response = new HttpResponseMessage(statusCode);

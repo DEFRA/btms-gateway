@@ -353,3 +353,5 @@ fabric.properties
 
 # Code Coverage output
 coverage/
+
+.env

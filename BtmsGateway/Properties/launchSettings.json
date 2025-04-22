@@ -7,7 +7,11 @@
       "applicationUrl": "http://btms-gateway.localtest.me:3091",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "DMP_ENVIRONMENT": "dev"
+        "DMP_ENVIRONMENT": "dev",
+        "AWS_ACCESS_KEY_ID": "local",
+        "AWS_REGION": "eu-west-2",
+        "AWS_SECRET_ACCESS_KEY": "local",
+        "SQS_ENDPOINT": "http://sqs.eu-west-2.localhost.localstack.cloud:4966"
       }
     }
   }

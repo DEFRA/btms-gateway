@@ -134,7 +134,7 @@ public class MessageRouterTests
         mocks.Metrics.Received().StartForkedRequest();
         mocks.Metrics.Received().RecordForkedRequest(Arg.Any<RoutingResult>());
     }
-    
+
     [Fact]
     public async Task Fork_DecisionComparerLinkType_SuccessfullyRouted_ReturnsSuccess()
     {
@@ -305,7 +305,7 @@ public class MessageRouterTests
         mocks.Metrics.DidNotReceive().StartForkedRequest();
         mocks.Metrics.DidNotReceive().RecordForkedRequest(Arg.Any<RoutingResult>());
     }
-    
+
     [Fact]
     public async Task Route_DecisionComparerLinkType_SuccessfullyRouted_ReturnsSuccess()
     {
@@ -415,7 +415,7 @@ public class MessageRouterTests
 
         var logger = Substitute.For<ILogger>();
         var metrics = Substitute.For<IMetrics>();
-        
+
         var decisionSender = Substitute.For<IDecisionSender>();
 
         if (decisionSenderSuccess)
@@ -428,11 +428,11 @@ public class MessageRouterTests
                     Arg.Any<CancellationToken>())
                 .Returns(routingResult
                     with
-                    {
-                        RoutingSuccessful = true,
-                        ResponseContent = $"Decision Sender Success!",
-                        StatusCode = HttpStatusCode.OK
-                    });
+                {
+                    RoutingSuccessful = true,
+                    ResponseContent = $"Decision Sender Success!",
+                    StatusCode = HttpStatusCode.OK
+                });
         }
         else
         {

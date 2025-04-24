@@ -19,13 +19,13 @@ public class ClearanceDecisionConsumer(
     public async Task OnHandle(IConsumerContext<ResourceEvent<CustomsDeclaration>> context, CancellationToken cancellationToken)
     {
         logger.Information("Clearance Decision Resource Event received from queue.");
-        
+
         if (context.Message is null)
         {
             logger.Error("Invalid message received from queue {Message}.", context.Message);
             throw new InvalidOperationException($"Invalid message received from queue {context.Message}.");
         }
-        
+
         var mrn = context.Message.ResourceId;
 
         try
@@ -46,7 +46,7 @@ public class ClearanceDecisionConsumer(
             }
 
             var soapMessage = ClearanceDecisionToSoapConverter.Convert(customsDeclaration.ClearanceDecision, mrn);
-            
+
             var result = await decisionSender.SendDecisionAsync(
                 mrn,
                 soapMessage,

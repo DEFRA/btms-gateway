@@ -13,7 +13,7 @@ public class DecisionSenderTests
     private readonly IApiSender _apiSender = Substitute.For<IApiSender>();
     private readonly ILogger _logger = Substitute.For<ILogger>();
     private DecisionSender _decisionSender;
-    
+
     public DecisionSenderTests()
     {
         _routingConfig = new RoutingConfig
@@ -57,7 +57,7 @@ public class DecisionSenderTests
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>())
             .Returns(new HttpResponseMessage(HttpStatusCode.OK));
-        
+
         _apiSender.SendSoapMessageAsync(
                 Arg.Any<string>(),
                 Arg.Any<string>(),
@@ -67,10 +67,10 @@ public class DecisionSenderTests
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>())
             .Returns(new HttpResponseMessage(HttpStatusCode.OK));
-        
+
         _decisionSender = new DecisionSender(_routingConfig, _apiSender, _logger);
     }
-    
+
     [Fact]
     public async Task When_sending_btms_decision_Then_decision_is_sent_to_comparer_and_not_onto_cds()
     {
@@ -97,20 +97,20 @@ public class DecisionSenderTests
             Arg.Any<string>(),
             Arg.Any<CancellationToken>());
     }
-    
+
     [Fact]
     public async Task When_sending_alvs_decision_Then_decision_is_sent_to_comparer_and_comparer_response_sent_onto_cds()
     {
         var comparerResponse = new HttpResponseMessage(HttpStatusCode.OK);
         comparerResponse.Content = new StringContent("<ComparerDecisionNotification />");
-        
+
         _apiSender.SendDecisionAsync(
                 Arg.Any<string>(),
                 Arg.Any<string>(),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>())
             .Returns(comparerResponse);
-        
+
         var result = await _decisionSender.SendDecisionAsync("mrn", "<AlvsDecisionNotification />",
             MessagingConstants.DecisionSource.Alvs, "external-correlation-id", CancellationToken.None);
 
@@ -134,7 +134,7 @@ public class DecisionSenderTests
         //     Arg.Is<string>(x => x == "<ComparerDecisionNotification />"),
         //     Arg.Any<CancellationToken>());
     }
-    
+
     // [Fact]
     // public async Task When_destination_config_has_not_been_set_Then_exception_is_thrown()
     // {
@@ -148,7 +148,7 @@ public class DecisionSenderTests
     //
     //     await Assert.ThrowsAsync<ArgumentException>(() => _consumer.OnHandle(_context, CancellationToken.None));
     // }
-    
+
     // [Fact]
     // public async Task When_sending_to_cds_returns_no_response_Then_exception_is_thrown()
     // {

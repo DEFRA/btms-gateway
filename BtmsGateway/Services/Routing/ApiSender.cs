@@ -89,10 +89,10 @@ public class ApiSender(IHttpClientFactory clientFactory) : IApiSender
         CancellationToken cancellationToken)
     {
         var client = clientFactory.CreateClient(Proxy.DecisionComparerProxyClientWithRetry);
-        
+
         var request = new HttpRequestMessage(HttpMethod.Put, destination);
         request.Content = new StringContent(decision, Encoding.UTF8, contentType);
-        
+
         return await client.SendAsync(request, cancellationToken);
     }
 }

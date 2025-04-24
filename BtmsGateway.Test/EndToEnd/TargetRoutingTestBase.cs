@@ -9,7 +9,7 @@ namespace BtmsGateway.Test.EndToEnd;
 public abstract class TargetRoutingTestBase : IDisposable
 {
     private bool _disposed;
-    
+
     protected static readonly string FixturesPath = Path.Combine("EndToEnd", "Fixtures");
 
     private static readonly JsonSerializerOptions JsonSerializerOptions = new() { Converters = { new JsonStringEnumConverter() } };

@@ -43,12 +43,12 @@ public static class Proxy
     {
         return services.AddHttpClient(ProxyClientWithRetry).ConfigurePrimaryHttpMessageHandler(() => ConfigurePrimaryHttpMessageHandler(logger)).AddPolicyHandler(_ => WaitAndRetryAsync);
     }
-    
+
     [ExcludeFromCodeCoverage]
     public static IHttpClientBuilder AddDecisionComparerHttpProxyClientWithRetry(this IServiceCollection services, Serilog.ILogger logger)
     {
         services.AddOptions<DecisionComparerApiOptions>().BindConfiguration(DecisionComparerApiOptions.SectionName).ValidateDataAnnotations();
-        
+
         return services.AddHttpClient(DecisionComparerProxyClientWithRetry)
             .ConfigurePrimaryHttpMessageHandler(() => ConfigurePrimaryHttpMessageHandler(logger))
             .AddPolicyHandler(_ => WaitAndRetryAsync)

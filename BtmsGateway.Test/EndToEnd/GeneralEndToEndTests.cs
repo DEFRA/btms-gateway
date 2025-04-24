@@ -12,7 +12,7 @@ namespace BtmsGateway.Test.EndToEnd;
 public sealed class GeneralEndToEndTests : IDisposable
 {
     private bool _disposed;
-    
+
     private const string RoutedPath = "/test/path";
 
     private readonly string _headerCorrelationId = Guid.NewGuid().ToString("D");
@@ -68,7 +68,7 @@ public sealed class GeneralEndToEndTests : IDisposable
         Dispose(true);
         GC.SuppressFinalize(this);
     }
-    
+
     private void Dispose(bool disposing)
     {
         if (_disposed)

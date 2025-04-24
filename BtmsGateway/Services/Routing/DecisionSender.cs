@@ -20,7 +20,7 @@ public class DecisionSender(RoutingConfig? routingConfig, IApiSender apiSender, 
 {
     private const string CorrelationIdHeaderName = "CorrelationId";
     private const string AcceptHeaderName = "Accept";
-    
+
     public async Task<RoutingResult> SendDecisionAsync(
         string? mrn,
         string? decision,
@@ -68,7 +68,7 @@ public class DecisionSender(RoutingConfig? routingConfig, IApiSender apiSender, 
                 comparerResponse.ReasonPhrase);
             throw new DecisionComparisonException($"{mrn} Failed to send Decision to Decision Comparer.");
         }
-        
+
         if (decisionSource == MessagingConstants.DecisionSource.Alvs)
         {
             var comparerDecision = await GetResponseContentAsync(comparerResponse, cancellationToken);
@@ -122,12 +122,12 @@ public class DecisionSender(RoutingConfig? routingConfig, IApiSender apiSender, 
     //         throw new DecisionComparisonException($"{mrn} Failed to send clearance decision to CDS.");
     //     }
     // }
-    
+
     private static async Task<string> GetResponseContentAsync(HttpResponseMessage? response, CancellationToken cancellationToken)
     {
         if (response is not null && response.StatusCode != HttpStatusCode.NoContent)
             return await response.Content.ReadAsStringAsync(cancellationToken);
-    
+
         return "No content";
     }
 }

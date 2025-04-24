@@ -30,7 +30,7 @@ public static class ConfigureServices
         HttpForkedClientWithRetryBuilder = builder.Services.AddHttpProxyForkedClientWithRetry(logger);
         HttpClientWithRetryBuilder = builder.Services.AddHttpProxyClientWithRetry(logger);
         DecisionComparerHttpClientWithRetryBuilder = builder.Services.AddDecisionComparerHttpProxyClientWithRetry(logger);
-        
+
         builder.Services.AddHttpProxyClientWithoutRetry(logger);
         builder.Services.AddDataApiHttpClient();
 

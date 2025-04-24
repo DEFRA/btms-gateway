@@ -84,7 +84,7 @@ public class ClearanceDecisionConsumerTests
         {
             StatusCode = HttpStatusCode.OK
         };
-        
+
         _decisionSender.SendDecisionAsync(
                 Arg.Any<string>(),
                 Arg.Any<string>(),
@@ -169,7 +169,7 @@ public class ClearanceDecisionConsumerTests
         {
             StatusCode = HttpStatusCode.BadRequest
         };
-        
+
         _decisionSender.SendDecisionAsync(
                 Arg.Any<string>(),
                 Arg.Any<string>(),

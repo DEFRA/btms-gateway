@@ -8,6 +8,8 @@ namespace BtmsGateway.Test.EndToEnd;
 
 public abstract class TargetRoutingTestBase : IDisposable
 {
+    private bool _disposed;
+    
     protected static readonly string FixturesPath = Path.Combine("EndToEnd", "Fixtures");
 
     private static readonly JsonSerializerOptions JsonSerializerOptions = new() { Converters = { new JsonStringEnumConverter() } };
@@ -24,5 +26,27 @@ public abstract class TargetRoutingTestBase : IDisposable
         HttpClient = TestWebServer.HttpServiceClient;
     }
 
-    public void Dispose() => TestWebServer.DisposeAsync().GetAwaiter().GetResult();
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    private void Dispose(bool disposing)
+    {
+        if (_disposed)
+            return;
+
+        if (disposing)
+        {
+            var disposeTask = TestWebServer.DisposeAsync();
+            if (disposeTask.IsCompleted)
+            {
+                return;
+            }
+            disposeTask.AsTask().GetAwaiter().GetResult();
+        }
+
+        _disposed = true;
+    }
 }

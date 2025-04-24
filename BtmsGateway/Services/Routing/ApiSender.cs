@@ -16,6 +16,12 @@ public interface IApiSender
         IDictionary<string, string> headers,
         string soapMessage,
         CancellationToken cancellationToken);
+
+    Task<HttpResponseMessage> SendDecisionAsync(
+        string decision,
+        string destination,
+        string contentType,
+        CancellationToken cancellationToken);
 }
 
 public class ApiSender(IHttpClientFactory clientFactory) : IApiSender
@@ -73,6 +79,20 @@ public class ApiSender(IHttpClientFactory clientFactory) : IApiSender
 
         request.Content = new StringContent(soapMessage, Encoding.UTF8, contentType);
 
+        return await client.SendAsync(request, cancellationToken);
+    }
+
+    public async Task<HttpResponseMessage> SendDecisionAsync(
+        string decision,
+        string destination,
+        string contentType,
+        CancellationToken cancellationToken)
+    {
+        var client = clientFactory.CreateClient(Proxy.DecisionComparerProxyClientWithRetry);
+        
+        var request = new HttpRequestMessage(HttpMethod.Put, destination);
+        request.Content = new StringContent(decision, Encoding.UTF8, contentType);
+        
         return await client.SendAsync(request, cancellationToken);
     }
 }

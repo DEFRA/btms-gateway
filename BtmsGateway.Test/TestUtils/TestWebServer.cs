@@ -25,6 +25,7 @@ public class TestWebServer : IAsyncDisposable
     public TestHttpHandler RoutedHttpHandler { get; }
     public TestHttpHandler ForkedHttpHandler { get; }
     public TestHttpHandler ClientWithRetryHttpHandler { get; }
+    public TestHttpHandler DecisionComparerClientWithRetryHttpHandler { get; }
     public HttpClient HttpServiceClient { get; }
     public IServiceProvider Services => _app.Services;
 
@@ -56,6 +57,8 @@ public class TestWebServer : IAsyncDisposable
         ConfigureServices.HttpForkedClientWithRetryBuilder?.AddHttpMessageHandler(() => ForkedHttpHandler);
         ClientWithRetryHttpHandler = new TestHttpHandler();
         ConfigureServices.HttpClientWithRetryBuilder?.AddHttpMessageHandler(() => ClientWithRetryHttpHandler);
+        DecisionComparerClientWithRetryHttpHandler = new TestHttpHandler();
+        ConfigureServices.DecisionComparerHttpClientWithRetryBuilder?.AddHttpMessageHandler(() => DecisionComparerClientWithRetryHttpHandler);
 
         var app = builder.Build();
 

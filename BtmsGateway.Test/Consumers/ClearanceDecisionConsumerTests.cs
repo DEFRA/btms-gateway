@@ -1,5 +1,6 @@
 using System.Net;
 using BtmsGateway.Consumers;
+using BtmsGateway.Domain;
 using BtmsGateway.Exceptions;
 using BtmsGateway.Services.Routing;
 using Defra.TradeImportsDataApi.Api.Client;
@@ -16,34 +17,14 @@ namespace BtmsGateway.Test.Consumers;
 
 public class ClearanceDecisionConsumerTests
 {
-    private RoutingConfig _routingConfig;
-    private readonly IApiSender _apiSender = Substitute.For<IApiSender>();
     private readonly ITradeImportsDataApiClient _tradeImportsDataApiClient = Substitute.For<ITradeImportsDataApiClient>();
+    private readonly IDecisionSender _decisionSender = Substitute.For<IDecisionSender>();
     private readonly ILogger _logger = Substitute.For<ILogger>();
     private readonly IConsumerContext<ResourceEvent<CustomsDeclaration>> _context = Substitute.For<IConsumerContext<ResourceEvent<CustomsDeclaration>>>();
     private ClearanceDecisionConsumer _consumer;
 
     public ClearanceDecisionConsumerTests()
     {
-        _routingConfig = new RoutingConfig
-        {
-            NamedRoutes = new Dictionary<string, NamedRoute>(),
-            NamedLinks = new Dictionary<string, NamedLink>(),
-            Destinations = new Dictionary<string, Destination>
-            {
-                { "BtmsCds", new Destination
-                    {
-                        LinkType = LinkType.Url,
-                        Link = "http://destination-url",
-                        RoutePath = "/route/path-1",
-                        ContentType = "application/soap+xml",
-                        HostHeader = "syst32.hmrc.gov.uk",
-                        Method = "POST"
-                    }
-                }
-            }
-        };
-
         var resourceEvent = new ResourceEvent<CustomsDeclaration>
         {
             ResourceId = "24GB123456789AB012",
@@ -93,46 +74,33 @@ public class ClearanceDecisionConsumerTests
         _tradeImportsDataApiClient.GetCustomsDeclaration(Arg.Any<string>(), Arg.Any<CancellationToken>())
             .Returns(customsDeclaration);
 
-        _consumer = new ClearanceDecisionConsumer(_routingConfig, _apiSender, _tradeImportsDataApiClient, _logger);
+        _consumer = new ClearanceDecisionConsumer(_tradeImportsDataApiClient, _decisionSender, _logger);
     }
 
     [Fact]
     public async Task When_processing_succeeds_Then_message_should_be_sent()
     {
-        _apiSender.SendSoapMessageAsync(
+        var sendDecisionResult = new RoutingResult
+        {
+            StatusCode = HttpStatusCode.OK
+        };
+        
+        _decisionSender.SendDecisionAsync(
                 Arg.Any<string>(),
                 Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<Dictionary<string, string>>(),
+                Arg.Any<MessagingConstants.DecisionSource>(),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>())
-            .Returns(new HttpResponseMessage(HttpStatusCode.OK));
+            .Returns(sendDecisionResult);
 
         await _consumer.OnHandle(_context, CancellationToken.None);
 
-        await _apiSender.Received(1).SendSoapMessageAsync(
+        await _decisionSender.Received(1).SendDecisionAsync(
             Arg.Any<string>(),
             Arg.Any<string>(),
-            Arg.Any<string>(),
-            Arg.Any<string>(),
-            Arg.Any<Dictionary<string, string>>(),
+            Arg.Any<MessagingConstants.DecisionSource>(),
             Arg.Any<string>(),
             Arg.Any<CancellationToken>());
-    }
-
-    [Fact]
-    public async Task When_destination_config_has_not_been_set_Then_exception_is_thrown()
-    {
-        _routingConfig = new()
-        {
-            NamedRoutes = new Dictionary<string, NamedRoute>(),
-            NamedLinks = new Dictionary<string, NamedLink>(),
-            Destinations = new Dictionary<string, Destination>()
-        };
-        _consumer = new ClearanceDecisionConsumer(_routingConfig, _apiSender, _tradeImportsDataApiClient, _logger);
-
-        await Assert.ThrowsAsync<ArgumentException>(() => _consumer.OnHandle(_context, CancellationToken.None));
     }
 
     [Fact]
@@ -180,12 +148,10 @@ public class ClearanceDecisionConsumerTests
     [Fact]
     public async Task When_processing_fails_Then_exception_is_thrown()
     {
-        _apiSender.SendSoapMessageAsync(
+        _decisionSender.SendDecisionAsync(
             Arg.Any<string>(),
             Arg.Any<string>(),
-            Arg.Any<string>(),
-            Arg.Any<string>(),
-            Arg.Any<Dictionary<string, string>>(),
+            Arg.Any<MessagingConstants.DecisionSource>(),
             Arg.Any<string>(),
             Arg.Any<CancellationToken>())
             .ThrowsAsync(new Exception("Something went wrong"));
@@ -197,40 +163,24 @@ public class ClearanceDecisionConsumerTests
     }
 
     [Fact]
-    public async Task When_sending_to_cds_is_not_successful_Then_exception_is_thrown()
+    public async Task When_sending_to_decision_comparer_is_not_successful_Then_exception_is_thrown()
     {
-        _apiSender.SendSoapMessageAsync(
+        var sendDecisionResult = new RoutingResult
+        {
+            StatusCode = HttpStatusCode.BadRequest
+        };
+        
+        _decisionSender.SendDecisionAsync(
                 Arg.Any<string>(),
                 Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<Dictionary<string, string>>(),
+                Arg.Any<MessagingConstants.DecisionSource>(),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>())
-            .Returns(new HttpResponseMessage(HttpStatusCode.BadRequest));
+            .Returns(sendDecisionResult);
 
         var thrownException = await Assert.ThrowsAsync<ClearanceDecisionProcessingException>(() => _consumer.OnHandle(_context, CancellationToken.None));
         thrownException.Message.Should().Be("24GB123456789AB012 Failed to process clearance decision resource event.");
         thrownException.InnerException.Should().BeAssignableTo<ClearanceDecisionProcessingException>();
-        thrownException.InnerException?.Message.Should().Be("24GB123456789AB012 Failed to send clearance decision to CDS.");
-    }
-
-    [Fact]
-    public async Task When_sending_to_cds_returns_no_response_Then_exception_is_thrown()
-    {
-        _apiSender.SendSoapMessageAsync(
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<Dictionary<string, string>>(),
-                Arg.Any<string>(),
-                Arg.Any<CancellationToken>())
-            .ReturnsNull();
-
-        var thrownException = await Assert.ThrowsAsync<ClearanceDecisionProcessingException>(() => _consumer.OnHandle(_context, CancellationToken.None));
-        thrownException.Message.Should().Be("24GB123456789AB012 Failed to process clearance decision resource event.");
-        thrownException.InnerException.Should().BeAssignableTo<ClearanceDecisionProcessingException>();
-        thrownException.InnerException?.Message.Should().Be("24GB123456789AB012 Failed to send clearance decision to CDS.");
+        thrownException.InnerException?.Message.Should().Be("24GB123456789AB012 Failed to send clearance decision to Decision Comparer.");
     }
 }

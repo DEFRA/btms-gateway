@@ -11,6 +11,8 @@ namespace BtmsGateway.Test.EndToEnd;
 
 public sealed class GeneralEndToEndTests : IDisposable
 {
+    private bool _disposed;
+    
     private const string RoutedPath = "/test/path";
 
     private readonly string _headerCorrelationId = Guid.NewGuid().ToString("D");
@@ -61,7 +63,29 @@ public sealed class GeneralEndToEndTests : IDisposable
         _stringContent = new StringContent(_soapContent, Encoding.UTF8, MediaTypeNames.Application.Xml);
     }
 
-    public void Dispose() => _testWebServer.DisposeAsync().GetAwaiter().GetResult();
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+    
+    private void Dispose(bool disposing)
+    {
+        if (_disposed)
+            return;
+
+        if (disposing)
+        {
+            var disposeTask = _testWebServer.DisposeAsync();
+            if (disposeTask.IsCompleted)
+            {
+                return;
+            }
+            disposeTask.AsTask().GetAwaiter().GetResult();
+        }
+
+        _disposed = true;
+    }
 
     [Fact]
     public async Task When_routing_request_Then_should_respond_from_routed_request()

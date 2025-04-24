@@ -1,8 +1,12 @@
 using System.Net;
 using System.Diagnostics.CodeAnalysis;
+using System.Net.Http.Headers;
+using BtmsGateway.Config;
+using Microsoft.Extensions.Options;
 using Polly;
 using Polly.Extensions.Http;
 using Polly.Retry;
+using Environment = System.Environment;
 
 namespace BtmsGateway.Utils.Http;
 
@@ -12,6 +16,7 @@ public static class Proxy
     public const string ProxyClientWithRetry = "proxy-with-retry";
     public const string RoutedClientWithRetry = "routed-with-retry";
     public const string ForkedClientWithRetry = "forked-with-retry";
+    public const string DecisionComparerProxyClientWithRetry = "decision-comparer-proxy-with-retry";
 
     [ExcludeFromCodeCoverage]
     public static IHttpClientBuilder AddHttpProxyClientWithoutRetry(this IServiceCollection services, Serilog.ILogger logger)
@@ -37,6 +42,32 @@ public static class Proxy
     public static IHttpClientBuilder AddHttpProxyClientWithRetry(this IServiceCollection services, Serilog.ILogger logger)
     {
         return services.AddHttpClient(ProxyClientWithRetry).ConfigurePrimaryHttpMessageHandler(() => ConfigurePrimaryHttpMessageHandler(logger)).AddPolicyHandler(_ => WaitAndRetryAsync);
+    }
+    
+    [ExcludeFromCodeCoverage]
+    public static IHttpClientBuilder AddDecisionComparerHttpProxyClientWithRetry(this IServiceCollection services, Serilog.ILogger logger)
+    {
+        services.AddOptions<DecisionComparerApiOptions>().BindConfiguration(DecisionComparerApiOptions.SectionName).ValidateDataAnnotations();
+        
+        return services.AddHttpClient(DecisionComparerProxyClientWithRetry)
+            .ConfigurePrimaryHttpMessageHandler(() => ConfigurePrimaryHttpMessageHandler(logger))
+            .AddPolicyHandler(_ => WaitAndRetryAsync)
+            .ConfigureHttpClient(
+                (sp, c) =>
+                {
+                    var options = sp.GetRequiredService<IOptions<DecisionComparerApiOptions>>().Value;
+                    c.BaseAddress = new Uri(options.BaseAddress);
+
+                    if (options.BasicAuthCredential != null)
+                        c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
+                            "Basic",
+                            options.BasicAuthCredential
+                        );
+
+                    if (c.BaseAddress.Scheme.Equals("https", StringComparison.OrdinalIgnoreCase))
+                        c.DefaultRequestVersion = HttpVersion.Version20;
+                })
+            .AddHeaderPropagation();
     }
 
     [ExcludeFromCodeCoverage]

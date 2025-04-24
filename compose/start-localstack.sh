@@ -15,10 +15,10 @@ CFN=customs_finalisation_notification.fifo
 CEN=customs_error_notification.fifo
 ADN=alvs_decision_notification.fifo
 AEN=alvs_error_notification.fifo
-ICDR_Topic=trade_imports_inbound_customs_declaration_received.fifo
-ICDR_Queue=trade_imports_inbound_customs_declarations.fifo
-OCD_Topic=trade_imports_outbound_clearance_decision_created.fifo
-OCD_Queue=trade_imports_outbound_clearance_decisions.fifo
+ICDR_Topic=trade_imports_inbound_customs_declarations.fifo
+ICDR_Queue=trade_imports_inbound_customs_declarations_processor.fifo
+OCD_Topic=trade_imports_data_upserted
+OCD_Queue=trade_imports_data_upserted_btms_gateway
 
 aws --endpoint-url=$ENDPOINT_URL sns create-topic --attributes FifoTopic=true --name $CCR
 aws --endpoint-url=$ENDPOINT_URL sns create-topic --attributes FifoTopic=true --name $CFN
@@ -26,7 +26,7 @@ aws --endpoint-url=$ENDPOINT_URL sns create-topic --attributes FifoTopic=true --
 aws --endpoint-url=$ENDPOINT_URL sns create-topic --attributes FifoTopic=true --name $ADN
 aws --endpoint-url=$ENDPOINT_URL sns create-topic --attributes FifoTopic=true --name $AEN
 aws --endpoint-url=$ENDPOINT_URL sns create-topic --attributes FifoTopic=true --name $ICDR_Topic
-aws --endpoint-url=$ENDPOINT_URL sns create-topic --attributes FifoTopic=true --name $OCD_Topic
+aws --endpoint-url=$ENDPOINT_URL sns create-topic --attributes FifoTopic=false --name $OCD_Topic
 
 aws --endpoint-url=$ENDPOINT_URL sqs create-queue --attributes FifoQueue=true --queue-name $CCR
 aws --endpoint-url=$ENDPOINT_URL sqs create-queue --attributes FifoQueue=true --queue-name $CFN
@@ -34,7 +34,7 @@ aws --endpoint-url=$ENDPOINT_URL sqs create-queue --attributes FifoQueue=true --
 aws --endpoint-url=$ENDPOINT_URL sqs create-queue --attributes FifoQueue=true --queue-name $ADN
 aws --endpoint-url=$ENDPOINT_URL sqs create-queue --attributes FifoQueue=true --queue-name $AEN
 aws --endpoint-url=$ENDPOINT_URL sqs create-queue --attributes FifoQueue=true --queue-name $ICDR_Queue
-aws --endpoint-url=$ENDPOINT_URL sqs create-queue --attributes FifoQueue=true --queue-name $OCD_Queue
+aws --endpoint-url=$ENDPOINT_URL sqs create-queue --queue-name $OCD_Queue
 
 SNS_ARN=arn:aws:sns:eu-west-2:000000000000
 SQS_ARN=arn:aws:sqs:eu-west-2:000000000000

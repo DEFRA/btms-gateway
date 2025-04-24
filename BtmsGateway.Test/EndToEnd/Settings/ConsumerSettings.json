@@ -1,6 +1,6 @@
 {
   "AwsSqsOptions": {
-    "OutboundClearanceDecisionsQueueName": "trade_imports_outbound_clearance_decisions.fifo"
+    "OutboundClearanceDecisionsQueueName": "trade_imports_data_upserted_btms_gateway"
   },
   "DataApi": {
     "BaseAddress": "https://trade-imports-data-api.dev.cdp-int.defra.cloud",

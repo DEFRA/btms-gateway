@@ -49,7 +49,7 @@ public static class Proxy
     public static IHttpClientBuilder AddDecisionComparerHttpProxyClientWithRetry(this IServiceCollection services, Serilog.ILogger logger)
     {
         services.AddOptions<DecisionComparerApiOptions>().BindConfiguration(DecisionComparerApiOptions.SectionName).ValidateDataAnnotations();
-        
+
         var clientBuilder = services.AddHttpClient(DecisionComparerProxyClientWithRetry)
             .ConfigurePrimaryHttpMessageHandler(() => ConfigurePrimaryHttpMessageHandler(logger))
             .ConfigureHttpClient(
@@ -68,7 +68,7 @@ public static class Proxy
                         c.DefaultRequestVersion = HttpVersion.Version20;
                 })
             .AddHeaderPropagation();
-        
+
         clientBuilder.AddStandardResilienceHandler(o =>
         {
             o.Retry.DisableFor(HttpMethod.Delete, HttpMethod.Post, HttpMethod.Connect, HttpMethod.Patch);

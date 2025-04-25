@@ -95,7 +95,7 @@ public class ApiSender(IHttpClientFactory clientFactory,
         IHeaderDictionary? headers = null)
     {
         InitializeHeaderPropagationValues(headers);
-        
+
         var client = clientFactory.CreateClient(Proxy.DecisionComparerProxyClientWithRetry);
 
         var request = new HttpRequestMessage(HttpMethod.Put, destination);
@@ -103,13 +103,13 @@ public class ApiSender(IHttpClientFactory clientFactory,
 
         return await client.SendAsync(request, cancellationToken);
     }
-    
+
     private void InitializeHeaderPropagationValues(IHeaderDictionary? headers)
     {
         var traceIdHeaderKey = configuration.GetValue<string>("TraceHeader");
         using var scope = serviceProvider.CreateScope();
         var headerPropagationValues = scope.ServiceProvider.GetRequiredService<HeaderPropagationValues>();
-            
+
         var propagationHeaders = headerPropagationValues.Headers ??=
             new Dictionary<string, StringValues>(StringComparer.OrdinalIgnoreCase);
 

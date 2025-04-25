@@ -34,7 +34,7 @@ public class DecisionSender : IDecisionSender
         _routingConfig = routingConfig;
         _apiSender = apiSender;
         _logger = logger;
-        
+
         _btmsToCdsDestination = GetDestination(MessagingConstants.Destinations.BtmsCds);
         _btmsDecisionsComparerDestination = GetDestination(MessagingConstants.Destinations.BtmsDecisionComparer);
         _alvsDecisionComparerDestination = GetDestination(MessagingConstants.Destinations.AlvsDecisionComparer);
@@ -111,7 +111,7 @@ public class DecisionSender : IDecisionSender
                     comparerDecision);
                 throw new DecisionComparisonException($"{mrn} Decision Comparer returned an invalid decision.");
             }
-            
+
             _logger.Information("{MRN} Received Decision from Decision Comparer: {ComparerDecision}", mrn, comparerDecision);
             // Just log decision for now. Eventually, in cut over, will send the Decision to CDS.
             await SendCdsFormattedSoapMessageAsync(mrn, comparerDecision, externalCorrelationId, btmsToCdsDestination, cancellationToken);
@@ -127,10 +127,10 @@ public class DecisionSender : IDecisionSender
     {
         var destination = string.Concat(btmsToCdsDestination.Link, btmsToCdsDestination.RoutePath);
         var headers = new Dictionary<string, string> { { AcceptHeaderName, btmsToCdsDestination.ContentType } };
-    
+
         if (!string.IsNullOrWhiteSpace(externalCorrelationId))
             headers.Add(CorrelationIdHeaderName, externalCorrelationId);
-    
+
         var response = await _apiSender.SendSoapMessageAsync(
             btmsToCdsDestination.Method ?? "POST",
             destination,
@@ -139,7 +139,7 @@ public class DecisionSender : IDecisionSender
             headers,
             soapMessage,
             cancellationToken);
-    
+
         if (!response.IsSuccessStatusCode)
         {
             _logger.Error("{MRN} Failed to send clearance decision to CDS. CDS Response Status Code: {StatusCode}, Reason: {Reason}, Content: {Content}",
@@ -153,18 +153,18 @@ public class DecisionSender : IDecisionSender
 
     private Destination GetDestination(string destinationKey)
     {
-        Destination? destination = null; 
-        
+        Destination? destination = null;
+
         if ((!_routingConfig?.Destinations.TryGetValue(destinationKey, out destination) ?? false) || destination is null)
         {
             _logger.Error("Destination configuration could not be found for {DestinationKey}. Please confirm application configuration contains the Destination configuration.",
                 destinationKey);
             throw new ArgumentException($"Destination configuration could not be found for {destinationKey}.");
         }
-        
+
         return destination;
     }
-    
+
     private static async Task<string> GetResponseContentAsync(HttpResponseMessage? response, CancellationToken cancellationToken)
     {
         if (response is not null && response.StatusCode != HttpStatusCode.NoContent)

@@ -117,7 +117,7 @@ public class ApiSenderTests
     {
         var mocks = CreateMocks();
         var sut = new ApiSender(mocks.Factory, mocks.ServiceProvider, mocks.Configuration);
-        
+
         var response = await sut.SendDecisionAsync(
             "<decision />",
             "http://trade-imports-decision-comparer-host",
@@ -144,9 +144,9 @@ public class ApiSenderTests
         mockFactory.CreateClient(Arg.Any<string>()).Returns(mockClient);
 
         var logger = Substitute.For<ILogger>();
-        
+
         var headerPropagationValues = new HeaderPropagationValues();
-        
+
         var serviceScope = Substitute.For<IServiceScope>();
         var serviceProvider = Substitute.For<IServiceProvider>();
         serviceProvider.GetService(typeof(HeaderPropagationValues)).Returns(headerPropagationValues);
@@ -154,7 +154,7 @@ public class ApiSenderTests
         serviceScopeFactory.CreateScope().Returns(serviceScope);
         serviceProvider.GetService(typeof(IServiceScopeFactory)).Returns(serviceScopeFactory);
         serviceScope.ServiceProvider.Returns(serviceProvider);
-        
+
         var configSection = Substitute.For<IConfigurationSection>();
         configSection.Value.Returns("x-cdp-request-id");
         var configuration = Substitute.For<IConfiguration>();

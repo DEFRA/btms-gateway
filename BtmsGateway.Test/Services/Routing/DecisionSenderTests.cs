@@ -165,11 +165,11 @@ public class DecisionSenderTests
                 }
             }
         };
-        
+
         var thrownException = Assert.Throws<ArgumentException>(() => new DecisionSender(_routingConfig, _apiSender, _logger));
         thrownException.Message.Should().Be("Destination configuration could not be found for BtmsCds.");
     }
-    
+
     [Fact]
     public void When_btms_to_decision_comparer_destination_config_has_not_been_set_Then_exception_is_thrown()
     {
@@ -199,11 +199,11 @@ public class DecisionSenderTests
                 }
             }
         };
-        
+
         var thrownException = Assert.Throws<ArgumentException>(() => new DecisionSender(_routingConfig, _apiSender, _logger));
         thrownException.Message.Should().Be("Destination configuration could not be found for BtmsDecisionComparer.");
     }
-    
+
     [Fact]
     public void When_alvs_to_decision_comparer_destination_config_has_not_been_set_Then_exception_is_thrown()
     {
@@ -233,7 +233,7 @@ public class DecisionSenderTests
                 },
             }
         };
-        
+
         var thrownException = Assert.Throws<ArgumentException>(() => new DecisionSender(_routingConfig, _apiSender, _logger));
         thrownException.Message.Should().Be("Destination configuration could not be found for AlvsDecisionComparer.");
     }
@@ -243,10 +243,10 @@ public class DecisionSenderTests
     {
         var thrownException = await Assert.ThrowsAsync<ArgumentException>(() => _decisionSender.SendDecisionAsync("mrn-123", null,
             MessagingConstants.DecisionSource.Btms, externalCorrelationId: "external-correlation-id", cancellationToken: CancellationToken.None));
-        
+
         thrownException.Message.Should().Be("mrn-123 Request to send an invalid decision to Decision Comparer: ");
     }
-    
+
     [Fact]
     public async Task When_sending_decision_and_comparer_returns_unsuccessful_status_response_Then_exception_is_thrown()
     {
@@ -264,7 +264,7 @@ public class DecisionSenderTests
             MessagingConstants.DecisionSource.Alvs, new HeaderDictionary(), "external-correlation-id", CancellationToken.None));
         thrownException.Message.Should().Be("mrn-123 Failed to send Decision to Decision Comparer.");
     }
-    
+
     [Fact]
     public async Task When_sending_decision_and_comparer_returns_invalid_decision_Then_exception_is_thrown()
     {
@@ -283,7 +283,7 @@ public class DecisionSenderTests
             MessagingConstants.DecisionSource.Alvs, new HeaderDictionary(), "external-correlation-id", CancellationToken.None));
         thrownException.Message.Should().Be("mrn-123 Decision Comparer returned an invalid decision.");
     }
-    
+
     [Fact]
     public async Task When_sending_decision_and_comparer_returns_no_content_Then_exception_is_thrown()
     {
@@ -315,7 +315,7 @@ public class DecisionSenderTests
                 Arg.Any<CancellationToken>(),
                 Arg.Any<IHeaderDictionary>())
             .Returns(comparerResponse);
-        
+
         _apiSender.SendSoapMessageAsync(
                 Arg.Any<string>(),
                 Arg.Any<string>(),
@@ -325,7 +325,7 @@ public class DecisionSenderTests
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>())
             .Returns(new HttpResponseMessage(HttpStatusCode.BadRequest));
-        
+
         var thrownException = await Assert.ThrowsAsync<DecisionComparisonException>(() => _decisionSender.SendDecisionAsync("mrn-123", "<AlvsDecisionNotification />",
             MessagingConstants.DecisionSource.Alvs, new HeaderDictionary(), "external-correlation-id", CancellationToken.None));
         thrownException.Message.Should().Be("mrn-123 Failed to send clearance decision to CDS.");

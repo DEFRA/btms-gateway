@@ -51,7 +51,6 @@ public class ClearanceDecisionConsumer(
                 mrn,
                 soapMessage,
                 MessagingConstants.DecisionSource.Btms,
-                externalCorrelationId: customsDeclaration.ClearanceDecision.ExternalCorrelationId,
                 cancellationToken: cancellationToken);
 
             if (!result.StatusCode.IsSuccessStatusCode())

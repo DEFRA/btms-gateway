@@ -13,19 +13,14 @@ public interface IDecisionSender
         string? decision,
         MessagingConstants.DecisionSource decisionSource,
         IHeaderDictionary? headers = null,
-        string? externalCorrelationId = null,
         CancellationToken cancellationToken = default);
 }
 
 public class DecisionSender : IDecisionSender
 {
-    private const string CorrelationIdHeaderName = "CorrelationId";
-    private const string AcceptHeaderName = "Accept";
-
     private readonly RoutingConfig? _routingConfig;
     private readonly IApiSender _apiSender;
     private readonly ILogger _logger;
-    private readonly Destination _btmsToCdsDestination;
     private readonly Destination _btmsDecisionsComparerDestination;
     private readonly Destination _alvsDecisionComparerDestination;
 
@@ -35,7 +30,6 @@ public class DecisionSender : IDecisionSender
         _apiSender = apiSender;
         _logger = logger;
 
-        _btmsToCdsDestination = GetDestination(MessagingConstants.Destinations.BtmsCds);
         _btmsDecisionsComparerDestination = GetDestination(MessagingConstants.Destinations.BtmsDecisionComparer);
         _alvsDecisionComparerDestination = GetDestination(MessagingConstants.Destinations.AlvsDecisionComparer);
     }
@@ -45,7 +39,6 @@ public class DecisionSender : IDecisionSender
         string? decision,
         MessagingConstants.DecisionSource decisionSource,
         IHeaderDictionary? headers = null,
-        string? externalCorrelationId = null,
         CancellationToken cancellationToken = default)
     {
         _logger.Debug("{MRN} Sending decision from {DecisionSource} to Decision Comparer.", mrn, decisionSource);
@@ -78,7 +71,7 @@ public class DecisionSender : IDecisionSender
             throw new DecisionComparisonException($"{mrn} Failed to send Decision to Decision Comparer.");
         }
 
-        await ForwardDecisionAsync(mrn, decisionSource, comparerResponse, externalCorrelationId, _btmsToCdsDestination, cancellationToken);
+        await ForwardDecisionAsync(mrn, decisionSource, comparerResponse, cancellationToken);
 
         return new RoutingResult
         {
@@ -96,8 +89,6 @@ public class DecisionSender : IDecisionSender
     private async Task ForwardDecisionAsync(string? mrn,
         MessagingConstants.DecisionSource decisionSource,
         HttpResponseMessage? comparerResponse,
-        string? externalCorrelationId,
-        Destination btmsToCdsDestination,
         CancellationToken cancellationToken)
     {
         if (decisionSource == MessagingConstants.DecisionSource.Alvs)
@@ -114,40 +105,6 @@ public class DecisionSender : IDecisionSender
 
             _logger.Information("{MRN} Received Decision from Decision Comparer: {ComparerDecision}", mrn, comparerDecision);
             // Just log decision for now. Eventually, in cut over, will send the Decision to CDS.
-            await SendCdsFormattedSoapMessageAsync(mrn, comparerDecision, externalCorrelationId, btmsToCdsDestination, cancellationToken);
-        }
-    }
-
-    private async Task SendCdsFormattedSoapMessageAsync(
-        string? mrn,
-        string soapMessage,
-        string? externalCorrelationId,
-        Destination btmsToCdsDestination,
-        CancellationToken cancellationToken)
-    {
-        var destination = string.Concat(btmsToCdsDestination.Link, btmsToCdsDestination.RoutePath);
-        var headers = new Dictionary<string, string> { { AcceptHeaderName, btmsToCdsDestination.ContentType } };
-
-        if (!string.IsNullOrWhiteSpace(externalCorrelationId))
-            headers.Add(CorrelationIdHeaderName, externalCorrelationId);
-
-        var response = await _apiSender.SendSoapMessageAsync(
-            btmsToCdsDestination.Method ?? "POST",
-            destination,
-            btmsToCdsDestination.ContentType,
-            btmsToCdsDestination.HostHeader,
-            headers,
-            soapMessage,
-            cancellationToken);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            _logger.Error("{MRN} Failed to send clearance decision to CDS. CDS Response Status Code: {StatusCode}, Reason: {Reason}, Content: {Content}",
-                mrn,
-                response.StatusCode,
-                response.ReasonPhrase,
-                await GetResponseContentAsync(response, cancellationToken));
-            throw new DecisionComparisonException($"{mrn} Failed to send clearance decision to CDS.");
         }
     }
 

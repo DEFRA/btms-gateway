@@ -8,15 +8,11 @@ using BtmsGateway.Extensions;
 using BtmsGateway.Middleware;
 using BtmsGateway.Services.Checking;
 using BtmsGateway.Services.Health;
-using BtmsGateway.Services.Metrics;
 using BtmsGateway.Services.Routing;
 using Elastic.Serilog.Enrichers.Web;
 using Microsoft.AspNetCore.HeaderPropagation;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
-using OpenTelemetry;
-using OpenTelemetry.Metrics;
-using OpenTelemetry.Trace;
 using Environment = System.Environment;
 
 var app = CreateWebApplication(args);
@@ -41,8 +37,6 @@ static void BuildWebApplication(WebApplicationBuilder builder)
     builder.Configuration.AddIniFile("Properties/local.env", true);
     var routingConfig = builder.ConfigureToType<RoutingConfig>();
     var healthCheckConfig = builder.ConfigureToType<HealthCheckConfig>();
-
-    ConfigureTelemetry(builder);
     var logger = ConfigureLoggingAndTracing(builder);
 
     builder.Services.AddCustomTrustStore(logger);
@@ -84,12 +78,7 @@ static Logger ConfigureLoggingAndTracing(WebApplicationBuilder builder)
         .Enrich.FromLogContext()
         .Enrich.With(new TraceContextEnricher())
         .Enrich.With<LogLevelMapper>()
-        .Enrich.WithProperty("service.version", Environment.GetEnvironmentVariable("SERVICE_VERSION"))
-        .WriteTo.OpenTelemetry(options =>
-        {
-            options.LogsEndpoint = builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"];
-            options.ResourceAttributes.Add("service.name", "btms-gateway");
-        });
+        .Enrich.WithProperty("service.version", Environment.GetEnvironmentVariable("SERVICE_VERSION"));
 
     if (traceIdHeader != null)
     {
@@ -103,31 +92,8 @@ static Logger ConfigureLoggingAndTracing(WebApplicationBuilder builder)
 }
 
 [ExcludeFromCodeCoverage]
-static void ConfigureTelemetry(WebApplicationBuilder builder)
-{
-    builder.Services.AddOpenTelemetry()
-        .WithMetrics(metrics =>
-        {
-            metrics.AddRuntimeInstrumentation()
-                .AddMeter(
-                    "Microsoft.AspNetCore.Hosting",
-                    "Microsoft.AspNetCore.Server.Kestrel",
-                    "System.Net.Http",
-                    MetricsHost.MeterName);
-        })
-        .WithTracing(tracing =>
-        {
-            tracing.AddAspNetCoreInstrumentation()
-                .AddHttpClientInstrumentation()
-                .AddSource(MetricsHost.MeterName);
-        })
-        .UseOtlpExporter();
-}
-
-[ExcludeFromCodeCoverage]
 static WebApplication ConfigureWebApplication(WebApplication app)
 {
-    app.UseEmfExporter();
     app.UseHttpLogging();
     app.UseMiddleware<RoutingInterceptor>();
     app.UseCustomHealthChecks();

@@ -21,4 +21,17 @@ public static class MessagingConstants
         public const string FinalisationNotificationRequest = "FinalisationNotificationRequest";
         public const string ALVSErrorNotificationRequest = "ALVSErrorNotificationRequest";
     }
+
+    public enum DecisionSource
+    {
+        Alvs,
+        Btms
+    }
+
+    public static class Destinations
+    {
+        public const string BtmsCds = "BtmsCds";
+        public const string BtmsDecisionComparer = "BtmsDecisionComparer";
+        public const string AlvsDecisionComparer = "AlvsDecisionComparer";
+    }
 }

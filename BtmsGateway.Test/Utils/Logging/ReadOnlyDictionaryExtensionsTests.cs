@@ -6,7 +6,7 @@ namespace BtmsGateway.Test.Utils.Logging;
 public class ReadOnlyDictionaryExtensionsTests
 {
     [Fact]
-    public async Task When_getting_trace_id_and_header_exists_Then_should_return_trace_id()
+    public void When_getting_trace_id_and_header_exists_Then_should_return_trace_id()
     {
         IReadOnlyDictionary<string, object> headers = new Dictionary<string, object>
         {
@@ -19,7 +19,7 @@ public class ReadOnlyDictionaryExtensionsTests
     }
 
     [Fact]
-    public async Task When_getting_trace_id_and_header_does_not_exist_Then_should_return_empty()
+    public void When_getting_trace_id_and_header_does_not_exist_Then_should_return_empty()
     {
         IReadOnlyDictionary<string, object> headers = new Dictionary<string, object>();
 

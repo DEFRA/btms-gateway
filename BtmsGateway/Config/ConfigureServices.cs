@@ -15,6 +15,7 @@ public static class ConfigureServices
     public static IHttpClientBuilder? HttpRoutedClientWithRetryBuilder { get; private set; }
     public static IHttpClientBuilder? HttpForkedClientWithRetryBuilder { get; private set; }
     public static IHttpClientBuilder? HttpClientWithRetryBuilder { get; private set; }
+    public static IHttpClientBuilder? DecisionComparerHttpClientWithRetryBuilder { get; private set; }
 
     [ExcludeFromCodeCoverage]
     public static void AddServices(this WebApplicationBuilder builder, ILogger logger)
@@ -28,6 +29,8 @@ public static class ConfigureServices
         HttpRoutedClientWithRetryBuilder = builder.Services.AddHttpProxyRoutedClientWithRetry(logger);
         HttpForkedClientWithRetryBuilder = builder.Services.AddHttpProxyForkedClientWithRetry(logger);
         HttpClientWithRetryBuilder = builder.Services.AddHttpProxyClientWithRetry(logger);
+        DecisionComparerHttpClientWithRetryBuilder = builder.Services.AddDecisionComparerHttpProxyClientWithRetry(logger);
+
         builder.Services.AddHttpProxyClientWithoutRetry(logger);
         builder.Services.AddDataApiHttpClient();
 
@@ -45,5 +48,6 @@ public static class ConfigureServices
         builder.Services.AddSingleton<IProcessRunner, ProcessRunner>();
         builder.Services.AddSingleton<CheckRoutes>();
         builder.Services.AddSingleton<MetricsHost>();
+        builder.Services.AddSingleton<IDecisionSender, DecisionSender>();
     }
 }

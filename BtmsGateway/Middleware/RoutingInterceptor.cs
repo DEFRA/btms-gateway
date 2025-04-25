@@ -68,7 +68,7 @@ public class RoutingInterceptor(RequestDelegate next, IMessageRouter messageRout
             messageData.ContentMap.MessageReference,
             action,
             routingResult.RoutingSuccessful ? "successful" : "failed",
-            routingResult.FullRouteLink,
+            action == "Routing" ? routingResult.FullRouteLink : routingResult.FullForkLink,
             routingResult.StatusCode,
             routingResult.ResponseContent);
     }

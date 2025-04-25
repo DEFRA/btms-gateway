@@ -12,70 +12,73 @@ public interface IDecisionSender
         string? mrn,
         string? decision,
         MessagingConstants.DecisionSource decisionSource,
+        IHeaderDictionary? headers = null,
         string? externalCorrelationId = null,
         CancellationToken cancellationToken = default);
 }
 
-public class DecisionSender(RoutingConfig? routingConfig, IApiSender apiSender, ILogger logger) : IDecisionSender
+public class DecisionSender : IDecisionSender
 {
     private const string CorrelationIdHeaderName = "CorrelationId";
     private const string AcceptHeaderName = "Accept";
+
+    private readonly RoutingConfig? _routingConfig;
+    private readonly IApiSender _apiSender;
+    private readonly ILogger _logger;
+    private readonly Destination _btmsToCdsDestination;
+    private readonly Destination _btmsDecisionsComparerDestination;
+    private readonly Destination _alvsDecisionComparerDestination;
+
+    public DecisionSender(RoutingConfig? routingConfig, IApiSender apiSender, ILogger logger)
+    {
+        _routingConfig = routingConfig;
+        _apiSender = apiSender;
+        _logger = logger;
+        
+        _btmsToCdsDestination = GetDestination(MessagingConstants.Destinations.BtmsCds);
+        _btmsDecisionsComparerDestination = GetDestination(MessagingConstants.Destinations.BtmsDecisionComparer);
+        _alvsDecisionComparerDestination = GetDestination(MessagingConstants.Destinations.AlvsDecisionComparer);
+    }
 
     public async Task<RoutingResult> SendDecisionAsync(
         string? mrn,
         string? decision,
         MessagingConstants.DecisionSource decisionSource,
+        IHeaderDictionary? headers = null,
         string? externalCorrelationId = null,
         CancellationToken cancellationToken = default)
     {
-        logger.Debug("{MRN} Sending decision from {DecisionSource} to Decision Comparer.", mrn, decisionSource);
+        _logger.Debug("{MRN} Sending decision from {DecisionSource} to Decision Comparer.", mrn, decisionSource);
 
-        if (!(routingConfig?.Destinations.TryGetValue(MessagingConstants.Destinations.BtmsCds, out var btmsToCdsDestination) ?? false)
-            || !(routingConfig?.Destinations.TryGetValue(MessagingConstants.Destinations.BtmsDecisionComparer, out var btmsDecisionsComparerDestination) ?? false)
-            || !(routingConfig?.Destinations.TryGetValue(MessagingConstants.Destinations.AlvsDecisionComparer, out var alvsDecisionComparerDestination) ?? false))
-        {
-            logger.Error("{MRN} Destination configuration could not be found for processing Decisions. Please confirm application configuration contains a Destination configuration for {BtmsCdsConfigKey}, {BtmsDecisionComparerConfigKey} and {AlvsDecisionComparerConfigKey}.",
-                mrn,
-                MessagingConstants.Destinations.BtmsCds,
-                MessagingConstants.Destinations.BtmsDecisionComparer,
-                MessagingConstants.Destinations.AlvsDecisionComparer);
-            throw new ArgumentException("Destination configuration could not be found for processing Decisions.");
-        }
-
-        if (decision is null)
-            throw new ArgumentException($"{mrn} Invalid Decision received {decision}");
+        if (string.IsNullOrWhiteSpace(decision))
+            throw new ArgumentException($"{mrn} Request to send an invalid decision to Decision Comparer: {decision}");
 
         var comparerResponse = decisionSource switch
         {
-            MessagingConstants.DecisionSource.Btms => await apiSender.SendDecisionAsync(
+            MessagingConstants.DecisionSource.Btms => await _apiSender.SendDecisionAsync(
                 decision,
-                $"{btmsDecisionsComparerDestination.Link}{btmsDecisionsComparerDestination.RoutePath}{mrn}",
-                btmsDecisionsComparerDestination.ContentType,
+                $"{_btmsDecisionsComparerDestination.Link}{_btmsDecisionsComparerDestination.RoutePath}{mrn}",
+                _btmsDecisionsComparerDestination.ContentType,
                 cancellationToken),
-            MessagingConstants.DecisionSource.Alvs => await apiSender.SendDecisionAsync(
+            MessagingConstants.DecisionSource.Alvs => await _apiSender.SendDecisionAsync(
                 decision,
-                $"{alvsDecisionComparerDestination.Link}{alvsDecisionComparerDestination.RoutePath}{mrn}",
-                alvsDecisionComparerDestination.ContentType,
-                cancellationToken),
+                $"{_alvsDecisionComparerDestination.Link}{_alvsDecisionComparerDestination.RoutePath}{mrn}",
+                _alvsDecisionComparerDestination.ContentType,
+                cancellationToken,
+                headers),
             _ => throw new ArgumentException($"{mrn} Received decision from unexpected source {decisionSource}.")
         };
 
         if (!comparerResponse.StatusCode.IsSuccessStatusCode())
         {
-            logger.Error("{MRN} Failed to send Decision to Decision Comparer: Status Code: {ComparerResponseStatusCode}, Reason: {ComparerResponseReason}.",
+            _logger.Error("{MRN} Failed to send Decision to Decision Comparer: Status Code: {ComparerResponseStatusCode}, Reason: {ComparerResponseReason}.",
                 mrn,
                 comparerResponse.StatusCode,
                 comparerResponse.ReasonPhrase);
             throw new DecisionComparisonException($"{mrn} Failed to send Decision to Decision Comparer.");
         }
 
-        if (decisionSource == MessagingConstants.DecisionSource.Alvs)
-        {
-            var comparerDecision = await GetResponseContentAsync(comparerResponse, cancellationToken);
-            logger.Debug("{MRN} Received Decision from Decision Comparer {ComparerDecision}", mrn, comparerDecision);
-            // Just log decision for now. Eventually, in cut over, will send the Decision to CDS.
-            // await SendToCds(mrn, comparerDecision, externalCorrelationId, btmsToCdsDestination, cancellationToken);
-        }
+        await ForwardDecisionAsync(mrn, decisionSource, comparerResponse, externalCorrelationId, _btmsToCdsDestination, cancellationToken);
 
         return new RoutingResult
         {
@@ -83,51 +86,90 @@ public class DecisionSender(RoutingConfig? routingConfig, IApiSender apiSender, 
             RouteLinkType = LinkType.DecisionComparer,
             RoutingSuccessful = true,
             FullRouteLink = decisionSource == MessagingConstants.DecisionSource.Btms ?
-                $"{btmsDecisionsComparerDestination.Link}{btmsDecisionsComparerDestination.RoutePath}{mrn}" :
-                $"{alvsDecisionComparerDestination.Link}{alvsDecisionComparerDestination.RoutePath}{mrn}",
+                $"{_btmsDecisionsComparerDestination.Link}{_btmsDecisionsComparerDestination.RoutePath}{mrn}" :
+                $"{_alvsDecisionComparerDestination.Link}{_alvsDecisionComparerDestination.RoutePath}{mrn}",
             StatusCode = comparerResponse.StatusCode,
             ResponseContent = "Decision Comparer Result"
         };
     }
 
-    // private async Task SendToCds(
-    //     string? mrn,
-    //     string soapMessage,
-    //     string? externalCorrelationId,
-    //     Destination btmsToCdsDestination,
-    //     CancellationToken cancellationToken)
-    // {
-    //     var destination = string.Concat(btmsToCdsDestination.Link, btmsToCdsDestination.RoutePath);
-    //     var headers = new Dictionary<string, string> { { AcceptHeaderName, btmsToCdsDestination.ContentType } };
-    //
-    //     if (!string.IsNullOrWhiteSpace(externalCorrelationId))
-    //         headers.Add(CorrelationIdHeaderName, externalCorrelationId);
-    //
-    //     var response = await apiSender.SendSoapMessageAsync(
-    //         btmsToCdsDestination.Method ?? "POST",
-    //         destination,
-    //         btmsToCdsDestination.ContentType,
-    //         btmsToCdsDestination.HostHeader,
-    //         headers,
-    //         soapMessage,
-    //         cancellationToken);
-    //
-    //     if (!(response?.IsSuccessStatusCode ?? false))
-    //     {
-    //         logger.Error("{MRN} Failed to send clearance decision to CDS. CDS Response Status Code: {StatusCode}, Reason: {Reason}, Content: {Content}",
-    //             mrn,
-    //             response?.StatusCode,
-    //             response?.ReasonPhrase,
-    //             await GetResponseContent(response, cancellationToken));
-    //         throw new DecisionComparisonException($"{mrn} Failed to send clearance decision to CDS.");
-    //     }
-    // }
+    private async Task ForwardDecisionAsync(string? mrn,
+        MessagingConstants.DecisionSource decisionSource,
+        HttpResponseMessage? comparerResponse,
+        string? externalCorrelationId,
+        Destination btmsToCdsDestination,
+        CancellationToken cancellationToken)
+    {
+        if (decisionSource == MessagingConstants.DecisionSource.Alvs)
+        {
+            var comparerDecision = await GetResponseContentAsync(comparerResponse, cancellationToken);
 
+            if (string.IsNullOrWhiteSpace(comparerDecision))
+            {
+                _logger.Error("{MRN} Decision Comparer returned an invalid decision: {ComparerDecision}.",
+                    mrn,
+                    comparerDecision);
+                throw new DecisionComparisonException($"{mrn} Decision Comparer returned an invalid decision.");
+            }
+            
+            _logger.Information("{MRN} Received Decision from Decision Comparer: {ComparerDecision}", mrn, comparerDecision);
+            // Just log decision for now. Eventually, in cut over, will send the Decision to CDS.
+            await SendCdsFormattedSoapMessageAsync(mrn, comparerDecision, externalCorrelationId, btmsToCdsDestination, cancellationToken);
+        }
+    }
+
+    private async Task SendCdsFormattedSoapMessageAsync(
+        string? mrn,
+        string soapMessage,
+        string? externalCorrelationId,
+        Destination btmsToCdsDestination,
+        CancellationToken cancellationToken)
+    {
+        var destination = string.Concat(btmsToCdsDestination.Link, btmsToCdsDestination.RoutePath);
+        var headers = new Dictionary<string, string> { { AcceptHeaderName, btmsToCdsDestination.ContentType } };
+    
+        if (!string.IsNullOrWhiteSpace(externalCorrelationId))
+            headers.Add(CorrelationIdHeaderName, externalCorrelationId);
+    
+        var response = await _apiSender.SendSoapMessageAsync(
+            btmsToCdsDestination.Method ?? "POST",
+            destination,
+            btmsToCdsDestination.ContentType,
+            btmsToCdsDestination.HostHeader,
+            headers,
+            soapMessage,
+            cancellationToken);
+    
+        if (!response.IsSuccessStatusCode)
+        {
+            _logger.Error("{MRN} Failed to send clearance decision to CDS. CDS Response Status Code: {StatusCode}, Reason: {Reason}, Content: {Content}",
+                mrn,
+                response?.StatusCode,
+                response?.ReasonPhrase,
+                await GetResponseContentAsync(response, cancellationToken));
+            throw new DecisionComparisonException($"{mrn} Failed to send clearance decision to CDS.");
+        }
+    }
+
+    private Destination GetDestination(string destinationKey)
+    {
+        Destination? destination = null; 
+        
+        if ((!_routingConfig?.Destinations.TryGetValue(destinationKey, out destination) ?? false) || destination is null)
+        {
+            _logger.Error("Destination configuration could not be found for {DestinationKey}. Please confirm application configuration contains the Destination configuration.",
+                destinationKey);
+            throw new ArgumentException($"Destination configuration could not be found for {destinationKey}.");
+        }
+        
+        return destination;
+    }
+    
     private static async Task<string> GetResponseContentAsync(HttpResponseMessage? response, CancellationToken cancellationToken)
     {
         if (response is not null && response.StatusCode != HttpStatusCode.NoContent)
             return await response.Content.ReadAsStringAsync(cancellationToken);
 
-        return "No content";
+        return string.Empty;
     }
 }

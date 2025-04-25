@@ -5,6 +5,7 @@ using BtmsGateway.Services.Converter;
 using BtmsGateway.Services.Metrics;
 using BtmsGateway.Services.Routing;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using Serilog;
@@ -424,6 +425,7 @@ public class MessageRouterTests
                     Arg.Any<string>(),
                     Arg.Any<string>(),
                     Arg.Any<MessagingConstants.DecisionSource>(),
+                    Arg.Any<HeaderDictionary>(),
                     Arg.Any<string>(),
                     Arg.Any<CancellationToken>())
                 .Returns(routingResult
@@ -440,6 +442,7 @@ public class MessageRouterTests
                     Arg.Any<string>(),
                     Arg.Any<string>(),
                     Arg.Any<MessagingConstants.DecisionSource>(),
+                    Arg.Any<HeaderDictionary>(),
                     Arg.Any<string>(),
                     Arg.Any<CancellationToken>())
                 .ThrowsAsync<Exception>();

@@ -50,7 +50,9 @@ public sealed class GeneralEndToEndTests : IDisposable
             },
             Destinations = new Dictionary<string, Destination>
             {
-                { "destination-1", new Destination { LinkType = LinkType.Url, Link = "http://destination-url", RoutePath = "/route/path-1", ContentType = "application/soap+xml", HostHeader = "syst32.hmrc.gov.uk", Method = "POST" } },
+                { "BtmsCds", new Destination { LinkType = LinkType.Url, Link = "http://alvs-cds-host", RoutePath = "/ws/CDS/defra/alvsclearanceinbound/v1", ContentType = "application/soap+xml", HostHeader = "syst32.hmrc.gov.uk", Method = "POST" } },
+                { "BtmsDecisionComparer", new Destination { LinkType = LinkType.Url, Link = "http://trade-imports-decision-comparer-host", RoutePath = "/btms-decisions/", ContentType = "application/soap+xml" } },
+                { "AlvsDecisionComparer", new Destination { LinkType = LinkType.Url, Link = "http://trade-imports-decision-comparer-host", RoutePath = "/alvs-decisions/", ContentType = "application/soap+xml" } }
             }
         };
         _testWebServer = TestWebServer.BuildAndRun(ServiceDescriptor.Singleton(routingConfig));

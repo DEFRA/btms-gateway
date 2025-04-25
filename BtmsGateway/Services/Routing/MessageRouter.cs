@@ -28,7 +28,7 @@ public class MessageRouter(IMessageRoutes messageRoutes, IApiSender apiSender, I
             {
                 LinkType.Queue => await queueSender.Send(routingResult, messageData, routingResult.FullRouteLink),
                 LinkType.Url => await apiSender.Send(routingResult, messageData, fork: false),
-                LinkType.DecisionComparer => await decisionSender.SendDecisionAsync(messageData.ContentMap.EntryReference, messageData.OriginalSoapContent.SoapString, MessagingConstants.DecisionSource.Alvs),
+                LinkType.DecisionComparer => await decisionSender.SendDecisionAsync(messageData.ContentMap.EntryReference, messageData.OriginalSoapContent.SoapString, MessagingConstants.DecisionSource.Alvs, messageData.Headers),
                 _ => routingResult
             };
 
@@ -58,7 +58,7 @@ public class MessageRouter(IMessageRoutes messageRoutes, IApiSender apiSender, I
             {
                 LinkType.Queue => await queueSender.Send(routingResult, messageData, routingResult.FullForkLink),
                 LinkType.Url => await apiSender.Send(routingResult, messageData, fork: true),
-                LinkType.DecisionComparer => await decisionSender.SendDecisionAsync(messageData.ContentMap.EntryReference, messageData.OriginalSoapContent.SoapString, MessagingConstants.DecisionSource.Alvs),
+                LinkType.DecisionComparer => await decisionSender.SendDecisionAsync(messageData.ContentMap.EntryReference, messageData.OriginalSoapContent.SoapString, MessagingConstants.DecisionSource.Alvs, messageData.Headers),
                 _ => routingResult
             };
 

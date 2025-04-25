@@ -25,7 +25,7 @@ public class MessageData
     public ContentMap ContentMap { get; }
 
     private readonly ILogger _logger;
-    private readonly IHeaderDictionary _headers;
+    public IHeaderDictionary Headers { get; }
 
     public static async Task<MessageData> Create(HttpRequest request, ILogger logger)
     {
@@ -43,7 +43,7 @@ public class MessageData
             Method = request.Method;
             Path = request.Path.HasValue ? request.Path.Value.Trim('/') : string.Empty;
             OriginalContentType = RetrieveContentType(request);
-            _headers = request.Headers;
+            Headers = request.Headers;
             Url = $"{request.Scheme}://{request.Host}{request.Path}{request.QueryString}";
             HttpString = $"{Method} {Url} {request.Protocol.ToUpper()} {OriginalContentType}";
         }
@@ -77,7 +77,7 @@ public class MessageData
         {
             var request = new HttpRequestMessage(new HttpMethod(Method), routeUrl);
 
-            foreach (var header in _headers.Where(x => !x.Key.StartsWith("Content-", StringComparison.InvariantCultureIgnoreCase)
+            foreach (var header in Headers.Where(x => !x.Key.StartsWith("Content-", StringComparison.InvariantCultureIgnoreCase)
                                                        && !string.Equals(x.Key, "Accept", StringComparison.InvariantCultureIgnoreCase)
                                                        && !string.Equals(x.Key, "Host", StringComparison.InvariantCultureIgnoreCase)
                                                        && !string.Equals(x.Key, CorrelationIdHeaderName, StringComparison.InvariantCultureIgnoreCase)))
@@ -120,11 +120,11 @@ public class MessageData
 
         if (!string.IsNullOrEmpty(traceHeaderKey))
         {
-            if (!string.IsNullOrEmpty(_headers[traceHeaderKey]))
+            var traceHeaderValue = Headers[traceHeaderKey];
+            if (!string.IsNullOrEmpty(traceHeaderValue))
             {
-                string traceValue = _headers[traceHeaderKey];
-                request.MessageAttributes.Add(traceHeaderKey, new MessageAttributeValue { StringValue = traceValue, DataType = "String" });
-                _logger.Debug("{ContentCorrelationId} TraceHeaderKey found and set to {TraceValue}", ContentMap.CorrelationId, traceValue);
+                request.MessageAttributes.Add(traceHeaderKey, new MessageAttributeValue { StringValue = traceHeaderValue, DataType = "String" });
+                _logger.Debug("{ContentCorrelationId} TraceHeaderKey found and set to {TraceValue}", ContentMap.CorrelationId, traceHeaderValue);
             }
             else
             {

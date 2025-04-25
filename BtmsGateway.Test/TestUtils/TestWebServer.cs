@@ -58,7 +58,9 @@ public class TestWebServer : IAsyncDisposable
         ClientWithRetryHttpHandler = new TestHttpHandler();
         ConfigureServices.HttpClientWithRetryBuilder?.AddHttpMessageHandler(() => ClientWithRetryHttpHandler);
         DecisionComparerClientWithRetryHttpHandler = new TestHttpHandler();
-        ConfigureServices.DecisionComparerHttpClientWithRetryBuilder?.AddHttpMessageHandler(() => DecisionComparerClientWithRetryHttpHandler);
+        ConfigureServices.DecisionComparerHttpClientWithRetryBuilder?
+            .ConfigureAdditionalHttpMessageHandlers((handlers, _) =>
+                handlers.Insert(0, DecisionComparerClientWithRetryHttpHandler));
 
         var app = builder.Build();
 

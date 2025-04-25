@@ -7,7 +7,7 @@
     "Username": "BtmsGateway"
   },
   "DecisionComparerApi": {
-    "BaseAddress": "https://trade-imports-decision-comparer.dev.cdp-int.defra.cloud",
+    "BaseAddress": "http://trade-imports-decision-comparer-host",
     "Username": "BtmsGateway"
   }
 }

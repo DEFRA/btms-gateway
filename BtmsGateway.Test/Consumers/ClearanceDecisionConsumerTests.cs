@@ -7,6 +7,7 @@ using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 using Defra.TradeImportsDataApi.Domain.Events;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
 using ILogger = Serilog.ILogger;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
@@ -89,6 +90,7 @@ public class ClearanceDecisionConsumerTests
                 Arg.Any<string>(),
                 Arg.Any<string>(),
                 Arg.Any<MessagingConstants.DecisionSource>(),
+                Arg.Any<IHeaderDictionary>(),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>())
             .Returns(sendDecisionResult);
@@ -99,6 +101,7 @@ public class ClearanceDecisionConsumerTests
             Arg.Any<string>(),
             Arg.Any<string>(),
             Arg.Any<MessagingConstants.DecisionSource>(),
+            Arg.Any<IHeaderDictionary>(),
             Arg.Any<string>(),
             Arg.Any<CancellationToken>());
     }
@@ -152,6 +155,7 @@ public class ClearanceDecisionConsumerTests
             Arg.Any<string>(),
             Arg.Any<string>(),
             Arg.Any<MessagingConstants.DecisionSource>(),
+            Arg.Any<IHeaderDictionary>(),
             Arg.Any<string>(),
             Arg.Any<CancellationToken>())
             .ThrowsAsync(new Exception("Something went wrong"));
@@ -174,6 +178,7 @@ public class ClearanceDecisionConsumerTests
                 Arg.Any<string>(),
                 Arg.Any<string>(),
                 Arg.Any<MessagingConstants.DecisionSource>(),
+                Arg.Any<IHeaderDictionary>(),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>())
             .Returns(sendDecisionResult);

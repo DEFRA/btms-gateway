@@ -11,13 +11,13 @@ public class DecisionNotificationFromAlvsToCdsTests : TargetRoutingTestBase
     private const string UrlPath = "/route/path/alvs-cds/decision-notification";
 
     private readonly string _alvsRequestSoap = File.ReadAllText(Path.Combine(FixturesPath, "AlvsToCdsDecisionNotification.xml"));
-    private readonly string _btmsRequestJson = File.ReadAllText(Path.Combine(FixturesPath, "DecisionNotification.json")).LinuxLineEndings();
     private readonly StringContent _alvsRequestSoapContent;
 
     public DecisionNotificationFromAlvsToCdsTests()
     {
         _alvsRequestSoapContent = new StringContent(_alvsRequestSoap, Encoding.UTF8, MediaTypeNames.Application.Soap);
         TestWebServer.RoutedHttpHandler.SetNextResponse(statusFunc: () => HttpStatusCode.NoContent);
+        TestWebServer.DecisionComparerClientWithRetryHttpHandler.SetNextResponse(statusFunc: () => HttpStatusCode.OK);
     }
 
     [Fact]
@@ -39,11 +39,11 @@ public class DecisionNotificationFromAlvsToCdsTests : TargetRoutingTestBase
     }
 
     [Fact]
-    public async Task When_receiving_request_from_alvs_Then_should_forward_converted_json_to_btms()
+    public async Task When_receiving_request_from_alvs_Then_should_forward_decision_to_decision_comparer()
     {
         await HttpClient.PostAsync(UrlPath, _alvsRequestSoapContent);
 
-        TestWebServer.ForkedHttpHandler.LastRequest!.RequestUri!.AbsoluteUri.Should().Be($"http://btms-host{UrlPath}");
-        (await TestWebServer.ForkedHttpHandler.LastRequest!.Content!.ReadAsStringAsync()).LinuxLineEndings().Should().Be(_btmsRequestJson);
+        TestWebServer.DecisionComparerClientWithRetryHttpHandler.LastRequest!.RequestUri!.AbsoluteUri.Should().Be($"http://trade-imports-decision-comparer-host/alvs-decisions/23GB1234567890ABC8");
+        (await TestWebServer.DecisionComparerClientWithRetryHttpHandler.LastRequest!.Content!.ReadAsStringAsync()).LinuxLineEndings().Should().Be(_alvsRequestSoap);
     }
 }

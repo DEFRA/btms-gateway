@@ -11,6 +11,8 @@ namespace BtmsGateway.Test.EndToEnd;
 
 public sealed class GeneralEndToEndTests : IDisposable
 {
+    private bool _disposed;
+
     private const string RoutedPath = "/test/path";
 
     private readonly string _headerCorrelationId = Guid.NewGuid().ToString("D");
@@ -48,7 +50,9 @@ public sealed class GeneralEndToEndTests : IDisposable
             },
             Destinations = new Dictionary<string, Destination>
             {
-                { "destination-1", new Destination { LinkType = LinkType.Url, Link = "http://destination-url", RoutePath = "/route/path-1", ContentType = "application/soap+xml", HostHeader = "syst32.hmrc.gov.uk", Method = "POST" } },
+                { "BtmsCds", new Destination { LinkType = LinkType.Url, Link = "http://alvs-cds-host", RoutePath = "/ws/CDS/defra/alvsclearanceinbound/v1", ContentType = "application/soap+xml", HostHeader = "syst32.hmrc.gov.uk", Method = "POST" } },
+                { "BtmsDecisionComparer", new Destination { LinkType = LinkType.Url, Link = "http://trade-imports-decision-comparer-host", RoutePath = "/btms-decisions/", ContentType = "application/soap+xml" } },
+                { "AlvsDecisionComparer", new Destination { LinkType = LinkType.Url, Link = "http://trade-imports-decision-comparer-host", RoutePath = "/alvs-decisions/", ContentType = "application/soap+xml" } }
             }
         };
         _testWebServer = TestWebServer.BuildAndRun(ServiceDescriptor.Singleton(routingConfig));
@@ -61,7 +65,29 @@ public sealed class GeneralEndToEndTests : IDisposable
         _stringContent = new StringContent(_soapContent, Encoding.UTF8, MediaTypeNames.Application.Xml);
     }
 
-    public void Dispose() => _testWebServer.DisposeAsync().GetAwaiter().GetResult();
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    private void Dispose(bool disposing)
+    {
+        if (_disposed)
+            return;
+
+        if (disposing)
+        {
+            var disposeTask = _testWebServer.DisposeAsync();
+            if (disposeTask.IsCompleted)
+            {
+                return;
+            }
+            disposeTask.AsTask().GetAwaiter().GetResult();
+        }
+
+        _disposed = true;
+    }
 
     [Fact]
     public async Task When_routing_request_Then_should_respond_from_routed_request()

@@ -81,7 +81,7 @@ public record Destination
     public string? Method { get; init; }
 }
 
-public enum LinkType { None, Url, Queue }
+public enum LinkType { None, Url, Queue, DecisionComparer }
 
 public record RoutedLink
 {

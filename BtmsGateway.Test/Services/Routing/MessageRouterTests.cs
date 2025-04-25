@@ -1,9 +1,11 @@
 using System.Net;
+using BtmsGateway.Domain;
 using BtmsGateway.Middleware;
 using BtmsGateway.Services.Converter;
 using BtmsGateway.Services.Metrics;
 using BtmsGateway.Services.Routing;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using Serilog;
@@ -19,7 +21,7 @@ public class MessageRouterTests
         var mocks = CreateMocks();
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
 
-        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger);
+        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger, mocks.DecisionSender);
 
         // Act
         var response = await sut.Fork(msgData.MessageData, mocks.Metrics);
@@ -44,7 +46,7 @@ public class MessageRouterTests
         }, false);
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
 
-        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger);
+        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger, mocks.DecisionSender);
 
         // Act
         var response = await sut.Fork(msgData.MessageData, mocks.Metrics);
@@ -69,7 +71,7 @@ public class MessageRouterTests
         }, true, false);
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
 
-        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger);
+        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger, mocks.DecisionSender);
 
         // Act
         var response = await sut.Fork(msgData.MessageData, mocks.Metrics);
@@ -94,7 +96,7 @@ public class MessageRouterTests
         }, true, false);
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
 
-        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger);
+        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger, mocks.DecisionSender);
 
         // Act
         var response = await sut.Fork(msgData.MessageData, mocks.Metrics);
@@ -119,7 +121,57 @@ public class MessageRouterTests
         }, false);
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
 
-        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger);
+        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger, mocks.DecisionSender);
+
+        // Act
+        var response = await sut.Fork(msgData.MessageData, mocks.Metrics);
+
+        // Assert
+        response.RouteFound.Should().BeTrue();
+        response.StatusCode.Should().Be(HttpStatusCode.ServiceUnavailable);
+        response.ErrorMessage.Should().StartWith("Error fork");
+        mocks.Metrics.DidNotReceive().StartRoutedRequest();
+        mocks.Metrics.DidNotReceive().RecordRoutedRequest(Arg.Any<RoutingResult>());
+        mocks.Metrics.Received().StartForkedRequest();
+        mocks.Metrics.Received().RecordForkedRequest(Arg.Any<RoutingResult>());
+    }
+
+    [Fact]
+    public async Task Fork_DecisionComparerLinkType_SuccessfullyRouted_ReturnsSuccess()
+    {
+        // Arrange
+        var mocks = CreateMocks(new RoutingResult()
+        {
+            ForkLinkType = LinkType.DecisionComparer
+        });
+        var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
+
+        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger, mocks.DecisionSender);
+
+        // Act
+        var response = await sut.Fork(msgData.MessageData, mocks.Metrics);
+
+        // Assert
+        response.RouteFound.Should().BeTrue();
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        response.ErrorMessage.Should().BeNull();
+        mocks.Metrics.DidNotReceive().StartRoutedRequest();
+        mocks.Metrics.DidNotReceive().RecordRoutedRequest(Arg.Any<RoutingResult>());
+        mocks.Metrics.Received().StartForkedRequest();
+        mocks.Metrics.Received().RecordForkedRequest(Arg.Any<RoutingResult>());
+    }
+
+    [Fact]
+    public async Task Fork_DecisionComparerLinkType_ThrowsException_ReturnsError()
+    {
+        // Arrange
+        var mocks = CreateMocks(new RoutingResult()
+        {
+            ForkLinkType = LinkType.DecisionComparer
+        }, decisionSenderSuccess: false);
+        var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
+
+        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger, mocks.DecisionSender);
 
         // Act
         var response = await sut.Fork(msgData.MessageData, mocks.Metrics);
@@ -141,7 +193,7 @@ public class MessageRouterTests
         var mocks = CreateMocks();
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
 
-        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger);
+        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger, mocks.DecisionSender);
 
         // Act
         var response = await sut.Route(msgData.MessageData, mocks.Metrics);
@@ -165,7 +217,7 @@ public class MessageRouterTests
         }, false);
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
 
-        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger);
+        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger, mocks.DecisionSender);
 
         // Act
         var response = await sut.Route(msgData.MessageData, mocks.Metrics);
@@ -190,7 +242,7 @@ public class MessageRouterTests
         }, true, false);
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
 
-        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger);
+        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger, mocks.DecisionSender);
 
         // Act
         var response = await sut.Route(msgData.MessageData, mocks.Metrics);
@@ -215,7 +267,7 @@ public class MessageRouterTests
         }, true, false);
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
 
-        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger);
+        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger, mocks.DecisionSender);
 
         // Act
         var response = await sut.Route(msgData.MessageData, mocks.Metrics);
@@ -240,7 +292,7 @@ public class MessageRouterTests
         }, false);
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
 
-        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger);
+        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger, mocks.DecisionSender);
 
         // Act
         var response = await sut.Route(msgData.MessageData, mocks.Metrics);
@@ -255,8 +307,58 @@ public class MessageRouterTests
         mocks.Metrics.DidNotReceive().RecordForkedRequest(Arg.Any<RoutingResult>());
     }
 
-    private (IMessageRoutes Routes, IApiSender ApiSender, IQueueSender QueueSender, ILogger Logger, IMetrics Metrics)
-        CreateMocks(RoutingResult routingResult = null, bool apiSuccess = true, bool queueSuccess = true)
+    [Fact]
+    public async Task Route_DecisionComparerLinkType_SuccessfullyRouted_ReturnsSuccess()
+    {
+        // Arrange
+        var mocks = CreateMocks(new RoutingResult
+        {
+            RouteLinkType = LinkType.DecisionComparer
+        }, true, false);
+        var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
+
+        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger, mocks.DecisionSender);
+
+        // Act
+        var response = await sut.Route(msgData.MessageData, mocks.Metrics);
+
+        // Assert
+        response.RouteFound.Should().BeTrue();
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        response.ErrorMessage.Should().BeNull();
+        mocks.Metrics.Received().StartRoutedRequest();
+        mocks.Metrics.Received().RecordRoutedRequest(Arg.Any<RoutingResult>());
+        mocks.Metrics.DidNotReceive().StartForkedRequest();
+        mocks.Metrics.DidNotReceive().RecordForkedRequest(Arg.Any<RoutingResult>());
+    }
+
+    [Fact]
+    public async Task Route_DecisionComparerLinkType_ThrowsException_ReturnsError()
+    {
+        // Arrange
+        var mocks = CreateMocks(new RoutingResult()
+        {
+            RouteLinkType = LinkType.DecisionComparer
+        }, decisionSenderSuccess: false);
+        var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
+
+        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger, mocks.DecisionSender);
+
+        // Act
+        var response = await sut.Route(msgData.MessageData, mocks.Metrics);
+
+        // Assert
+        response.RouteFound.Should().BeTrue();
+        response.StatusCode.Should().Be(HttpStatusCode.ServiceUnavailable);
+        response.ErrorMessage.Should().StartWith("Error routing");
+        mocks.Metrics.Received().StartRoutedRequest();
+        mocks.Metrics.Received().RecordRoutedRequest(Arg.Any<RoutingResult>());
+        mocks.Metrics.DidNotReceive().StartForkedRequest();
+        mocks.Metrics.DidNotReceive().RecordForkedRequest(Arg.Any<RoutingResult>());
+    }
+
+    private (IMessageRoutes Routes, IApiSender ApiSender, IQueueSender QueueSender, ILogger Logger, IMetrics Metrics, IDecisionSender DecisionSender)
+        CreateMocks(RoutingResult routingResult = null, bool apiSuccess = true, bool queueSuccess = true, bool decisionSenderSuccess = true)
     {
         var routes = Substitute.For<IMessageRoutes>();
 
@@ -315,6 +417,35 @@ public class MessageRouterTests
         var logger = Substitute.For<ILogger>();
         var metrics = Substitute.For<IMetrics>();
 
-        return (routes, apiSender, queueSender, logger, metrics);
+        var decisionSender = Substitute.For<IDecisionSender>();
+
+        if (decisionSenderSuccess)
+        {
+            decisionSender.SendDecisionAsync(
+                    Arg.Any<string>(),
+                    Arg.Any<string>(),
+                    Arg.Any<MessagingConstants.DecisionSource>(),
+                    Arg.Any<HeaderDictionary>(),
+                    Arg.Any<CancellationToken>())
+                .Returns(routingResult
+                    with
+                {
+                    RoutingSuccessful = true,
+                    ResponseContent = $"Decision Sender Success!",
+                    StatusCode = HttpStatusCode.OK
+                });
+        }
+        else
+        {
+            decisionSender.SendDecisionAsync(
+                    Arg.Any<string>(),
+                    Arg.Any<string>(),
+                    Arg.Any<MessagingConstants.DecisionSource>(),
+                    Arg.Any<HeaderDictionary>(),
+                    Arg.Any<CancellationToken>())
+                .ThrowsAsync<Exception>();
+        }
+
+        return (routes, apiSender, queueSender, logger, metrics, decisionSender);
     }
 }

@@ -150,6 +150,7 @@ public abstract class QueueRoutingTestBase : TargetRoutingTestBase, IDisposable
 
     public new void Dispose()
     {
+        base.Dispose();
         Dispose(true);
         GC.SuppressFinalize(this);
     }

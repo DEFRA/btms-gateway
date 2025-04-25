@@ -144,8 +144,8 @@ public class DecisionSender : IDecisionSender
         {
             _logger.Error("{MRN} Failed to send clearance decision to CDS. CDS Response Status Code: {StatusCode}, Reason: {Reason}, Content: {Content}",
                 mrn,
-                response?.StatusCode,
-                response?.ReasonPhrase,
+                response.StatusCode,
+                response.ReasonPhrase,
                 await GetResponseContentAsync(response, cancellationToken));
             throw new DecisionComparisonException($"{mrn} Failed to send clearance decision to CDS.");
         }

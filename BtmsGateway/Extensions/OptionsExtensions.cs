@@ -4,13 +4,14 @@ namespace BtmsGateway.Extensions;
 
 public static class OptionsExtensions
 {
-    public static OptionsBuilder<TOptions> AddValidateOptions<TOptions>(this IServiceCollection services, IConfiguration configuration, string section)
+    public static OptionsBuilder<TOptions> AddValidateOptions<TOptions>(
+        this IServiceCollection services,
+        IConfiguration configuration,
+        string section
+    )
         where TOptions : class
     {
-        var s = services
-            .AddOptions<TOptions>()
-            .Bind(configuration.GetSection(section))
-            .ValidateDataAnnotations();
+        var s = services.AddOptions<TOptions>().Bind(configuration.GetSection(section)).ValidateDataAnnotations();
 
         return s;
     }

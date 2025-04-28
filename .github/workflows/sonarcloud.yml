@@ -58,6 +58,14 @@ jobs:
         run: |
           mkdir -p ./.sonar/coverage
           dotnet tool update dotnet-coverage --tool-path ./.sonar/coverage
+      - name: Run docker-compose # Runs the existing Docker compose and scripts for now until the tests can be rewritten
+        uses: hoverkraft-tech/compose-action@v2.0.1
+        with:
+          compose-file: "./compose.yml"
+      - name: Make Script Executable
+        run: chmod +x ./wait-for-docker-logs.sh
+      - name: Wait for Localstack
+        run: ./wait-for-docker-logs.sh sns-sqs-emulator "Ready." 60
       - name: Build and analyze
         if: github.actor != 'dependabot[bot]'
         env:

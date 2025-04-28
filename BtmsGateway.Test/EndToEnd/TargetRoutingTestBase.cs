@@ -6,13 +6,17 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace BtmsGateway.Test.EndToEnd;
 
+[Trait("Dependence", "localstack")]
 public abstract class TargetRoutingTestBase : IDisposable
 {
     private bool _disposed;
 
     protected static readonly string FixturesPath = Path.Combine("EndToEnd", "Fixtures");
 
-    private static readonly JsonSerializerOptions JsonSerializerOptions = new() { Converters = { new JsonStringEnumConverter() } };
+    private static readonly JsonSerializerOptions JsonSerializerOptions = new()
+    {
+        Converters = { new JsonStringEnumConverter() },
+    };
 
     protected readonly TestWebServer TestWebServer;
     protected readonly HttpClient HttpClient;
@@ -21,7 +25,11 @@ public abstract class TargetRoutingTestBase : IDisposable
     protected TargetRoutingTestBase()
     {
         var routingConfigJson = File.ReadAllText(Path.Combine(FixturesPath, "TargetRoutingConfig.json"));
-        Services.Add(ServiceDescriptor.Singleton(JsonSerializer.Deserialize<RoutingConfig>(routingConfigJson, JsonSerializerOptions)));
+        Services.Add(
+            ServiceDescriptor.Singleton(
+                JsonSerializer.Deserialize<RoutingConfig>(routingConfigJson, JsonSerializerOptions)
+            )
+        );
         TestWebServer = TestWebServer.BuildAndRun(Services.ToArray());
         HttpClient = TestWebServer.HttpServiceClient;
     }

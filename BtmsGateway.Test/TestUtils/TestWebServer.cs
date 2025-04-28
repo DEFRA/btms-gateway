@@ -44,11 +44,15 @@ public class TestWebServer : IAsyncDisposable
         builder.ConfigureToType<HealthCheckConfig>();
         builder.WebHost.UseUrls(url);
         builder.AddServices(Substitute.For<Serilog.ILogger>());
-        foreach (var testService in testServices) builder.Services.Replace(testService);
+        foreach (var testService in testServices)
+            builder.Services.Replace(testService);
         builder.Services.AddHealthChecks();
 
         var options = builder.Configuration.GetAWSOptions();
-        options.Credentials = new BasicAWSCredentials(builder.Configuration["AWS_ACCESS_KEY_ID"], builder.Configuration["AWS_SECRET_ACCESS_KEY"]);
+        options.Credentials = new BasicAWSCredentials(
+            builder.Configuration["AWS_ACCESS_KEY_ID"],
+            builder.Configuration["AWS_SECRET_ACCESS_KEY"]
+        );
         builder.Services.Replace(new ServiceDescriptor(typeof(AWSOptions), options));
 
         RoutedHttpHandler = new TestHttpHandler();
@@ -58,9 +62,9 @@ public class TestWebServer : IAsyncDisposable
         ClientWithRetryHttpHandler = new TestHttpHandler();
         ConfigureServices.HttpClientWithRetryBuilder?.AddHttpMessageHandler(() => ClientWithRetryHttpHandler);
         DecisionComparerClientWithRetryHttpHandler = new TestHttpHandler();
-        ConfigureServices.DecisionComparerHttpClientWithRetryBuilder?
-            .ConfigureAdditionalHttpMessageHandlers((handlers, _) =>
-                handlers.Insert(0, DecisionComparerClientWithRetryHttpHandler));
+        ConfigureServices.DecisionComparerHttpClientWithRetryBuilder?.ConfigureAdditionalHttpMessageHandlers(
+            (handlers, _) => handlers.Insert(0, DecisionComparerClientWithRetryHttpHandler)
+        );
 
         var app = builder.Build();
 

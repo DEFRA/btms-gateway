@@ -21,7 +21,13 @@ public class MessageRouterTests
         var mocks = CreateMocks();
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
 
-        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger, mocks.DecisionSender);
+        var sut = new MessageRouter(
+            mocks.Routes,
+            mocks.ApiSender,
+            mocks.QueueSender,
+            mocks.Logger,
+            mocks.DecisionSender
+        );
 
         // Act
         var response = await sut.Fork(msgData.MessageData, mocks.Metrics);
@@ -40,13 +46,16 @@ public class MessageRouterTests
     public async Task Fork_QueueLinkType_SuccessfullyRouted_ReturnsSuccess()
     {
         // Arrange
-        var mocks = CreateMocks(new RoutingResult()
-        {
-            ForkLinkType = LinkType.Queue
-        }, false);
+        var mocks = CreateMocks(new RoutingResult { ForkLinkType = LinkType.Queue }, false);
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
 
-        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger, mocks.DecisionSender);
+        var sut = new MessageRouter(
+            mocks.Routes,
+            mocks.ApiSender,
+            mocks.QueueSender,
+            mocks.Logger,
+            mocks.DecisionSender
+        );
 
         // Act
         var response = await sut.Fork(msgData.MessageData, mocks.Metrics);
@@ -65,13 +74,16 @@ public class MessageRouterTests
     public async Task Fork_QueueLinkType_ThrowsException_ReturnsError()
     {
         // Arrange
-        var mocks = CreateMocks(new RoutingResult()
-        {
-            ForkLinkType = LinkType.Queue
-        }, true, false);
+        var mocks = CreateMocks(new RoutingResult { ForkLinkType = LinkType.Queue }, true, false);
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
 
-        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger, mocks.DecisionSender);
+        var sut = new MessageRouter(
+            mocks.Routes,
+            mocks.ApiSender,
+            mocks.QueueSender,
+            mocks.Logger,
+            mocks.DecisionSender
+        );
 
         // Act
         var response = await sut.Fork(msgData.MessageData, mocks.Metrics);
@@ -90,13 +102,16 @@ public class MessageRouterTests
     public async Task Fork_UrlLinkType_SuccessfullyRouted_ReturnsSuccess()
     {
         // Arrange
-        var mocks = CreateMocks(new RoutingResult()
-        {
-            ForkLinkType = LinkType.Url
-        }, true, false);
+        var mocks = CreateMocks(new RoutingResult { ForkLinkType = LinkType.Url }, true, false);
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
 
-        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger, mocks.DecisionSender);
+        var sut = new MessageRouter(
+            mocks.Routes,
+            mocks.ApiSender,
+            mocks.QueueSender,
+            mocks.Logger,
+            mocks.DecisionSender
+        );
 
         // Act
         var response = await sut.Fork(msgData.MessageData, mocks.Metrics);
@@ -115,13 +130,16 @@ public class MessageRouterTests
     public async Task Fork_UrlLinkType_ThrowsException_ReturnsError()
     {
         // Arrange
-        var mocks = CreateMocks(new RoutingResult()
-        {
-            ForkLinkType = LinkType.Url
-        }, false);
+        var mocks = CreateMocks(new RoutingResult { ForkLinkType = LinkType.Url }, false);
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
 
-        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger, mocks.DecisionSender);
+        var sut = new MessageRouter(
+            mocks.Routes,
+            mocks.ApiSender,
+            mocks.QueueSender,
+            mocks.Logger,
+            mocks.DecisionSender
+        );
 
         // Act
         var response = await sut.Fork(msgData.MessageData, mocks.Metrics);
@@ -140,13 +158,16 @@ public class MessageRouterTests
     public async Task Fork_DecisionComparerLinkType_SuccessfullyRouted_ReturnsSuccess()
     {
         // Arrange
-        var mocks = CreateMocks(new RoutingResult()
-        {
-            ForkLinkType = LinkType.DecisionComparer
-        });
+        var mocks = CreateMocks(new RoutingResult { ForkLinkType = LinkType.DecisionComparer });
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
 
-        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger, mocks.DecisionSender);
+        var sut = new MessageRouter(
+            mocks.Routes,
+            mocks.ApiSender,
+            mocks.QueueSender,
+            mocks.Logger,
+            mocks.DecisionSender
+        );
 
         // Act
         var response = await sut.Fork(msgData.MessageData, mocks.Metrics);
@@ -165,13 +186,19 @@ public class MessageRouterTests
     public async Task Fork_DecisionComparerLinkType_ThrowsException_ReturnsError()
     {
         // Arrange
-        var mocks = CreateMocks(new RoutingResult()
-        {
-            ForkLinkType = LinkType.DecisionComparer
-        }, decisionSenderSuccess: false);
+        var mocks = CreateMocks(
+            new RoutingResult { ForkLinkType = LinkType.DecisionComparer },
+            decisionSenderSuccess: false
+        );
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
 
-        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger, mocks.DecisionSender);
+        var sut = new MessageRouter(
+            mocks.Routes,
+            mocks.ApiSender,
+            mocks.QueueSender,
+            mocks.Logger,
+            mocks.DecisionSender
+        );
 
         // Act
         var response = await sut.Fork(msgData.MessageData, mocks.Metrics);
@@ -193,7 +220,13 @@ public class MessageRouterTests
         var mocks = CreateMocks();
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
 
-        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger, mocks.DecisionSender);
+        var sut = new MessageRouter(
+            mocks.Routes,
+            mocks.ApiSender,
+            mocks.QueueSender,
+            mocks.Logger,
+            mocks.DecisionSender
+        );
 
         // Act
         var response = await sut.Route(msgData.MessageData, mocks.Metrics);
@@ -211,13 +244,16 @@ public class MessageRouterTests
     public async Task Route_QueueLinkType_SuccessfullyRouted_ReturnsSuccess()
     {
         // Arrange
-        var mocks = CreateMocks(new RoutingResult()
-        {
-            RouteLinkType = LinkType.Queue
-        }, false);
+        var mocks = CreateMocks(new RoutingResult { RouteLinkType = LinkType.Queue }, false);
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
 
-        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger, mocks.DecisionSender);
+        var sut = new MessageRouter(
+            mocks.Routes,
+            mocks.ApiSender,
+            mocks.QueueSender,
+            mocks.Logger,
+            mocks.DecisionSender
+        );
 
         // Act
         var response = await sut.Route(msgData.MessageData, mocks.Metrics);
@@ -236,13 +272,16 @@ public class MessageRouterTests
     public async Task Route_QueueLinkType_ThrowsException_ReturnsError()
     {
         // Arrange
-        var mocks = CreateMocks(new RoutingResult()
-        {
-            RouteLinkType = LinkType.Queue
-        }, true, false);
+        var mocks = CreateMocks(new RoutingResult { RouteLinkType = LinkType.Queue }, true, false);
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
 
-        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger, mocks.DecisionSender);
+        var sut = new MessageRouter(
+            mocks.Routes,
+            mocks.ApiSender,
+            mocks.QueueSender,
+            mocks.Logger,
+            mocks.DecisionSender
+        );
 
         // Act
         var response = await sut.Route(msgData.MessageData, mocks.Metrics);
@@ -261,13 +300,16 @@ public class MessageRouterTests
     public async Task Route_UrlLinkType_SuccessfullyRouted_ReturnsSuccess()
     {
         // Arrange
-        var mocks = CreateMocks(new RoutingResult
-        {
-            RouteLinkType = LinkType.Url
-        }, true, false);
+        var mocks = CreateMocks(new RoutingResult { RouteLinkType = LinkType.Url }, true, false);
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
 
-        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger, mocks.DecisionSender);
+        var sut = new MessageRouter(
+            mocks.Routes,
+            mocks.ApiSender,
+            mocks.QueueSender,
+            mocks.Logger,
+            mocks.DecisionSender
+        );
 
         // Act
         var response = await sut.Route(msgData.MessageData, mocks.Metrics);
@@ -286,13 +328,16 @@ public class MessageRouterTests
     public async Task Route_UrlLinkType_ThrowsException_ReturnsError()
     {
         // Arrange
-        var mocks = CreateMocks(new RoutingResult()
-        {
-            RouteLinkType = LinkType.Url
-        }, false);
+        var mocks = CreateMocks(new RoutingResult { RouteLinkType = LinkType.Url }, false);
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
 
-        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger, mocks.DecisionSender);
+        var sut = new MessageRouter(
+            mocks.Routes,
+            mocks.ApiSender,
+            mocks.QueueSender,
+            mocks.Logger,
+            mocks.DecisionSender
+        );
 
         // Act
         var response = await sut.Route(msgData.MessageData, mocks.Metrics);
@@ -311,13 +356,16 @@ public class MessageRouterTests
     public async Task Route_DecisionComparerLinkType_SuccessfullyRouted_ReturnsSuccess()
     {
         // Arrange
-        var mocks = CreateMocks(new RoutingResult
-        {
-            RouteLinkType = LinkType.DecisionComparer
-        }, true, false);
+        var mocks = CreateMocks(new RoutingResult { RouteLinkType = LinkType.DecisionComparer }, true, false);
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
 
-        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger, mocks.DecisionSender);
+        var sut = new MessageRouter(
+            mocks.Routes,
+            mocks.ApiSender,
+            mocks.QueueSender,
+            mocks.Logger,
+            mocks.DecisionSender
+        );
 
         // Act
         var response = await sut.Route(msgData.MessageData, mocks.Metrics);
@@ -336,13 +384,19 @@ public class MessageRouterTests
     public async Task Route_DecisionComparerLinkType_ThrowsException_ReturnsError()
     {
         // Arrange
-        var mocks = CreateMocks(new RoutingResult()
-        {
-            RouteLinkType = LinkType.DecisionComparer
-        }, decisionSenderSuccess: false);
+        var mocks = CreateMocks(
+            new RoutingResult { RouteLinkType = LinkType.DecisionComparer },
+            decisionSenderSuccess: false
+        );
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
 
-        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger, mocks.DecisionSender);
+        var sut = new MessageRouter(
+            mocks.Routes,
+            mocks.ApiSender,
+            mocks.QueueSender,
+            mocks.Logger,
+            mocks.DecisionSender
+        );
 
         // Act
         var response = await sut.Route(msgData.MessageData, mocks.Metrics);
@@ -357,22 +411,36 @@ public class MessageRouterTests
         mocks.Metrics.DidNotReceive().RecordForkedRequest(Arg.Any<RoutingResult>());
     }
 
-    private (IMessageRoutes Routes, IApiSender ApiSender, IQueueSender QueueSender, ILogger Logger, IMetrics Metrics, IDecisionSender DecisionSender)
-        CreateMocks(RoutingResult routingResult = null, bool apiSuccess = true, bool queueSuccess = true, bool decisionSenderSuccess = true)
+    private (
+        IMessageRoutes Routes,
+        IApiSender ApiSender,
+        IQueueSender QueueSender,
+        ILogger Logger,
+        IMetrics Metrics,
+        IDecisionSender DecisionSender
+    ) CreateMocks(
+        RoutingResult routingResult = null,
+        bool apiSuccess = true,
+        bool queueSuccess = true,
+        bool decisionSenderSuccess = true
+    )
     {
         var routes = Substitute.For<IMessageRoutes>();
 
-        routingResult = routingResult == null ? new RoutingResult()
-        {
-            RouteFound = false,
-            StatusCode = HttpStatusCode.InternalServerError,
-            ErrorMessage = "Route not found"
-        } : routingResult with
-        {
-            RouteFound = true,
-            FullForkLink = "full-fork-link",
-            FullRouteLink = "full-route-link",
-        };
+        routingResult =
+            routingResult == null
+                ? new RoutingResult
+                {
+                    RouteFound = false,
+                    StatusCode = HttpStatusCode.InternalServerError,
+                    ErrorMessage = "Route not found",
+                }
+                : routingResult with
+                {
+                    RouteFound = true,
+                    FullForkLink = "full-fork-link",
+                    FullRouteLink = "full-route-link",
+                };
 
         routes.GetRoute(Arg.Any<string>(), Arg.Any<SoapContent>()).Returns(routingResult);
 
@@ -380,37 +448,41 @@ public class MessageRouterTests
 
         if (apiSuccess)
         {
-            apiSender.Send(Arg.Any<RoutingResult>(), Arg.Any<MessageData>(), Arg.Any<bool>())
-                .Returns(routingResult
-                    with
-                {
-                    RoutingSuccessful = true,
-                    ResponseContent = $"API Success!",
-                    StatusCode = HttpStatusCode.OK
-                });
+            apiSender
+                .Send(Arg.Any<RoutingResult>(), Arg.Any<MessageData>(), Arg.Any<bool>())
+                .Returns(
+                    routingResult with
+                    {
+                        RoutingSuccessful = true,
+                        ResponseContent = $"API Success!",
+                        StatusCode = HttpStatusCode.OK,
+                    }
+                );
         }
         else
         {
-            apiSender.Send(Arg.Any<RoutingResult>(), Arg.Any<MessageData>(), Arg.Any<bool>())
-                .ThrowsAsync<Exception>();
+            apiSender.Send(Arg.Any<RoutingResult>(), Arg.Any<MessageData>(), Arg.Any<bool>()).ThrowsAsync<Exception>();
         }
 
         var queueSender = Substitute.For<IQueueSender>();
 
         if (queueSuccess)
         {
-            queueSender.Send(Arg.Any<RoutingResult>(), Arg.Any<MessageData>(), Arg.Any<string>())
-                .Returns(routingResult
-                    with
-                {
-                    RoutingSuccessful = true,
-                    ResponseContent = $"Queue Success!",
-                    StatusCode = HttpStatusCode.OK
-                });
+            queueSender
+                .Send(Arg.Any<RoutingResult>(), Arg.Any<MessageData>(), Arg.Any<string>())
+                .Returns(
+                    routingResult with
+                    {
+                        RoutingSuccessful = true,
+                        ResponseContent = $"Queue Success!",
+                        StatusCode = HttpStatusCode.OK,
+                    }
+                );
         }
         else
         {
-            queueSender.Send(Arg.Any<RoutingResult>(), Arg.Any<MessageData>(), Arg.Any<string>())
+            queueSender
+                .Send(Arg.Any<RoutingResult>(), Arg.Any<MessageData>(), Arg.Any<string>())
                 .ThrowsAsync<Exception>();
         }
 
@@ -421,28 +493,33 @@ public class MessageRouterTests
 
         if (decisionSenderSuccess)
         {
-            decisionSender.SendDecisionAsync(
+            decisionSender
+                .SendDecisionAsync(
                     Arg.Any<string>(),
                     Arg.Any<string>(),
                     Arg.Any<MessagingConstants.DecisionSource>(),
                     Arg.Any<HeaderDictionary>(),
-                    Arg.Any<CancellationToken>())
-                .Returns(routingResult
-                    with
-                {
-                    RoutingSuccessful = true,
-                    ResponseContent = $"Decision Sender Success!",
-                    StatusCode = HttpStatusCode.OK
-                });
+                    Arg.Any<CancellationToken>()
+                )
+                .Returns(
+                    routingResult with
+                    {
+                        RoutingSuccessful = true,
+                        ResponseContent = $"Decision Sender Success!",
+                        StatusCode = HttpStatusCode.OK,
+                    }
+                );
         }
         else
         {
-            decisionSender.SendDecisionAsync(
+            decisionSender
+                .SendDecisionAsync(
                     Arg.Any<string>(),
                     Arg.Any<string>(),
                     Arg.Any<MessagingConstants.DecisionSource>(),
                     Arg.Any<HeaderDictionary>(),
-                    Arg.Any<CancellationToken>())
+                    Arg.Any<CancellationToken>()
+                )
                 .ThrowsAsync<Exception>();
         }
 

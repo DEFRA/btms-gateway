@@ -16,11 +16,7 @@ public class ProxyTest
     [Fact]
     public void ExtractProxyCredentials()
     {
-
-        var proxy = new System.Net.WebProxy
-        {
-            BypassProxyOnLocal = true
-        };
+        var proxy = new System.Net.WebProxy { BypassProxyOnLocal = true };
 
         Proxy.ConfigureProxy(proxy, ProxyUri, _logger);
 
@@ -35,10 +31,7 @@ public class ProxyTest
     {
         var noPasswordUri = "http://user@localhost:8080";
 
-        var proxy = new System.Net.WebProxy
-        {
-            BypassProxyOnLocal = true
-        };
+        var proxy = new System.Net.WebProxy { BypassProxyOnLocal = true };
 
         Proxy.ConfigureProxy(proxy, noPasswordUri, _logger);
 
@@ -48,11 +41,7 @@ public class ProxyTest
     [Fact]
     public void ExtractProxyUri()
     {
-
-        var proxy = new System.Net.WebProxy
-        {
-            BypassProxyOnLocal = true
-        };
+        var proxy = new System.Net.WebProxy { BypassProxyOnLocal = true };
 
         Proxy.ConfigureProxy(proxy, ProxyUri, _logger);
         proxy.Address.Should().NotBeNull();
@@ -62,7 +51,6 @@ public class ProxyTest
     [Fact]
     public void CreateProxyFromUri()
     {
-
         var proxy = Proxy.CreateProxy(ProxyUri, _logger);
 
         proxy.Address.Should().NotBeNull();
@@ -80,7 +68,6 @@ public class ProxyTest
     [Fact]
     public void ProxyShouldBypassLocal()
     {
-
         var proxy = Proxy.CreateProxy(ProxyUri, _logger);
 
         proxy.BypassProxyOnLocal.Should().BeTrue();
@@ -101,6 +88,4 @@ public class ProxyTest
         handler.Proxy?.GetProxy(new Uri(Localhost))?.AbsoluteUri.Should().Be(Localhost);
         handler.Proxy?.GetProxy(new Uri("http://google.com"))?.AbsoluteUri.Should().Be(LocalProxy);
     }
-
-
 }

@@ -8,42 +8,61 @@ public record RoutingConfig
 
     private RoutedLink[] GetAllRoutes()
     {
-        var legacy = NamedRoutes.Join(NamedLinks, nr => nr.Value.LegacyLinkName, nl => nl.Key, (nr, nl) => new
-        {
-            Name = nr.Key,
-            nl.Value.Link,
-            nl.Value.LinkType,
-            nl.Value.HostHeader,
-            nr.Value.RoutePath,
-            nr.Value.MessageSubXPath,
-            nr.Value.Legend,
-            nr.Value.RouteTo
-        });
-        var btms = NamedRoutes.Join(NamedLinks, nr => nr.Value.BtmsLinkName, nl => nl.Key, (nr, nl) => new
-        {
-            Name = nr.Key,
-            nl.Value.Link,
-            nl.Value.LinkType,
-            nl.Value.HostHeader,
-            nr.Value.RoutePath,
-            nr.Value.MessageSubXPath,
-            nr.Value.Legend,
-            nr.Value.RouteTo
-        });
-        var output = legacy.Join(btms, l => l.Name, b => b.Name, (l, b) => new RoutedLink
-        {
-            Name = l.Name,
-            Legend = l.Legend,
-            LegacyLink = l.Link.TrimEnd('/'),
-            LegacyLinkType = l.LinkType,
-            LegacyHostHeader = l.HostHeader,
-            BtmsLink = b.Link.TrimEnd('/'),
-            BtmsLinkType = b.LinkType,
-            BtmsHostHeader = b.HostHeader,
-            RoutePath = l.RoutePath.Trim('/'),
-            MessageSubXPath = l.MessageSubXPath,
-            RouteTo = b.RouteTo
-        })
+        var legacy = NamedRoutes.Join(
+            NamedLinks,
+            nr => nr.Value.LegacyLinkName,
+            nl => nl.Key,
+            (nr, nl) =>
+                new
+                {
+                    Name = nr.Key,
+                    nl.Value.Link,
+                    nl.Value.LinkType,
+                    nl.Value.HostHeader,
+                    nr.Value.RoutePath,
+                    nr.Value.MessageSubXPath,
+                    nr.Value.Legend,
+                    nr.Value.RouteTo,
+                }
+        );
+        var btms = NamedRoutes.Join(
+            NamedLinks,
+            nr => nr.Value.BtmsLinkName,
+            nl => nl.Key,
+            (nr, nl) =>
+                new
+                {
+                    Name = nr.Key,
+                    nl.Value.Link,
+                    nl.Value.LinkType,
+                    nl.Value.HostHeader,
+                    nr.Value.RoutePath,
+                    nr.Value.MessageSubXPath,
+                    nr.Value.Legend,
+                    nr.Value.RouteTo,
+                }
+        );
+        var output = legacy
+            .Join(
+                btms,
+                l => l.Name,
+                b => b.Name,
+                (l, b) =>
+                    new RoutedLink
+                    {
+                        Name = l.Name,
+                        Legend = l.Legend,
+                        LegacyLink = l.Link.TrimEnd('/'),
+                        LegacyLinkType = l.LinkType,
+                        LegacyHostHeader = l.HostHeader,
+                        BtmsLink = b.Link.TrimEnd('/'),
+                        BtmsLinkType = b.LinkType,
+                        BtmsHostHeader = b.HostHeader,
+                        RoutePath = l.RoutePath.Trim('/'),
+                        MessageSubXPath = l.MessageSubXPath,
+                        RouteTo = b.RouteTo,
+                    }
+            )
             .ToArray();
 
         return output;
@@ -81,7 +100,13 @@ public record Destination
     public string? Method { get; init; }
 }
 
-public enum LinkType { None, Url, Queue, DecisionComparer }
+public enum LinkType
+{
+    None,
+    Url,
+    Queue,
+    DecisionComparer,
+}
 
 public record RoutedLink
 {
@@ -98,4 +123,8 @@ public record RoutedLink
     public required RouteTo RouteTo { get; init; }
 }
 
-public enum RouteTo { Legacy, Btms }
+public enum RouteTo
+{
+    Legacy,
+    Btms,
+}

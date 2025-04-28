@@ -12,10 +12,22 @@ public class XmlToJsonTestData : TheoryData<string, string, string>
         Add("Simple content tag", XmlSimpleContent, JsonSimpleContent.LinuxLineEndings());
         Add("Complex single level", XmlComplexSingleLevel, JsonComplexSingleLevel.LinuxLineEndings());
         Add("Complex multi level", XmlComplexMultiLevel, JsonComplexMultiLevel.LinuxLineEndings());
-        Add("Complex multi level w/ Items", XmlComplexMultiLevelWithItems, JsonComplexMultiLevelWithItems.LinuxLineEndings());
-        Add("Complex multi level w/ single item Items", XmlComplexMultiLevelWithSingleItemItems, JsonComplexMultiLevelWithSingleItemItems.LinuxLineEndings());
+        Add(
+            "Complex multi level w/ Items",
+            XmlComplexMultiLevelWithItems,
+            JsonComplexMultiLevelWithItems.LinuxLineEndings()
+        );
+        Add(
+            "Complex multi level w/ single item Items",
+            XmlComplexMultiLevelWithSingleItemItems,
+            JsonComplexMultiLevelWithSingleItemItems.LinuxLineEndings()
+        );
         Add("Complex multi level SOAP", XmlComplexMultiLevelWithNamespace, JsonComplexMultiLevel.LinuxLineEndings());
-        Add("Complex multi level with HTML Encoding", XmlComplexWithHtmlEncoding, JsonComplexMultiLevelWithItems.LinuxLineEndings());
+        Add(
+            "Complex multi level with HTML Encoding",
+            XmlComplexWithHtmlEncoding,
+            JsonComplexMultiLevelWithItems.LinuxLineEndings()
+        );
     }
 
     private const string XmlSimpleSelfClosing = "<Root/>";

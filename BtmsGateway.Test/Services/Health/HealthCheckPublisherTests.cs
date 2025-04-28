@@ -14,8 +14,12 @@ public class HealthCheckPublisherTests
     [InlineData(HealthStatus.Healthy, 1, 0, 0)]
     [InlineData(HealthStatus.Degraded, 0, 1, 0)]
     [InlineData(HealthStatus.Unhealthy, 0, 0, 1)]
-    public async Task When_publishing_health_report_Then_status_should_be_logged(HealthStatus healthStatus,
-        int expectedInfoCalls, int expectedWarningCalls, int expectedErrorCalls)
+    public async Task When_publishing_health_report_Then_status_should_be_logged(
+        HealthStatus healthStatus,
+        int expectedInfoCalls,
+        int expectedWarningCalls,
+        int expectedErrorCalls
+    )
     {
         var meter = new Meter("test");
         var meterFactory = Substitute.For<IMeterFactory>();
@@ -24,12 +28,9 @@ public class HealthCheckPublisherTests
 
         var logger = Substitute.For<ILogger>();
         var loggedMessage = string.Empty;
-        logger.When(x => x.Information(Arg.Any<string>()))
-            .Do(message => loggedMessage = message[0].ToString());
-        logger.When(x => x.Warning(Arg.Any<string>()))
-            .Do(message => loggedMessage = message[0].ToString());
-        logger.When(x => x.Error(Arg.Any<string>()))
-            .Do(message => loggedMessage = message[0].ToString());
+        logger.When(x => x.Information(Arg.Any<string>())).Do(message => loggedMessage = message[0].ToString());
+        logger.When(x => x.Warning(Arg.Any<string>())).Do(message => loggedMessage = message[0].ToString());
+        logger.When(x => x.Error(Arg.Any<string>())).Do(message => loggedMessage = message[0].ToString());
 
         var sut = new HealthCheckPublisher(metricsHost, logger);
 
@@ -41,13 +42,12 @@ public class HealthCheckPublisherTests
                     "Test",
                     TimeSpan.FromSeconds(1),
                     null,
-                    new Dictionary<string, object>
-                    {
-                        { "route", "/test"}
-                    })
+                    new Dictionary<string, object> { { "route", "/test" } }
+                ),
             },
             healthStatus,
-            TimeSpan.FromSeconds(1));
+            TimeSpan.FromSeconds(1)
+        );
 
         await sut.PublishAsync(healthReport, CancellationToken.None);
 

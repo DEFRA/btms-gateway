@@ -5,16 +5,25 @@ using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Services.Health;
 
-public class NetworkHealthCheck(string name, HealthCheckUrl healthCheckUrl, IHttpClientFactory httpClientFactory, ILogger logger) : IHealthCheck
+public class NetworkHealthCheck(
+    string name,
+    HealthCheckUrl healthCheckUrl,
+    IHttpClientFactory httpClientFactory,
+    ILogger logger
+) : IHealthCheck
 {
-    public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = new())
+    public async Task<HealthCheckResult> CheckHealthAsync(
+        HealthCheckContext context,
+        CancellationToken cancellationToken = new()
+    )
     {
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         cts.CancelAfter(ConfigureHealthChecks.Timeout);
 
         var client = httpClientFactory.CreateClient(Proxy.RoutedClientWithRetry);
         var request = new HttpRequestMessage(HttpMethod.Parse(healthCheckUrl.Method), healthCheckUrl.Url);
-        if (healthCheckUrl.HostHeader != null) request.Headers.TryAddWithoutValidation("host", healthCheckUrl.HostHeader);
+        if (healthCheckUrl.HostHeader != null)
+            request.Headers.TryAddWithoutValidation("host", healthCheckUrl.HostHeader);
 
         HttpResponseMessage? response = null;
         string? content = null;
@@ -24,10 +33,17 @@ public class NetworkHealthCheck(string name, HealthCheckUrl healthCheckUrl, IHtt
             response = await client.SendAsync(request, cts.Token);
             content = await response.Content.ReadAsStringAsync(cts.Token);
         }
-        catch (TaskCanceledException)
+        catch (TaskCanceledException ex)
         {
-            logger.Warning("HEALTH - Checking network connection timed out for queue {QueueUrl}", healthCheckUrl.Url);
-            exception = new TimeoutException($"The network check cas cancelled, probably because it timed out after {ConfigureHealthChecks.Timeout.TotalSeconds} seconds");
+            logger.Warning(
+                ex,
+                "HEALTH - Checking network connection timed out for queue {QueueUrl}",
+                healthCheckUrl.Url
+            );
+            exception = new TimeoutException(
+                $"The network check has cancelled, probably because it timed out after {ConfigureHealthChecks.Timeout.TotalSeconds} seconds",
+                ex
+            );
         }
         catch (Exception ex)
         {
@@ -41,7 +57,7 @@ public class NetworkHealthCheck(string name, HealthCheckUrl healthCheckUrl, IHtt
             { "host", healthCheckUrl.HostHeader ?? "" },
             { "method", healthCheckUrl.Method },
             { "status", $"{(int?)response?.StatusCode} {response?.StatusCode}".Trim() },
-            { "content", content ?? "" }
+            { "content", content ?? "" },
         };
 
         var healthStatus = response?.IsSuccessStatusCode == true ? HealthStatus.Healthy : HealthStatus.Degraded;
@@ -55,6 +71,7 @@ public class NetworkHealthCheck(string name, HealthCheckUrl healthCheckUrl, IHtt
             status: healthStatus,
             description: $"Network route: {name.Replace('_', ' ')}",
             exception: exception,
-            data: data);
+            data: data
+        );
     }
 }

@@ -10,15 +10,23 @@ public class FinalisationNotificationFromBtmsToIpaffsTests : TargetRoutingTestBa
 {
     private const string UrlPath = "/route/path/alvs-ipaffs/finalisation-notification";
 
-    private readonly string _btmsRequestJson = File.ReadAllText(Path.Combine(FixturesPath, "FinalisationNotification.json")).LinuxLineEndings();
+    private readonly string _btmsRequestJson = File.ReadAllText(
+            Path.Combine(FixturesPath, "FinalisationNotification.json")
+        )
+        .LinuxLineEndings();
     private readonly string _btmsResponseJson = File.ReadAllText(Path.Combine(FixturesPath, "IpaffsResponse.json"));
-    private readonly string _ipaffsRequestSoap = File.ReadAllText(Path.Combine(FixturesPath, "AlvsToIpaffsFinalisationNotification.xml"));
+    private readonly string _ipaffsRequestSoap = File.ReadAllText(
+        Path.Combine(FixturesPath, "AlvsToIpaffsFinalisationNotification.xml")
+    );
     private readonly StringContent _btmsRequestJsonContent;
 
     public FinalisationNotificationFromBtmsToIpaffsTests()
     {
         _btmsRequestJsonContent = new StringContent(_btmsRequestJson, Encoding.UTF8, MediaTypeNames.Application.Json);
-        TestWebServer.RoutedHttpHandler.SetNextResponse(content: _btmsRequestJson, statusFunc: () => HttpStatusCode.Accepted);
+        TestWebServer.RoutedHttpHandler.SetNextResponse(
+            content: _btmsRequestJson,
+            statusFunc: () => HttpStatusCode.Accepted
+        );
     }
 
     [Fact(Skip = "Not implemented outbound from BTMS yet")]
@@ -26,8 +34,12 @@ public class FinalisationNotificationFromBtmsToIpaffsTests : TargetRoutingTestBa
     {
         await HttpClient.PostAsync(UrlPath, _btmsRequestJsonContent);
 
-        TestWebServer.RoutedHttpHandler.LastRequest!.RequestUri!.AbsoluteUri.Should().Be($"http://alvs-ipaffs-host{UrlPath}");
-        (await TestWebServer.RoutedHttpHandler.LastRequest!.Content!.ReadAsStringAsync()).Should().Be(_ipaffsRequestSoap);
+        TestWebServer
+            .RoutedHttpHandler.LastRequest!.RequestUri!.AbsoluteUri.Should()
+            .Be($"http://alvs-ipaffs-host{UrlPath}");
+        (await TestWebServer.RoutedHttpHandler.LastRequest!.Content!.ReadAsStringAsync())
+            .Should()
+            .Be(_ipaffsRequestSoap);
     }
 
     [Fact(Skip = "Not implemented outbound from BTMS yet")]

@@ -20,11 +20,21 @@ public class NetworkHealthCheckTests
     [InlineData(HttpStatusCode.BadRequest, HealthStatus.Degraded)]
     [InlineData(HttpStatusCode.BadGateway, HealthStatus.Degraded)]
     [InlineData(HttpStatusCode.ServiceUnavailable, HealthStatus.Degraded)]
-    public async Task When_health_checking_a_route_Then_should_set_correct_status(HttpStatusCode statusCode, HealthStatus healthStatus)
+    public async Task When_health_checking_a_route_Then_should_set_correct_status(
+        HttpStatusCode statusCode,
+        HealthStatus healthStatus
+    )
     {
         var testHttpHandler = new TestHttpHandler();
         testHttpHandler.SetNextResponse("route-content", () => statusCode);
-        var healthCheckUrl = new HealthCheckUrl { Method = "GET", Url = "http://1.2.3.4/path", HostHeader = "localhost", IncludeInAutomatedHealthCheck = true, Disabled = false };
+        var healthCheckUrl = new HealthCheckUrl
+        {
+            Method = "GET",
+            Url = "http://1.2.3.4/path",
+            HostHeader = "localhost",
+            IncludeInAutomatedHealthCheck = true,
+            Disabled = false,
+        };
         var routeHealthCheck = GetRouteHealthCheck(healthCheckUrl, testHttpHandler);
 
         var result = await routeHealthCheck.CheckHealthAsync(new HealthCheckContext());
@@ -38,7 +48,14 @@ public class NetworkHealthCheckTests
     {
         var testHttpHandler = new TestHttpHandler();
         testHttpHandler.SetNextResponse("route-content", () => HttpStatusCode.OK);
-        var healthCheckUrl = new HealthCheckUrl { Method = "GET", Url = "http://1.2.3.4/path", HostHeader = "localhost", IncludeInAutomatedHealthCheck = true, Disabled = false };
+        var healthCheckUrl = new HealthCheckUrl
+        {
+            Method = "GET",
+            Url = "http://1.2.3.4/path",
+            HostHeader = "localhost",
+            IncludeInAutomatedHealthCheck = true,
+            Disabled = false,
+        };
         var routeHealthCheck = GetRouteHealthCheck(healthCheckUrl, testHttpHandler);
 
         var result = await routeHealthCheck.CheckHealthAsync(new HealthCheckContext());
@@ -56,9 +73,19 @@ public class NetworkHealthCheckTests
     public async Task When_health_checking_a_route_that_throws_Then_should_set_correct_status_and_populate_other_information()
     {
         var testHttpHandler = new TestHttpHandler();
-        var exceptionToThrow = new ApplicationException("Error message", new ArithmeticException("Inner error message"));
+        var exceptionToThrow = new ApplicationException(
+            "Error message",
+            new ArithmeticException("Inner error message")
+        );
         testHttpHandler.SetNextResponse(exceptionToThrow: exceptionToThrow);
-        var healthCheckUrl = new HealthCheckUrl { Method = "GET", Url = "http://1.2.3.4/path", HostHeader = "localhost", IncludeInAutomatedHealthCheck = true, Disabled = false };
+        var healthCheckUrl = new HealthCheckUrl
+        {
+            Method = "GET",
+            Url = "http://1.2.3.4/path",
+            HostHeader = "localhost",
+            IncludeInAutomatedHealthCheck = true,
+            Disabled = false,
+        };
         var routeHealthCheck = GetRouteHealthCheck(healthCheckUrl, testHttpHandler);
 
         var result = await routeHealthCheck.CheckHealthAsync(new HealthCheckContext());
@@ -74,11 +101,19 @@ public class NetworkHealthCheckTests
         result.Data["error"].Should().Be("Error message - Inner error message");
     }
 
-    private static NetworkHealthCheck GetRouteHealthCheck(HealthCheckUrl healthCheckUrl, TestHttpHandler testHttpHandler)
+    private static NetworkHealthCheck GetRouteHealthCheck(
+        HealthCheckUrl healthCheckUrl,
+        TestHttpHandler testHttpHandler
+    )
     {
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddHttpClient(Proxy.RoutedClientWithRetry).AddHttpMessageHandler(() => testHttpHandler);
-        serviceCollection.AddSingleton(s => new NetworkHealthCheck("Health_Check_Name", healthCheckUrl, s.GetRequiredService<IHttpClientFactory>(), Logger.None));
+        serviceCollection.AddSingleton(s => new NetworkHealthCheck(
+            "Health_Check_Name",
+            healthCheckUrl,
+            s.GetRequiredService<IHttpClientFactory>(),
+            Logger.None
+        ));
         var services = serviceCollection.BuildServiceProvider();
         return services.GetRequiredService<NetworkHealthCheck>();
     }

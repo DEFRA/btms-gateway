@@ -10,22 +10,28 @@ public static class ClearanceDecisionToSoapConverter
     {
         var soapContent = new List<XElement>
         {
-            new XElement("ServiceHeader",
+            new XElement(
+                "ServiceHeader",
                 new XElement("SourceSystem", "ALVS"),
                 new XElement("DestinationSystem", "CDS"),
                 new XElement("CorrelationId", clearanceDecision.ExternalCorrelationId),
                 new XElement("ServiceCallTimestamp", clearanceDecision.Timestamp.ToString("yyyy-MM-ddTHH:mm:ss.sss"))
             ),
-            new XElement("Header",
+            new XElement(
+                "Header",
                 new XElement("EntryReference", mrn),
                 new XElement("EntryVersionNumber", clearanceDecision.ExternalVersionNumber),
                 new XElement("DecisionNumber", clearanceDecision.DecisionNumber)
-            )
+            ),
         };
 
-        soapContent.AddRange(clearanceDecision.Items.Select(item => new XElement("Item",
-            new XElement("ItemNumber", item.ItemNumber),
-            item.Checks.Select(GetCheckElement))));
+        soapContent.AddRange(
+            clearanceDecision.Items.Select(item => new XElement(
+                "Item",
+                new XElement("ItemNumber", item.ItemNumber),
+                item.Checks.Select(GetCheckElement)
+            ))
+        );
 
         var soapBody = new XElement("DecisionNotification", soapContent);
 
@@ -38,13 +44,17 @@ public static class ClearanceDecisionToSoapConverter
 
     private static XElement GetCheckElement(ClearanceDecisionCheck check)
     {
-        var checkElement = new XElement("Check",
+        var checkElement = new XElement(
+            "Check",
             new XElement("CheckCode", check.CheckCode),
-            new XElement("DecisionCode", check.DecisionCode));
+            new XElement("DecisionCode", check.DecisionCode)
+        );
 
         if (check.DecisionsValidUntil.HasValue)
         {
-            checkElement.Add(new XElement("DecisionValidUntil", check.DecisionsValidUntil.Value.ToString("yyyyMMddHHmm")));
+            checkElement.Add(
+                new XElement("DecisionValidUntil", check.DecisionsValidUntil.Value.ToString("yyyyMMddHHmm"))
+            );
         }
 
         if (check.DecisionReasons is not null)

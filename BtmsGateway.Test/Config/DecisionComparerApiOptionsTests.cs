@@ -13,7 +13,7 @@ public class DecisionComparerApiOptionsTests
         {
             BaseAddress = "https://some-uri",
             Username = "user",
-            Password = "password"
+            Password = "password",
         };
 
         var expectedResult = Convert.ToBase64String(Encoding.UTF8.GetBytes($"user:password"));
@@ -28,7 +28,7 @@ public class DecisionComparerApiOptionsTests
         {
             BaseAddress = "https://some-uri",
             Username = null,
-            Password = "password"
+            Password = "password",
         };
 
         decisionComparerApiOptions.BasicAuthCredential.Should().BeNullOrEmpty();
@@ -41,7 +41,7 @@ public class DecisionComparerApiOptionsTests
         {
             BaseAddress = "https://some-uri",
             Username = "user",
-            Password = null
+            Password = null,
         };
 
         decisionComparerApiOptions.BasicAuthCredential.Should().BeNullOrEmpty();

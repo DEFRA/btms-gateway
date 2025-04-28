@@ -11,10 +11,15 @@ public class HealthCheckPublisher(MetricsHost metricsHost, ILogger logger) : IHe
 {
     private readonly IMetrics _metrics = metricsHost.GetMetrics();
 
-    [SuppressMessage("SonarLint", "S2629", Justification = "Using string interpolation in logging message template required to get simple JSON into logs")]
+    [SuppressMessage(
+        "SonarLint",
+        "S2629",
+        Justification = "Using string interpolation in logging message template required to get simple JSON into logs"
+    )]
     public Task PublishAsync(HealthReport report, CancellationToken cancellationToken)
     {
-        var healthStatusAsJson = $"Health: {HealthCheckWriter.WriteHealthStatusAsJson(report, excludeHealthy: true, indented: false)}";
+        var healthStatusAsJson =
+            $"Health: {HealthCheckWriter.WriteHealthStatusAsJson(report, excludeHealthy: true, indented: false)}";
 
         switch (report.Status)
         {
@@ -42,16 +47,18 @@ public class HealthCheckPublisher(MetricsHost metricsHost, ILogger logger) : IHe
 
     private void SendMetrics(HealthReport report)
     {
-        foreach (var entry in report.Entries)
+        foreach (
+            var unhealthyEntryValueData in report
+                .Entries.Where(entry => entry.Value.Status != HealthStatus.Healthy)
+                .Select(entry => entry.Value.Data)
+        )
         {
-            if (entry.Value.Status != HealthStatus.Healthy)
-            {
-                var routeLink = (entry.Value.Data.TryGetValue("route", out var route) ? route : null)?.ToString()
-                                ?? (entry.Value.Data.TryGetValue("topic-arn", out var topicArn) ? topicArn : null)?.ToString();
+            var routeLink =
+                (unhealthyEntryValueData.TryGetValue("route", out var route) ? route : null)?.ToString()
+                ?? (unhealthyEntryValueData.TryGetValue("topic-arn", out var topicArn) ? topicArn : null)?.ToString();
 
-                if (routeLink != null)
-                    _metrics.RecordRoutingError(routeLink);
-            }
+            if (routeLink != null)
+                _metrics.RecordRoutingError(routeLink);
         }
     }
 }

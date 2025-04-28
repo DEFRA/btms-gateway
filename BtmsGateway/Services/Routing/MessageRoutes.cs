@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
+using BtmsGateway.Exceptions;
 using BtmsGateway.Services.Converter;
 using ILogger = Serilog.ILogger;
 
@@ -20,15 +21,22 @@ public class MessageRoutes : IMessageRoutes
         _logger = logger;
         try
         {
-            if (routingConfig.NamedLinks.Any(x => x.Value.LinkType == LinkType.Url && !Uri.TryCreate(x.Value.Link, UriKind.Absolute, out _))) throw new InvalidDataException("Invalid URL(s) in config");
-            if (routingConfig.NamedRoutes.Any(x => !Enum.IsDefined(typeof(RouteTo), x.Value.RouteTo))) throw new InvalidDataException("Invalid Route To in config");
-            if (routingConfig.NamedLinks.Any(x => !Enum.IsDefined(typeof(LinkType), x.Value.LinkType))) throw new InvalidDataException("Invalid Link Type in config");
+            if (
+                routingConfig.NamedLinks.Any(x =>
+                    x.Value.LinkType == LinkType.Url && !Uri.TryCreate(x.Value.Link, UriKind.Absolute, out _)
+                )
+            )
+                throw new InvalidDataException("Invalid URL(s) in config");
+            if (routingConfig.NamedRoutes.Any(x => !Enum.IsDefined(typeof(RouteTo), x.Value.RouteTo)))
+                throw new InvalidDataException("Invalid Route To in config");
+            if (routingConfig.NamedLinks.Any(x => !Enum.IsDefined(typeof(LinkType), x.Value.LinkType)))
+                throw new InvalidDataException("Invalid Link Type in config");
             _routes = routingConfig.AllRoutes;
         }
         catch (Exception ex)
         {
             _logger.Error(ex, "Error creating routing table");
-            throw;
+            throw new RoutingException($"Error creating routing table: {ex.Message}", ex);
         }
     }
 
@@ -38,17 +46,34 @@ public class MessageRoutes : IMessageRoutes
         try
         {
             routeName = routePath.Trim('/');
-            var route = _routes.FirstOrDefault(x => x.RoutePath.Equals(routeName, StringComparison.InvariantCultureIgnoreCase) && soapContent.HasMessage(x.MessageSubXPath));
+            var route = _routes.FirstOrDefault(x =>
+                x.RoutePath.Equals(routeName, StringComparison.InvariantCultureIgnoreCase)
+                && soapContent.HasMessage(x.MessageSubXPath)
+            );
             routePath = $"/{routeName.Trim('/')}";
 
             return route == null
-                ? new RoutingResult { RouteFound = false, RouteName = null, UrlPath = routePath, StatusCode = HttpStatusCode.InternalServerError, ErrorMessage = "Route not found" }
+                ? new RoutingResult
+                {
+                    RouteFound = false,
+                    RouteName = null,
+                    UrlPath = routePath,
+                    StatusCode = HttpStatusCode.InternalServerError,
+                    ErrorMessage = "Route not found",
+                }
                 : SelectRoute(route, routePath);
         }
         catch (Exception ex)
         {
             _logger.Error(ex, "Error getting route");
-            return new RoutingResult { RouteFound = false, RouteName = routePath, UrlPath = routePath, StatusCode = HttpStatusCode.InternalServerError, ErrorMessage = $"Error getting route - {ex.Message} - {ex.InnerException?.Message}" };
+            return new RoutingResult
+            {
+                RouteFound = false,
+                RouteName = routePath,
+                UrlPath = routePath,
+                StatusCode = HttpStatusCode.InternalServerError,
+                ErrorMessage = $"Error getting route - {ex.Message} - {ex.InnerException?.Message}",
+            };
         }
     }
 
@@ -69,7 +94,7 @@ public class MessageRoutes : IMessageRoutes
                 RouteHostHeader = route.LegacyHostHeader,
                 ForkHostHeader = route.BtmsHostHeader,
                 ConvertForkedContentToFromJson = true,
-                UrlPath = routePath
+                UrlPath = routePath,
             },
             RouteTo.Btms => new RoutingResult
             {
@@ -84,13 +109,20 @@ public class MessageRoutes : IMessageRoutes
                 RouteHostHeader = route.BtmsHostHeader,
                 ForkHostHeader = route.LegacyHostHeader,
                 ConvertRoutedContentToFromJson = true,
-                UrlPath = routePath
+                UrlPath = routePath,
             },
-            _ => throw new ArgumentOutOfRangeException(nameof(route.RouteTo), "Can only route to 'Legacy' or 'Btms'")
+            _ => throw new ArgumentOutOfRangeException(
+                nameof(route),
+                "Invalid RouteTo property value specified in route argument. Can only route to 'Legacy' or 'Btms'"
+            ),
         };
     }
 
-    [SuppressMessage("SonarLint", "S3358", Justification = "The second nested ternary in each case (lines 55, 56, 68, 69) is within a string interpolation so is very clearly independent of the first")]
+    [SuppressMessage(
+        "SonarLint",
+        "S3358",
+        Justification = "The second nested ternary in each case (lines 55, 56, 68, 69) is within a string interpolation so is very clearly independent of the first"
+    )]
     private static string? SelectLink(LinkType linkType, string? link, string routePath)
     {
         return linkType == LinkType.None ? null : $"{link}{(linkType == LinkType.Url ? routePath : null)}";

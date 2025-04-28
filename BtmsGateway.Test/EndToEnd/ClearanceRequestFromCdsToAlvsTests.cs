@@ -10,15 +10,21 @@ public class ClearanceRequestFromCdsToAlvsTests : TargetRoutingTestBase
 {
     private const string UrlPath = "/route/path/cds/clearance-request";
 
-    private readonly string _cdsRequestSoap = File.ReadAllText(Path.Combine(FixturesPath, "CdsToAlvsClearanceRequest.xml"));
+    private readonly string _cdsRequestSoap = File.ReadAllText(
+        Path.Combine(FixturesPath, "CdsToAlvsClearanceRequest.xml")
+    );
     private readonly string _cdsResponseSoap = File.ReadAllText(Path.Combine(FixturesPath, "AlvsResponse.xml"));
-    private readonly string _btmsRequestJson = File.ReadAllText(Path.Combine(FixturesPath, "ClearanceRequest.json")).LinuxLineEndings();
+    private readonly string _btmsRequestJson = File.ReadAllText(Path.Combine(FixturesPath, "ClearanceRequest.json"))
+        .LinuxLineEndings();
     private readonly StringContent _cdsRequestSoapContent;
 
     public ClearanceRequestFromCdsToAlvsTests()
     {
         _cdsRequestSoapContent = new StringContent(_cdsRequestSoap, Encoding.UTF8, MediaTypeNames.Application.Soap);
-        TestWebServer.RoutedHttpHandler.SetNextResponse(content: _cdsResponseSoap, statusFunc: () => HttpStatusCode.Accepted);
+        TestWebServer.RoutedHttpHandler.SetNextResponse(
+            content: _cdsResponseSoap,
+            statusFunc: () => HttpStatusCode.Accepted
+        );
     }
 
     [Fact]
@@ -45,6 +51,9 @@ public class ClearanceRequestFromCdsToAlvsTests : TargetRoutingTestBase
         await HttpClient.PostAsync(UrlPath, _cdsRequestSoapContent);
 
         TestWebServer.ForkedHttpHandler.LastRequest!.RequestUri!.AbsoluteUri.Should().Be($"http://btms-host{UrlPath}");
-        (await TestWebServer.ForkedHttpHandler.LastRequest!.Content!.ReadAsStringAsync()).LinuxLineEndings().Should().Be(_btmsRequestJson);
+        (await TestWebServer.ForkedHttpHandler.LastRequest!.Content!.ReadAsStringAsync())
+            .LinuxLineEndings()
+            .Should()
+            .Be(_btmsRequestJson);
     }
 }

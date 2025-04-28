@@ -7,7 +7,12 @@ namespace BtmsGateway.Test.Services.Converter;
 
 public class ClearanceDecisionToSoapConverterTests
 {
-    private static readonly string TestDataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Services", "Converter", "Fixtures");
+    private static readonly string TestDataPath = Path.Combine(
+        AppDomain.CurrentDomain.BaseDirectory,
+        "Services",
+        "Converter",
+        "Fixtures"
+    );
 
     [Fact]
     public void When_receiving_clearance_decision_Then_should_convert_to_soap()
@@ -32,14 +37,11 @@ public class ClearanceDecisionToSoapConverterTests
                             CheckCode = "H218",
                             DecisionCode = "C02",
                             DecisionsValidUntil = new DateTime(2025, 1, 1),
-                            DecisionReasons =
-                            [
-                                "Some decision reason"
-                            ]
-                        }
-                    ]
-                }
-            ]
+                            DecisionReasons = ["Some decision reason"],
+                        },
+                    ],
+                },
+            ],
         };
 
         var result = ClearanceDecisionToSoapConverter.Convert(clearanceDecision, "MRN123");

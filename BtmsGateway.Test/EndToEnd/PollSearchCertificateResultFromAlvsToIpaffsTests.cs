@@ -9,14 +9,19 @@ public class PollSearchCertificateResultFromAlvsToIpaffsTests : TargetRoutingTes
 {
     private const string UrlPath = "/soapsearch/tst/sanco/traces_ws/pollSearchCertificateResult";
 
-    private readonly string _alvsRequestSoap = File.ReadAllText(Path.Combine(FixturesPath, "AlvsToIpaffsPollSearchCertificateResult.xml"));
+    private readonly string _alvsRequestSoap = File.ReadAllText(
+        Path.Combine(FixturesPath, "AlvsToIpaffsPollSearchCertificateResult.xml")
+    );
     private readonly string _ipaffsResponseSoap = File.ReadAllText(Path.Combine(FixturesPath, "IpaffsResponse.xml"));
     private readonly StringContent _alvsRequestSoapContent;
 
     public PollSearchCertificateResultFromAlvsToIpaffsTests()
     {
         _alvsRequestSoapContent = new StringContent(_alvsRequestSoap, Encoding.UTF8, MediaTypeNames.Application.Soap);
-        TestWebServer.RoutedHttpHandler.SetNextResponse(content: _ipaffsResponseSoap, statusFunc: () => HttpStatusCode.Accepted);
+        TestWebServer.RoutedHttpHandler.SetNextResponse(
+            content: _ipaffsResponseSoap,
+            statusFunc: () => HttpStatusCode.Accepted
+        );
     }
 
     [Fact]
@@ -24,7 +29,9 @@ public class PollSearchCertificateResultFromAlvsToIpaffsTests : TargetRoutingTes
     {
         await HttpClient.PostAsync(UrlPath, _alvsRequestSoapContent);
 
-        TestWebServer.RoutedHttpHandler.LastRequest!.RequestUri!.AbsoluteUri.Should().Be($"http://alvs-ipaffs-host{UrlPath}");
+        TestWebServer
+            .RoutedHttpHandler.LastRequest!.RequestUri!.AbsoluteUri.Should()
+            .Be($"http://alvs-ipaffs-host{UrlPath}");
         (await TestWebServer.RoutedHttpHandler.LastRequest!.Content!.ReadAsStringAsync()).Should().Be(_alvsRequestSoap);
     }
 

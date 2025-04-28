@@ -27,8 +27,11 @@ public static class HealthCheckWriter
 
     private static void WriteEntries(HealthReport healthReport, bool excludeHealthy, Utf8JsonWriter jsonWriter)
     {
-        var healthReportEntries = healthReport.Entries.Where(x => !excludeHealthy || x.Value.Status != HealthStatus.Healthy).ToArray();
-        if (!healthReportEntries.Any()) return;
+        var healthReportEntries = healthReport
+            .Entries.Where(x => !excludeHealthy || x.Value.Status != HealthStatus.Healthy)
+            .ToArray();
+        if (!healthReportEntries.Any())
+            return;
 
         jsonWriter.WriteStartObject("results");
 
@@ -39,7 +42,10 @@ public static class HealthCheckWriter
             jsonWriter.WriteString("description", healthReportEntry.Value.Description);
             jsonWriter.WriteNumber("durationMs", healthReportEntry.Value.Duration.TotalMilliseconds);
             if (healthReportEntry.Value.Exception != null)
-                jsonWriter.WriteString("exception", $"{healthReportEntry.Value.Exception?.GetType().Name}  {healthReportEntry.Value.Exception?.InnerException?.GetType().Name}".Trim());
+                jsonWriter.WriteString(
+                    "exception",
+                    $"{healthReportEntry.Value.Exception?.GetType().Name}  {healthReportEntry.Value.Exception?.InnerException?.GetType().Name}".Trim()
+                );
 
             WriteTags(healthReportEntry, jsonWriter);
 
@@ -64,7 +70,8 @@ public static class HealthCheckWriter
 
     private static void WriteTags(KeyValuePair<string, HealthReportEntry> healthReportEntry, Utf8JsonWriter jsonWriter)
     {
-        if (!healthReportEntry.Value.Tags.Any()) return;
+        if (!healthReportEntry.Value.Tags.Any())
+            return;
 
         jsonWriter.WriteStartArray("tags");
         foreach (var tag in healthReportEntry.Value.Tags)

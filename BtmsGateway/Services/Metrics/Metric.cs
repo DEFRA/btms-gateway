@@ -21,7 +21,7 @@ public class Metric(MetricsHost metricsHost) : IMetrics
         return new KeyValuePair<string, object?>[]
         {
             new("routing-successful", routingResult.RoutingSuccessful),
-            new("legend", routingResult.Legend)
+            new("legend", routingResult.Legend),
         };
     }
 
@@ -34,16 +34,24 @@ public class Metric(MetricsHost metricsHost) : IMetrics
 
     public void RecordRoutedRequest(RoutingResult routingResult)
     {
-        metricsHost.RoutedRequestDuration.Record(_routedRequestDuration.ElapsedMilliseconds, RequestDurationArgs(routingResult));
-        if (!routingResult.RoutingSuccessful) RecordRoutingError(routingResult.FullRouteLink ?? "Unknown");
+        metricsHost.RoutedRequestDuration.Record(
+            _routedRequestDuration.ElapsedMilliseconds,
+            RequestDurationArgs(routingResult)
+        );
+        if (!routingResult.RoutingSuccessful)
+            RecordRoutingError(routingResult.FullRouteLink ?? "Unknown");
     }
 
     public void StartForkedRequest() => _forkedRequestDuration.Start();
 
     public void RecordForkedRequest(RoutingResult routingResult)
     {
-        metricsHost.ForkedRequestDuration.Record(_forkedRequestDuration.ElapsedMilliseconds, RequestDurationArgs(routingResult));
-        if (!routingResult.RoutingSuccessful) RecordRoutingError(routingResult.FullForkLink ?? "Unknown");
+        metricsHost.ForkedRequestDuration.Record(
+            _forkedRequestDuration.ElapsedMilliseconds,
+            RequestDurationArgs(routingResult)
+        );
+        if (!routingResult.RoutingSuccessful)
+            RecordRoutingError(routingResult.FullForkLink ?? "Unknown");
     }
 
     public void RecordRoutingError(string routeLink)

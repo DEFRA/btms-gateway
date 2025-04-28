@@ -9,8 +9,12 @@ public class DecisionNotificationFromBtmsToCdsTests : TargetRoutingTestBase
 {
     private const string UrlPath = "/route/path/btms-cds/decision-notification";
 
-    private readonly string _btmsRequestJson = File.ReadAllText(Path.Combine(FixturesPath, "DecisionNotification.json"));
-    private readonly string _cdsRequestSoap = File.ReadAllText(Path.Combine(FixturesPath, "AlvsToCdsDecisionNotification.xml"));
+    private readonly string _btmsRequestJson = File.ReadAllText(
+        Path.Combine(FixturesPath, "DecisionNotification.json")
+    );
+    private readonly string _cdsRequestSoap = File.ReadAllText(
+        Path.Combine(FixturesPath, "AlvsToCdsDecisionNotification.xml")
+    );
     private readonly StringContent _btmsRequestJsonContent;
 
     public DecisionNotificationFromBtmsToCdsTests()

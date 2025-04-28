@@ -36,29 +36,27 @@ public class MessageData
     private MessageData(HttpRequest request, string? contentAsString, ILogger logger)
     {
         _logger = logger;
-        try
-        {
-            OriginalSoapContent = new SoapContent(contentAsString);
-            ContentMap = new ContentMap(OriginalSoapContent);
-            Method = request.Method;
-            Path = request.Path.HasValue ? request.Path.Value.Trim('/') : string.Empty;
-            OriginalContentType = RetrieveContentType(request);
-            Headers = request.Headers;
-            Url = $"{request.Scheme}://{request.Host}{request.Path}{request.QueryString}";
-            HttpString = $"{Method} {Url} {request.Protocol.ToUpper()} {OriginalContentType}";
-        }
-        catch (Exception ex)
-        {
-            _logger.Error(ex, "Error constructing message data");
-            throw;
-        }
+
+        OriginalSoapContent = new SoapContent(contentAsString);
+        ContentMap = new ContentMap(OriginalSoapContent);
+        Method = request.Method;
+        Path = request.Path.HasValue ? request.Path.Value.Trim('/') : string.Empty;
+        OriginalContentType = RetrieveContentType(request);
+        Headers = request.Headers;
+        Url = $"{request.Scheme}://{request.Host}{request.Path}{request.QueryString}";
+        HttpString = $"{Method} {Url} {request.Protocol.ToUpper()} {OriginalContentType}";
     }
 
-    public bool ShouldProcessRequest => !(Method == HttpMethods.Get
-                                          && (Path.StartsWith("health", StringComparison.InvariantCultureIgnoreCase)
-                                              || Path.StartsWith("favicon", StringComparison.InvariantCultureIgnoreCase)
-                                              || Path.StartsWith("swagger", StringComparison.InvariantCultureIgnoreCase)
-                                              || Path.StartsWith(CheckRoutesEndpoints.Path, StringComparison.InvariantCultureIgnoreCase)));
+    public bool ShouldProcessRequest =>
+        !(
+            Method == HttpMethods.Get
+            && (
+                Path.StartsWith("health", StringComparison.InvariantCultureIgnoreCase)
+                || Path.StartsWith("favicon", StringComparison.InvariantCultureIgnoreCase)
+                || Path.StartsWith("swagger", StringComparison.InvariantCultureIgnoreCase)
+                || Path.StartsWith(CheckRoutesEndpoints.Path, StringComparison.InvariantCultureIgnoreCase)
+            )
+        );
 
     public HttpRequestMessage CreateConvertedJsonRequest(string? routeUrl, string? hostHeader, string? messageSubXPath)
     {
@@ -71,36 +69,35 @@ public class MessageData
         return CreateForwardingRequest(routeUrl, hostHeader, OriginalSoapContent.SoapString, OriginalContentType);
     }
 
-    private HttpRequestMessage CreateForwardingRequest(string? routeUrl, string? hostHeader, string? contentAsString, string contentType)
+    private HttpRequestMessage CreateForwardingRequest(
+        string? routeUrl,
+        string? hostHeader,
+        string? contentAsString,
+        string contentType
+    )
     {
-        try
+        var request = new HttpRequestMessage(new HttpMethod(Method), routeUrl);
+
+        foreach (
+            var header in Headers.Where(x =>
+                !x.Key.StartsWith("Content-", StringComparison.InvariantCultureIgnoreCase)
+                && !string.Equals(x.Key, "Accept", StringComparison.InvariantCultureIgnoreCase)
+                && !string.Equals(x.Key, "Host", StringComparison.InvariantCultureIgnoreCase)
+                && !string.Equals(x.Key, CorrelationIdHeaderName, StringComparison.InvariantCultureIgnoreCase)
+            )
+        )
         {
-            var request = new HttpRequestMessage(new HttpMethod(Method), routeUrl);
-
-            foreach (var header in Headers.Where(x => !x.Key.StartsWith("Content-", StringComparison.InvariantCultureIgnoreCase)
-                                                       && !string.Equals(x.Key, "Accept", StringComparison.InvariantCultureIgnoreCase)
-                                                       && !string.Equals(x.Key, "Host", StringComparison.InvariantCultureIgnoreCase)
-                                                       && !string.Equals(x.Key, CorrelationIdHeaderName, StringComparison.InvariantCultureIgnoreCase)))
-            {
-                request.Headers.Add(header.Key, header.Value.ToArray());
-            }
-            request.Headers.Add(CorrelationIdHeaderName, ContentMap.CorrelationId);
-            request.Headers.Add("Accept", contentType);
-            if (!string.IsNullOrWhiteSpace(hostHeader)) request.Headers.TryAddWithoutValidation("host", hostHeader);
-
-            request.Content = contentAsString == null || Method == "GET"
-                ? null
-                : contentType == MediaTypeNames.Application.Json
-                    ? JsonContent.Create(JsonNode.Parse(string.IsNullOrWhiteSpace(contentAsString) ? "{}" : contentAsString), options: Json.SerializerOptions)
-                    : new StringContent(contentAsString, Encoding.UTF8, contentType);
-
-            return request;
+            request.Headers.Add(header.Key, header.Value.ToArray());
         }
-        catch (Exception ex)
-        {
-            _logger.Error(ex, "Error creating forwarding request");
-            throw;
-        }
+        request.Headers.Add(CorrelationIdHeaderName, ContentMap.CorrelationId);
+        request.Headers.Add("Accept", contentType);
+        if (!string.IsNullOrWhiteSpace(hostHeader))
+            request.Headers.TryAddWithoutValidation("host", hostHeader);
+
+        request.Content =
+            contentAsString == null || Method == "GET" ? null : RetrieveHttpContent(contentType, contentAsString);
+
+        return request;
     }
 
     public PublishRequest CreatePublishRequest(string? routeArn, string? messageSubXPath, string? traceHeaderKey)
@@ -115,7 +112,7 @@ public class MessageData
             MessageDeduplicationId = ContentMap.CorrelationId,
             MessageAttributes = GetMessageAttributes(messageSubXPath),
             Message = content,
-            TopicArn = routeArn
+            TopicArn = routeArn,
         };
 
         if (!string.IsNullOrEmpty(traceHeaderKey))
@@ -123,12 +120,23 @@ public class MessageData
             var traceHeaderValue = Headers[traceHeaderKey];
             if (!string.IsNullOrEmpty(traceHeaderValue))
             {
-                request.MessageAttributes.Add(traceHeaderKey, new MessageAttributeValue { StringValue = traceHeaderValue, DataType = "String" });
-                _logger.Debug("{ContentCorrelationId} TraceHeaderKey found and set to {TraceValue}", ContentMap.CorrelationId, traceHeaderValue);
+                request.MessageAttributes.Add(
+                    traceHeaderKey,
+                    new MessageAttributeValue { StringValue = traceHeaderValue, DataType = "String" }
+                );
+                _logger.Debug(
+                    "{ContentCorrelationId} TraceHeaderKey found and set to {TraceValue}",
+                    ContentMap.CorrelationId,
+                    traceHeaderValue
+                );
             }
             else
             {
-                _logger.Debug("{ContentCorrelationId} TraceHeaderKey not found {TraceHeaderKey}", ContentMap.CorrelationId, traceHeaderKey);
+                _logger.Debug(
+                    "{ContentCorrelationId} TraceHeaderKey not found {TraceHeaderKey}",
+                    ContentMap.CorrelationId,
+                    traceHeaderKey
+                );
             }
         }
 
@@ -137,21 +145,20 @@ public class MessageData
 
     public async Task PopulateResponse(HttpResponse response, RoutingResult routingResult)
     {
-        try
-        {
-            response.StatusCode = (int)routingResult.StatusCode;
-            response.ContentType = OriginalContentType;
-            response.Headers.Date = (routingResult.ResponseDate ?? DateTimeOffset.Now).ToString("R");
-            response.Headers[CorrelationIdHeaderName] = ContentMap.CorrelationId;
-            response.Headers[RequestedPathHeaderName] = routingResult.UrlPath;
-            if (!string.IsNullOrWhiteSpace($"{routingResult.ResponseContent}{routingResult.ErrorMessage}") && response.StatusCode != (int)HttpStatusCode.NoContent)
-                await response.BodyWriter.WriteAsync(new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes($"{routingResult.ResponseContent}{routingResult.ErrorMessage}")));
-        }
-        catch (Exception ex)
-        {
-            _logger.Error(ex, "Error populating response");
-            throw;
-        }
+        response.StatusCode = (int)routingResult.StatusCode;
+        response.ContentType = OriginalContentType;
+        response.Headers.Date = (routingResult.ResponseDate ?? DateTimeOffset.Now).ToString("R");
+        response.Headers[CorrelationIdHeaderName] = ContentMap.CorrelationId;
+        response.Headers[RequestedPathHeaderName] = routingResult.UrlPath;
+        if (
+            !string.IsNullOrWhiteSpace($"{routingResult.ResponseContent}{routingResult.ErrorMessage}")
+            && response.StatusCode != (int)HttpStatusCode.NoContent
+        )
+            await response.BodyWriter.WriteAsync(
+                new ReadOnlyMemory<byte>(
+                    Encoding.UTF8.GetBytes($"{routingResult.ResponseContent}{routingResult.ErrorMessage}")
+                )
+            );
     }
 
     private Dictionary<string, MessageAttributeValue> GetMessageAttributes(string? messageSubXPath)
@@ -161,31 +168,43 @@ public class MessageData
             {
                 MessagingConstants.MessageAttributeKeys.CorrelationId,
                 new MessageAttributeValue { StringValue = ContentMap.CorrelationId, DataType = "String" }
-            }
+            },
         };
 
         var attributeValue = messageSubXPath switch
         {
-            MessagingConstants.SoapMessageTypes.ALVSClearanceRequest => MessagingConstants.MessageTypes.ClearanceRequest,
-            MessagingConstants.SoapMessageTypes.FinalisationNotificationRequest => MessagingConstants.MessageTypes.Finalisation,
-            MessagingConstants.SoapMessageTypes.ALVSErrorNotificationRequest => MessagingConstants.MessageTypes.InboundError,
-            _ => string.Empty
+            MessagingConstants.SoapMessageTypes.ALVSClearanceRequest => MessagingConstants
+                .MessageTypes
+                .ClearanceRequest,
+            MessagingConstants.SoapMessageTypes.FinalisationNotificationRequest => MessagingConstants
+                .MessageTypes
+                .Finalisation,
+            MessagingConstants.SoapMessageTypes.ALVSErrorNotificationRequest => MessagingConstants
+                .MessageTypes
+                .InboundError,
+            _ => string.Empty,
         };
 
         if (!string.IsNullOrWhiteSpace(attributeValue))
         {
-            messageAttributes.Add(MessagingConstants.MessageAttributeKeys.InboundHmrcMessageType,
-                new MessageAttributeValue { DataType = "String", StringValue = attributeValue });
-            _logger.Debug("{ContentCorrelationId} Message Type Attribute Value {AttributeValue} added for SOAP message type {SOAPMessageType}",
+            messageAttributes.Add(
+                MessagingConstants.MessageAttributeKeys.InboundHmrcMessageType,
+                new MessageAttributeValue { DataType = "String", StringValue = attributeValue }
+            );
+            _logger.Debug(
+                "{ContentCorrelationId} Message Type Attribute Value {AttributeValue} added for SOAP message type {SOAPMessageType}",
                 ContentMap.CorrelationId,
                 attributeValue,
-                messageSubXPath);
+                messageSubXPath
+            );
         }
         else
         {
-            _logger.Debug("{ContentCorrelationId} Message Type Attribute Value not added for SOAP message type {SOAPMessageType}",
+            _logger.Debug(
+                "{ContentCorrelationId} Message Type Attribute Value not added for SOAP message type {SOAPMessageType}",
                 ContentMap.CorrelationId,
-                messageSubXPath);
+                messageSubXPath
+            );
         }
 
         return messageAttributes;
@@ -193,7 +212,8 @@ public class MessageData
 
     private static async Task<string?> RetrieveContent(HttpRequest request)
     {
-        if (request.Body == Stream.Null) return null;
+        if (request.Body == Stream.Null)
+            return null;
         request.EnableBuffering();
         var content = await new StreamReader(request.Body).ReadToEndAsync();
         request.Body.Position = 0;
@@ -204,8 +224,21 @@ public class MessageData
     {
         var contentTypeParts = request.ContentType?.Split(';');
         var contentType = contentTypeParts is { Length: > 0 } ? contentTypeParts[0] : null;
-        if (request.Headers.Accept.Count > 0 && request.Headers.Accept[0] != "*/*") contentType ??= request.Headers.Accept[0];
+        if (request.Headers.Accept.Count > 0 && request.Headers.Accept[0] != "*/*")
+            contentType ??= request.Headers.Accept[0];
         return contentType ?? "";
+    }
+
+    private static HttpContent RetrieveHttpContent(string contentType, string contentAsString)
+    {
+        return contentType == MediaTypeNames.Application.Json
+            ? JsonContent.Create(GetContentAsJson(contentAsString), options: Json.SerializerOptions)
+            : new StringContent(contentAsString, Encoding.UTF8, contentType);
+    }
+
+    private static JsonNode? GetContentAsJson(string contentAsString)
+    {
+        return JsonNode.Parse(string.IsNullOrWhiteSpace(contentAsString) ? "{}" : contentAsString);
     }
 }
 

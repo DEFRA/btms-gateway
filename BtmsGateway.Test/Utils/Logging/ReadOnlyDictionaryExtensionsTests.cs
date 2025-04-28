@@ -10,7 +10,7 @@ public class ReadOnlyDictionaryExtensionsTests
     {
         IReadOnlyDictionary<string, object> headers = new Dictionary<string, object>
         {
-            { "trace-id-header", "trace-id-header-value" }
+            { "trace-id-header", "trace-id-header-value" },
         };
 
         var result = headers.GetTraceId("trace-id-header");

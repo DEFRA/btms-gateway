@@ -15,7 +15,8 @@ namespace BtmsGateway.Test.Middleware;
 public class MessageDataTests
 {
     private const string TraceHeaderKey = "x-cdp-request-id";
-    private const string RequestBody = "<Envelope><Body><Root><Data>abc</Data><CorrelationId>correlation-id</CorrelationId></Root></Body></Envelope>";
+    private const string RequestBody =
+        "<Envelope><Body><Root><Data>abc</Data><CorrelationId>correlation-id</CorrelationId></Root></Body></Envelope>";
 
     private readonly DefaultHttpContext _httpContext = new()
     {
@@ -29,9 +30,9 @@ public class MessageDataTests
             Headers =
             {
                 new KeyValuePair<string, StringValues>("Content-Length", "999"),
-                new KeyValuePair<string, StringValues>("X-Custom", "custom")
-            }
-        }
+                new KeyValuePair<string, StringValues>("X-Custom", "custom"),
+            },
+        },
     };
 
     [Theory]
@@ -182,7 +183,9 @@ public class MessageDataTests
         _httpContext.Request.Method = "POST";
         _httpContext.Request.Path = new PathString("/cds/path");
         _httpContext.Request.Headers.ContentType = "application/soap+xml";
-        _httpContext.Request.Body = new MemoryStream("<s:Envelope xmlns:s=\"http://soap\"><s:Body><ALVSClearanceRequest><Header><EntryReference>ALVSCDSTEST00000000688</EntryReference><DispatchCountryCode>NI</DispatchCountryCode><CorrelationId>123456789</CorrelationId></Header></ALVSClearanceRequest></s:Body></s:Envelope>"u8.ToArray());
+        _httpContext.Request.Body = new MemoryStream(
+            "<s:Envelope xmlns:s=\"http://soap\"><s:Body><ALVSClearanceRequest><Header><EntryReference>ALVSCDSTEST00000000688</EntryReference><DispatchCountryCode>NI</DispatchCountryCode><CorrelationId>123456789</CorrelationId></Header></ALVSClearanceRequest></s:Body></s:Envelope>"u8.ToArray()
+        );
 
         var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
 
@@ -223,7 +226,10 @@ public class MessageDataTests
 
         var request = messageData.CreateConvertedJsonRequest("https://localhost:456/cds/path", null, "Root");
 
-        (await request.Content!.ReadAsStringAsync()).LinuxLineEndings().Should().Be("{\n  \"data\": \"abc\",\n  \"correlationId\": \"correlation-id\"\n}");
+        (await request.Content!.ReadAsStringAsync())
+            .LinuxLineEndings()
+            .Should()
+            .Be("{\n  \"data\": \"abc\",\n  \"correlationId\": \"correlation-id\"\n}");
         request.Content!.Headers.ContentType!.ToString().Should().Be("application/json; charset=utf-8");
         request.Headers.Count().Should().Be(3);
         request.Headers.GetValues("Accept").Should().BeEquivalentTo("application/json");
@@ -235,7 +241,9 @@ public class MessageDataTests
         _httpContext.Request.Method = "";
         var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
 
-        Assert.Throws<ArgumentException>(() => messageData.CreateConvertedJsonRequest("https://localhost:456/cds/path", null, "Root"));
+        Assert.Throws<ArgumentException>(() =>
+            messageData.CreateConvertedJsonRequest("https://localhost:456/cds/path", null, "Root")
+        );
     }
 
     [Fact]
@@ -249,7 +257,16 @@ public class MessageDataTests
         var responseBody = new MemoryStream();
         _httpContext.Response.Body = responseBody;
 
-        await messageData.PopulateResponse(_httpContext.Response, new RoutingResult { StatusCode = HttpStatusCode.OK, UrlPath = "cds/path", ResponseDate = responseDate, ResponseContent = "response-content" });
+        await messageData.PopulateResponse(
+            _httpContext.Response,
+            new RoutingResult
+            {
+                StatusCode = HttpStatusCode.OK,
+                UrlPath = "cds/path",
+                ResponseDate = responseDate,
+                ResponseContent = "response-content",
+            }
+        );
 
         _httpContext.Response.StatusCode.Should().Be(200);
         _httpContext.Response.Headers.Date[0].Should().Be(responseDate.ToString("R"));
@@ -268,7 +285,10 @@ public class MessageDataTests
         _httpContext.Request.Path = new PathString("/cds/path");
         var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
 
-        await messageData.PopulateResponse(_httpContext.Response, new RoutingResult { StatusCode = HttpStatusCode.OK, UrlPath = "cds/path" });
+        await messageData.PopulateResponse(
+            _httpContext.Response,
+            new RoutingResult { StatusCode = HttpStatusCode.OK, UrlPath = "cds/path" }
+        );
 
         _httpContext.Response.StatusCode.Should().Be(200);
         _httpContext.Response.Headers.Date[0].Should().NotBeNull();
@@ -284,7 +304,10 @@ public class MessageDataTests
         var responseBody = new MemoryStream();
         _httpContext.Response.Body = responseBody;
 
-        await messageData.PopulateResponse(_httpContext.Response, new RoutingResult { StatusCode = HttpStatusCode.OK, UrlPath = "cds/path" });
+        await messageData.PopulateResponse(
+            _httpContext.Response,
+            new RoutingResult { StatusCode = HttpStatusCode.OK, UrlPath = "cds/path" }
+        );
 
         _httpContext.Response.StatusCode.Should().Be(200);
         _httpContext.Response.ContentType.Should().Be("application/soap+xml");
@@ -303,7 +326,10 @@ public class MessageDataTests
         var responseBody = new MemoryStream();
         _httpContext.Response.Body = responseBody;
 
-        await messageData.PopulateResponse(_httpContext.Response, new RoutingResult { StatusCode = HttpStatusCode.OK, UrlPath = "cds/path" });
+        await messageData.PopulateResponse(
+            _httpContext.Response,
+            new RoutingResult { StatusCode = HttpStatusCode.OK, UrlPath = "cds/path" }
+        );
 
         _httpContext.Response.StatusCode.Should().Be(200);
         _httpContext.Response.ContentType.Should().BeNull();
@@ -322,7 +348,10 @@ public class MessageDataTests
         var responseBody = new MemoryStream();
         _httpContext.Response.Body = responseBody;
 
-        await messageData.PopulateResponse(_httpContext.Response, new RoutingResult { StatusCode = HttpStatusCode.NoContent, UrlPath = "cds/path" });
+        await messageData.PopulateResponse(
+            _httpContext.Response,
+            new RoutingResult { StatusCode = HttpStatusCode.NoContent, UrlPath = "cds/path" }
+        );
 
         _httpContext.Response.StatusCode.Should().Be(204);
         _httpContext.Response.ContentType.Should().BeNull();
@@ -341,62 +370,106 @@ public class MessageDataTests
 
         var publishRequest = messageData.CreatePublishRequest("route-arn", "Root", TraceHeaderKey);
 
-        publishRequest.MessageAttributes.Should().ContainKey(TraceHeaderKey)
-            .WhoseValue.Should().Match<MessageAttributeValue>(messageAtributeValue => messageAtributeValue.StringValue == traceHeaderValue);
+        publishRequest
+            .MessageAttributes.Should()
+            .ContainKey(TraceHeaderKey)
+            .WhoseValue.Should()
+            .Match<MessageAttributeValue>(messageAtributeValue => messageAtributeValue.StringValue == traceHeaderValue);
     }
 
     [Fact]
     public async Task When_creating_publish_request_for_alvs_clearance_request_Then_request_should_contain_message_type_message_attribute()
     {
-        var alvsClearanceRequest = File.ReadAllText(Path.Combine(Path.Combine("Middleware", "Fixtures"), "CdsToAlvsClearanceRequest.xml"));
+        var alvsClearanceRequest = File.ReadAllText(
+            Path.Combine(Path.Combine("Middleware", "Fixtures"), "CdsToAlvsClearanceRequest.xml")
+        );
         _httpContext.Request.Path = new PathString("/");
         _httpContext.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(alvsClearanceRequest));
         var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
 
-        var publishRequest = messageData.CreatePublishRequest("route-arn", MessagingConstants.SoapMessageTypes.ALVSClearanceRequest, TraceHeaderKey);
+        var publishRequest = messageData.CreatePublishRequest(
+            "route-arn",
+            MessagingConstants.SoapMessageTypes.ALVSClearanceRequest,
+            TraceHeaderKey
+        );
 
-        publishRequest.MessageAttributes.Should().ContainKey(MessagingConstants.MessageAttributeKeys.InboundHmrcMessageType)
-            .WhoseValue.Should().Match<MessageAttributeValue>(messageAtributeValue => messageAtributeValue.StringValue == MessagingConstants.MessageTypes.ClearanceRequest);
+        publishRequest
+            .MessageAttributes.Should()
+            .ContainKey(MessagingConstants.MessageAttributeKeys.InboundHmrcMessageType)
+            .WhoseValue.Should()
+            .Match<MessageAttributeValue>(messageAtributeValue =>
+                messageAtributeValue.StringValue == MessagingConstants.MessageTypes.ClearanceRequest
+            );
     }
 
     [Fact]
     public async Task When_creating_publish_request_for_finalisation_notification_request_Then_request_should_contain_message_type_message_attribute()
     {
-        var finalisationNotificationRequest = File.ReadAllText(Path.Combine(Path.Combine("Middleware", "Fixtures"), "CdsToAlvsFinalisationNotification.xml"));
+        var finalisationNotificationRequest = File.ReadAllText(
+            Path.Combine(Path.Combine("Middleware", "Fixtures"), "CdsToAlvsFinalisationNotification.xml")
+        );
         _httpContext.Request.Path = new PathString("/");
         _httpContext.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(finalisationNotificationRequest));
         var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
 
-        var publishRequest = messageData.CreatePublishRequest("route-arn", MessagingConstants.SoapMessageTypes.FinalisationNotificationRequest, TraceHeaderKey);
+        var publishRequest = messageData.CreatePublishRequest(
+            "route-arn",
+            MessagingConstants.SoapMessageTypes.FinalisationNotificationRequest,
+            TraceHeaderKey
+        );
 
-        publishRequest.MessageAttributes.Should().ContainKey(MessagingConstants.MessageAttributeKeys.InboundHmrcMessageType)
-            .WhoseValue.Should().Match<MessageAttributeValue>(messageAtributeValue => messageAtributeValue.StringValue == MessagingConstants.MessageTypes.Finalisation);
+        publishRequest
+            .MessageAttributes.Should()
+            .ContainKey(MessagingConstants.MessageAttributeKeys.InboundHmrcMessageType)
+            .WhoseValue.Should()
+            .Match<MessageAttributeValue>(messageAtributeValue =>
+                messageAtributeValue.StringValue == MessagingConstants.MessageTypes.Finalisation
+            );
     }
 
     [Fact]
     public async Task When_creating_publish_request_for_error_notification_request_Then_request_should_contain_message_type_message_attribute()
     {
-        var errorNotificationRequest = File.ReadAllText(Path.Combine(Path.Combine("Middleware", "Fixtures"), "AlvsErrorHandling.xml"));
+        var errorNotificationRequest = File.ReadAllText(
+            Path.Combine(Path.Combine("Middleware", "Fixtures"), "AlvsErrorHandling.xml")
+        );
         _httpContext.Request.Path = new PathString("/");
         _httpContext.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(errorNotificationRequest));
         var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
 
-        var publishRequest = messageData.CreatePublishRequest("route-arn", MessagingConstants.SoapMessageTypes.ALVSErrorNotificationRequest, TraceHeaderKey);
+        var publishRequest = messageData.CreatePublishRequest(
+            "route-arn",
+            MessagingConstants.SoapMessageTypes.ALVSErrorNotificationRequest,
+            TraceHeaderKey
+        );
 
-        publishRequest.MessageAttributes.Should().ContainKey(MessagingConstants.MessageAttributeKeys.InboundHmrcMessageType)
-            .WhoseValue.Should().Match<MessageAttributeValue>(messageAtributeValue => messageAtributeValue.StringValue == MessagingConstants.MessageTypes.InboundError);
+        publishRequest
+            .MessageAttributes.Should()
+            .ContainKey(MessagingConstants.MessageAttributeKeys.InboundHmrcMessageType)
+            .WhoseValue.Should()
+            .Match<MessageAttributeValue>(messageAtributeValue =>
+                messageAtributeValue.StringValue == MessagingConstants.MessageTypes.InboundError
+            );
     }
 
     [Fact]
     public async Task When_creating_publish_request_for_other_request_Then_request_should_not_contain_message_type_message_attribute()
     {
-        var errorNotificationRequest = File.ReadAllText(Path.Combine(Path.Combine("Middleware", "Fixtures"), "CdsErrorHandling.xml"));
+        var errorNotificationRequest = File.ReadAllText(
+            Path.Combine(Path.Combine("Middleware", "Fixtures"), "CdsErrorHandling.xml")
+        );
         _httpContext.Request.Path = new PathString("/");
         _httpContext.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(errorNotificationRequest));
         var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
 
-        var publishRequest = messageData.CreatePublishRequest("route-arn", "HMRCErrorNotification/HMRCErrorNotification", TraceHeaderKey);
+        var publishRequest = messageData.CreatePublishRequest(
+            "route-arn",
+            "HMRCErrorNotification/HMRCErrorNotification",
+            TraceHeaderKey
+        );
 
-        publishRequest.MessageAttributes.Should().NotContainKey(MessagingConstants.MessageAttributeKeys.InboundHmrcMessageType);
+        publishRequest
+            .MessageAttributes.Should()
+            .NotContainKey(MessagingConstants.MessageAttributeKeys.InboundHmrcMessageType);
     }
 }

@@ -18,7 +18,9 @@ public static class ServiceCollectionExtensions
     {
         services.AddSlimMessageBus(messageBusBuilder =>
         {
-            var awsSqsOptions = services.AddValidateOptions<AwsSqsOptions>(configuration, AwsSqsOptions.SectionName).Get();
+            var awsSqsOptions = services
+                .AddValidateOptions<AwsSqsOptions>(configuration, AwsSqsOptions.SectionName)
+                .Get();
             messageBusBuilder.AddAmazonConsumers(awsSqsOptions, configuration);
         });
 

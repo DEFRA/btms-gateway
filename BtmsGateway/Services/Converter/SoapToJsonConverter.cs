@@ -16,7 +16,8 @@ public static class SoapToJsonConverter
         try
         {
             var xml = soapContent.GetMessage(messageSubXPath);
-            if (xml == null) throw new InvalidDataException("The SOAP XML does not contain a message");
+            if (xml == null)
+                throw new InvalidDataException("The SOAP XML does not contain a message");
 
             var xElement = XElement.Parse(xml);
 

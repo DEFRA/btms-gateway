@@ -12,8 +12,18 @@ public class JsonToXmlTestData : TheoryData<string, string, string, string>
         Add("Simple JSON property", JsonSimpleProperty, "Root", XmlSimpleElement.LinuxLineEndings());
         Add("Complex JSON single level", JsonComplexSingleLevel, "Root", XmlComplexSingleLevel.LinuxLineEndings());
         Add("Complex JSON multi level", JsonComplexMultiLevel, "Root", XmlComplexMultiLevel.LinuxLineEndings());
-        Add("Complex JSON multi level with multi item arrays", JsonComplexMultiLevelWithArrays, "Root", XmlComplexMultiLevelWithArrays.LinuxLineEndings());
-        Add("Complex JSON multi level with single item arrays", JsonComplexMultiLevelWithSingleItemArrays, "Root", XmlComplexMultiLevelWithSingleItemArrays.LinuxLineEndings());
+        Add(
+            "Complex JSON multi level with multi item arrays",
+            JsonComplexMultiLevelWithArrays,
+            "Root",
+            XmlComplexMultiLevelWithArrays.LinuxLineEndings()
+        );
+        Add(
+            "Complex JSON multi level with single item arrays",
+            JsonComplexMultiLevelWithSingleItemArrays,
+            "Root",
+            XmlComplexMultiLevelWithSingleItemArrays.LinuxLineEndings()
+        );
     }
 
     private const string JsonEmpty = "{}";

@@ -1,3 +1,4 @@
+using BtmsGateway.Exceptions;
 using BtmsGateway.Services.Converter;
 using BtmsGateway.Services.Routing;
 using FluentAssertions;
@@ -8,7 +9,8 @@ namespace BtmsGateway.Test.Services.Routing;
 
 public class MessageRoutesTests
 {
-    private static SoapContent GetSoap(string messageName) => new($"<Envelope><Body><{messageName}><Data>{messageName}</Data></{messageName}></Body></Envelope>");
+    private static SoapContent GetSoap(string messageName) =>
+        new($"<Envelope><Body><{messageName}><Data>{messageName}</Data></{messageName}></Body></Envelope>");
 
     [Fact]
     public void When_routing_route_1_Then_should_route_correctly()
@@ -116,7 +118,11 @@ public class MessageRoutesTests
     {
         var act = () => new MessageRoutes(TestRoutes.InvalidUrlConfig, Substitute.For<ILogger>());
 
-        act.Should().Throw<InvalidDataException>().WithMessage("Invalid URL(s) in config");
+        act.Should()
+            .Throw<RoutingException>()
+            .WithMessage("Error creating routing table: Invalid URL(s) in config")
+            .WithInnerException<InvalidDataException>()
+            .WithMessage("Invalid URL(s) in config");
     }
 
     [Fact]
@@ -124,7 +130,11 @@ public class MessageRoutesTests
     {
         var act = () => new MessageRoutes(TestRoutes.InvalidRouteToConfig, Substitute.For<ILogger>());
 
-        act.Should().Throw<InvalidDataException>().WithMessage("Invalid Route To in config");
+        act.Should()
+            .Throw<RoutingException>()
+            .WithMessage("Error creating routing table: Invalid Route To in config")
+            .WithInnerException<InvalidDataException>()
+            .WithMessage("Invalid Route To in config");
     }
 
     [Fact]
@@ -132,6 +142,10 @@ public class MessageRoutesTests
     {
         var act = () => new MessageRoutes(TestRoutes.InvalidLinkTypeConfig, Substitute.For<ILogger>());
 
-        act.Should().Throw<InvalidDataException>().WithMessage("Invalid Link Type in config");
+        var thrownException = act.Should()
+            .Throw<RoutingException>()
+            .WithMessage($"Error creating routing table: Invalid Link Type in config")
+            .WithInnerException<InvalidDataException>()
+            .WithMessage("Invalid Link Type in config");
     }
 }

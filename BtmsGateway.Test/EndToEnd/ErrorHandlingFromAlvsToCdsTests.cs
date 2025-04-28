@@ -11,7 +11,8 @@ public class ErrorHandlingFromAlvsToCdsTests : TargetRoutingTestBase
     private const string UrlPath = "/route/path/alvs-cds/decision-notification";
 
     private readonly string _alvsRequestSoap = File.ReadAllText(Path.Combine(FixturesPath, "CdsErrorHandling.xml"));
-    private readonly string _btmsRequestJson = File.ReadAllText(Path.Combine(FixturesPath, "CdsErrorHandling.json")).LinuxLineEndings();
+    private readonly string _btmsRequestJson = File.ReadAllText(Path.Combine(FixturesPath, "CdsErrorHandling.json"))
+        .LinuxLineEndings();
     private readonly StringContent _alvsRequestSoapContent;
 
     public ErrorHandlingFromAlvsToCdsTests()
@@ -25,7 +26,9 @@ public class ErrorHandlingFromAlvsToCdsTests : TargetRoutingTestBase
     {
         await HttpClient.PostAsync(UrlPath, _alvsRequestSoapContent);
 
-        TestWebServer.RoutedHttpHandler.LastRequest!.RequestUri!.AbsoluteUri.Should().Be($"http://alvs-cds-host{UrlPath}");
+        TestWebServer
+            .RoutedHttpHandler.LastRequest!.RequestUri!.AbsoluteUri.Should()
+            .Be($"http://alvs-cds-host{UrlPath}");
         (await TestWebServer.RoutedHttpHandler.LastRequest!.Content!.ReadAsStringAsync()).Should().Be(_alvsRequestSoap);
     }
 
@@ -44,6 +47,9 @@ public class ErrorHandlingFromAlvsToCdsTests : TargetRoutingTestBase
         await HttpClient.PostAsync(UrlPath, _alvsRequestSoapContent);
 
         TestWebServer.ForkedHttpHandler.LastRequest!.RequestUri!.AbsoluteUri.Should().Be($"http://btms-host{UrlPath}");
-        (await TestWebServer.ForkedHttpHandler.LastRequest!.Content!.ReadAsStringAsync()).LinuxLineEndings().Should().Be(_btmsRequestJson);
+        (await TestWebServer.ForkedHttpHandler.LastRequest!.Content!.ReadAsStringAsync())
+            .LinuxLineEndings()
+            .Should()
+            .Be(_btmsRequestJson);
     }
 }

@@ -10,7 +10,9 @@ public class DecisionNotificationFromAlvsToCdsTests : TargetRoutingTestBase
 {
     private const string UrlPath = "/route/path/alvs-cds/decision-notification";
 
-    private readonly string _alvsRequestSoap = File.ReadAllText(Path.Combine(FixturesPath, "AlvsToCdsDecisionNotification.xml"));
+    private readonly string _alvsRequestSoap = File.ReadAllText(
+        Path.Combine(FixturesPath, "AlvsToCdsDecisionNotification.xml")
+    );
     private readonly StringContent _alvsRequestSoapContent;
 
     public DecisionNotificationFromAlvsToCdsTests()
@@ -25,7 +27,9 @@ public class DecisionNotificationFromAlvsToCdsTests : TargetRoutingTestBase
     {
         await HttpClient.PostAsync(UrlPath, _alvsRequestSoapContent);
 
-        TestWebServer.RoutedHttpHandler.LastRequest!.RequestUri!.AbsoluteUri.Should().Be($"http://alvs-cds-host{UrlPath}");
+        TestWebServer
+            .RoutedHttpHandler.LastRequest!.RequestUri!.AbsoluteUri.Should()
+            .Be($"http://alvs-cds-host{UrlPath}");
         (await TestWebServer.RoutedHttpHandler.LastRequest!.Content!.ReadAsStringAsync()).Should().Be(_alvsRequestSoap);
     }
 
@@ -43,7 +47,12 @@ public class DecisionNotificationFromAlvsToCdsTests : TargetRoutingTestBase
     {
         await HttpClient.PostAsync(UrlPath, _alvsRequestSoapContent);
 
-        TestWebServer.DecisionComparerClientWithRetryHttpHandler.LastRequest!.RequestUri!.AbsoluteUri.Should().Be($"http://trade-imports-decision-comparer-host/alvs-decisions/23GB1234567890ABC8");
-        (await TestWebServer.DecisionComparerClientWithRetryHttpHandler.LastRequest!.Content!.ReadAsStringAsync()).LinuxLineEndings().Should().Be(_alvsRequestSoap);
+        TestWebServer
+            .DecisionComparerClientWithRetryHttpHandler.LastRequest!.RequestUri!.AbsoluteUri.Should()
+            .Be($"http://trade-imports-decision-comparer-host/alvs-decisions/23GB1234567890ABC8");
+        (await TestWebServer.DecisionComparerClientWithRetryHttpHandler.LastRequest!.Content!.ReadAsStringAsync())
+            .LinuxLineEndings()
+            .Should()
+            .Be(_alvsRequestSoap);
     }
 }

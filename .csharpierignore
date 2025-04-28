@@ -1,0 +1,4 @@
+NuGet.config
+*.xml
+XmlToJsonTestData.cs
+JsonToXmlTestData.cs

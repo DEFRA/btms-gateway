@@ -4,5 +4,5 @@ public enum SoapType
 {
     Cds,
     AlvsToCds,
-    AlvsToIpaffs
-};
+    AlvsToIpaffs,
+}

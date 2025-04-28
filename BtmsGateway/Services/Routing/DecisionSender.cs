@@ -76,7 +76,7 @@ public class DecisionSender : IDecisionSender
         var fullLink = decisionSource == MessagingConstants.DecisionSource.Btms
             ? $"{_btmsDecisionsComparerDestination.Link}{_btmsDecisionsComparerDestination.RoutePath}{mrn}"
             : $"{_alvsDecisionComparerDestination.Link}{_alvsDecisionComparerDestination.RoutePath}{mrn}";
-        
+
         return new RoutingResult
         {
             RouteFound = true,

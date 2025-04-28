@@ -73,14 +73,18 @@ public class DecisionSender : IDecisionSender
 
         await ForwardDecisionAsync(mrn, decisionSource, comparerResponse, cancellationToken);
 
+        var fullLink = decisionSource == MessagingConstants.DecisionSource.Btms
+            ? $"{_btmsDecisionsComparerDestination.Link}{_btmsDecisionsComparerDestination.RoutePath}{mrn}"
+            : $"{_alvsDecisionComparerDestination.Link}{_alvsDecisionComparerDestination.RoutePath}{mrn}";
+        
         return new RoutingResult
         {
             RouteFound = true,
             RouteLinkType = LinkType.DecisionComparer,
+            ForkLinkType = LinkType.DecisionComparer,
             RoutingSuccessful = true,
-            FullRouteLink = decisionSource == MessagingConstants.DecisionSource.Btms ?
-                $"{_btmsDecisionsComparerDestination.Link}{_btmsDecisionsComparerDestination.RoutePath}{mrn}" :
-                $"{_alvsDecisionComparerDestination.Link}{_alvsDecisionComparerDestination.RoutePath}{mrn}",
+            FullRouteLink = fullLink,
+            FullForkLink = fullLink,
             StatusCode = comparerResponse.StatusCode,
             ResponseContent = "Decision Comparer Result"
         };

@@ -84,8 +84,10 @@ public class DecisionSenderTests
         {
             RouteFound = true,
             RouteLinkType = LinkType.DecisionComparer,
+            ForkLinkType = LinkType.DecisionComparer,
             RoutingSuccessful = true,
             FullRouteLink = "http://decision-comparer-url/btms-decisions/mrn-123",
+            FullForkLink = "http://decision-comparer-url/btms-decisions/mrn-123",
             StatusCode = HttpStatusCode.OK,
             ResponseContent = "Decision Comparer Result"
         });
@@ -122,8 +124,10 @@ public class DecisionSenderTests
         {
             RouteFound = true,
             RouteLinkType = LinkType.DecisionComparer,
+            ForkLinkType = LinkType.DecisionComparer,
             RoutingSuccessful = true,
             FullRouteLink = "http://decision-comparer-url/alvs-decisions/mrn-123",
+            FullForkLink = "http://decision-comparer-url/alvs-decisions/mrn-123",
             StatusCode = HttpStatusCode.OK,
             ResponseContent = "Decision Comparer Result"
         });

@@ -33,7 +33,7 @@ public static class TrustStore
             .ToList();
     }
 
-    private static void AddCertificates(IReadOnlyCollection<string> certificates)
+    private static void AddCertificates(List<string> certificates)
     {
         if (certificates.Count == 0)
             return; // to stop trust store access denied issues on Macs

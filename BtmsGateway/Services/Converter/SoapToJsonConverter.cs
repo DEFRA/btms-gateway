@@ -6,12 +6,12 @@ public static class SoapToJsonConverter
 {
     public static string Convert(SoapContent soapContent, string? messageSubXPath)
     {
-        var xContainer = ExtractXmlMessage(soapContent, messageSubXPath);
+        var xElement = ExtractXmlMessage(soapContent, messageSubXPath);
 
-        return XmlToJsonConverter.Convert(xContainer);
+        return XmlToJsonConverter.Convert(xElement);
     }
 
-    private static XContainer ExtractXmlMessage(SoapContent soapContent, string? messageSubXPath)
+    private static XElement ExtractXmlMessage(SoapContent soapContent, string? messageSubXPath)
     {
         try
         {

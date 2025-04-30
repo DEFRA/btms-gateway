@@ -10,6 +10,8 @@ namespace BtmsGateway.Test.EndToEnd;
 
 public abstract class QueueRoutingTestBase : TargetRoutingTestBase, IDisposable
 {
+    private bool _disposed;
+
     protected readonly string ForkQueueName;
     protected readonly string RouteQueueName;
     private IAmazonSQS SqsClient { get; }
@@ -130,13 +132,20 @@ public abstract class QueueRoutingTestBase : TargetRoutingTestBase, IDisposable
 
     protected virtual void Dispose(bool disposing)
     {
+        if (_disposed)
+            return;
+
         if (disposing)
         {
             TearDownQueues();
 
             SqsClient?.Dispose();
             SnsClient?.Dispose();
+
+            base.Dispose();
         }
+
+        _disposed = true;
     }
 
     public new void Dispose()

@@ -47,12 +47,7 @@ public abstract class TargetRoutingTestBase : IDisposable
 
         if (disposing)
         {
-            var disposeTask = TestWebServer.DisposeAsync();
-            if (disposeTask.IsCompleted)
-            {
-                return;
-            }
-            disposeTask.AsTask().GetAwaiter().GetResult();
+            TestWebServer.Dispose();
         }
 
         _disposed = true;

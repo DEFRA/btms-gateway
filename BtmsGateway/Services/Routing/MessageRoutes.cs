@@ -27,9 +27,9 @@ public class MessageRoutes : IMessageRoutes
                 )
             )
                 throw new InvalidDataException("Invalid URL(s) in config");
-            if (routingConfig.NamedRoutes.Any(x => !Enum.IsDefined(typeof(RouteTo), x.Value.RouteTo)))
+            if (routingConfig.NamedRoutes.Any(x => !Enum.IsDefined(x.Value.RouteTo)))
                 throw new InvalidDataException("Invalid Route To in config");
-            if (routingConfig.NamedLinks.Any(x => !Enum.IsDefined(typeof(LinkType), x.Value.LinkType)))
+            if (routingConfig.NamedLinks.Any(x => !Enum.IsDefined(x.Value.LinkType)))
                 throw new InvalidDataException("Invalid Link Type in config");
             _routes = routingConfig.AllRoutes;
         }

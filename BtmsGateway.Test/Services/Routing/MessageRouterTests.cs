@@ -411,7 +411,7 @@ public class MessageRouterTests
         mocks.Metrics.DidNotReceive().RecordForkedRequest(Arg.Any<RoutingResult>());
     }
 
-    private (
+    private static (
         IMessageRoutes Routes,
         IApiSender ApiSender,
         IQueueSender QueueSender,

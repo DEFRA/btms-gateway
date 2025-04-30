@@ -116,12 +116,7 @@ public sealed class GeneralEndToEndTests : IDisposable
 
         if (disposing)
         {
-            var disposeTask = _testWebServer.DisposeAsync();
-            if (disposeTask.IsCompleted)
-            {
-                return;
-            }
-            disposeTask.AsTask().GetAwaiter().GetResult();
+            _testWebServer.Dispose();
         }
 
         _disposed = true;

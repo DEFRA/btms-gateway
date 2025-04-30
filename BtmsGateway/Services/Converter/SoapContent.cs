@@ -48,7 +48,7 @@ public class SoapContent
         return string.Join('/', messageSubXPath.Trim('/').Split('/').Select(element => $"*[local-name()='{element}']"));
     }
 
-    private static XmlNode? GetElement(string? soapString)
+    private static XmlElement? GetElement(string? soapString)
     {
         if (string.IsNullOrWhiteSpace(soapString))
             return null;

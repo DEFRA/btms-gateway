@@ -16,8 +16,10 @@ using NSubstitute;
 
 namespace BtmsGateway.Test.TestUtils;
 
-public class TestWebServer : IAsyncDisposable
+public class TestWebServer : IDisposable
 {
+    private bool _disposed;
+
     private static int _portNumber = 5100;
 
     private readonly WebApplication _app;
@@ -79,5 +81,27 @@ public class TestWebServer : IAsyncDisposable
         _app.RunAsync();
     }
 
-    public async ValueTask DisposeAsync() => await _app.DisposeAsync();
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    private void Dispose(bool disposing)
+    {
+        if (_disposed)
+            return;
+
+        if (disposing)
+        {
+            var disposeTask = _app.DisposeAsync();
+            if (disposeTask.IsCompleted)
+            {
+                return;
+            }
+            disposeTask.AsTask().GetAwaiter().GetResult();
+        }
+
+        _disposed = true;
+    }
 }

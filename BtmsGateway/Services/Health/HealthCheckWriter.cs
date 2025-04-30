@@ -30,7 +30,7 @@ public static class HealthCheckWriter
         var healthReportEntries = healthReport
             .Entries.Where(x => !excludeHealthy || x.Value.Status != HealthStatus.Healthy)
             .ToArray();
-        if (!healthReportEntries.Any())
+        if (healthReportEntries.Length == 0)
             return;
 
         jsonWriter.WriteStartObject("results");

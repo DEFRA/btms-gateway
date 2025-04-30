@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Mime;
 using System.Text;
@@ -5,6 +6,7 @@ using FluentAssertions;
 
 namespace BtmsGateway.Test.EndToEnd.FromBtms;
 
+[SuppressMessage("Usage", "xUnit1004:Test methods should not be skipped")]
 public class DecisionNotificationFromBtmsToCdsTests : TargetRoutingTestBase
 {
     private const string UrlPath = "/route/path/btms-cds/decision-notification";

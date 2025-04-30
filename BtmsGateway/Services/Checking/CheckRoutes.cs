@@ -194,7 +194,7 @@ public class CheckRoutes(
         return checkRouteResult;
     }
 
-    private static Task GetCancellationTask(CancellationToken token)
+    private static Task<string> GetCancellationTask(CancellationToken token)
     {
         var tcs = new TaskCompletionSource<string>();
         token.Register(() => tcs.TrySetCanceled());

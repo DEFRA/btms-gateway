@@ -113,13 +113,7 @@ public class CheckRoutes(
         }
         catch (Exception ex)
         {
-            checkRouteResult = checkRouteResult with
-            {
-                ResponseResult =
-                    $"\"{ex.Message}\" {(ex.InnerException?.Message != null && ex.InnerException?.Message != ex.Message ? $"\"{ex.InnerException?.Message}\"" : null)}",
-                Elapsed = stopwatch.Elapsed,
-                Exception = ex.InnerException ?? ex,
-            };
+            checkRouteResult = GetCheckRouteResultWithException(checkRouteResult, ex, stopwatch);
         }
 
         stopwatch.Stop();
@@ -173,13 +167,7 @@ public class CheckRoutes(
         }
         catch (Exception ex)
         {
-            checkRouteResult = checkRouteResult with
-            {
-                ResponseResult =
-                    $"\"{ex.Message}\" {(ex.InnerException?.Message != null && ex.InnerException?.Message != ex.Message ? $"\"{ex.InnerException?.Message}\"" : null)}",
-                Elapsed = stopwatch.Elapsed,
-                Exception = ex.InnerException ?? ex,
-            };
+            checkRouteResult = GetCheckRouteResultWithException(checkRouteResult, ex, stopwatch);
         }
 
         stopwatch.Stop();
@@ -192,6 +180,21 @@ public class CheckRoutes(
         );
 
         return checkRouteResult;
+    }
+
+    private static CheckRouteResult GetCheckRouteResultWithException(
+        CheckRouteResult checkRouteResult,
+        Exception ex,
+        Stopwatch stopwatch
+    )
+    {
+        return checkRouteResult with
+        {
+            ResponseResult =
+                $"\"{ex.Message}\" {(ex.InnerException?.Message != null && ex.InnerException?.Message != ex.Message ? $"\"{ex.InnerException?.Message}\"" : null)}",
+            Elapsed = stopwatch.Elapsed,
+            Exception = ex.InnerException ?? ex,
+        };
     }
 
     private static Task<string> GetCancellationTask(CancellationToken token)

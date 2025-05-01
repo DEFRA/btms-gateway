@@ -8,5 +8,8 @@ EXPOSE 4510-4559
 COPY ./compose/start-localstack.sh /etc/localstack/init/ready.d/
 RUN chmod +x /etc/localstack/init/ready.d/start-localstack.sh
 
-RUN adduser --system --group nonroot
-USER nonroot
+RUN addgroup -S nonrootgroup
+RUN adduser -S nonrootuser -G nonrootgroup
+RUN chown -R nonrootuser:nonrootgroup /etc/localstack/init/ready.d/start-localstack.sh
+
+USER nonrootuser

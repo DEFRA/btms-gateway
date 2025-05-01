@@ -6,6 +6,7 @@ services:
     container_name: "sns-sqs-emulator"
     build:
       dockerfile: "./compose/Dockerfile.localstack"
+    user: nonroot
     ports:
       - "4966:4566"
       - "4910-4959:4510-4559"

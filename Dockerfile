@@ -1,8 +1,6 @@
 ﻿# Base dotnet image
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 
-USER app
-
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
@@ -49,6 +47,8 @@ RUN dotnet publish BtmsGateway -c Release -o /app/publish /p:UseAppHost=false
 ENV ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
 
 # Final production image
+USER app
+
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .

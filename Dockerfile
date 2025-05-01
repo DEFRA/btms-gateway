@@ -17,11 +17,28 @@ RUN apt update && \
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
-COPY . .
-WORKDIR "/src"
+COPY .config/dotnet-tools.json .config/dotnet-tools.json
+COPY .csharpierrc .csharpierrc
+COPY .csharpierignore .csharpierignore
 
-# unit test and code coverage
-RUN dotnet test BtmsGateway.Test --filter Dependence!=localstack
+RUN dotnet tool restore
+
+COPY BtmsGateway.sln BtmsGateway.sln
+COPY BtmsGateway BtmsGateway
+COPY BtmsGateway.Test BtmsGateway.Test
+COPY compose compose
+COPY wait-for-docker-logs.sh wait-for-docker-logs.sh
+
+COPY NuGet.config NuGet.config
+ARG DEFRA_NUGET_PAT
+
+RUN dotnet restore
+
+RUN dotnet csharpier check .
+
+RUN dotnet build BtmsGateway/BtmsGateway.csproj --no-restore -c Release
+
+RUN dotnet test --no-restore BtmsGateway.Test --filter Dependence!=localstack
 
 FROM build AS publish
 RUN dotnet publish BtmsGateway -c Release -o /app/publish /p:UseAppHost=false

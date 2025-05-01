@@ -17,19 +17,20 @@ public interface IApiSender
         string? hostHeader,
         IDictionary<string, string> headers,
         string soapMessage,
-        CancellationToken cancellationToken);
+        CancellationToken cancellationToken
+    );
 
     Task<HttpResponseMessage> SendDecisionAsync(
         string decision,
         string destination,
         string contentType,
         CancellationToken cancellationToken,
-        IHeaderDictionary? headers = null);
+        IHeaderDictionary? headers = null
+    );
 }
 
-public class ApiSender(IHttpClientFactory clientFactory,
-    IServiceProvider serviceProvider,
-    IConfiguration configuration) : IApiSender
+public class ApiSender(IHttpClientFactory clientFactory, IServiceProvider serviceProvider, IConfiguration configuration)
+    : IApiSender
 {
     public async Task<RoutingResult> Send(RoutingResult routingResult, MessageData messageData, bool fork)
     {
@@ -40,25 +41,34 @@ public class ApiSender(IHttpClientFactory clientFactory,
         if (fork)
         {
             request = routingResult.ConvertForkedContentToFromJson
-                ? messageData.CreateConvertedJsonRequest(routingResult.FullForkLink, routingResult.ForkHostHeader, routingResult.MessageSubXPath)
+                ? messageData.CreateConvertedJsonRequest(
+                    routingResult.FullForkLink,
+                    routingResult.ForkHostHeader,
+                    routingResult.MessageSubXPath
+                )
                 : messageData.CreateOriginalSoapRequest(routingResult.FullForkLink, routingResult.ForkHostHeader);
         }
         else
         {
             request = routingResult.ConvertRoutedContentToFromJson
-                ? messageData.CreateConvertedJsonRequest(routingResult.FullRouteLink, routingResult.RouteHostHeader, routingResult.MessageSubXPath)
+                ? messageData.CreateConvertedJsonRequest(
+                    routingResult.FullRouteLink,
+                    routingResult.RouteHostHeader,
+                    routingResult.MessageSubXPath
+                )
                 : messageData.CreateOriginalSoapRequest(routingResult.FullRouteLink, routingResult.RouteHostHeader);
         }
 
         var response = await client.SendAsync(request);
-        var content = response.StatusCode == HttpStatusCode.NoContent ? null : await response.Content.ReadAsStringAsync();
+        var content =
+            response.StatusCode == HttpStatusCode.NoContent ? null : await response.Content.ReadAsStringAsync();
 
         return routingResult with
         {
             RoutingSuccessful = response.IsSuccessStatusCode,
             ResponseContent = content,
             StatusCode = response.StatusCode,
-            ResponseDate = response.Headers.Date
+            ResponseDate = response.Headers.Date,
         };
     }
 
@@ -69,7 +79,8 @@ public class ApiSender(IHttpClientFactory clientFactory,
         string? hostHeader,
         IDictionary<string, string> headers,
         string soapMessage,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         var client = clientFactory.CreateClient(Proxy.ProxyClientWithRetry);
 
@@ -80,7 +91,8 @@ public class ApiSender(IHttpClientFactory clientFactory,
             request.Headers.Add(header.Key, header.Value);
         }
 
-        if (!string.IsNullOrWhiteSpace(hostHeader)) request.Headers.TryAddWithoutValidation("host", hostHeader);
+        if (!string.IsNullOrWhiteSpace(hostHeader))
+            request.Headers.TryAddWithoutValidation("host", hostHeader);
 
         request.Content = new StringContent(soapMessage, Encoding.UTF8, contentType);
 
@@ -92,7 +104,8 @@ public class ApiSender(IHttpClientFactory clientFactory,
         string destination,
         string contentType,
         CancellationToken cancellationToken,
-        IHeaderDictionary? headers = null)
+        IHeaderDictionary? headers = null
+    )
     {
         InitializeHeaderPropagationValues(headers);
 
@@ -110,8 +123,9 @@ public class ApiSender(IHttpClientFactory clientFactory,
         using var scope = serviceProvider.CreateScope();
         var headerPropagationValues = scope.ServiceProvider.GetRequiredService<HeaderPropagationValues>();
 
-        var propagationHeaders = headerPropagationValues.Headers ??=
-            new Dictionary<string, StringValues>(StringComparer.OrdinalIgnoreCase);
+        var propagationHeaders = headerPropagationValues.Headers ??= new Dictionary<string, StringValues>(
+            StringComparer.OrdinalIgnoreCase
+        );
 
         if (!string.IsNullOrEmpty(traceIdHeaderKey) && !propagationHeaders.ContainsKey(traceIdHeaderKey))
         {

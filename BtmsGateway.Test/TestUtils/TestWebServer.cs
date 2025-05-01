@@ -16,8 +16,10 @@ using NSubstitute;
 
 namespace BtmsGateway.Test.TestUtils;
 
-public class TestWebServer : IAsyncDisposable
+public class TestWebServer : IDisposable
 {
+    private bool _disposed;
+
     private static int _portNumber = 5100;
 
     private readonly WebApplication _app;
@@ -44,11 +46,15 @@ public class TestWebServer : IAsyncDisposable
         builder.ConfigureToType<HealthCheckConfig>();
         builder.WebHost.UseUrls(url);
         builder.AddServices(Substitute.For<Serilog.ILogger>());
-        foreach (var testService in testServices) builder.Services.Replace(testService);
+        foreach (var testService in testServices)
+            builder.Services.Replace(testService);
         builder.Services.AddHealthChecks();
 
         var options = builder.Configuration.GetAWSOptions();
-        options.Credentials = new BasicAWSCredentials(builder.Configuration["AWS_ACCESS_KEY_ID"], builder.Configuration["AWS_SECRET_ACCESS_KEY"]);
+        options.Credentials = new BasicAWSCredentials(
+            builder.Configuration["AWS_ACCESS_KEY_ID"],
+            builder.Configuration["AWS_SECRET_ACCESS_KEY"]
+        );
         builder.Services.Replace(new ServiceDescriptor(typeof(AWSOptions), options));
 
         RoutedHttpHandler = new TestHttpHandler();
@@ -58,9 +64,9 @@ public class TestWebServer : IAsyncDisposable
         ClientWithRetryHttpHandler = new TestHttpHandler();
         ConfigureServices.HttpClientWithRetryBuilder?.AddHttpMessageHandler(() => ClientWithRetryHttpHandler);
         DecisionComparerClientWithRetryHttpHandler = new TestHttpHandler();
-        ConfigureServices.DecisionComparerHttpClientWithRetryBuilder?
-            .ConfigureAdditionalHttpMessageHandlers((handlers, _) =>
-                handlers.Insert(0, DecisionComparerClientWithRetryHttpHandler));
+        ConfigureServices.DecisionComparerHttpClientWithRetryBuilder?.ConfigureAdditionalHttpMessageHandlers(
+            (handlers, _) => handlers.Insert(0, DecisionComparerClientWithRetryHttpHandler)
+        );
 
         var app = builder.Build();
 
@@ -75,5 +81,27 @@ public class TestWebServer : IAsyncDisposable
         _app.RunAsync();
     }
 
-    public async ValueTask DisposeAsync() => await _app.DisposeAsync();
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    private void Dispose(bool disposing)
+    {
+        if (_disposed)
+            return;
+
+        if (disposing)
+        {
+            var disposeTask = _app.DisposeAsync();
+            if (disposeTask.IsCompleted)
+            {
+                return;
+            }
+            disposeTask.AsTask().GetAwaiter().GetResult();
+        }
+
+        _disposed = true;
+    }
 }

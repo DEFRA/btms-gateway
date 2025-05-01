@@ -1,5 +1,5 @@
-using System.Net;
 using System.Diagnostics.CodeAnalysis;
+using System.Net;
 using System.Net.Http.Headers;
 using BtmsGateway.Config;
 using Microsoft.Extensions.Http.Resilience;
@@ -20,37 +20,69 @@ public static class Proxy
     public const string DecisionComparerProxyClientWithRetry = "decision-comparer-proxy-with-retry";
 
     [ExcludeFromCodeCoverage]
-    public static IHttpClientBuilder AddHttpProxyClientWithoutRetry(this IServiceCollection services, Serilog.ILogger logger)
+    public static IHttpClientBuilder AddHttpProxyClientWithoutRetry(
+        this IServiceCollection services,
+        Serilog.ILogger logger
+    )
     {
-        return services.AddHttpClient(ProxyClientWithoutRetry).ConfigurePrimaryHttpMessageHandler(() => ConfigurePrimaryHttpMessageHandler(logger));
+        return services
+            .AddHttpClient(ProxyClientWithoutRetry)
+            .ConfigurePrimaryHttpMessageHandler(() => ConfigurePrimaryHttpMessageHandler(logger));
     }
 
-    private static readonly AsyncRetryPolicy<HttpResponseMessage> WaitAndRetryAsync = HttpPolicyExtensions.HandleTransientHttpError().WaitAndRetryAsync(3, _ => TimeSpan.FromMilliseconds(1000));
+    private static readonly AsyncRetryPolicy<HttpResponseMessage> WaitAndRetryAsync = HttpPolicyExtensions
+        .HandleTransientHttpError()
+        .WaitAndRetryAsync(3, _ => TimeSpan.FromMilliseconds(1000));
 
     [ExcludeFromCodeCoverage]
-    public static IHttpClientBuilder AddHttpProxyRoutedClientWithRetry(this IServiceCollection services, Serilog.ILogger logger)
+    public static IHttpClientBuilder AddHttpProxyRoutedClientWithRetry(
+        this IServiceCollection services,
+        Serilog.ILogger logger
+    )
     {
-        return services.AddHttpClient(RoutedClientWithRetry).ConfigurePrimaryHttpMessageHandler(() => ConfigurePrimaryHttpMessageHandler(logger)).AddPolicyHandler(_ => WaitAndRetryAsync);
+        return services
+            .AddHttpClient(RoutedClientWithRetry)
+            .ConfigurePrimaryHttpMessageHandler(() => ConfigurePrimaryHttpMessageHandler(logger))
+            .AddPolicyHandler(_ => WaitAndRetryAsync);
     }
 
     [ExcludeFromCodeCoverage]
-    public static IHttpClientBuilder AddHttpProxyForkedClientWithRetry(this IServiceCollection services, Serilog.ILogger logger)
+    public static IHttpClientBuilder AddHttpProxyForkedClientWithRetry(
+        this IServiceCollection services,
+        Serilog.ILogger logger
+    )
     {
-        return services.AddHttpClient(ForkedClientWithRetry).ConfigurePrimaryHttpMessageHandler(() => ConfigurePrimaryHttpMessageHandler(logger)).AddPolicyHandler(_ => WaitAndRetryAsync);
+        return services
+            .AddHttpClient(ForkedClientWithRetry)
+            .ConfigurePrimaryHttpMessageHandler(() => ConfigurePrimaryHttpMessageHandler(logger))
+            .AddPolicyHandler(_ => WaitAndRetryAsync);
     }
 
     [ExcludeFromCodeCoverage]
-    public static IHttpClientBuilder AddHttpProxyClientWithRetry(this IServiceCollection services, Serilog.ILogger logger)
+    public static IHttpClientBuilder AddHttpProxyClientWithRetry(
+        this IServiceCollection services,
+        Serilog.ILogger logger
+    )
     {
-        return services.AddHttpClient(ProxyClientWithRetry).ConfigurePrimaryHttpMessageHandler(() => ConfigurePrimaryHttpMessageHandler(logger)).AddPolicyHandler(_ => WaitAndRetryAsync);
+        return services
+            .AddHttpClient(ProxyClientWithRetry)
+            .ConfigurePrimaryHttpMessageHandler(() => ConfigurePrimaryHttpMessageHandler(logger))
+            .AddPolicyHandler(_ => WaitAndRetryAsync);
     }
 
     [ExcludeFromCodeCoverage]
-    public static IHttpClientBuilder AddDecisionComparerHttpProxyClientWithRetry(this IServiceCollection services, Serilog.ILogger logger)
+    public static IHttpClientBuilder AddDecisionComparerHttpProxyClientWithRetry(
+        this IServiceCollection services,
+        Serilog.ILogger logger
+    )
     {
-        services.AddOptions<DecisionComparerApiOptions>().BindConfiguration(DecisionComparerApiOptions.SectionName).ValidateDataAnnotations();
+        services
+            .AddOptions<DecisionComparerApiOptions>()
+            .BindConfiguration(DecisionComparerApiOptions.SectionName)
+            .ValidateDataAnnotations();
 
-        var clientBuilder = services.AddHttpClient(DecisionComparerProxyClientWithRetry)
+        var clientBuilder = services
+            .AddHttpClient(DecisionComparerProxyClientWithRetry)
             .ConfigurePrimaryHttpMessageHandler(() => ConfigurePrimaryHttpMessageHandler(logger))
             .ConfigureHttpClient(
                 (sp, c) =>
@@ -66,7 +98,8 @@ public static class Proxy
 
                     if (c.BaseAddress.Scheme.Equals("https", StringComparison.OrdinalIgnoreCase))
                         c.DefaultRequestVersion = HttpVersion.Version20;
-                })
+                }
+            )
             .AddHeaderPropagation();
 
         clientBuilder.AddStandardResilienceHandler(o =>
@@ -92,10 +125,7 @@ public static class Proxy
 
     public static WebProxy CreateProxy(string? proxyUri, Serilog.ILogger logger)
     {
-        var proxy = new WebProxy
-        {
-            BypassProxyOnLocal = true
-        };
+        var proxy = new WebProxy { BypassProxyOnLocal = true };
         if (proxyUri != null)
         {
             ConfigureProxy(proxy, proxyUri, logger);
@@ -129,8 +159,8 @@ public static class Proxy
     {
         var username = uri.UserName;
         var password = uri.Password;
-        if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password)) return null;
+        if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+            return null;
         return new NetworkCredential(username, password);
     }
-
 }

@@ -21,57 +21,79 @@ public static class XmlToJsonConverter
 
     private static void ConvertElementToDictionary(XContainer xElement, ref Dictionary<string, object> parent)
     {
-        IDictionary<string, object> dictionary = parent;
-
         foreach (var child in xElement.Elements())
         {
             if (child.HasElements)
             {
-                var childObject = new Dictionary<string, object>();
-                var elementName = child.Name.LocalName;
-
-                var newElementName = DomainInfo.KnownArrays.SingleOrDefault(x => x.ItemName == elementName)?.ArrayName;
-                if (newElementName != null)
-                {
-                    if (parent.TryGetValue(newElementName, out var value))
-                    {
-                        if (value is List<Dictionary<string, object>> list)
-                        {
-                            list.Add(childObject);
-                        }
-                    }
-                    else
-                    {
-                        parent[newElementName] = new List<Dictionary<string, object>> { childObject };
-                    }
-                }
-                else
-                {
-                    parent[elementName] = childObject;
-                }
-
-                ConvertElementToDictionary(child, ref childObject);
+                HandleComplexElement(child, ref parent);
             }
             else
             {
-                dictionary[child.Name.LocalName] = ConvertValue(child)!;
+                parent[child.Name.LocalName] = ConvertValue(child)!;
             }
+        }
+    }
+
+    private static void HandleComplexElement(XElement child, ref Dictionary<string, object> parent)
+    {
+        var childObject = new Dictionary<string, object>();
+        var elementName = child.Name.LocalName;
+
+        var arrayName = GetArrayName(elementName);
+
+        if (arrayName is not null)
+        {
+            AddToArray(parent, arrayName, childObject);
+        }
+        else
+        {
+            parent[elementName] = childObject;
+        }
+
+        ConvertElementToDictionary(child, ref childObject);
+    }
+
+    private static string? GetArrayName(string elementName)
+    {
+        return DomainInfo.KnownArrays.SingleOrDefault(x => x.ItemName == elementName)?.ArrayName;
+    }
+
+    private static void AddToArray(
+        Dictionary<string, object> parent,
+        string arrayName,
+        Dictionary<string, object> childObject
+    )
+    {
+        if (!parent.TryGetValue(arrayName, out var value))
+        {
+            parent[arrayName] = new List<Dictionary<string, object>> { childObject };
+        }
+        else if (value is List<Dictionary<string, object>> list)
+        {
+            list.Add(childObject);
         }
     }
 
     private static object? ConvertValue(XElement element)
     {
-        if (element.IsEmpty) return null;
-        if (bool.TryParse(element.Value, out var boolResult)) return boolResult;
-        if (int.TryParse(element.Value, out var intResult)) return ConvertNumber(element, intResult);
-        if (long.TryParse(element.Value, out var longResult)) return ConvertNumber(element, longResult);
-        if (decimal.TryParse(element.Value, out var decimalResult)) return ConvertNumber(element, decimalResult);
+        if (element.IsEmpty)
+            return null;
+        if (bool.TryParse(element.Value, out var boolResult))
+            return boolResult;
+        if (int.TryParse(element.Value, out var intResult))
+            return ConvertNumber(element, intResult);
+        if (long.TryParse(element.Value, out var longResult))
+            return ConvertNumber(element, longResult);
+        if (decimal.TryParse(element.Value, out var decimalResult))
+            return ConvertNumber(element, decimalResult);
         return element.Value;
     }
 
     private static object? ConvertNumber(XElement element, object? result)
     {
-        return DomainInfo.KnownNumbers.Contains(element.Name.LocalName, StringComparer.InvariantCultureIgnoreCase) ? result : element.Value;
+        return DomainInfo.KnownNumbers.Contains(element.Name.LocalName, StringComparer.InvariantCultureIgnoreCase)
+            ? result
+            : element.Value;
     }
 
     private static XDocument Validate(string xml)

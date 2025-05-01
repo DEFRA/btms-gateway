@@ -11,7 +11,9 @@ namespace BtmsGateway.Test.Services.Routing;
 
 public class QueueSenderTests
 {
-    IConfiguration config = new ConfigurationBuilder().AddInMemoryCollection(new List<KeyValuePair<string, string>>() { new("traceHeader", "trace-header") }).Build();
+    IConfiguration config = new ConfigurationBuilder()
+        .AddInMemoryCollection(new List<KeyValuePair<string, string>>() { new("traceHeader", "trace-header") })
+        .Build();
 
     [Fact]
     public async Task SendAsync_WithFork_EncountersError_ReturnsErrorResult()
@@ -93,13 +95,12 @@ public class QueueSenderTests
         response.RoutingSuccessful.Should().BeTrue();
     }
 
-    private static (IAmazonSimpleNotificationService SnsService, ILogger Logger) CreateMocks(HttpStatusCode statusCode = HttpStatusCode.OK)
+    private static (IAmazonSimpleNotificationService SnsService, ILogger Logger) CreateMocks(
+        HttpStatusCode statusCode = HttpStatusCode.OK
+    )
     {
         var snsService = Substitute.For<IAmazonSimpleNotificationService>();
-        snsService.PublishAsync(Arg.Any<PublishRequest>()).Returns(new PublishResponse()
-        {
-            HttpStatusCode = statusCode
-        });
+        snsService.PublishAsync(Arg.Any<PublishRequest>()).Returns(new PublishResponse { HttpStatusCode = statusCode });
 
         var logger = Substitute.For<ILogger>();
 

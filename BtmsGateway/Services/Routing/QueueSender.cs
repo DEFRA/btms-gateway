@@ -22,7 +22,7 @@ public class QueueSender(IAmazonSimpleNotificationService snsService, IConfigura
         {
             RoutingSuccessful = response.HttpStatusCode.IsSuccessStatusCode(),
             ResponseContent = $"Successfully published MessageId: {response.MessageId}",
-            StatusCode = response.HttpStatusCode
+            StatusCode = response.HttpStatusCode,
         };
     }
 }

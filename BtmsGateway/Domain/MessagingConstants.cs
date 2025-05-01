@@ -25,7 +25,7 @@ public static class MessagingConstants
     public enum DecisionSource
     {
         Alvs,
-        Btms
+        Btms,
     }
 
     public static class Destinations

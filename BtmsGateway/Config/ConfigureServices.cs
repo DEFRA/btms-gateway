@@ -29,7 +29,9 @@ public static class ConfigureServices
         HttpRoutedClientWithRetryBuilder = builder.Services.AddHttpProxyRoutedClientWithRetry(logger);
         HttpForkedClientWithRetryBuilder = builder.Services.AddHttpProxyForkedClientWithRetry(logger);
         HttpClientWithRetryBuilder = builder.Services.AddHttpProxyClientWithRetry(logger);
-        DecisionComparerHttpClientWithRetryBuilder = builder.Services.AddDecisionComparerHttpProxyClientWithRetry(logger);
+        DecisionComparerHttpClientWithRetryBuilder = builder.Services.AddDecisionComparerHttpProxyClientWithRetry(
+            logger
+        );
 
         builder.Services.AddHttpProxyClientWithoutRetry(logger);
         builder.Services.AddDataApiHttpClient();

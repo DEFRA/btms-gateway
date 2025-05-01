@@ -24,50 +24,55 @@ public class DecisionSenderTests
             NamedLinks = new Dictionary<string, NamedLink>(),
             Destinations = new Dictionary<string, Destination>
             {
-                { MessagingConstants.Destinations.BtmsCds, new Destination
+                {
+                    MessagingConstants.Destinations.BtmsCds,
+                    new Destination
                     {
                         LinkType = LinkType.Url,
                         Link = "http://btms-to-cds-url",
                         RoutePath = "/route/path-1",
                         ContentType = "application/soap+xml",
                         HostHeader = "syst32.hmrc.gov.uk",
-                        Method = "POST"
+                        Method = "POST",
                     }
                 },
-                { MessagingConstants.Destinations.BtmsDecisionComparer, new Destination
+                {
+                    MessagingConstants.Destinations.BtmsDecisionComparer,
+                    new Destination
                     {
                         LinkType = LinkType.Url,
                         Link = "http://decision-comparer-url",
                         RoutePath = "/btms-decisions/",
-                        ContentType = "application/soap+xml"
+                        ContentType = "application/soap+xml",
                     }
                 },
-                { MessagingConstants.Destinations.AlvsDecisionComparer, new Destination
+                {
+                    MessagingConstants.Destinations.AlvsDecisionComparer,
+                    new Destination
                     {
                         LinkType = LinkType.Url,
                         Link = "http://decision-comparer-url",
                         RoutePath = "/alvs-decisions/",
-                        ContentType = "application/soap+xml"
+                        ContentType = "application/soap+xml",
                     }
-                }
-            }
+                },
+            },
         };
 
-        _apiSender.SendDecisionAsync(
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<CancellationToken>())
+        _apiSender
+            .SendDecisionAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
             .Returns(new HttpResponseMessage(HttpStatusCode.OK));
 
-        _apiSender.SendSoapMessageAsync(
+        _apiSender
+            .SendSoapMessageAsync(
                 Arg.Any<string>(),
                 Arg.Any<string>(),
                 Arg.Any<string>(),
                 Arg.Any<string>(),
                 Arg.Any<Dictionary<string, string>>(),
                 Arg.Any<string>(),
-                Arg.Any<CancellationToken>())
+                Arg.Any<CancellationToken>()
+            )
             .Returns(new HttpResponseMessage(HttpStatusCode.OK));
 
         _decisionSender = new DecisionSender(_routingConfig, _apiSender, _logger);
@@ -76,30 +81,41 @@ public class DecisionSenderTests
     [Fact]
     public async Task When_sending_btms_decision_Then_decision_is_sent_to_comparer_and_comparer_response_is_not_sent_onto_cds()
     {
-        var result = await _decisionSender.SendDecisionAsync("mrn-123", "<BtmsDecisionNotification />",
-            MessagingConstants.DecisionSource.Btms, cancellationToken: CancellationToken.None);
+        var result = await _decisionSender.SendDecisionAsync(
+            "mrn-123",
+            "<BtmsDecisionNotification />",
+            MessagingConstants.DecisionSource.Btms,
+            cancellationToken: CancellationToken.None
+        );
 
         result.Should().BeAssignableTo<RoutingResult>();
-        result.Should().BeEquivalentTo(new RoutingResult
-        {
-            RouteFound = true,
-            RouteLinkType = LinkType.DecisionComparer,
-            ForkLinkType = LinkType.DecisionComparer,
-            RoutingSuccessful = true,
-            FullRouteLink = "http://decision-comparer-url/btms-decisions/mrn-123",
-            FullForkLink = "http://decision-comparer-url/btms-decisions/mrn-123",
-            StatusCode = HttpStatusCode.OK,
-            ResponseContent = "Decision Comparer Result"
-        });
+        result
+            .Should()
+            .BeEquivalentTo(
+                new RoutingResult
+                {
+                    RouteFound = true,
+                    RouteLinkType = LinkType.DecisionComparer,
+                    ForkLinkType = LinkType.DecisionComparer,
+                    RoutingSuccessful = true,
+                    FullRouteLink = "http://decision-comparer-url/btms-decisions/mrn-123",
+                    FullForkLink = "http://decision-comparer-url/btms-decisions/mrn-123",
+                    StatusCode = HttpStatusCode.OK,
+                    ResponseContent = "Decision Comparer Result",
+                }
+            );
 
-        await _apiSender.DidNotReceive().SendSoapMessageAsync(
-            Arg.Any<string>(),
-            Arg.Any<string>(),
-            Arg.Any<string>(),
-            Arg.Any<string>(),
-            Arg.Any<Dictionary<string, string>>(),
-            Arg.Any<string>(),
-            Arg.Any<CancellationToken>());
+        await _apiSender
+            .DidNotReceive()
+            .SendSoapMessageAsync(
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<Dictionary<string, string>>(),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>()
+            );
     }
 
     [Fact]
@@ -108,29 +124,40 @@ public class DecisionSenderTests
         var comparerResponse = new HttpResponseMessage(HttpStatusCode.OK);
         comparerResponse.Content = new StringContent("<ComparerDecisionNotification />");
 
-        _apiSender.SendDecisionAsync(
+        _apiSender
+            .SendDecisionAsync(
                 Arg.Any<string>(),
                 Arg.Any<string>(),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>(),
-                Arg.Any<IHeaderDictionary>())
+                Arg.Any<IHeaderDictionary>()
+            )
             .Returns(comparerResponse);
 
-        var result = await _decisionSender.SendDecisionAsync("mrn-123", "<AlvsDecisionNotification />",
-            MessagingConstants.DecisionSource.Alvs, new HeaderDictionary(), CancellationToken.None);
+        var result = await _decisionSender.SendDecisionAsync(
+            "mrn-123",
+            "<AlvsDecisionNotification />",
+            MessagingConstants.DecisionSource.Alvs,
+            new HeaderDictionary(),
+            CancellationToken.None
+        );
 
         result.Should().BeAssignableTo<RoutingResult>();
-        result.Should().BeEquivalentTo(new RoutingResult
-        {
-            RouteFound = true,
-            RouteLinkType = LinkType.DecisionComparer,
-            ForkLinkType = LinkType.DecisionComparer,
-            RoutingSuccessful = true,
-            FullRouteLink = "http://decision-comparer-url/alvs-decisions/mrn-123",
-            FullForkLink = "http://decision-comparer-url/alvs-decisions/mrn-123",
-            StatusCode = HttpStatusCode.OK,
-            ResponseContent = "Decision Comparer Result"
-        });
+        result
+            .Should()
+            .BeEquivalentTo(
+                new RoutingResult
+                {
+                    RouteFound = true,
+                    RouteLinkType = LinkType.DecisionComparer,
+                    ForkLinkType = LinkType.DecisionComparer,
+                    RoutingSuccessful = true,
+                    FullRouteLink = "http://decision-comparer-url/alvs-decisions/mrn-123",
+                    FullForkLink = "http://decision-comparer-url/alvs-decisions/mrn-123",
+                    StatusCode = HttpStatusCode.OK,
+                    ResponseContent = "Decision Comparer Result",
+                }
+            );
     }
 
     [Fact]
@@ -142,28 +169,34 @@ public class DecisionSenderTests
             NamedLinks = new Dictionary<string, NamedLink>(),
             Destinations = new Dictionary<string, Destination>
             {
-                { MessagingConstants.Destinations.BtmsCds, new Destination
+                {
+                    MessagingConstants.Destinations.BtmsCds,
+                    new Destination
                     {
                         LinkType = LinkType.Url,
                         Link = "http://btms-to-cds-url",
                         RoutePath = "/route/path-1",
                         ContentType = "application/soap+xml",
                         HostHeader = "syst32.hmrc.gov.uk",
-                        Method = "POST"
+                        Method = "POST",
                     }
                 },
-                { MessagingConstants.Destinations.AlvsDecisionComparer, new Destination
+                {
+                    MessagingConstants.Destinations.AlvsDecisionComparer,
+                    new Destination
                     {
                         LinkType = LinkType.Url,
                         Link = "http://decision-comparer-url",
                         RoutePath = "/alvs-decisions/",
-                        ContentType = "application/soap+xml"
+                        ContentType = "application/soap+xml",
                     }
-                }
-            }
+                },
+            },
         };
 
-        var thrownException = Assert.Throws<ArgumentException>(() => new DecisionSender(_routingConfig, _apiSender, _logger));
+        var thrownException = Assert.Throws<ArgumentException>(() =>
+            new DecisionSender(_routingConfig, _apiSender, _logger)
+        );
         thrownException.Message.Should().Be("Destination configuration could not be found for BtmsDecisionComparer.");
     }
 
@@ -176,36 +209,48 @@ public class DecisionSenderTests
             NamedLinks = new Dictionary<string, NamedLink>(),
             Destinations = new Dictionary<string, Destination>
             {
-                { MessagingConstants.Destinations.BtmsCds, new Destination
+                {
+                    MessagingConstants.Destinations.BtmsCds,
+                    new Destination
                     {
                         LinkType = LinkType.Url,
                         Link = "http://btms-to-cds-url",
                         RoutePath = "/route/path-1",
                         ContentType = "application/soap+xml",
                         HostHeader = "syst32.hmrc.gov.uk",
-                        Method = "POST"
+                        Method = "POST",
                     }
                 },
-                { MessagingConstants.Destinations.BtmsDecisionComparer, new Destination
+                {
+                    MessagingConstants.Destinations.BtmsDecisionComparer,
+                    new Destination
                     {
                         LinkType = LinkType.Url,
                         Link = "http://decision-comparer-url",
                         RoutePath = "/btms-decisions/",
-                        ContentType = "application/soap+xml"
+                        ContentType = "application/soap+xml",
                     }
                 },
-            }
+            },
         };
 
-        var thrownException = Assert.Throws<ArgumentException>(() => new DecisionSender(_routingConfig, _apiSender, _logger));
+        var thrownException = Assert.Throws<ArgumentException>(() =>
+            new DecisionSender(_routingConfig, _apiSender, _logger)
+        );
         thrownException.Message.Should().Be("Destination configuration could not be found for AlvsDecisionComparer.");
     }
 
     [Fact]
     public async Task When_sending_an_invalid_decision_Then_exception_is_thrown()
     {
-        var thrownException = await Assert.ThrowsAsync<ArgumentException>(() => _decisionSender.SendDecisionAsync("mrn-123", null,
-            MessagingConstants.DecisionSource.Btms, cancellationToken: CancellationToken.None));
+        var thrownException = await Assert.ThrowsAsync<ArgumentException>(() =>
+            _decisionSender.SendDecisionAsync(
+                "mrn-123",
+                null,
+                MessagingConstants.DecisionSource.Btms,
+                cancellationToken: CancellationToken.None
+            )
+        );
 
         thrownException.Message.Should().Be("mrn-123 Request to send an invalid decision to Decision Comparer: ");
     }
@@ -215,16 +260,25 @@ public class DecisionSenderTests
     {
         var comparerResponse = new HttpResponseMessage(HttpStatusCode.BadRequest);
 
-        _apiSender.SendDecisionAsync(
+        _apiSender
+            .SendDecisionAsync(
                 Arg.Any<string>(),
                 Arg.Any<string>(),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>(),
-                Arg.Any<IHeaderDictionary>())
+                Arg.Any<IHeaderDictionary>()
+            )
             .Returns(comparerResponse);
 
-        var thrownException = await Assert.ThrowsAsync<DecisionComparisonException>(() => _decisionSender.SendDecisionAsync("mrn-123", "<AlvsDecisionNotification />",
-            MessagingConstants.DecisionSource.Alvs, new HeaderDictionary(), CancellationToken.None));
+        var thrownException = await Assert.ThrowsAsync<DecisionComparisonException>(() =>
+            _decisionSender.SendDecisionAsync(
+                "mrn-123",
+                "<AlvsDecisionNotification />",
+                MessagingConstants.DecisionSource.Alvs,
+                new HeaderDictionary(),
+                CancellationToken.None
+            )
+        );
         thrownException.Message.Should().Be("mrn-123 Failed to send Decision to Decision Comparer.");
     }
 
@@ -234,16 +288,25 @@ public class DecisionSenderTests
         var comparerResponse = new HttpResponseMessage(HttpStatusCode.OK);
         comparerResponse.Content = new StringContent(string.Empty);
 
-        _apiSender.SendDecisionAsync(
+        _apiSender
+            .SendDecisionAsync(
                 Arg.Any<string>(),
                 Arg.Any<string>(),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>(),
-                Arg.Any<IHeaderDictionary>())
+                Arg.Any<IHeaderDictionary>()
+            )
             .Returns(comparerResponse);
 
-        var thrownException = await Assert.ThrowsAsync<DecisionComparisonException>(() => _decisionSender.SendDecisionAsync("mrn-123", "<AlvsDecisionNotification />",
-            MessagingConstants.DecisionSource.Alvs, new HeaderDictionary(), CancellationToken.None));
+        var thrownException = await Assert.ThrowsAsync<DecisionComparisonException>(() =>
+            _decisionSender.SendDecisionAsync(
+                "mrn-123",
+                "<AlvsDecisionNotification />",
+                MessagingConstants.DecisionSource.Alvs,
+                new HeaderDictionary(),
+                CancellationToken.None
+            )
+        );
         thrownException.Message.Should().Be("mrn-123 Decision Comparer returned an invalid decision.");
     }
 
@@ -252,16 +315,25 @@ public class DecisionSenderTests
     {
         var comparerResponse = new HttpResponseMessage(HttpStatusCode.NoContent);
 
-        _apiSender.SendDecisionAsync(
+        _apiSender
+            .SendDecisionAsync(
                 Arg.Any<string>(),
                 Arg.Any<string>(),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>(),
-                Arg.Any<IHeaderDictionary>())
+                Arg.Any<IHeaderDictionary>()
+            )
             .Returns(comparerResponse);
 
-        var thrownException = await Assert.ThrowsAsync<DecisionComparisonException>(() => _decisionSender.SendDecisionAsync("mrn-123", "<AlvsDecisionNotification />",
-            MessagingConstants.DecisionSource.Alvs, new HeaderDictionary(), CancellationToken.None));
+        var thrownException = await Assert.ThrowsAsync<DecisionComparisonException>(() =>
+            _decisionSender.SendDecisionAsync(
+                "mrn-123",
+                "<AlvsDecisionNotification />",
+                MessagingConstants.DecisionSource.Alvs,
+                new HeaderDictionary(),
+                CancellationToken.None
+            )
+        );
         thrownException.Message.Should().Be("mrn-123 Decision Comparer returned an invalid decision.");
     }
 }

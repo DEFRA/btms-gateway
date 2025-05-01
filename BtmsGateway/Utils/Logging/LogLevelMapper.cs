@@ -1,6 +1,6 @@
+using System.Diagnostics.CodeAnalysis;
 using Serilog.Core;
 using Serilog.Events;
-using System.Diagnostics.CodeAnalysis;
 
 namespace BtmsGateway.Utils.Logging;
 
@@ -20,7 +20,7 @@ public class LogLevelMapper : ILogEventEnricher
             LogEventLevel.Error => "error",
             LogEventLevel.Fatal => "fatal",
             LogEventLevel.Warning => "warn",
-            _ => "all"
+            _ => "all",
         };
 
         logEvent.AddOrUpdateProperty(propertyFactory.CreateProperty("log.level", logLevel));

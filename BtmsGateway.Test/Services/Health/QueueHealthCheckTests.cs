@@ -29,11 +29,13 @@ public class QueueHealthCheckTests
     [InlineData(HttpStatusCode.ServiceUnavailable, HealthStatus.Degraded)]
     public async Task When_checking_communication_with_sns_Then_health_check_result_should_indicate_health(
         HttpStatusCode snsStatusCode,
-        HealthStatus expectedHealthStatus)
+        HealthStatus expectedHealthStatus
+    )
     {
         var attributes = new GetTopicAttributesResponse { HttpStatusCode = snsStatusCode, ContentLength = 0 };
 
-        _snsClient.GetTopicAttributesAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
+        _snsClient
+            .GetTopicAttributesAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
             .ReturnsForAnyArgs(attributes);
 
         var result = await _queueHealthCheck.CheckHealthAsync(new HealthCheckContext(), CancellationToken.None);
@@ -41,18 +43,23 @@ public class QueueHealthCheckTests
         result.Should().NotBeNull();
         result.Status.Should().Be(expectedHealthStatus);
         result.Exception.Should().BeNull();
-        result.Data.Should().BeEquivalentTo(new Dictionary<string, object>
-        {
-            { "topic-arn", "test-arn" },
-            { "content-length", 0 },
-            { "http-status-code", snsStatusCode }
-        });
+        result
+            .Data.Should()
+            .BeEquivalentTo(
+                new Dictionary<string, object>
+                {
+                    { "topic-arn", "test-arn" },
+                    { "content-length", 0 },
+                    { "http-status-code", snsStatusCode },
+                }
+            );
     }
 
     [Fact]
     public async Task When_checking_communication_with_sns_times_out_Then_health_check_result_should_contain_exception()
     {
-        _snsClient.GetTopicAttributesAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
+        _snsClient
+            .GetTopicAttributesAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
             .ThrowsAsyncForAnyArgs(new TaskCanceledException());
 
         var result = await _queueHealthCheck.CheckHealthAsync(new HealthCheckContext(), CancellationToken.None);
@@ -60,17 +67,25 @@ public class QueueHealthCheckTests
         result.Should().NotBeNull();
         result.Status.Should().Be(HealthStatus.Degraded);
         result.Exception.Should().BeAssignableTo<TimeoutException>();
-        result.Data.Should().BeEquivalentTo(new Dictionary<string, object>
-        {
-            { "topic-arn", "test-arn" },
-            { "error", $"The topic check was cancelled, probably because it timed out after {ConfigureHealthChecks.Timeout.TotalSeconds} seconds - " }
-        });
+        result
+            .Data.Should()
+            .BeEquivalentTo(
+                new Dictionary<string, object>
+                {
+                    { "topic-arn", "test-arn" },
+                    {
+                        "error",
+                        $"The topic check was cancelled, probably because it timed out after {ConfigureHealthChecks.Timeout.TotalSeconds} seconds - "
+                    },
+                }
+            );
     }
 
     [Fact]
     public async Task When_checking_communication_with_sns_throws_exception_Then_health_check_result_should_contain_exception()
     {
-        _snsClient.GetTopicAttributesAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
+        _snsClient
+            .GetTopicAttributesAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
             .ThrowsAsyncForAnyArgs(new Exception("Some error happened"));
 
         var result = await _queueHealthCheck.CheckHealthAsync(new HealthCheckContext(), CancellationToken.None);
@@ -78,10 +93,10 @@ public class QueueHealthCheckTests
         result.Should().NotBeNull();
         result.Status.Should().Be(HealthStatus.Degraded);
         result.Exception.Should().BeAssignableTo<Exception>();
-        result.Data.Should().BeEquivalentTo(new Dictionary<string, object>
-        {
-            { "topic-arn", "test-arn" },
-            { "error", "Some error happened - " }
-        });
+        result
+            .Data.Should()
+            .BeEquivalentTo(
+                new Dictionary<string, object> { { "topic-arn", "test-arn" }, { "error", "Some error happened - " } }
+            );
     }
 }

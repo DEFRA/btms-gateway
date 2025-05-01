@@ -9,14 +9,19 @@ public class FinalisationNotificationFromAlvsToIpaffsTests : TargetRoutingTestBa
 {
     private const string UrlPath = "/route/path/alvs-ipaffs/finalisation-notification";
 
-    private readonly string _alvsRequestSoap = File.ReadAllText(Path.Combine(FixturesPath, "AlvsToIpaffsFinalisationNotification.xml"));
+    private readonly string _alvsRequestSoap = File.ReadAllText(
+        Path.Combine(FixturesPath, "AlvsToIpaffsFinalisationNotification.xml")
+    );
     private readonly string _alvsResponseSoap = File.ReadAllText(Path.Combine(FixturesPath, "IpaffsResponse.xml"));
     private readonly StringContent _alvsRequestSoapContent;
 
     public FinalisationNotificationFromAlvsToIpaffsTests()
     {
         _alvsRequestSoapContent = new StringContent(_alvsRequestSoap, Encoding.UTF8, MediaTypeNames.Text.Xml);
-        TestWebServer.RoutedHttpHandler.SetNextResponse(content: _alvsResponseSoap, statusFunc: () => HttpStatusCode.Accepted);
+        TestWebServer.RoutedHttpHandler.SetNextResponse(
+            content: _alvsResponseSoap,
+            statusFunc: () => HttpStatusCode.Accepted
+        );
     }
 
     [Fact]
@@ -24,7 +29,9 @@ public class FinalisationNotificationFromAlvsToIpaffsTests : TargetRoutingTestBa
     {
         await HttpClient.PostAsync(UrlPath, _alvsRequestSoapContent);
 
-        TestWebServer.RoutedHttpHandler.LastRequest!.RequestUri!.AbsoluteUri.Should().Be($"http://alvs-ipaffs-host{UrlPath}");
+        TestWebServer
+            .RoutedHttpHandler.LastRequest!.RequestUri!.AbsoluteUri.Should()
+            .Be($"http://alvs-ipaffs-host{UrlPath}");
         (await TestWebServer.RoutedHttpHandler.LastRequest!.Content!.ReadAsStringAsync()).Should().Be(_alvsRequestSoap);
     }
 
@@ -36,5 +43,4 @@ public class FinalisationNotificationFromAlvsToIpaffsTests : TargetRoutingTestBa
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
         (await response.Content.ReadAsStringAsync()).Should().Be(_alvsResponseSoap);
     }
-
 }

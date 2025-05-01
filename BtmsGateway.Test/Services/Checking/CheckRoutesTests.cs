@@ -25,25 +25,29 @@ public class CheckRoutesTests
             AutomatedHealthCheckDisabled = false,
             Urls = new Dictionary<string, HealthCheckUrl>
             {
-                { "Test", new HealthCheckUrl
+                {
+                    "Test",
+                    new HealthCheckUrl
                     {
                         Disabled = false,
                         Method = "GET",
                         Url = "http://test",
                         HostHeader = "test",
-                        IncludeInAutomatedHealthCheck = true
+                        IncludeInAutomatedHealthCheck = true,
                     }
                 },
-                { "IPAFFS Test", new HealthCheckUrl
+                {
+                    "IPAFFS Test",
+                    new HealthCheckUrl
                     {
                         Disabled = false,
                         Method = "GET",
                         Url = "http://test-ipaffs",
                         HostHeader = "test",
-                        IncludeInAutomatedHealthCheck = true
+                        IncludeInAutomatedHealthCheck = true,
                     }
-                }
-            }
+                },
+            },
         };
 
         var httpClient = new HttpClient(_httpHandler);
@@ -62,12 +66,66 @@ public class CheckRoutesTests
         var result = await _checkRoutes.CheckAll();
 
         result.Count().Should().Be(6);
-        result.Should().ContainEquivalentOf(new { CheckType = "HTTP", RouteUrl = "GET http://test", ResponseResult = "OK (200)" });
-        result.Should().ContainEquivalentOf(new { CheckType = "nslookup", RouteUrl = "test", ResponseResult = "OK" });
-        result.Should().ContainEquivalentOf(new { CheckType = "dig", RouteUrl = "test", ResponseResult = "OK" });
-        result.Should().ContainEquivalentOf(new { CheckType = "HTTP", RouteUrl = "GET http://test-ipaffs", ResponseResult = "OK (200)" });
-        result.Should().ContainEquivalentOf(new { CheckType = "nslookup", RouteUrl = "test-ipaffs", ResponseResult = "OK" });
-        result.Should().ContainEquivalentOf(new { CheckType = "dig", RouteUrl = "test-ipaffs", ResponseResult = "OK" });
+        result
+            .Should()
+            .ContainEquivalentOf(
+                new
+                {
+                    CheckType = "HTTP",
+                    RouteUrl = "GET http://test",
+                    ResponseResult = "OK (200)",
+                }
+            );
+        result
+            .Should()
+            .ContainEquivalentOf(
+                new
+                {
+                    CheckType = "nslookup",
+                    RouteUrl = "test",
+                    ResponseResult = "OK",
+                }
+            );
+        result
+            .Should()
+            .ContainEquivalentOf(
+                new
+                {
+                    CheckType = "dig",
+                    RouteUrl = "test",
+                    ResponseResult = "OK",
+                }
+            );
+        result
+            .Should()
+            .ContainEquivalentOf(
+                new
+                {
+                    CheckType = "HTTP",
+                    RouteUrl = "GET http://test-ipaffs",
+                    ResponseResult = "OK (200)",
+                }
+            );
+        result
+            .Should()
+            .ContainEquivalentOf(
+                new
+                {
+                    CheckType = "nslookup",
+                    RouteUrl = "test-ipaffs",
+                    ResponseResult = "OK",
+                }
+            );
+        result
+            .Should()
+            .ContainEquivalentOf(
+                new
+                {
+                    CheckType = "dig",
+                    RouteUrl = "test-ipaffs",
+                    ResponseResult = "OK",
+                }
+            );
     }
 
     [Fact]
@@ -79,25 +137,108 @@ public class CheckRoutesTests
         var result = await _checkRoutes.CheckIpaffs();
 
         result.Count().Should().Be(3);
-        result.Should().ContainEquivalentOf(new { CheckType = "HTTP", RouteUrl = "GET http://test-ipaffs", ResponseResult = "OK (200)" });
-        result.Should().ContainEquivalentOf(new { CheckType = "nslookup", RouteUrl = "test-ipaffs", ResponseResult = "OK" });
-        result.Should().ContainEquivalentOf(new { CheckType = "dig", RouteUrl = "test-ipaffs", ResponseResult = "OK" });
+        result
+            .Should()
+            .ContainEquivalentOf(
+                new
+                {
+                    CheckType = "HTTP",
+                    RouteUrl = "GET http://test-ipaffs",
+                    ResponseResult = "OK (200)",
+                }
+            );
+        result
+            .Should()
+            .ContainEquivalentOf(
+                new
+                {
+                    CheckType = "nslookup",
+                    RouteUrl = "test-ipaffs",
+                    ResponseResult = "OK",
+                }
+            );
+        result
+            .Should()
+            .ContainEquivalentOf(
+                new
+                {
+                    CheckType = "dig",
+                    RouteUrl = "test-ipaffs",
+                    ResponseResult = "OK",
+                }
+            );
     }
 
     [Fact]
     public async Task When_checking_routes_and_exceptions_occur_Then_results_should_contain_exception_message()
     {
         _httpHandler.SetNextResponse(exceptionToThrow: new Exception("Test Http exception message"));
-        _processRunner.RunProcess(Arg.Any<string>(), Arg.Any<String>()).ThrowsAsync(new Exception("Test Network exception message"));
+        _processRunner
+            .RunProcess(Arg.Any<string>(), Arg.Any<String>())
+            .ThrowsAsync(new Exception("Test Network exception message"));
 
         var result = await _checkRoutes.CheckAll();
 
         result.Count().Should().Be(6);
-        result.Should().ContainEquivalentOf(new { CheckType = "HTTP", RouteUrl = "GET http://test", ResponseResult = "\"Test Http exception message\" " });
-        result.Should().ContainEquivalentOf(new { CheckType = "nslookup", RouteUrl = "test", ResponseResult = "\"One or more errors occurred. (Test Network exception message)\" \"Test Network exception message\"" });
-        result.Should().ContainEquivalentOf(new { CheckType = "dig", RouteUrl = "test", ResponseResult = "\"One or more errors occurred. (Test Network exception message)\" \"Test Network exception message\"" });
-        result.Should().ContainEquivalentOf(new { CheckType = "HTTP", RouteUrl = "GET http://test-ipaffs", ResponseResult = "\"Test Http exception message\" " });
-        result.Should().ContainEquivalentOf(new { CheckType = "nslookup", RouteUrl = "test-ipaffs", ResponseResult = "\"One or more errors occurred. (Test Network exception message)\" \"Test Network exception message\"" });
-        result.Should().ContainEquivalentOf(new { CheckType = "dig", RouteUrl = "test-ipaffs", ResponseResult = "\"One or more errors occurred. (Test Network exception message)\" \"Test Network exception message\"" });
+        result
+            .Should()
+            .ContainEquivalentOf(
+                new
+                {
+                    CheckType = "HTTP",
+                    RouteUrl = "GET http://test",
+                    ResponseResult = "\"Test Http exception message\" ",
+                }
+            );
+        result
+            .Should()
+            .ContainEquivalentOf(
+                new
+                {
+                    CheckType = "nslookup",
+                    RouteUrl = "test",
+                    ResponseResult = "\"One or more errors occurred. (Test Network exception message)\" \"Test Network exception message\"",
+                }
+            );
+        result
+            .Should()
+            .ContainEquivalentOf(
+                new
+                {
+                    CheckType = "dig",
+                    RouteUrl = "test",
+                    ResponseResult = "\"One or more errors occurred. (Test Network exception message)\" \"Test Network exception message\"",
+                }
+            );
+        result
+            .Should()
+            .ContainEquivalentOf(
+                new
+                {
+                    CheckType = "HTTP",
+                    RouteUrl = "GET http://test-ipaffs",
+                    ResponseResult = "\"Test Http exception message\" ",
+                }
+            );
+        result
+            .Should()
+            .ContainEquivalentOf(
+                new
+                {
+                    CheckType = "nslookup",
+                    RouteUrl = "test-ipaffs",
+                    ResponseResult = "\"One or more errors occurred. (Test Network exception message)\" \"Test Network exception message\"",
+                }
+            );
+        result
+            .Should()
+            .ContainEquivalentOf(
+                new
+                {
+                    CheckType = "dig",
+                    RouteUrl = "test-ipaffs",
+                    ResponseResult = "\"One or more errors occurred. (Test Network exception message)\" \"Test Network exception message\"",
+                }
+            );
     }
 }

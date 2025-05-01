@@ -1,10 +1,16 @@
+using BtmsGateway.Exceptions;
 using BtmsGateway.Services.Metrics;
 using BtmsGateway.Services.Routing;
 using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Middleware;
 
-public class RoutingInterceptor(RequestDelegate next, IMessageRouter messageRouter, MetricsHost metricsHost, ILogger logger)
+public class RoutingInterceptor(
+    RequestDelegate next,
+    IMessageRouter messageRouter,
+    MetricsHost metricsHost,
+    ILogger logger
+)
 {
     public async Task InvokeAsync(HttpContext context)
     {
@@ -16,10 +22,12 @@ public class RoutingInterceptor(RequestDelegate next, IMessageRouter messageRout
 
             if (messageData.ShouldProcessRequest)
             {
-                logger.Information("{ContentCorrelationId} {MessageReference} Received routing instruction {HttpString}",
+                logger.Information(
+                    "{ContentCorrelationId} {MessageReference} Received routing instruction {HttpString}",
                     messageData.ContentMap.CorrelationId,
                     messageData.ContentMap.MessageReference,
-                    messageData.HttpString);
+                    messageData.HttpString
+                );
 
                 await Route(context, messageData, metrics);
 
@@ -28,14 +36,18 @@ public class RoutingInterceptor(RequestDelegate next, IMessageRouter messageRout
                 return;
             }
 
-            logger.Information("{ContentCorrelationId} Pass through request {HttpString}", messageData.ContentMap.CorrelationId, messageData.HttpString);
+            logger.Information(
+                "{ContentCorrelationId} Pass through request {HttpString}",
+                messageData.ContentMap.CorrelationId,
+                messageData.HttpString
+            );
 
             await next(context);
         }
         catch (Exception ex)
         {
             logger.Error(ex, "There was a routing error");
-            throw;
+            throw new RoutingException($"There was a routing error: {ex.Message}", ex);
         }
     }
 
@@ -63,23 +75,27 @@ public class RoutingInterceptor(RequestDelegate next, IMessageRouter messageRout
 
     private void LogRouteFoundResults(MessageData messageData, RoutingResult routingResult, string action)
     {
-        logger.Information("{ContentCorrelationId} {MessageReference} {Action} {Success} for route {RouteUrl} with response {StatusCode} \"{Content}\"",
+        logger.Information(
+            "{ContentCorrelationId} {MessageReference} {Action} {Success} for route {RouteUrl} with response {StatusCode} \"{Content}\"",
             messageData.ContentMap.CorrelationId,
             messageData.ContentMap.MessageReference,
             action,
             routingResult.RoutingSuccessful ? "successful" : "failed",
             action == "Routing" ? routingResult.FullRouteLink : routingResult.FullForkLink,
             routingResult.StatusCode,
-            routingResult.ResponseContent);
+            routingResult.ResponseContent
+        );
     }
 
     private void LogRouteNotFoundResults(MessageData messageData, RoutingResult routingResult, string action)
     {
-        logger.Information("{ContentCorrelationId} {MessageReference} {Action} not {Reason} for [{HttpString}]",
+        logger.Information(
+            "{ContentCorrelationId} {MessageReference} {Action} not {Reason} for [{HttpString}]",
             messageData.ContentMap.CorrelationId,
             messageData.ContentMap.MessageReference,
             action,
             routingResult.RouteLinkType == LinkType.None ? "configured" : "supported",
-            messageData.HttpString);
+            messageData.HttpString
+        );
     }
 }

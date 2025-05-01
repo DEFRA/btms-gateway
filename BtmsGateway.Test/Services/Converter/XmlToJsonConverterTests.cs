@@ -7,7 +7,12 @@ namespace BtmsGateway.Test.Services.Converter;
 
 public class XmlToJsonConverterTests
 {
-    private static readonly string TestDataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Services", "Converter", "Fixtures");
+    private static readonly string TestDataPath = Path.Combine(
+        AppDomain.CurrentDomain.BaseDirectory,
+        "Services",
+        "Converter",
+        "Fixtures"
+    );
 
     [Theory]
     [ClassData(typeof(XmlToJsonTestData))]
@@ -20,7 +25,8 @@ public class XmlToJsonConverterTests
     public void When_receiving_clearance_request_not_soap_Then_should_convert_to_json()
     {
         var xml = File.ReadAllText(Path.Combine(TestDataPath, "ClearanceRequestNotSoap.xml"));
-        var expectedJson = File.ReadAllText(Path.Combine(TestDataPath, "ClearanceRequestWithRoot.json")).LinuxLineEndings();
+        var expectedJson = File.ReadAllText(Path.Combine(TestDataPath, "ClearanceRequestWithRoot.json"))
+            .LinuxLineEndings();
 
         XmlToJsonConverter.Convert(xml).LinuxLineEndings().Should().Be(expectedJson);
     }

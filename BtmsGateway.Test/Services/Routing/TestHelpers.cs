@@ -13,12 +13,13 @@ public static class TestHelpers
         const string Path = "http://localhost/some/path";
         var httpContext = new DefaultHttpContext();
 
-        const string Soap = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope\" " +
-                           "xmlns:oas=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\">\n" +
-                           "<soap:Header>\n    </soap:Header>\n    <soap:Body>\n        <ALVSClearanceRequest " +
-                           "xmlns=\"http://submitimportdocumenthmrcfacade.types.esb.ws.cara.defra.com\">\n " +
-                           "<EntryReference>ALVSCDSTEST00000000688</EntryReference><DispatchCountryCode>NI</DispatchCountryCode><CorrelationId>123456789</CorrelationId>\n" +
-                           "</ALVSClearanceRequest>\n    </soap:Body>\n</soap:Envelope>";
+        const string Soap =
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope\" "
+            + "xmlns:oas=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\">\n"
+            + "<soap:Header>\n    </soap:Header>\n    <soap:Body>\n        <ALVSClearanceRequest "
+            + "xmlns=\"http://submitimportdocumenthmrcfacade.types.esb.ws.cara.defra.com\">\n "
+            + "<EntryReference>ALVSCDSTEST00000000688</EntryReference><DispatchCountryCode>NI</DispatchCountryCode><CorrelationId>123456789</CorrelationId>\n"
+            + "</ALVSClearanceRequest>\n    </soap:Body>\n</soap:Envelope>";
 
         var contentStream = new MemoryStream(Encoding.UTF8.GetBytes(Soap));
         var contentType = "application/soap+xml";
@@ -34,7 +35,7 @@ public static class TestHelpers
             MessageSubXPath = "ALVSClearanceRequest",
             FullForkLink = Path,
             FullRouteLink = Path,
-            ConvertRoutedContentToFromJson = true
+            ConvertRoutedContentToFromJson = true,
         };
 
         return (msgData, routing);

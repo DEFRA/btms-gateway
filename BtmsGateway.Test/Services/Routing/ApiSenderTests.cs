@@ -107,7 +107,8 @@ public class ApiSenderTests
             "foo.com",
             new Dictionary<string, string> { { "foo", "bar" } },
             "soap message",
-            CancellationToken.None);
+            CancellationToken.None
+        );
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
@@ -123,20 +124,28 @@ public class ApiSenderTests
             "http://trade-imports-decision-comparer-host",
             "application/soap+xml",
             cancellationToken: CancellationToken.None,
-            new HeaderDictionary { new KeyValuePair<string, StringValues>("x-cdp-request-id", "some-request-id") });
+            new HeaderDictionary { new KeyValuePair<string, StringValues>("x-cdp-request-id", "some-request-id") }
+        );
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
-    private static (HttpClientHandler Handler, IHttpClientFactory Factory, ILogger Logger, IServiceProvider ServiceProvider, IConfiguration Configuration, HeaderPropagationValues HeaderPropagationValues) CreateMocks(HttpStatusCode statusCode = HttpStatusCode.OK)
+    private static (
+        HttpClientHandler Handler,
+        IHttpClientFactory Factory,
+        ILogger Logger,
+        IServiceProvider ServiceProvider,
+        IConfiguration Configuration,
+        HeaderPropagationValues HeaderPropagationValues
+    ) CreateMocks(HttpStatusCode statusCode = HttpStatusCode.OK)
     {
         var response = new HttpResponseMessage(statusCode);
 
         var handler = Substitute.ForPartsOf<HttpClientHandler>();
-        handler.GetType().GetMethod("SendAsync", BindingFlags.NonPublic | BindingFlags.Instance)!
-            .Invoke(
-                handler,
-                [Arg.Any<HttpRequestMessage>(), Arg.Any<CancellationToken>()])
+        handler
+            .GetType()
+            .GetMethod("SendAsync", BindingFlags.NonPublic | BindingFlags.Instance)!
+            .Invoke(handler, [Arg.Any<HttpRequestMessage>(), Arg.Any<CancellationToken>()])
             .Returns(Task.FromResult(response));
 
         var mockClient = new HttpClient(handler);

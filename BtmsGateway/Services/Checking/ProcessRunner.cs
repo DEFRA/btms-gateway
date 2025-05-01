@@ -13,15 +13,17 @@ public class ProcessRunner : IProcessRunner
 {
     public Task<string> RunProcess(string fileName, string arguments)
     {
-        using var process = Process.Start(new ProcessStartInfo
-        {
-            FileName = fileName,
-            Arguments = arguments,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            UseShellExecute = false,
-            CreateNoWindow = true
-        });
+        using var process = Process.Start(
+            new ProcessStartInfo
+            {
+                FileName = fileName,
+                Arguments = arguments,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+            }
+        );
 
         using var outputReader = process?.StandardOutput;
         var readToEnd = outputReader?.ReadToEnd();

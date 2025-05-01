@@ -1,16 +1,17 @@
-using Amazon.SQS;
 using Amazon.Extensions.NETCore.Setup;
 using Amazon.SimpleNotificationService;
 using Amazon.SimpleNotificationService.Model;
+using Amazon.SQS;
 using Amazon.SQS.Model;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit.Abstractions;
 
 namespace BtmsGateway.Test.EndToEnd;
 
-[Trait("Dependence", "localstack")]
 public abstract class QueueRoutingTestBase : TargetRoutingTestBase, IDisposable
 {
+    private bool _disposed;
+
     protected readonly string ForkQueueName;
     protected readonly string RouteQueueName;
     private IAmazonSQS SqsClient { get; }
@@ -51,19 +52,13 @@ public abstract class QueueRoutingTestBase : TargetRoutingTestBase, IDisposable
         var topicReq = new CreateTopicRequest()
         {
             Name = queueName,
-            Attributes = new()
-            {
-                { "FifoTopic", "true"}
-            }
+            Attributes = new() { { "FifoTopic", "true" } },
         };
 
         var queueReq = new CreateQueueRequest()
         {
             QueueName = queueName,
-            Attributes = new()
-            {
-                { "FifoQueue", "true"}
-            }
+            Attributes = new() { { "FifoQueue", "true" } },
         };
 
         var topicArn = SnsClient.CreateTopicAsync(topicReq).Result.TopicArn;
@@ -77,10 +72,7 @@ public abstract class QueueRoutingTestBase : TargetRoutingTestBase, IDisposable
             TopicArn = topicArn,
             Endpoint = queueArn,
             Protocol = "sqs",
-            Attributes = new()
-            {
-                { "RawMessageDelivery", "true"}
-            }
+            Attributes = new() { { "RawMessageDelivery", "true" } },
         };
 
         var subscriptionArn = SnsClient.SubscribeAsync(subsReq).Result.SubscriptionArn;
@@ -121,10 +113,11 @@ public abstract class QueueRoutingTestBase : TargetRoutingTestBase, IDisposable
 
         while (output == null)
         {
-            if (retries++ > 30) throw new TimeoutException();
+            if (retries++ > 30)
+                throw new TimeoutException();
 
             var messagesResponse = await SqsClient.ReceiveMessageAsync(queueUrl);
-            if (messagesResponse.Messages?.Any() == true)
+            if (messagesResponse.Messages?.Count > 0)
             {
                 output = messagesResponse.Messages;
             }
@@ -139,18 +132,24 @@ public abstract class QueueRoutingTestBase : TargetRoutingTestBase, IDisposable
 
     protected virtual void Dispose(bool disposing)
     {
+        if (_disposed)
+            return;
+
         if (disposing)
         {
             TearDownQueues();
 
             SqsClient?.Dispose();
             SnsClient?.Dispose();
+
+            base.Dispose();
         }
+
+        _disposed = true;
     }
 
     public new void Dispose()
     {
-        base.Dispose();
         Dispose(true);
         GC.SuppressFinalize(this);
     }

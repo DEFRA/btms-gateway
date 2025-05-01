@@ -6,7 +6,8 @@ namespace BtmsGateway.Utils;
 
 public static class Extensions
 {
-    public static T? ConfigureToType<T>(this WebApplicationBuilder builder, string? sectionName = null) where T : class
+    public static T? ConfigureToType<T>(this WebApplicationBuilder builder, string? sectionName = null)
+        where T : class
     {
         sectionName ??= typeof(T).Name.Replace("Config", "");
         var configSection = builder.Configuration.GetSection(sectionName);
@@ -17,7 +18,9 @@ public static class Extensions
 
     public static string ToTitleCase(this string text) => char.ToUpper(text[0]) + text[1..];
 
-    public static string ToStringWithDeclaration(this XDocument xDocument) => $"{xDocument.Declaration}{Environment.NewLine}{xDocument}";
+    public static string ToStringWithDeclaration(this XDocument xDocument) =>
+        $"{xDocument.Declaration}{Environment.NewLine}{xDocument}";
 
-    public static bool IsSuccessStatusCode(this HttpStatusCode statusCode) => (int)statusCode >= 200 && (int)statusCode <= 299;
+    public static bool IsSuccessStatusCode(this HttpStatusCode statusCode) =>
+        (int)statusCode >= 200 && (int)statusCode <= 299;
 }

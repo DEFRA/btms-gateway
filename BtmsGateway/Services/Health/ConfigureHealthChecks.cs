@@ -11,12 +11,17 @@ public static class ConfigureHealthChecks
 {
     public static readonly TimeSpan Timeout = TimeSpan.FromSeconds(15);
 
-    public static void AddCustomHealthChecks(this WebApplicationBuilder builder, HealthCheckConfig? healthCheckConfig, RoutingConfig? routingConfig)
+    public static void AddCustomHealthChecks(
+        this WebApplicationBuilder builder,
+        HealthCheckConfig? healthCheckConfig,
+        RoutingConfig? routingConfig
+    )
     {
-        builder.Services.AddHealthChecks()
-                        .AddResourceUtilizationHealthCheck()
-                        .AddNetworkChecks(healthCheckConfig)
-                        .AddQueueChecks(routingConfig);
+        builder
+            .Services.AddHealthChecks()
+            .AddResourceUtilizationHealthCheck()
+            .AddNetworkChecks(healthCheckConfig)
+            .AddQueueChecks(routingConfig);
         builder.Services.Configure<HealthCheckPublisherOptions>(options =>
         {
             options.Delay = TimeSpan.FromSeconds(30);
@@ -25,13 +30,21 @@ public static class ConfigureHealthChecks
         builder.Services.AddSingleton<IHealthCheckPublisher, HealthCheckPublisher>();
     }
 
-    private static IHealthChecksBuilder AddNetworkChecks(this IHealthChecksBuilder builder, HealthCheckConfig? healthCheckConfig)
+    private static IHealthChecksBuilder AddNetworkChecks(
+        this IHealthChecksBuilder builder,
+        HealthCheckConfig? healthCheckConfig
+    )
     {
-        if (healthCheckConfig == null || healthCheckConfig.AutomatedHealthCheckDisabled) return builder;
+        if (healthCheckConfig == null || healthCheckConfig.AutomatedHealthCheckDisabled)
+            return builder;
 
         foreach (var healthCheck in healthCheckConfig.Urls.Where(x => x.Value.IncludeInAutomatedHealthCheck))
         {
-            builder.AddTypeActivatedCheck<NetworkHealthCheck>(healthCheck.Key, failureStatus: HealthStatus.Unhealthy, args: [healthCheck.Key, healthCheck.Value]);
+            builder.AddTypeActivatedCheck<NetworkHealthCheck>(
+                healthCheck.Key,
+                failureStatus: HealthStatus.Unhealthy,
+                args: [healthCheck.Key, healthCheck.Value]
+            );
         }
 
         return builder;
@@ -39,24 +52,38 @@ public static class ConfigureHealthChecks
 
     private static void AddQueueChecks(this IHealthChecksBuilder builder, RoutingConfig? routingConfig)
     {
-        if (routingConfig == null || routingConfig.AutomatedHealthCheckDisabled) return;
+        if (routingConfig == null || routingConfig.AutomatedHealthCheckDisabled)
+            return;
 
-        foreach (var queues in routingConfig.NamedLinks.Where(x => x.Value.LinkType == LinkType.Queue && x.Key != "InboundCustomsDeclarationReceivedTopic"))
+        foreach (
+            var queues in routingConfig.NamedLinks.Where(x =>
+                x.Value.LinkType == LinkType.Queue && x.Key != "InboundCustomsDeclarationReceivedTopic"
+            )
+        )
         {
-            builder.AddTypeActivatedCheck<QueueHealthCheck>(queues.Key, failureStatus: HealthStatus.Unhealthy, args: [queues.Key, queues.Value.Link]);
+            builder.AddTypeActivatedCheck<QueueHealthCheck>(
+                queues.Key,
+                failureStatus: HealthStatus.Unhealthy,
+                args: [queues.Key, queues.Value.Link]
+            );
         }
     }
 
     public static void UseCustomHealthChecks(this WebApplication app)
     {
         app.MapGet("/health", () => Results.Ok()).AllowAnonymous();
-        app.MapHealthChecks("/health-dotnet", new HealthCheckOptions
-        {
-            ResponseWriter = (context, healthReport) =>
+        app.MapHealthChecks(
+            "/health-dotnet",
+            new HealthCheckOptions
             {
-                context.Response.ContentType = "application/json; charset=utf-8";
-                return context.Response.WriteAsync(HealthCheckWriter.WriteHealthStatusAsJson(healthReport, excludeHealthy: false, indented: true));
+                ResponseWriter = (context, healthReport) =>
+                {
+                    context.Response.ContentType = "application/json; charset=utf-8";
+                    return context.Response.WriteAsync(
+                        HealthCheckWriter.WriteHealthStatusAsJson(healthReport, excludeHealthy: false, indented: true)
+                    );
+                },
             }
-        });
+        );
     }
 }

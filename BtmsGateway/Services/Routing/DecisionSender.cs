@@ -13,7 +13,8 @@ public interface IDecisionSender
         string? decision,
         MessagingConstants.DecisionSource decisionSource,
         IHeaderDictionary? headers = null,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default
+    );
 }
 
 public class DecisionSender : IDecisionSender
@@ -39,7 +40,8 @@ public class DecisionSender : IDecisionSender
         string? decision,
         MessagingConstants.DecisionSource decisionSource,
         IHeaderDictionary? headers = null,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         _logger.Debug("{MRN} Sending decision from {DecisionSource} to Decision Comparer.", mrn, decisionSource);
 
@@ -52,30 +54,35 @@ public class DecisionSender : IDecisionSender
                 decision,
                 $"{_btmsDecisionsComparerDestination.Link}{_btmsDecisionsComparerDestination.RoutePath}{mrn}",
                 _btmsDecisionsComparerDestination.ContentType,
-                cancellationToken),
+                cancellationToken
+            ),
             MessagingConstants.DecisionSource.Alvs => await _apiSender.SendDecisionAsync(
                 decision,
                 $"{_alvsDecisionComparerDestination.Link}{_alvsDecisionComparerDestination.RoutePath}{mrn}",
                 _alvsDecisionComparerDestination.ContentType,
                 cancellationToken,
-                headers),
-            _ => throw new ArgumentException($"{mrn} Received decision from unexpected source {decisionSource}.")
+                headers
+            ),
+            _ => throw new ArgumentException($"{mrn} Received decision from unexpected source {decisionSource}."),
         };
 
         if (!comparerResponse.StatusCode.IsSuccessStatusCode())
         {
-            _logger.Error("{MRN} Failed to send Decision to Decision Comparer: Status Code: {ComparerResponseStatusCode}, Reason: {ComparerResponseReason}.",
+            _logger.Error(
+                "{MRN} Failed to send Decision to Decision Comparer: Status Code: {ComparerResponseStatusCode}, Reason: {ComparerResponseReason}.",
                 mrn,
                 comparerResponse.StatusCode,
-                comparerResponse.ReasonPhrase);
+                comparerResponse.ReasonPhrase
+            );
             throw new DecisionComparisonException($"{mrn} Failed to send Decision to Decision Comparer.");
         }
 
         await ForwardDecisionAsync(mrn, decisionSource, comparerResponse, cancellationToken);
 
-        var fullLink = decisionSource == MessagingConstants.DecisionSource.Btms
-            ? $"{_btmsDecisionsComparerDestination.Link}{_btmsDecisionsComparerDestination.RoutePath}{mrn}"
-            : $"{_alvsDecisionComparerDestination.Link}{_alvsDecisionComparerDestination.RoutePath}{mrn}";
+        var fullLink =
+            decisionSource == MessagingConstants.DecisionSource.Btms
+                ? $"{_btmsDecisionsComparerDestination.Link}{_btmsDecisionsComparerDestination.RoutePath}{mrn}"
+                : $"{_alvsDecisionComparerDestination.Link}{_alvsDecisionComparerDestination.RoutePath}{mrn}";
 
         return new RoutingResult
         {
@@ -86,14 +93,16 @@ public class DecisionSender : IDecisionSender
             FullRouteLink = fullLink,
             FullForkLink = fullLink,
             StatusCode = comparerResponse.StatusCode,
-            ResponseContent = "Decision Comparer Result"
+            ResponseContent = "Decision Comparer Result",
         };
     }
 
-    private async Task ForwardDecisionAsync(string? mrn,
+    private async Task ForwardDecisionAsync(
+        string? mrn,
         MessagingConstants.DecisionSource decisionSource,
         HttpResponseMessage? comparerResponse,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         if (decisionSource == MessagingConstants.DecisionSource.Alvs)
         {
@@ -101,13 +110,19 @@ public class DecisionSender : IDecisionSender
 
             if (string.IsNullOrWhiteSpace(comparerDecision))
             {
-                _logger.Error("{MRN} Decision Comparer returned an invalid decision: {ComparerDecision}.",
+                _logger.Error(
+                    "{MRN} Decision Comparer returned an invalid decision: {ComparerDecision}.",
                     mrn,
-                    comparerDecision);
+                    comparerDecision
+                );
                 throw new DecisionComparisonException($"{mrn} Decision Comparer returned an invalid decision.");
             }
 
-            _logger.Information("{MRN} Received Decision from Decision Comparer: {ComparerDecision}", mrn, comparerDecision);
+            _logger.Information(
+                "{MRN} Received Decision from Decision Comparer: {ComparerDecision}",
+                mrn,
+                comparerDecision
+            );
             // Just log decision for now. Eventually, in cut over, will send the Decision to CDS.
         }
     }
@@ -116,17 +131,24 @@ public class DecisionSender : IDecisionSender
     {
         Destination? destination = null;
 
-        if ((!_routingConfig?.Destinations.TryGetValue(destinationKey, out destination) ?? false) || destination is null)
+        if (
+            (!_routingConfig?.Destinations.TryGetValue(destinationKey, out destination) ?? false) || destination is null
+        )
         {
-            _logger.Error("Destination configuration could not be found for {DestinationKey}. Please confirm application configuration contains the Destination configuration.",
-                destinationKey);
+            _logger.Error(
+                "Destination configuration could not be found for {DestinationKey}. Please confirm application configuration contains the Destination configuration.",
+                destinationKey
+            );
             throw new ArgumentException($"Destination configuration could not be found for {destinationKey}.");
         }
 
         return destination;
     }
 
-    private static async Task<string> GetResponseContentAsync(HttpResponseMessage? response, CancellationToken cancellationToken)
+    private static async Task<string> GetResponseContentAsync(
+        HttpResponseMessage? response,
+        CancellationToken cancellationToken
+    )
     {
         if (response is not null && response.StatusCode != HttpStatusCode.NoContent)
             return await response.Content.ReadAsStringAsync(cancellationToken);

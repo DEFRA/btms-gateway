@@ -33,7 +33,8 @@ public static class JsonToXmlConverter
 
     private static void AddElements(XElement parentElement, dynamic jsonObject)
     {
-        if (jsonObject is not JsonElement jsonElement) return;
+        if (jsonObject is not JsonElement jsonElement)
+            return;
 
         switch (jsonElement.ValueKind)
         {
@@ -41,7 +42,9 @@ public static class JsonToXmlConverter
                 foreach (var property in jsonElement.EnumerateObject())
                 {
                     var elementName = property.Name.ToTitleCase();
-                    var arrayItemName = DomainInfo.KnownArrays.SingleOrDefault(x => x.ArrayName == elementName)?.ItemName;
+                    var arrayItemName = DomainInfo
+                        .KnownArrays.SingleOrDefault(x => x.ArrayName == elementName)
+                        ?.ItemName;
                     if (property.Value.ValueKind == JsonValueKind.Array && arrayItemName != null)
                     {
                         AddArrayElements(parentElement, property.Value, arrayItemName);
@@ -88,7 +91,8 @@ public static class JsonToXmlConverter
 
     private static void AddArrayElements(XElement parentElement, dynamic jsonObject, string arrayItemName = "")
     {
-        if (jsonObject is not JsonElement jsonElement) return;
+        if (jsonObject is not JsonElement jsonElement)
+            return;
 
         foreach (var item in jsonElement.EnumerateArray())
         {

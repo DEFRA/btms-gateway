@@ -1,7 +1,3 @@
-using BtmsGateway.Utils;
-using BtmsGateway.Utils.Logging;
-using Serilog;
-using Serilog.Core;
 using System.Diagnostics.CodeAnalysis;
 using BtmsGateway.Config;
 using BtmsGateway.Extensions;
@@ -9,10 +5,14 @@ using BtmsGateway.Middleware;
 using BtmsGateway.Services.Checking;
 using BtmsGateway.Services.Health;
 using BtmsGateway.Services.Routing;
+using BtmsGateway.Utils;
+using BtmsGateway.Utils.Logging;
 using Elastic.Serilog.Enrichers.Web;
 using Microsoft.AspNetCore.HeaderPropagation;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
+using Serilog;
+using Serilog.Core;
 using Environment = System.Environment;
 
 var app = CreateWebApplication(args);
@@ -52,11 +52,7 @@ static Logger ConfigureLoggingAndTracing(WebApplicationBuilder builder)
     builder.Services.AddHttpContextAccessor();
 
     builder.Services.TryAddSingleton<ITraceContextAccessor, TraceContextAccessor>();
-    builder
-        .Services.AddOptions<TraceHeader>()
-        .Bind(builder.Configuration)
-        .ValidateDataAnnotations()
-        .ValidateOnStart();
+    builder.Services.AddOptions<TraceHeader>().Bind(builder.Configuration).ValidateDataAnnotations().ValidateOnStart();
     builder.Services.AddTracingForConsumers();
 
     builder.Services.AddSingleton<IConfigureOptions<HeaderPropagationOptions>>(sp =>

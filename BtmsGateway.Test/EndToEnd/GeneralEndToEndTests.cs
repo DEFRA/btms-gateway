@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace BtmsGateway.Test.EndToEnd;
 
+[Trait("Dependence", "localstack")]
 public sealed class GeneralEndToEndTests : IDisposable
 {
     private bool _disposed;
@@ -26,34 +27,71 @@ public sealed class GeneralEndToEndTests : IDisposable
 
     public GeneralEndToEndTests()
     {
-        _soapContent = $"<Envelope><Body><Message><Xml>Content</Xml><CorrelationId>{_headerCorrelationId}</CorrelationId></Message></Body></Envelope>";
+        _soapContent =
+            $"<Envelope><Body><Message><Xml>Content</Xml><CorrelationId>{_headerCorrelationId}</CorrelationId></Message></Body></Envelope>";
         var routingConfig = new RoutingConfig
         {
             NamedRoutes = new Dictionary<string, NamedRoute>
             {
                 {
-                    "Test", new NamedRoute
+                    "Test",
+                    new NamedRoute
                     {
                         RoutePath = "test/path",
                         LegacyLinkName = "TestPath",
                         BtmsLinkName = "BtmsPath",
                         Legend = "legend",
                         MessageSubXPath = "Message",
-                        RouteTo = RouteTo.Legacy
+                        RouteTo = RouteTo.Legacy,
                     }
-                }
+                },
             },
             NamedLinks = new Dictionary<string, NamedLink>
             {
-                { "TestPath", new NamedLink { Link = "http://TestUrlPath", LinkType = LinkType.Url } },
-                { "BtmsPath", new NamedLink { Link = "http://BtmsUrlPath/forked", LinkType = LinkType.Url } }
+                {
+                    "TestPath",
+                    new NamedLink { Link = "http://TestUrlPath", LinkType = LinkType.Url }
+                },
+                {
+                    "BtmsPath",
+                    new NamedLink { Link = "http://BtmsUrlPath/forked", LinkType = LinkType.Url }
+                },
             },
             Destinations = new Dictionary<string, Destination>
             {
-                { "BtmsCds", new Destination { LinkType = LinkType.Url, Link = "http://alvs-cds-host", RoutePath = "/ws/CDS/defra/alvsclearanceinbound/v1", ContentType = "application/soap+xml", HostHeader = "syst32.hmrc.gov.uk", Method = "POST" } },
-                { "BtmsDecisionComparer", new Destination { LinkType = LinkType.Url, Link = "http://trade-imports-decision-comparer-host", RoutePath = "/btms-decisions/", ContentType = "application/soap+xml" } },
-                { "AlvsDecisionComparer", new Destination { LinkType = LinkType.Url, Link = "http://trade-imports-decision-comparer-host", RoutePath = "/alvs-decisions/", ContentType = "application/soap+xml" } }
-            }
+                {
+                    "BtmsCds",
+                    new Destination
+                    {
+                        LinkType = LinkType.Url,
+                        Link = "http://alvs-cds-host",
+                        RoutePath = "/ws/CDS/defra/alvsclearanceinbound/v1",
+                        ContentType = "application/soap+xml",
+                        HostHeader = "syst32.hmrc.gov.uk",
+                        Method = "POST",
+                    }
+                },
+                {
+                    "BtmsDecisionComparer",
+                    new Destination
+                    {
+                        LinkType = LinkType.Url,
+                        Link = "http://trade-imports-decision-comparer-host",
+                        RoutePath = "/btms-decisions/",
+                        ContentType = "application/soap+xml",
+                    }
+                },
+                {
+                    "AlvsDecisionComparer",
+                    new Destination
+                    {
+                        LinkType = LinkType.Url,
+                        Link = "http://trade-imports-decision-comparer-host",
+                        RoutePath = "/alvs-decisions/",
+                        ContentType = "application/soap+xml",
+                    }
+                },
+            },
         };
         _testWebServer = TestWebServer.BuildAndRun(ServiceDescriptor.Singleton(routingConfig));
         _httpClient = _testWebServer.HttpServiceClient;
@@ -78,12 +116,7 @@ public sealed class GeneralEndToEndTests : IDisposable
 
         if (disposing)
         {
-            var disposeTask = _testWebServer.DisposeAsync();
-            if (disposeTask.IsCompleted)
-            {
-                return;
-            }
-            disposeTask.AsTask().GetAwaiter().GetResult();
+            _testWebServer.Dispose();
         }
 
         _disposed = true;
@@ -99,7 +132,11 @@ public sealed class GeneralEndToEndTests : IDisposable
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         response.Content.Headers.ContentType?.ToString().Should().Be(MediaTypeNames.Application.Xml);
         response.Headers.Date.Should().BeAfter(_headerDate);
-        response.Headers.GetValues(MessageData.CorrelationIdHeaderName).FirstOrDefault().Should().Be(_headerCorrelationId);
+        response
+            .Headers.GetValues(MessageData.CorrelationIdHeaderName)
+            .FirstOrDefault()
+            .Should()
+            .Be(_headerCorrelationId);
         response.Headers.GetValues(MessageData.RequestedPathHeaderName).FirstOrDefault().Should().Be(RoutedPath);
         (await response.Content.ReadAsStringAsync()).Should().Be(_soapContent);
     }
@@ -117,7 +154,11 @@ public sealed class GeneralEndToEndTests : IDisposable
         (await request?.Content?.ReadAsStringAsync()!).Should().Be(_soapContent);
         request?.Content?.Headers.ContentType?.ToString().Should().StartWith(MediaTypeNames.Application.Xml);
         request?.Headers.Date?.Should().Be(_headerDate);
-        request?.Headers.GetValues(MessageData.CorrelationIdHeaderName).FirstOrDefault().Should().Be(_headerCorrelationId);
+        request
+            ?.Headers.GetValues(MessageData.CorrelationIdHeaderName)
+            .FirstOrDefault()
+            .Should()
+            .Be(_headerCorrelationId);
 
         var response = _testWebServer.RoutedHttpHandler.LastResponse;
         response?.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -129,7 +170,8 @@ public sealed class GeneralEndToEndTests : IDisposable
     public async Task When_routing_forked_request_Then_should_route_correctly()
     {
         var xmlForkedResponse = "<Envelope><Body><Message><Xml>ForkedResponse</Xml></Message></Body></Envelope>";
-        var jsonContent = $"{{{Environment.NewLine}  \"xml\": \"Content\",{Environment.NewLine}  \"correlationId\": \"{_headerCorrelationId}\"{Environment.NewLine}}}";
+        var jsonContent =
+            $"{{{Environment.NewLine}  \"xml\": \"Content\",{Environment.NewLine}  \"correlationId\": \"{_headerCorrelationId}\"{Environment.NewLine}}}";
 
         _testWebServer.ForkedHttpHandler.SetNextResponse(content: xmlForkedResponse);
 
@@ -141,7 +183,11 @@ public sealed class GeneralEndToEndTests : IDisposable
         (await request?.Content?.ReadAsStringAsync()!).Should().Be(jsonContent);
         request?.Content?.Headers.ContentType?.ToString().Should().StartWith(MediaTypeNames.Application.Json);
         request?.Headers.Date?.Should().Be(_headerDate);
-        request?.Headers.GetValues(MessageData.CorrelationIdHeaderName).FirstOrDefault().Should().Be(_headerCorrelationId);
+        request
+            ?.Headers.GetValues(MessageData.CorrelationIdHeaderName)
+            .FirstOrDefault()
+            .Should()
+            .Be(_headerCorrelationId);
 
         var response = _testWebServer.ForkedHttpHandler.LastResponse;
         response?.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -155,7 +201,9 @@ public sealed class GeneralEndToEndTests : IDisposable
     [InlineData(HttpStatusCode.NoContent)]
     [InlineData(HttpStatusCode.NotFound)]
     [InlineData(HttpStatusCode.BadRequest)]
-    public async Task When_routed_request_returns_specific_status_code_Then_should_respond_with_same_status_code(HttpStatusCode targetStatusCode)
+    public async Task When_routed_request_returns_specific_status_code_Then_should_respond_with_same_status_code(
+        HttpStatusCode targetStatusCode
+    )
     {
         _testWebServer.RoutedHttpHandler.SetNextResponse(statusFunc: () => targetStatusCode);
 
@@ -170,7 +218,9 @@ public sealed class GeneralEndToEndTests : IDisposable
     [InlineData(HttpStatusCode.NoContent)]
     [InlineData(HttpStatusCode.NotFound)]
     [InlineData(HttpStatusCode.BadRequest)]
-    public async Task When_forked_request_returns_specific_status_code_Then_should_respond_with_routed_status_code(HttpStatusCode targetStatusCode)
+    public async Task When_forked_request_returns_specific_status_code_Then_should_respond_with_routed_status_code(
+        HttpStatusCode targetStatusCode
+    )
     {
         _testWebServer.ForkedHttpHandler.SetNextResponse(statusFunc: () => targetStatusCode);
 
@@ -183,7 +233,9 @@ public sealed class GeneralEndToEndTests : IDisposable
     public async Task When_routed_request_returns_502_Then_should_retry()
     {
         var callNum = 0;
-        _testWebServer.RoutedHttpHandler.SetNextResponse(statusFunc: () => ++callNum == 1 ? HttpStatusCode.BadGateway : HttpStatusCode.OK);
+        _testWebServer.RoutedHttpHandler.SetNextResponse(statusFunc: () =>
+            ++callNum == 1 ? HttpStatusCode.BadGateway : HttpStatusCode.OK
+        );
 
         var response = await _httpClient.PostAsync(RoutedPath, _stringContent);
 
@@ -195,7 +247,9 @@ public sealed class GeneralEndToEndTests : IDisposable
     public async Task When_forked_request_returns_502_Then_should_retry()
     {
         var callNum = 0;
-        _testWebServer.ForkedHttpHandler.SetNextResponse(statusFunc: () => ++callNum == 1 ? HttpStatusCode.BadGateway : HttpStatusCode.OK);
+        _testWebServer.ForkedHttpHandler.SetNextResponse(statusFunc: () =>
+            ++callNum == 1 ? HttpStatusCode.BadGateway : HttpStatusCode.OK
+        );
 
         var response = await _httpClient.PostAsync(RoutedPath, _stringContent);
 

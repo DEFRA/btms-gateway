@@ -7,8 +7,7 @@ EXPOSE 4510-4559
 
 COPY ./compose/start-localstack.sh /etc/localstack/init/ready.d/
 
-RUN addgroup -S nonroot \
-    && adduser -S nonroot -G nonroot
+RUN adduser --system --group nonroot
 
 USER nonroot
 

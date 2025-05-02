@@ -63,11 +63,15 @@ public class SoapContent
     private static string? GetDecodedString(string? soapString)
     {
         // Dealing with the raw soap string here as we don't know how to decode and load it into XML without knowing the contained message type
-        if (soapString is not null && soapString.Contains(s_htmlCodedMessageNamespace) && s_htmlCodedMessages.Any(soapString.Contains))
+        if (
+            soapString is not null
+            && soapString.Contains(s_htmlCodedMessageNamespace)
+            && s_htmlCodedMessages.Any(soapString.Contains)
+        )
         {
             return HttpUtility.HtmlDecode(soapString);
         }
-        
+
         return soapString;
     }
 }

@@ -6,7 +6,7 @@ namespace BtmsGateway.Test.Services.Converter;
 public class SoapContentTests
 {
     private const string Declaration = "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
-    
+
     private static readonly string s_testDataPath = Path.Combine(
         AppDomain.CurrentDomain.BaseDirectory,
         "Services",
@@ -140,9 +140,11 @@ public class SoapContentTests
     public void When_soap_value_contains_xml_character_entities_Then_the_soap_string_should_successfully_parse_into_soap_content()
     {
         var soap = File.ReadAllText(Path.Combine(s_testDataPath, "ClearanceRequestWithXmlCharacterEntityValues.xml"));
-        
+
         var soapContent = new SoapContent(soap);
 
-        soapContent.SoapString.Should().Contain("<GoodsDescription>XML Character Entities &quot; &apos; &lt; &gt; &amp;</GoodsDescription>");
+        soapContent
+            .SoapString.Should()
+            .Contain("<GoodsDescription>XML Character Entities &quot; &apos; &lt; &gt; &amp;</GoodsDescription>");
     }
 }

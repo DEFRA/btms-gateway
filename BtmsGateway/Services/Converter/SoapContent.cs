@@ -5,13 +5,20 @@ namespace BtmsGateway.Services.Converter;
 
 public class SoapContent
 {
+    private static readonly string[] s_htmlCodedMessageNamespaces =
+    [
+        "http://www.hmrc.gov.uk/webservices/itsw/ws/decisionnotification",
+        "http://www.hmrc.gov.uk/webservices/itsw/ws/hmrcerrornotification",
+    ];
+    private static readonly string[] s_htmlCodedMessages = ["DecisionNotification", "HMRCErrorNotification"];
+
     public string? SoapString { get; }
 
     private readonly XmlNode? _soapXmlNode;
 
     public SoapContent(string? soapString)
     {
-        SoapString = HttpUtility.HtmlDecode(soapString);
+        SoapString = GetDecodedString(soapString);
         var soapXmlNode = GetElement(SoapString);
         _soapXmlNode = soapXmlNode;
     }
@@ -55,5 +62,20 @@ public class SoapContent
         var doc = new XmlDocument();
         doc.LoadXml(soapString);
         return doc.DocumentElement;
+    }
+
+    private static string? GetDecodedString(string? soapString)
+    {
+        // Dealing with the raw soap string here as we don't know how to decode and load it into XML without knowing the contained message type
+        if (
+            soapString is not null
+            && s_htmlCodedMessageNamespaces.Any(soapString.Contains)
+            && s_htmlCodedMessages.Any(soapString.Contains)
+        )
+        {
+            return HttpUtility.HtmlDecode(soapString);
+        }
+
+        return soapString;
     }
 }

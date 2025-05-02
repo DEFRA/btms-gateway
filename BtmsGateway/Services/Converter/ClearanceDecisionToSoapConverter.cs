@@ -57,9 +57,13 @@ public static class ClearanceDecisionToSoapConverter
             );
         }
 
-        if (check.DecisionReasons is not null)
+        if (check.DecisionReasons is null)
+            return checkElement;
+
+        foreach (var checkDecisionReason in check.DecisionReasons)
         {
-            checkElement.Add(new XElement("DecisionReason", string.Join(", ", check.DecisionReasons)));
+            if (!string.IsNullOrEmpty(checkDecisionReason))
+                checkElement.Add(new XElement("DecisionReason", checkDecisionReason));
         }
 
         return checkElement;

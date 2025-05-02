@@ -2,6 +2,7 @@ using System.Net;
 using BtmsGateway.Domain;
 using BtmsGateway.Exceptions;
 using BtmsGateway.Utils;
+using Microsoft.FeatureManagement;
 using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Services.Routing;
@@ -21,14 +22,21 @@ public class DecisionSender : IDecisionSender
 {
     private readonly RoutingConfig? _routingConfig;
     private readonly IApiSender _apiSender;
+    private readonly IFeatureManager _featureManager;
     private readonly ILogger _logger;
     private readonly Destination _btmsDecisionsComparerDestination;
     private readonly Destination _alvsDecisionComparerDestination;
 
-    public DecisionSender(RoutingConfig? routingConfig, IApiSender apiSender, ILogger logger)
+    public DecisionSender(
+        RoutingConfig? routingConfig,
+        IApiSender apiSender,
+        IFeatureManager featureManager,
+        ILogger logger
+    )
     {
         _routingConfig = routingConfig;
         _apiSender = apiSender;
+        _featureManager = featureManager;
         _logger = logger;
 
         _btmsDecisionsComparerDestination = GetDestination(MessagingConstants.Destinations.BtmsDecisionComparer);
@@ -76,8 +84,15 @@ public class DecisionSender : IDecisionSender
             );
             throw new DecisionComparisonException($"{mrn} Failed to send Decision to Decision Comparer.");
         }
-
-        await ForwardDecisionAsync(mrn, decisionSource, comparerResponse, cancellationToken);
+        
+        if (await _featureManager.IsEnabledAsync(Features.SendBtmsDecisionToCds) && decisionSource == MessagingConstants.DecisionSource.Btms)
+        {
+            
+        }
+        else
+        {
+            await ForwardDecisionAsync(mrn, decisionSource, comparerResponse, cancellationToken);
+        }
 
         var fullLink =
             decisionSource == MessagingConstants.DecisionSource.Btms

@@ -4,6 +4,7 @@ using BtmsGateway.Exceptions;
 using BtmsGateway.Services.Routing;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.FeatureManagement;
 using NSubstitute;
 using Serilog;
 
@@ -13,6 +14,7 @@ public class DecisionSenderTests
 {
     private RoutingConfig _routingConfig;
     private readonly IApiSender _apiSender = Substitute.For<IApiSender>();
+    private readonly IFeatureManager _featureManager = Substitute.For<IFeatureManager>();
     private readonly ILogger _logger = Substitute.For<ILogger>();
     private readonly DecisionSender _decisionSender;
 
@@ -74,8 +76,10 @@ public class DecisionSenderTests
                 Arg.Any<CancellationToken>()
             )
             .Returns(new HttpResponseMessage(HttpStatusCode.OK));
+        
+        _featureManager.IsEnabledAsync(Features.SendBtmsDecisionToCds).Returns(false);
 
-        _decisionSender = new DecisionSender(_routingConfig, _apiSender, _logger);
+        _decisionSender = new DecisionSender(_routingConfig, _apiSender, _featureManager, _logger);
     }
 
     [Fact]
@@ -195,7 +199,7 @@ public class DecisionSenderTests
         };
 
         var thrownException = Assert.Throws<ArgumentException>(() =>
-            new DecisionSender(_routingConfig, _apiSender, _logger)
+            new DecisionSender(_routingConfig, _apiSender, _featureManager, _logger)
         );
         thrownException.Message.Should().Be("Destination configuration could not be found for BtmsDecisionComparer.");
     }
@@ -235,7 +239,7 @@ public class DecisionSenderTests
         };
 
         var thrownException = Assert.Throws<ArgumentException>(() =>
-            new DecisionSender(_routingConfig, _apiSender, _logger)
+            new DecisionSender(_routingConfig, _apiSender, _featureManager, _logger)
         );
         thrownException.Message.Should().Be("Destination configuration could not be found for AlvsDecisionComparer.");
     }
@@ -335,5 +339,11 @@ public class DecisionSenderTests
             )
         );
         thrownException.Message.Should().Be("mrn-123 Decision Comparer returned an invalid decision.");
+    }
+
+    [Fact]
+    public async Task When_send_btms_decision_to_cds_feature_is_enabled_Then_only_btms_decision_is_sent_to_cds()
+    {
+        // TODO
     }
 }

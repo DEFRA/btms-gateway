@@ -14,18 +14,23 @@ public interface IDecisionSender
         string? decision,
         MessagingConstants.DecisionSource decisionSource,
         IHeaderDictionary? headers = null,
+        string? externalCorrelationId = null,
         CancellationToken cancellationToken = default
     );
 }
 
 public class DecisionSender : IDecisionSender
 {
+    private const string CorrelationIdHeaderName = "CorrelationId";
+    private const string AcceptHeaderName = "Accept";
+
     private readonly RoutingConfig? _routingConfig;
     private readonly IApiSender _apiSender;
     private readonly IFeatureManager _featureManager;
     private readonly ILogger _logger;
     private readonly Destination _btmsDecisionsComparerDestination;
     private readonly Destination _alvsDecisionComparerDestination;
+    private readonly Destination _btmsToCdsDestination;
 
     public DecisionSender(
         RoutingConfig? routingConfig,
@@ -41,6 +46,7 @@ public class DecisionSender : IDecisionSender
 
         _btmsDecisionsComparerDestination = GetDestination(MessagingConstants.Destinations.BtmsDecisionComparer);
         _alvsDecisionComparerDestination = GetDestination(MessagingConstants.Destinations.AlvsDecisionComparer);
+        _btmsToCdsDestination = GetDestination(MessagingConstants.Destinations.BtmsCds);
     }
 
     public async Task<RoutingResult> SendDecisionAsync(
@@ -48,6 +54,7 @@ public class DecisionSender : IDecisionSender
         string? decision,
         MessagingConstants.DecisionSource decisionSource,
         IHeaderDictionary? headers = null,
+        string? externalCorrelationId = null,
         CancellationToken cancellationToken = default
     )
     {
@@ -84,15 +91,15 @@ public class DecisionSender : IDecisionSender
             );
             throw new DecisionComparisonException($"{mrn} Failed to send Decision to Decision Comparer.");
         }
-        
-        if (await _featureManager.IsEnabledAsync(Features.SendBtmsDecisionToCds) && decisionSource == MessagingConstants.DecisionSource.Btms)
-        {
-            
-        }
-        else
-        {
-            await ForwardDecisionAsync(mrn, decisionSource, comparerResponse, cancellationToken);
-        }
+
+        var cdsResponse = await ForwardDecisionAsync(
+            mrn,
+            decisionSource,
+            comparerResponse,
+            decision,
+            externalCorrelationId,
+            cancellationToken
+        );
 
         var fullLink =
             decisionSource == MessagingConstants.DecisionSource.Btms
@@ -107,20 +114,42 @@ public class DecisionSender : IDecisionSender
             RoutingSuccessful = true,
             FullRouteLink = fullLink,
             FullForkLink = fullLink,
-            StatusCode = comparerResponse.StatusCode,
-            ResponseContent = "Decision Comparer Result",
+            StatusCode = cdsResponse?.StatusCode ?? HttpStatusCode.NoContent,
+            ResponseContent = await GetResponseContentAsync(cdsResponse, cancellationToken),
         };
     }
 
-    private async Task ForwardDecisionAsync(
+    private async Task<HttpResponseMessage?> ForwardDecisionAsync(
         string? mrn,
         MessagingConstants.DecisionSource decisionSource,
         HttpResponseMessage? comparerResponse,
+        string originalDecision,
+        string? externalCorrelationId,
         CancellationToken cancellationToken
     )
     {
-        if (decisionSource == MessagingConstants.DecisionSource.Alvs)
+        if (
+            await _featureManager.IsEnabledAsync(Features.SendOnlyBtmsDecisionToCds)
+            && decisionSource == MessagingConstants.DecisionSource.Btms
+        )
         {
+            _logger.Debug("{MRN} Sending BTMS Decision to CDS.", mrn);
+
+            return await SendCdsFormattedSoapMessageAsync(
+                mrn,
+                originalDecision,
+                externalCorrelationId,
+                cancellationToken
+            );
+        }
+
+        if (
+            !await _featureManager.IsEnabledAsync(Features.SendOnlyBtmsDecisionToCds)
+            && decisionSource == MessagingConstants.DecisionSource.Alvs
+        )
+        {
+            _logger.Debug("{MRN} Sending Decision received from Decision Comparer to CDS.", mrn);
+
             var comparerDecision = await GetResponseContentAsync(comparerResponse, cancellationToken);
 
             if (string.IsNullOrWhiteSpace(comparerDecision))
@@ -139,7 +168,50 @@ public class DecisionSender : IDecisionSender
                 comparerDecision
             );
             // Just log decision for now. Eventually, in cut over, will send the Decision to CDS.
+            // Ensure original ALVS request headers are passed through and appended in SendCdsFormattedSoapMessageAsync!
+            // Pass the CDS response back out!
+            return null;
         }
+
+        return null;
+    }
+
+    private async Task<HttpResponseMessage?> SendCdsFormattedSoapMessageAsync(
+        string? mrn,
+        string soapMessage,
+        string? externalCorrelationId,
+        CancellationToken cancellationToken
+    )
+    {
+        var destination = string.Concat(_btmsToCdsDestination.Link, _btmsToCdsDestination.RoutePath);
+        var headers = new Dictionary<string, string> { { AcceptHeaderName, _btmsToCdsDestination.ContentType } };
+
+        if (!string.IsNullOrWhiteSpace(externalCorrelationId))
+            headers.Add(CorrelationIdHeaderName, externalCorrelationId);
+
+        var response = await _apiSender.SendSoapMessageAsync(
+            _btmsToCdsDestination.Method ?? "POST",
+            destination,
+            _btmsToCdsDestination.ContentType,
+            _btmsToCdsDestination.HostHeader,
+            headers,
+            soapMessage,
+            cancellationToken
+        );
+
+        if (!response.IsSuccessStatusCode)
+        {
+            _logger.Error(
+                "{MRN} Failed to send clearance decision to CDS. CDS Response Status Code: {StatusCode}, Reason: {Reason}, Content: {Content}",
+                mrn,
+                response.StatusCode,
+                response.ReasonPhrase,
+                await GetResponseContentAsync(response, cancellationToken)
+            );
+            throw new DecisionComparisonException($"{mrn} Failed to send clearance decision to CDS.");
+        }
+
+        return response;
     }
 
     private Destination GetDestination(string destinationKey)

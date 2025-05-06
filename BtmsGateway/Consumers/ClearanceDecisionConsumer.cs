@@ -53,6 +53,7 @@ public class ClearanceDecisionConsumer(ITradeImportsDataApiClient api, IDecision
                 mrn,
                 soapMessage,
                 MessagingConstants.DecisionSource.Btms,
+                externalCorrelationId: customsDeclaration.ClearanceDecision.ExternalCorrelationId,
                 cancellationToken: cancellationToken
             );
 

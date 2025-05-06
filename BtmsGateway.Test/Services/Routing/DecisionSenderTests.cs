@@ -4,6 +4,7 @@ using BtmsGateway.Exceptions;
 using BtmsGateway.Services.Routing;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.FeatureManagement;
 using NSubstitute;
 using Serilog;
 
@@ -13,6 +14,7 @@ public class DecisionSenderTests
 {
     private RoutingConfig _routingConfig;
     private readonly IApiSender _apiSender = Substitute.For<IApiSender>();
+    private readonly IFeatureManager _featureManager = Substitute.For<IFeatureManager>();
     private readonly ILogger _logger = Substitute.For<ILogger>();
     private readonly DecisionSender _decisionSender;
 
@@ -73,9 +75,11 @@ public class DecisionSenderTests
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>()
             )
-            .Returns(new HttpResponseMessage(HttpStatusCode.OK));
+            .Returns(new HttpResponseMessage(HttpStatusCode.NoContent));
 
-        _decisionSender = new DecisionSender(_routingConfig, _apiSender, _logger);
+        _featureManager.IsEnabledAsync(Features.SendOnlyBtmsDecisionToCds).Returns(false);
+
+        _decisionSender = new DecisionSender(_routingConfig, _apiSender, _featureManager, _logger);
     }
 
     [Fact]
@@ -100,8 +104,8 @@ public class DecisionSenderTests
                     RoutingSuccessful = true,
                     FullRouteLink = "http://decision-comparer-url/btms-decisions/mrn-123",
                     FullForkLink = "http://decision-comparer-url/btms-decisions/mrn-123",
-                    StatusCode = HttpStatusCode.OK,
-                    ResponseContent = "Decision Comparer Result",
+                    StatusCode = HttpStatusCode.NoContent,
+                    ResponseContent = string.Empty,
                 }
             );
 
@@ -139,6 +143,7 @@ public class DecisionSenderTests
             "<AlvsDecisionNotification />",
             MessagingConstants.DecisionSource.Alvs,
             new HeaderDictionary(),
+            "external-correlation-id",
             CancellationToken.None
         );
 
@@ -154,10 +159,11 @@ public class DecisionSenderTests
                     RoutingSuccessful = true,
                     FullRouteLink = "http://decision-comparer-url/alvs-decisions/mrn-123",
                     FullForkLink = "http://decision-comparer-url/alvs-decisions/mrn-123",
-                    StatusCode = HttpStatusCode.OK,
-                    ResponseContent = "Decision Comparer Result",
+                    StatusCode = HttpStatusCode.NoContent,
+                    ResponseContent = string.Empty,
                 }
             );
+        // In cut over, add assertion that a call to send to CDS was made
     }
 
     [Fact]
@@ -195,7 +201,7 @@ public class DecisionSenderTests
         };
 
         var thrownException = Assert.Throws<ArgumentException>(() =>
-            new DecisionSender(_routingConfig, _apiSender, _logger)
+            new DecisionSender(_routingConfig, _apiSender, _featureManager, _logger)
         );
         thrownException.Message.Should().Be("Destination configuration could not be found for BtmsDecisionComparer.");
     }
@@ -235,9 +241,47 @@ public class DecisionSenderTests
         };
 
         var thrownException = Assert.Throws<ArgumentException>(() =>
-            new DecisionSender(_routingConfig, _apiSender, _logger)
+            new DecisionSender(_routingConfig, _apiSender, _featureManager, _logger)
         );
         thrownException.Message.Should().Be("Destination configuration could not be found for AlvsDecisionComparer.");
+    }
+
+    [Fact]
+    public void When_btms_to_cds_destination_config_has_not_been_set_Then_exception_is_thrown()
+    {
+        _routingConfig = new RoutingConfig
+        {
+            NamedRoutes = new Dictionary<string, NamedRoute>(),
+            NamedLinks = new Dictionary<string, NamedLink>(),
+            Destinations = new Dictionary<string, Destination>
+            {
+                {
+                    MessagingConstants.Destinations.BtmsDecisionComparer,
+                    new Destination
+                    {
+                        LinkType = LinkType.Url,
+                        Link = "http://decision-comparer-url",
+                        RoutePath = "/btms-decisions/",
+                        ContentType = "application/soap+xml",
+                    }
+                },
+                {
+                    MessagingConstants.Destinations.AlvsDecisionComparer,
+                    new Destination
+                    {
+                        LinkType = LinkType.Url,
+                        Link = "http://decision-comparer-url",
+                        RoutePath = "/alvs-decisions/",
+                        ContentType = "application/soap+xml",
+                    }
+                },
+            },
+        };
+
+        var thrownException = Assert.Throws<ArgumentException>(() =>
+            new DecisionSender(_routingConfig, _apiSender, _featureManager, _logger)
+        );
+        thrownException.Message.Should().Be("Destination configuration could not be found for BtmsCds.");
     }
 
     [Fact]
@@ -276,6 +320,7 @@ public class DecisionSenderTests
                 "<AlvsDecisionNotification />",
                 MessagingConstants.DecisionSource.Alvs,
                 new HeaderDictionary(),
+                "external-correlation-id",
                 CancellationToken.None
             )
         );
@@ -304,6 +349,7 @@ public class DecisionSenderTests
                 "<AlvsDecisionNotification />",
                 MessagingConstants.DecisionSource.Alvs,
                 new HeaderDictionary(),
+                "external-correlation-id",
                 CancellationToken.None
             )
         );
@@ -331,9 +377,137 @@ public class DecisionSenderTests
                 "<AlvsDecisionNotification />",
                 MessagingConstants.DecisionSource.Alvs,
                 new HeaderDictionary(),
+                "external-correlation-id",
                 CancellationToken.None
             )
         );
         thrownException.Message.Should().Be("mrn-123 Decision Comparer returned an invalid decision.");
+    }
+
+    [Fact]
+    public async Task When_send_only_btms_decision_to_cds_feature_is_enabled_Then_btms_decision_is_sent_to_cds()
+    {
+        _featureManager.IsEnabledAsync(Features.SendOnlyBtmsDecisionToCds).Returns(true);
+
+        var result = await _decisionSender.SendDecisionAsync(
+            "mrn-123",
+            "<BtmsDecisionNotification />",
+            MessagingConstants.DecisionSource.Btms,
+            externalCorrelationId: "external-correlation-id",
+            cancellationToken: CancellationToken.None
+        );
+
+        result.Should().BeAssignableTo<RoutingResult>();
+        result
+            .Should()
+            .BeEquivalentTo(
+                new RoutingResult
+                {
+                    RouteFound = true,
+                    RouteLinkType = LinkType.DecisionComparer,
+                    ForkLinkType = LinkType.DecisionComparer,
+                    RoutingSuccessful = true,
+                    FullRouteLink = "http://decision-comparer-url/btms-decisions/mrn-123",
+                    FullForkLink = "http://decision-comparer-url/btms-decisions/mrn-123",
+                    StatusCode = HttpStatusCode.NoContent,
+                    ResponseContent = string.Empty,
+                }
+            );
+
+        await _apiSender
+            .Received(1)
+            .SendSoapMessageAsync(
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<Dictionary<string, string>>(),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>()
+            );
+    }
+
+    [Fact]
+    public async Task When_send_only_btms_decision_to_cds_feature_is_enabled_and_cds_response_is_not_successful_Then_exception_is_thrown()
+    {
+        _featureManager.IsEnabledAsync(Features.SendOnlyBtmsDecisionToCds).Returns(true);
+
+        _apiSender
+            .SendSoapMessageAsync(
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<Dictionary<string, string>>(),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>()
+            )
+            .Returns(new HttpResponseMessage(HttpStatusCode.BadRequest));
+
+        var thrownException = await Assert.ThrowsAsync<DecisionComparisonException>(() =>
+            _decisionSender.SendDecisionAsync(
+                "mrn-123",
+                "<BtmsDecisionNotification />",
+                MessagingConstants.DecisionSource.Btms,
+                externalCorrelationId: "external-correlation-id",
+                cancellationToken: CancellationToken.None
+            )
+        );
+        thrownException.Message.Should().Be("mrn-123 Failed to send clearance decision to CDS.");
+
+        await _apiSender
+            .Received(1)
+            .SendSoapMessageAsync(
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<Dictionary<string, string>>(),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>()
+            );
+    }
+
+    [Fact]
+    public async Task When_send_only_btms_decision_to_cds_feature_is_enabled_Then_alvs_decision_is_not_sent_to_cds()
+    {
+        _featureManager.IsEnabledAsync(Features.SendOnlyBtmsDecisionToCds).Returns(true);
+
+        var result = await _decisionSender.SendDecisionAsync(
+            "mrn-123",
+            "<BtmsDecisionNotification />",
+            MessagingConstants.DecisionSource.Alvs,
+            externalCorrelationId: "external-correlation-id",
+            cancellationToken: CancellationToken.None
+        );
+
+        result.Should().BeAssignableTo<RoutingResult>();
+        result
+            .Should()
+            .BeEquivalentTo(
+                new RoutingResult
+                {
+                    RouteFound = true,
+                    RouteLinkType = LinkType.DecisionComparer,
+                    ForkLinkType = LinkType.DecisionComparer,
+                    RoutingSuccessful = true,
+                    FullRouteLink = "http://decision-comparer-url/alvs-decisions/mrn-123",
+                    FullForkLink = "http://decision-comparer-url/alvs-decisions/mrn-123",
+                    StatusCode = HttpStatusCode.NoContent,
+                    ResponseContent = string.Empty,
+                }
+            );
+
+        await _apiSender
+            .Received(0)
+            .SendSoapMessageAsync(
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<Dictionary<string, string>>(),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>()
+            );
     }
 }

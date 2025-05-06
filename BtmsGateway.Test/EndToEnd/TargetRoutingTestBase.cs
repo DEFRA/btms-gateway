@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace BtmsGateway.Test.EndToEnd;
 
 [Trait("Dependence", "localstack")]
+[Collection(EndToEndTestCollection.Name)]
 public abstract class TargetRoutingTestBase : IDisposable
 {
     private bool _disposed;

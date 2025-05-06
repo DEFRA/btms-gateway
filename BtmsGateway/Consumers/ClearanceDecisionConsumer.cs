@@ -19,13 +19,19 @@ public class ClearanceDecisionConsumer(ITradeImportsDataApiClient api, IDecision
         CancellationToken cancellationToken
     )
     {
-        logger.Information("Clearance Decision Resource Event received from queue.");
-
         if (context.Message is null)
         {
             logger.Error("Invalid message received from queue {Message}.", context.Message);
             throw new InvalidOperationException($"Invalid message received from queue {context.Message}.");
         }
+
+        if (context.Message.SubResourceType == nameof(CustomsDeclaration.InboundError))
+        {
+            logger.Information("Inbound Error Resource Event received from queue, discarding.");
+            return;
+        }
+
+        logger.Information("Clearance Decision Resource Event received from queue.");
 
         var mrn = context.Message.ResourceId;
 

@@ -65,9 +65,10 @@ public class ClearanceDecisionConsumerTests
 
         var customsDeclaration = new CustomsDeclarationResponse(
             "24GB123456789AB012",
-            null,
+            ClearanceRequest: null,
             clearanceDecision,
-            null,
+            Finalisation: null,
+            InboundError: null,
             DateTime.Now,
             DateTime.Now,
             null
@@ -141,9 +142,10 @@ public class ClearanceDecisionConsumerTests
     {
         var customsDeclaration = new CustomsDeclarationResponse(
             "24GB123456789AB012",
-            null,
-            null,
-            null,
+            ClearanceRequest: null,
+            ClearanceDecision: null,
+            Finalisation: null,
+            InboundError: null,
             DateTime.Now,
             DateTime.Now,
             null
@@ -209,5 +211,36 @@ public class ClearanceDecisionConsumerTests
         thrownException
             .InnerException?.Message.Should()
             .Be("24GB123456789AB012 Failed to send clearance decision to Decision Comparer.");
+    }
+
+    [Fact]
+    public async Task When_processing_inbound_error_Then_discarded()
+    {
+        var resourceEvent = new ResourceEvent<CustomsDeclaration>
+        {
+            ResourceId = "24GB123456789AB012",
+            ResourceType = "CustomsDeclaration",
+            SubResourceType = "InboundError",
+            Operation = "Updated",
+        };
+
+        _context.Message.Returns(resourceEvent);
+
+        _tradeImportsDataApiClient
+            .GetCustomsDeclaration(Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Throws(new Exception("BOOM!"));
+
+        await _consumer.OnHandle(_context, CancellationToken.None);
+
+        await _decisionSender
+            .DidNotReceive()
+            .SendDecisionAsync(
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<MessagingConstants.DecisionSource>(),
+                Arg.Any<IHeaderDictionary>(),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>()
+            );
     }
 }

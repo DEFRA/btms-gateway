@@ -1,7 +1,6 @@
+using System.Text.Json;
 using BtmsGateway.Config;
 using BtmsGateway.Consumers;
-using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
-using Defra.TradeImportsDataApi.Domain.Events;
 using SlimMessageBus.Host;
 using SlimMessageBus.Host.AmazonSQS;
 using SlimMessageBus.Host.Serialization.SystemTextJson;
@@ -28,8 +27,8 @@ public static class AmazonConsumerExtensions
 
         messageBusBuilder.AddJsonSerializer();
 
-        messageBusBuilder.Consume<ResourceEvent<CustomsDeclaration>>(x =>
-            x.WithConsumerOfContext<ClearanceDecisionConsumer>().Queue(options.OutboundClearanceDecisionsQueueName)
+        messageBusBuilder.Consume<JsonElement>(x =>
+            x.WithConsumer<ConsumerMediator>().Queue(options.OutboundClearanceDecisionsQueueName)
         );
     }
 }

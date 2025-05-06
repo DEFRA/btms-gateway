@@ -79,6 +79,8 @@ public class TestWebServer : IDisposable
         _app = app;
 
         _app.RunAsync();
+
+        //var response = HttpServiceClient.GetAsync("/health").GetAwaiter().GetResult();
     }
 
     public void Dispose()

@@ -10,7 +10,6 @@ using Microsoft.Extensions.DependencyInjection;
 namespace BtmsGateway.Test.EndToEnd;
 
 [Trait("Dependence", "localstack")]
-[Collection(EndToEndTestCollection.Name)]
 public sealed class GeneralEndToEndTests : IDisposable
 {
     private bool _disposed;

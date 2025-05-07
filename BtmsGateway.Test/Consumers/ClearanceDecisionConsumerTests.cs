@@ -8,11 +8,11 @@ using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 using Defra.TradeImportsDataApi.Domain.Events;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using NSubstitute.ReturnsExtensions;
-using SlimMessageBus;
-using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Test.Consumers;
 
@@ -21,22 +21,19 @@ public class ClearanceDecisionConsumerTests
     private readonly ITradeImportsDataApiClient _tradeImportsDataApiClient =
         Substitute.For<ITradeImportsDataApiClient>();
     private readonly IDecisionSender _decisionSender = Substitute.For<IDecisionSender>();
-    private readonly ILogger _logger = Substitute.For<ILogger>();
-    private readonly IConsumerContext<ResourceEvent<CustomsDeclaration>> _context = Substitute.For<
-        IConsumerContext<ResourceEvent<CustomsDeclaration>>
-    >();
-    private ClearanceDecisionConsumer _consumer;
+    private readonly ILogger<ClearanceDecisionConsumer> _logger = NullLogger<ClearanceDecisionConsumer>.Instance;
+    private readonly ResourceEvent<CustomsDeclaration> _message;
+    private readonly ClearanceDecisionConsumer _consumer;
 
     public ClearanceDecisionConsumerTests()
     {
-        var resourceEvent = new ResourceEvent<CustomsDeclaration>
+        _message = new ResourceEvent<CustomsDeclaration>
         {
             ResourceId = "24GB123456789AB012",
             ResourceType = "CustomsDeclaration",
+            SubResourceType = "ClearanceDecision",
             Operation = "Updated",
         };
-
-        _context.Message.Returns(resourceEvent);
 
         var clearanceDecision = new ClearanceDecision
         {
@@ -97,7 +94,7 @@ public class ClearanceDecisionConsumerTests
             )
             .Returns(sendDecisionResult);
 
-        await _consumer.OnHandle(_context, CancellationToken.None);
+        await _consumer.OnHandle(_message, CancellationToken.None);
 
         await _decisionSender
             .Received(1)
@@ -112,23 +109,12 @@ public class ClearanceDecisionConsumerTests
     }
 
     [Fact]
-    public async Task When_message_is_null_Then_exception_is_thrown()
-    {
-        _context.Message.ReturnsNull();
-
-        var thrownException = await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            _consumer.OnHandle(_context, CancellationToken.None)
-        );
-        thrownException.Message.Should().StartWith("Invalid message received from queue");
-    }
-
-    [Fact]
     public async Task When_api_customs_declaration_is_null_Then_exception_is_thrown()
     {
         _tradeImportsDataApiClient.GetCustomsDeclaration(Arg.Any<string>(), Arg.Any<CancellationToken>()).ReturnsNull();
 
         var thrownException = await Assert.ThrowsAsync<ClearanceDecisionProcessingException>(() =>
-            _consumer.OnHandle(_context, CancellationToken.None)
+            _consumer.OnHandle(_message, CancellationToken.None)
         );
         thrownException.Message.Should().Be("24GB123456789AB012 Failed to process clearance decision resource event.");
         thrownException.InnerException.Should().BeAssignableTo<InvalidOperationException>();
@@ -156,7 +142,7 @@ public class ClearanceDecisionConsumerTests
             .Returns(customsDeclaration);
 
         var thrownException = await Assert.ThrowsAsync<ClearanceDecisionProcessingException>(() =>
-            _consumer.OnHandle(_context, CancellationToken.None)
+            _consumer.OnHandle(_message, CancellationToken.None)
         );
         thrownException.Message.Should().Be("24GB123456789AB012 Failed to process clearance decision resource event.");
         thrownException.InnerException.Should().BeAssignableTo<InvalidOperationException>();
@@ -180,7 +166,7 @@ public class ClearanceDecisionConsumerTests
             .ThrowsAsync(new Exception("Something went wrong"));
 
         var thrownException = await Assert.ThrowsAsync<ClearanceDecisionProcessingException>(() =>
-            _consumer.OnHandle(_context, CancellationToken.None)
+            _consumer.OnHandle(_message, CancellationToken.None)
         );
         thrownException.Message.Should().Be("24GB123456789AB012 Failed to process clearance decision resource event.");
         thrownException.InnerException.Should().BeAssignableTo<Exception>();
@@ -204,7 +190,7 @@ public class ClearanceDecisionConsumerTests
             .Returns(sendDecisionResult);
 
         var thrownException = await Assert.ThrowsAsync<ClearanceDecisionProcessingException>(() =>
-            _consumer.OnHandle(_context, CancellationToken.None)
+            _consumer.OnHandle(_message, CancellationToken.None)
         );
         thrownException.Message.Should().Be("24GB123456789AB012 Failed to process clearance decision resource event.");
         thrownException.InnerException.Should().BeAssignableTo<ClearanceDecisionProcessingException>();
@@ -216,7 +202,7 @@ public class ClearanceDecisionConsumerTests
     [Fact]
     public async Task When_processing_inbound_error_Then_discarded()
     {
-        var resourceEvent = new ResourceEvent<CustomsDeclaration>
+        var message = new ResourceEvent<CustomsDeclaration>
         {
             ResourceId = "24GB123456789AB012",
             ResourceType = "CustomsDeclaration",
@@ -224,13 +210,11 @@ public class ClearanceDecisionConsumerTests
             Operation = "Updated",
         };
 
-        _context.Message.Returns(resourceEvent);
-
         _tradeImportsDataApiClient
             .GetCustomsDeclaration(Arg.Any<string>(), Arg.Any<CancellationToken>())
             .Throws(new Exception("BOOM!"));
 
-        await _consumer.OnHandle(_context, CancellationToken.None);
+        await _consumer.OnHandle(message, CancellationToken.None);
 
         await _decisionSender
             .DidNotReceive()

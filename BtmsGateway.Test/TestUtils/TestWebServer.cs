@@ -80,7 +80,21 @@ public class TestWebServer : IDisposable
 
         _app.RunAsync();
 
-        HttpServiceClient.GetAsync("/health").GetAwaiter().GetResult();
+        AsyncWaiter
+            .WaitForAsync(async () =>
+            {
+                try
+                {
+                    var response = await HttpServiceClient.GetAsync("/health");
+                    return response.IsSuccessStatusCode;
+                }
+                catch
+                {
+                    return false;
+                }
+            })
+            .GetAwaiter()
+            .GetResult();
     }
 
     public void Dispose()

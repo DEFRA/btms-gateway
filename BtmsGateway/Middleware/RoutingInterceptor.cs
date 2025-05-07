@@ -9,6 +9,7 @@ public class RoutingInterceptor(
     RequestDelegate next,
     IMessageRouter messageRouter,
     MetricsHost metricsHost,
+    IRequestMetrics requestMetrics,
     ILogger logger
 )
 {
@@ -55,6 +56,8 @@ public class RoutingInterceptor(
     {
         var routingResult = await messageRouter.Route(messageData, metrics);
 
+        RecordRequest(routingResult, "Routing");
+
         if (routingResult.RouteFound && routingResult.RouteLinkType != LinkType.None)
             LogRouteFoundResults(messageData, routingResult, "Routing");
         else
@@ -67,10 +70,25 @@ public class RoutingInterceptor(
     {
         var routingResult = await messageRouter.Fork(messageData, metrics);
 
+        RecordRequest(routingResult, "Forking");
+
         if (routingResult.RouteFound && routingResult.ForkLinkType != LinkType.None)
             LogRouteFoundResults(messageData, routingResult, "Forking");
         else
             LogRouteNotFoundResults(messageData, routingResult, "Forking");
+    }
+
+    private void RecordRequest(RoutingResult routingResult, string routeAction)
+    {
+        if (routingResult.RouteFound)
+        {
+            requestMetrics.MessageReceived(
+                routingResult.MessageSubXPath,
+                routingResult.UrlPath,
+                routingResult.Legend,
+                routeAction
+            );
+        }
     }
 
     private void LogRouteFoundResults(MessageData messageData, RoutingResult routingResult, string action)

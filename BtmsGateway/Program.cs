@@ -4,6 +4,7 @@ using BtmsGateway.Extensions;
 using BtmsGateway.Middleware;
 using BtmsGateway.Services.Checking;
 using BtmsGateway.Services.Health;
+using BtmsGateway.Services.Metrics;
 using BtmsGateway.Services.Routing;
 using BtmsGateway.Utils;
 using BtmsGateway.Utils.Logging;
@@ -54,6 +55,7 @@ static Logger ConfigureLoggingAndTracing(WebApplicationBuilder builder)
     builder.Services.TryAddSingleton<ITraceContextAccessor, TraceContextAccessor>();
     builder.Services.AddOptions<TraceHeader>().Bind(builder.Configuration).ValidateDataAnnotations().ValidateOnStart();
     builder.Services.AddTracingForConsumers();
+    builder.Services.AddOperationalMetrics();
 
     builder.Services.AddSingleton<IConfigureOptions<HeaderPropagationOptions>>(sp =>
     {
@@ -90,6 +92,7 @@ static Logger ConfigureLoggingAndTracing(WebApplicationBuilder builder)
 [ExcludeFromCodeCoverage]
 static WebApplication ConfigureWebApplication(WebApplication app)
 {
+    app.UseEmfExporter();
     app.UseHttpLogging();
     app.UseMiddleware<RoutingInterceptor>();
     app.UseCustomHealthChecks();

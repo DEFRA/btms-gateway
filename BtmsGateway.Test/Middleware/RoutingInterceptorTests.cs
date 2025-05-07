@@ -52,6 +52,7 @@ public class RoutingInterceptorTests
             Substitute.For<RequestDelegate>(),
             messageRouter,
             metricsHost,
+            Substitute.For<IRequestMetrics>(),
             Substitute.For<ILogger>()
         );
 

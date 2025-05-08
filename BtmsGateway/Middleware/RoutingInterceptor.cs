@@ -13,6 +13,9 @@ public class RoutingInterceptor(
     ILogger logger
 )
 {
+    private const string RouteAction = "Routing";
+    private const string ForkAction = "Forking";
+
     public async Task InvokeAsync(HttpContext context)
     {
         try
@@ -56,12 +59,12 @@ public class RoutingInterceptor(
     {
         var routingResult = await messageRouter.Route(messageData, metrics);
 
-        RecordRequest(routingResult, "Routing");
+        RecordRequest(routingResult, RouteAction);
 
         if (routingResult.RouteFound && routingResult.RouteLinkType != LinkType.None)
-            LogRouteFoundResults(messageData, routingResult, "Routing");
+            LogRouteFoundResults(messageData, routingResult, RouteAction);
         else
-            LogRouteNotFoundResults(messageData, routingResult, "Routing");
+            LogRouteNotFoundResults(messageData, routingResult, RouteAction);
 
         await messageData.PopulateResponse(context.Response, routingResult);
     }
@@ -70,15 +73,15 @@ public class RoutingInterceptor(
     {
         var routingResult = await messageRouter.Fork(messageData, metrics);
 
-        RecordRequest(routingResult, "Forking");
+        RecordRequest(routingResult, ForkAction);
 
         if (routingResult.RouteFound && routingResult.ForkLinkType != LinkType.None)
-            LogRouteFoundResults(messageData, routingResult, "Forking");
+            LogRouteFoundResults(messageData, routingResult, ForkAction);
         else
-            LogRouteNotFoundResults(messageData, routingResult, "Forking");
+            LogRouteNotFoundResults(messageData, routingResult, ForkAction);
     }
 
-    private void RecordRequest(RoutingResult routingResult, string routeAction)
+    private void RecordRequest(RoutingResult routingResult, string action)
     {
         if (routingResult.RouteFound)
         {
@@ -86,7 +89,7 @@ public class RoutingInterceptor(
                 routingResult.MessageSubXPath,
                 routingResult.UrlPath,
                 routingResult.Legend,
-                routeAction
+                action
             );
         }
     }
@@ -99,7 +102,7 @@ public class RoutingInterceptor(
             messageData.ContentMap.MessageReference,
             action,
             routingResult.RoutingSuccessful ? "successful" : "failed",
-            action == "Routing" ? routingResult.FullRouteLink : routingResult.FullForkLink,
+            action == RouteAction ? routingResult.FullRouteLink : routingResult.FullForkLink,
             routingResult.StatusCode,
             routingResult.ResponseContent
         );

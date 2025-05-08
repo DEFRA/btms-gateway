@@ -51,11 +51,7 @@ public class MetricsInterceptorTests
     [Fact]
     public async Task When_message_handled_is_not_clearance_decision_Then_message_received_is_not_recorded()
     {
-        var headers = new Dictionary<string, object>
-        {
-            { MessageBusHeaders.ResourceType, "CustomsDeclaration" },
-            { MessageBusHeaders.SubResourceType, "ErrorNotification" },
-        };
+        var headers = new Dictionary<string, object>();
         consumerContext.Headers.Returns(headers);
 
         await interceptor.OnHandle(new CustomsDeclaration(), pipelineCompletedFunc, consumerContext);

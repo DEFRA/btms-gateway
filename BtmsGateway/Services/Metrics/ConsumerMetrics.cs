@@ -34,22 +34,22 @@ public class ConsumerMetrics : IConsumerMetrics
     {
         var meter = meterFactory.Create(MetricsConstants.MetricNames.MeterName);
         consumeTotal = meter.CreateCounter<long>(
-            "MessagingConsume",
+            MetricsConstants.InstrumentNames.MessagingConsume,
             Unit.COUNT.ToString(),
             description: "Number of messages consumed"
         );
         consumeFaultTotal = meter.CreateCounter<long>(
-            "MessagingConsumeErrors",
+            MetricsConstants.InstrumentNames.MessagingConsumeErrors,
             Unit.COUNT.ToString(),
             description: "Number of message consume faults"
         );
         consumerInProgress = meter.CreateCounter<long>(
-            "MessagingConsumeActive",
+            MetricsConstants.InstrumentNames.MessagingConsumeActive,
             Unit.COUNT.ToString(),
             description: "Number of consumers in progress"
         );
         consumeDuration = meter.CreateHistogram<double>(
-            "MessagingConsumeDuration",
+            MetricsConstants.InstrumentNames.MessagingConsumeDuration,
             Unit.MILLISECONDS.ToString(),
             "Elapsed time spent consuming a message, in millis"
         );

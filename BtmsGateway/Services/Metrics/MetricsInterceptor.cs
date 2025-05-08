@@ -1,10 +1,17 @@
+using BtmsGateway.Config;
 using BtmsGateway.Extensions;
+using Defra.TradeImportsDataApi.Domain.Events;
+using Microsoft.Extensions.Options;
 using SlimMessageBus;
 using SlimMessageBus.Host.Interceptor;
 
 namespace BtmsGateway.Services.Metrics;
 
-public class MetricsInterceptor<TMessage>(ConsumerMetrics consumerMetrics) : IConsumerInterceptor<TMessage>
+public class MetricsInterceptor<TMessage>(
+    IConsumerMetrics consumerMetrics,
+    IRequestMetrics requestMetrics,
+    IOptions<AwsSqsOptions> awsSqsOptions
+) : IConsumerInterceptor<TMessage>
     where TMessage : notnull
 {
     public async Task<object> OnHandle(TMessage message, Func<Task<object>> next, IConsumerContext context)
@@ -15,6 +22,22 @@ public class MetricsInterceptor<TMessage>(ConsumerMetrics consumerMetrics) : ICo
 
         try
         {
+            if (
+                string.Equals(
+                    subResourceType,
+                    ResourceEventSubResourceTypes.ClearanceDecision,
+                    StringComparison.InvariantCultureIgnoreCase
+                )
+            )
+            {
+                requestMetrics.MessageReceived(
+                    subResourceType,
+                    awsSqsOptions.Value.OutboundClearanceDecisionsQueueName,
+                    "BTMS Decision",
+                    "Consumer"
+                );
+            }
+
             consumerMetrics.Start(context.Path, context.Consumer.GetType().Name, resourceType, subResourceType);
             return await next();
         }

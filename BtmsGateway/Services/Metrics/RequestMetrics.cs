@@ -18,7 +18,7 @@ public class RequestMetrics : IRequestMetrics
         var meter = meterFactory.Create(MetricsConstants.MetricNames.MeterName);
 
         messagesReceived = meter.CreateCounter<long>(
-            "MessagesReceived",
+            MetricsConstants.InstrumentNames.MessagesReceived,
             Unit.COUNT.ToString(),
             "Count of messages received"
         );
@@ -33,6 +33,7 @@ public class RequestMetrics : IRequestMetrics
     {
         return new TagList
         {
+            { MetricsConstants.RequestTags.Service, Process.GetCurrentProcess().ProcessName },
             { MetricsConstants.RequestTags.MessageType, messageType },
             { MetricsConstants.RequestTags.RequestPath, requestPath },
             { MetricsConstants.RequestTags.Legend, legend },

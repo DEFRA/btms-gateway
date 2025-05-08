@@ -1,4 +1,5 @@
 using System.Diagnostics.Metrics;
+using System.Net;
 using System.Text;
 using BtmsGateway.Exceptions;
 using BtmsGateway.Middleware;
@@ -60,5 +61,77 @@ public class RoutingInterceptorTests
         ex.Message.Should().Be($"There was a routing error: Test exception");
         ex.InnerException.Should().BeAssignableTo<Exception>();
         ex.InnerException?.Message.Should().Be("Test exception");
+    }
+
+    [Fact]
+    public async Task When_request_message_type_is_identified_by_route_Then_message_received_metric_is_recorded()
+    {
+        var messageRouter = Substitute.For<IMessageRouter>();
+        messageRouter
+            .Route(Arg.Any<MessageData>(), Arg.Any<IMetrics>())
+            .Returns(
+                new RoutingResult
+                {
+                    RouteFound = true,
+                    MessageSubXPath = "KnownMessageType",
+                    UrlPath = "/some-known-route-path",
+                    Legend = "Known Message Type",
+                    RouteLinkType = LinkType.Url,
+                    RoutingSuccessful = true,
+                    FullRouteLink = "http://localhost/some-known-route-link",
+                    StatusCode = HttpStatusCode.OK,
+                    ResponseContent = RequestBody,
+                }
+            );
+        messageRouter
+            .Fork(Arg.Any<MessageData>(), Arg.Any<IMetrics>())
+            .Returns(
+                new RoutingResult
+                {
+                    RouteFound = true,
+                    MessageSubXPath = "KnownMessageType",
+                    UrlPath = "/some-known-route-path",
+                    Legend = "Known Message Type",
+                    RouteLinkType = LinkType.Queue,
+                    RoutingSuccessful = true,
+                    FullForkLink = "some-topic",
+                    StatusCode = HttpStatusCode.OK,
+                    ResponseContent = RequestBody,
+                }
+            );
+
+        var meter = new Meter("test");
+        var meterFactory = Substitute.For<IMeterFactory>();
+        meterFactory.Create(null!).ReturnsForAnyArgs(meter);
+        var metricsHost = Substitute.For<MetricsHost>(meterFactory);
+
+        var requestMetric = Substitute.For<IRequestMetrics>();
+
+        var sut = new RoutingInterceptor(
+            Substitute.For<RequestDelegate>(),
+            messageRouter,
+            metricsHost,
+            requestMetric,
+            Substitute.For<ILogger>()
+        );
+
+        await sut.InvokeAsync(_httpContext);
+
+        requestMetric
+            .Received(1)
+            .MessageReceived(
+                Arg.Is("KnownMessageType"),
+                Arg.Is("/some-known-route-path"),
+                Arg.Is("Known Message Type"),
+                Arg.Is("Routing")
+            );
+        requestMetric
+            .Received(1)
+            .MessageReceived(
+                Arg.Is("KnownMessageType"),
+                Arg.Is("/some-known-route-path"),
+                Arg.Is("Known Message Type"),
+                Arg.Is("Forking")
+            );
     }
 }

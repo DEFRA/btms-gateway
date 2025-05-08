@@ -9,9 +9,13 @@ public class RoutingInterceptor(
     RequestDelegate next,
     IMessageRouter messageRouter,
     MetricsHost metricsHost,
+    IRequestMetrics requestMetrics,
     ILogger logger
 )
 {
+    private const string RouteAction = "Routing";
+    private const string ForkAction = "Forking";
+
     public async Task InvokeAsync(HttpContext context)
     {
         try
@@ -55,10 +59,12 @@ public class RoutingInterceptor(
     {
         var routingResult = await messageRouter.Route(messageData, metrics);
 
+        RecordRequest(routingResult, RouteAction);
+
         if (routingResult.RouteFound && routingResult.RouteLinkType != LinkType.None)
-            LogRouteFoundResults(messageData, routingResult, "Routing");
+            LogRouteFoundResults(messageData, routingResult, RouteAction);
         else
-            LogRouteNotFoundResults(messageData, routingResult, "Routing");
+            LogRouteNotFoundResults(messageData, routingResult, RouteAction);
 
         await messageData.PopulateResponse(context.Response, routingResult);
     }
@@ -67,10 +73,25 @@ public class RoutingInterceptor(
     {
         var routingResult = await messageRouter.Fork(messageData, metrics);
 
+        RecordRequest(routingResult, ForkAction);
+
         if (routingResult.RouteFound && routingResult.ForkLinkType != LinkType.None)
-            LogRouteFoundResults(messageData, routingResult, "Forking");
+            LogRouteFoundResults(messageData, routingResult, ForkAction);
         else
-            LogRouteNotFoundResults(messageData, routingResult, "Forking");
+            LogRouteNotFoundResults(messageData, routingResult, ForkAction);
+    }
+
+    private void RecordRequest(RoutingResult routingResult, string action)
+    {
+        if (routingResult.RouteFound)
+        {
+            requestMetrics.MessageReceived(
+                routingResult.MessageSubXPath,
+                routingResult.UrlPath,
+                routingResult.Legend,
+                action
+            );
+        }
     }
 
     private void LogRouteFoundResults(MessageData messageData, RoutingResult routingResult, string action)
@@ -81,7 +102,7 @@ public class RoutingInterceptor(
             messageData.ContentMap.MessageReference,
             action,
             routingResult.RoutingSuccessful ? "successful" : "failed",
-            action == "Routing" ? routingResult.FullRouteLink : routingResult.FullForkLink,
+            action == RouteAction ? routingResult.FullRouteLink : routingResult.FullForkLink,
             routingResult.StatusCode,
             routingResult.ResponseContent
         );

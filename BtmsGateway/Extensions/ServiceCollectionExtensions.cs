@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http.Headers;
 using BtmsGateway.Config;
+using BtmsGateway.Services.Metrics;
 using BtmsGateway.Utils.Logging;
 using Defra.TradeImportsDataApi.Api.Client;
 using Microsoft.Extensions.Http.Resilience;
@@ -68,5 +69,14 @@ public static class ServiceCollectionExtensions
     public static IHttpContextAccessor GetHttpContextAccessor(this IServiceCollection services)
     {
         return services.BuildServiceProvider().GetRequiredService<IHttpContextAccessor>();
+    }
+
+    public static IServiceCollection AddOperationalMetrics(this IServiceCollection services)
+    {
+        services.AddSingleton<IRequestMetrics, RequestMetrics>();
+        services.AddSingleton<IConsumerMetrics, ConsumerMetrics>();
+        services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(MetricsInterceptor<>));
+
+        return services;
     }
 }

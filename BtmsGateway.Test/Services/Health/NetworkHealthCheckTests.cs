@@ -20,6 +20,7 @@ public class NetworkHealthCheckTests
     [InlineData(HttpStatusCode.BadRequest, HealthStatus.Degraded)]
     [InlineData(HttpStatusCode.BadGateway, HealthStatus.Degraded)]
     [InlineData(HttpStatusCode.ServiceUnavailable, HealthStatus.Degraded)]
+    [InlineData(HttpStatusCode.MethodNotAllowed, HealthStatus.Degraded)]
     public async Task When_health_checking_a_route_Then_should_set_correct_status(
         HttpStatusCode statusCode,
         HealthStatus healthStatus
@@ -99,6 +100,28 @@ public class NetworkHealthCheckTests
         result.Data["status"].Should().Be("");
         result.Data["content"].Should().Be("");
         result.Data["error"].Should().Be("Error message - Inner error message");
+    }
+
+    [Fact]
+    public async Task When_health_checking_a_route_that_should_consider_additional_status_as_successful_Then_should_set_correct_status()
+    {
+        var testHttpHandler = new TestHttpHandler();
+        testHttpHandler.SetNextResponse("route-content", () => HttpStatusCode.MethodNotAllowed);
+        var healthCheckUrl = new HealthCheckUrl
+        {
+            Method = "GET",
+            Url = "http://1.2.3.4/path",
+            HostHeader = "localhost",
+            IncludeInAutomatedHealthCheck = true,
+            Disabled = false,
+            AdditionalSuccessStatuses = [405],
+        };
+        var routeHealthCheck = GetRouteHealthCheck(healthCheckUrl, testHttpHandler);
+
+        var result = await routeHealthCheck.CheckHealthAsync(new HealthCheckContext());
+
+        result.Status.Should().Be(HealthStatus.Healthy);
+        result.Data["status"].Should().Be($"{(int)HttpStatusCode.MethodNotAllowed} {HttpStatusCode.MethodNotAllowed}");
     }
 
     private static NetworkHealthCheck GetRouteHealthCheck(

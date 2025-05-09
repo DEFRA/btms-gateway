@@ -51,16 +51,25 @@ public class NetworkHealthCheck(
             exception = ex;
         }
 
+        var statusCode = (int?)response?.StatusCode;
         var data = new Dictionary<string, object>
         {
             { "route", healthCheckUrl.Url },
             { "host", healthCheckUrl.HostHeader ?? "" },
             { "method", healthCheckUrl.Method },
-            { "status", $"{(int?)response?.StatusCode} {response?.StatusCode}".Trim() },
+            { "status", $"{statusCode} {response?.StatusCode}".Trim() },
             { "content", content ?? "" },
         };
 
-        var healthStatus = response?.IsSuccessStatusCode == true ? HealthStatus.Healthy : HealthStatus.Degraded;
+        var healthStatus =
+            response?.IsSuccessStatusCode == true
+            || (
+                statusCode is not null
+                && healthCheckUrl.AdditionalSuccessStatuses is not null
+                && healthCheckUrl.AdditionalSuccessStatuses.Contains(statusCode.Value)
+            )
+                ? HealthStatus.Healthy
+                : HealthStatus.Degraded;
         if (exception != null)
         {
             healthStatus = HealthStatus.Degraded;

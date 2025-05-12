@@ -1,6 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
-using System.Net.Http.Headers;
 using BtmsGateway.Config;
 using Microsoft.Extensions.Http.Resilience;
 using Microsoft.Extensions.Options;
@@ -85,20 +84,7 @@ public static class Proxy
             .AddHttpClient(DecisionComparerProxyClientWithRetry)
             .ConfigurePrimaryHttpMessageHandler(() => ConfigurePrimaryHttpMessageHandler(logger))
             .ConfigureHttpClient(
-                (sp, c) =>
-                {
-                    var options = sp.GetRequiredService<IOptions<DecisionComparerApiOptions>>().Value;
-                    c.BaseAddress = new Uri(options.BaseAddress);
-
-                    if (options.BasicAuthCredential != null)
-                        c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
-                            "Basic",
-                            options.BasicAuthCredential
-                        );
-
-                    if (c.BaseAddress.Scheme.Equals("https", StringComparison.OrdinalIgnoreCase))
-                        c.DefaultRequestVersion = HttpVersion.Version20;
-                }
+                (sp, c) => sp.GetRequiredService<IOptions<DecisionComparerApiOptions>>().Value.Configure(c)
             )
             .AddHeaderPropagation();
 

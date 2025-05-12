@@ -1,14 +1,17 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
-using Amazon.SimpleNotificationService;
-using Amazon.SimpleNotificationService.Model;
+using Amazon;
+using Amazon.Runtime;
+using Amazon.SQS;
+using Amazon.SQS.Model;
 using BtmsGateway.Utils;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Services.Health;
 
-public class QueueHealthCheck(string name, string topicArn, IAmazonSimpleNotificationService snsClient, ILogger logger)
-    : IHealthCheck
+[ExcludeFromCodeCoverage]
+public class QueueHealthCheck(string name, string queueArn, IConfiguration configuration, ILogger logger) : IHealthCheck
 {
     public async Task<HealthCheckResult> CheckHealthAsync(
         HealthCheckContext context,
@@ -18,47 +21,74 @@ public class QueueHealthCheck(string name, string topicArn, IAmazonSimpleNotific
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         cts.CancelAfter(ConfigureHealthChecks.Timeout);
 
-        Exception? exception = null;
-        GetTopicAttributesResponse? attributes = null;
+        Exception? checkException = null;
+        GetQueueUrlResponse? queueUrlResponse = null;
         try
         {
-            attributes = await snsClient.GetTopicAttributesAsync(topicArn, cancellationToken);
+            using var sqsClient = CreateSqsClient();
+
+            queueUrlResponse = await sqsClient.GetQueueUrlAsync(queueArn, cancellationToken);
         }
         catch (TaskCanceledException ex)
         {
-            logger.Warning(ex, "HEALTH - Retrieving attributes timed out for topic {Arn}", topicArn);
-            exception = new TimeoutException(
-                $"The topic check was cancelled, probably because it timed out after {ConfigureHealthChecks.Timeout.TotalSeconds} seconds"
+            logger.Warning(ex, "HEALTH - Retrieving queue URL timed out for queue {Arn}", queueArn);
+            checkException = new TimeoutException(
+                $"The queue check was cancelled, probably because it timed out after {ConfigureHealthChecks.Timeout.TotalSeconds} seconds"
             );
         }
         catch (Exception ex)
         {
-            logger.Warning(ex, "HEALTH - Retrieving attributes failed for topic {Arn}", topicArn);
-            exception = ex;
+            logger.Warning(ex, "HEALTH - Retrieving queue URL failed for queue {Arn}", queueArn);
+            checkException = ex;
         }
 
         var healthStatus = HealthStatus.Healthy;
-        var data = new Dictionary<string, object> { { "topic-arn", topicArn } };
-        if (attributes != null)
+        var data = new Dictionary<string, object> { { "queue-arn", queueArn } };
+        if (queueUrlResponse != null)
         {
-            if (!attributes.HttpStatusCode.IsSuccessStatusCode())
+            if (!queueUrlResponse.HttpStatusCode.IsSuccessStatusCode())
                 healthStatus = HealthStatus.Degraded;
 
-            data.Add("content-length", attributes.ContentLength);
-            data.Add("http-status-code", attributes.HttpStatusCode);
+            data.Add("content-length", queueUrlResponse.ContentLength);
+            data.Add("http-status-code", queueUrlResponse.HttpStatusCode);
         }
 
-        if (exception != null)
+        if (checkException != null)
         {
             healthStatus = HealthStatus.Degraded;
-            data.Add("error", $"{exception.Message} - {exception.InnerException?.Message}");
+            data.Add("error", $"{checkException.Message} - {checkException.InnerException?.Message}");
         }
 
         return new HealthCheckResult(
             status: healthStatus,
             description: $"Queue route: {string.Join(' ', Regex.Matches(name, "[A-Z][a-z]+", RegexOptions.None, TimeSpan.FromMilliseconds(200)))}",
-            exception: exception,
+            exception: checkException,
             data: data
         );
+    }
+
+    private AmazonSQSClient CreateSqsClient()
+    {
+        var clientId = configuration.GetValue<string>("AWS_ACCESS_KEY_ID");
+        var clientSecret = configuration.GetValue<string>("AWS_SECRET_ACCESS_KEY");
+
+        if (!string.IsNullOrEmpty(clientSecret) && !string.IsNullOrEmpty(clientId))
+        {
+            var region = configuration.GetValue<string>("AWS_REGION") ?? "eu-west-2";
+            var regionEndpoint = RegionEndpoint.GetBySystemName(region);
+
+            return new AmazonSQSClient(
+                new BasicAWSCredentials(clientId, clientSecret),
+                new AmazonSQSConfig
+                {
+                    // https://github.com/aws/aws-sdk-net/issues/1781
+                    AuthenticationRegion = region,
+                    RegionEndpoint = regionEndpoint,
+                    ServiceURL = configuration.GetValue<string>("SQS_Endpoint"),
+                }
+            );
+        }
+
+        return new AmazonSQSClient();
     }
 }

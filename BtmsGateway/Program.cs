@@ -41,8 +41,8 @@ static void BuildWebApplication(WebApplicationBuilder builder)
     var logger = ConfigureLoggingAndTracing(builder);
 
     builder.Services.AddCustomTrustStore(logger);
-    builder.AddCustomHealthChecks(healthCheckConfig, routingConfig);
     builder.AddServices(logger);
+    builder.AddCustomHealthChecks(healthCheckConfig, routingConfig);
     builder.ConfigureSwaggerBuilder();
 }
 

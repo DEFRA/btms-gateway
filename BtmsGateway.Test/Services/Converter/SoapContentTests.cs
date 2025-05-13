@@ -7,6 +7,13 @@ public class SoapContentTests
 {
     private const string Declaration = "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
 
+    private static readonly string s_testDataPath = Path.Combine(
+        AppDomain.CurrentDomain.BaseDirectory,
+        "Services",
+        "Converter",
+        "Fixtures"
+    );
+
     [Fact]
     public void When_retrieving_message_at_single_element_xpath_against_soap_without_namespaces_Then_should_get_message()
     {
@@ -127,5 +134,17 @@ public class SoapContentTests
         var soapContent = new SoapContent(soap);
 
         soapContent.GetProperty("Message1/Data").Should().Be("111");
+    }
+
+    [Fact]
+    public void When_soap_value_contains_xml_character_entities_Then_the_soap_string_should_successfully_parse_into_soap_content()
+    {
+        var soap = File.ReadAllText(Path.Combine(s_testDataPath, "ClearanceRequestWithXmlCharacterEntityValues.xml"));
+
+        var soapContent = new SoapContent(soap);
+
+        soapContent
+            .SoapString.Should()
+            .Contain("<GoodsDescription>XML Character Entities &quot; &apos; &lt; &gt; &amp;</GoodsDescription>");
     }
 }

@@ -36,6 +36,11 @@ public class SoapToJsonConverterTests
         "HMRCErrorNotification/HMRCErrorNotification",
         "HmrcErrorNotification.json"
     )]
+    [InlineData(
+        "DecisionNotificationWithHtmlEncoding.xml",
+        "DecisionNotification/DecisionNotification",
+        "DecisionNotification.json"
+    )]
     public void When_receiving_clearance_request_soap_Then_should_convert_to_json(
         string soapFileName,
         string messageSubXPath,

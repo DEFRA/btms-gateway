@@ -22,6 +22,7 @@ public abstract class MetricsTestBase
         serviceCollection.AddMetrics();
         serviceCollection.AddSingleton<IRequestMetrics, RequestMetrics>();
         serviceCollection.AddSingleton<IConsumerMetrics, ConsumerMetrics>();
+        serviceCollection.AddSingleton<IHealthMetrics, HealthMetrics>();
         return serviceCollection.BuildServiceProvider();
     }
 

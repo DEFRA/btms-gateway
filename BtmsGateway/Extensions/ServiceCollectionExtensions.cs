@@ -58,6 +58,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddSingleton<IRequestMetrics, RequestMetrics>();
         services.AddSingleton<IConsumerMetrics, ConsumerMetrics>();
+        services.AddSingleton<IHealthMetrics, HealthMetrics>();
         services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(MetricsInterceptor<>));
 
         return services;

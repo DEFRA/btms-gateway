@@ -11,7 +11,7 @@ using ILogger = Serilog.ILogger;
 namespace BtmsGateway.Services.Health;
 
 [ExcludeFromCodeCoverage]
-public class QueueHealthCheck(string name, string queueArn, IConfiguration configuration, ILogger logger) : IHealthCheck
+public class QueueHealthCheck(string name, string queue, IConfiguration configuration, ILogger logger) : IHealthCheck
 {
     public async Task<HealthCheckResult> CheckHealthAsync(
         HealthCheckContext context,
@@ -27,23 +27,23 @@ public class QueueHealthCheck(string name, string queueArn, IConfiguration confi
         {
             using var sqsClient = CreateSqsClient();
 
-            queueUrlResponse = await sqsClient.GetQueueUrlAsync(queueArn, cancellationToken);
+            queueUrlResponse = await sqsClient.GetQueueUrlAsync(queue, cancellationToken);
         }
         catch (TaskCanceledException ex)
         {
-            logger.Warning(ex, "HEALTH - Retrieving queue URL timed out for queue {Arn}", queueArn);
+            logger.Warning(ex, "HEALTH - Retrieving queue URL timed out for queue {Queue}", queue);
             checkException = new TimeoutException(
                 $"The queue check was cancelled, probably because it timed out after {ConfigureHealthChecks.Timeout.TotalSeconds} seconds"
             );
         }
         catch (Exception ex)
         {
-            logger.Warning(ex, "HEALTH - Retrieving queue URL failed for queue {Arn}", queueArn);
+            logger.Warning(ex, "HEALTH - Retrieving queue URL failed for queue {Queue}", queue);
             checkException = ex;
         }
 
         var healthStatus = HealthStatus.Healthy;
-        var data = new Dictionary<string, object> { { "queue-arn", queueArn } };
+        var data = new Dictionary<string, object> { { "queue", queue } };
         if (queueUrlResponse != null)
         {
             if (!queueUrlResponse.HttpStatusCode.IsSuccessStatusCode())

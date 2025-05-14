@@ -26,6 +26,13 @@ public static class MetricsConstants
         public const string SubResourceType = "SubResourceType";
     }
 
+    public static class HealthTags
+    {
+        public const string Service = "ServiceName";
+        public const string Component = "Component";
+        public const string Description = "Description";
+    }
+
     public static class InstrumentNames
     {
         public const string MessagesReceived = "MessagesReceived";
@@ -33,5 +40,6 @@ public static class MetricsConstants
         public const string MessagingConsumeErrors = "MessagingConsumeErrors";
         public const string MessagingConsumeActive = "MessagingConsumeActive";
         public const string MessagingConsumeDuration = "MessagingConsumeDuration";
+        public const string Health = "Health";
     }
 }

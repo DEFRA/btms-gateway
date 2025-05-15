@@ -96,12 +96,27 @@ public class RoutingInterceptor(
 
     private void LogRouteFoundResults(MessageData messageData, RoutingResult routingResult, string action)
     {
-        logger.Information(
+        if (routingResult.RoutingSuccessful)
+        {
+            logger.Information(
+                "{ContentCorrelationId} {MessageReference} {Action} {Success} for route {RouteUrl} with response {StatusCode} \"{Content}\"",
+                messageData.ContentMap.CorrelationId,
+                messageData.ContentMap.MessageReference,
+                action,
+                "successful",
+                action == RouteAction ? routingResult.FullRouteLink : routingResult.FullForkLink,
+                routingResult.StatusCode,
+                routingResult.ResponseContent
+            );
+            return;
+        }
+
+        logger.Error(
             "{ContentCorrelationId} {MessageReference} {Action} {Success} for route {RouteUrl} with response {StatusCode} \"{Content}\"",
             messageData.ContentMap.CorrelationId,
             messageData.ContentMap.MessageReference,
             action,
-            routingResult.RoutingSuccessful ? "successful" : "failed",
+            "failed",
             action == RouteAction ? routingResult.FullRouteLink : routingResult.FullForkLink,
             routingResult.StatusCode,
             routingResult.ResponseContent

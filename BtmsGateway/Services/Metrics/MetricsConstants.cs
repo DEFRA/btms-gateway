@@ -31,6 +31,7 @@ public static class MetricsConstants
         public const string Service = "ServiceName";
         public const string Component = "Component";
         public const string Description = "Description";
+        public const string InstanceId = "InstanceId";
     }
 
     public static class InstrumentNames

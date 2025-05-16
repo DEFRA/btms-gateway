@@ -1,0 +1,13 @@
+{
+  "Cluster": "FOO",
+  "TaskARN": "arn:aws:ecs:eu-west-2:000000000000:task/dev-ecs-protected/f80c7eb5655547849cda89e80aa0eef8",
+  "Family": "FOO",
+  "Revision": "FOO",
+  "DesiredStatus": "RUNNING",
+  "KnownStatus": "RUNNING",
+  "Limits":
+  {
+    "CPU": 0.5,
+    "Memory": 1024
+  }
+}

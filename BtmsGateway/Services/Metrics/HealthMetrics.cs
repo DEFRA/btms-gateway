@@ -42,6 +42,7 @@ public class HealthMetrics : IHealthMetrics
             { MetricsConstants.HealthTags.Service, Process.GetCurrentProcess().ProcessName },
             { MetricsConstants.HealthTags.Component, reportEntry.Key },
             { MetricsConstants.HealthTags.Description, reportEntry.Value.Description },
+            { MetricsConstants.HealthTags.InstanceId, InstanceMetadata.InstanceId },
         };
 
         foreach (var keyValuePair in reportEntry.Value.Data)
@@ -59,6 +60,7 @@ public class HealthMetrics : IHealthMetrics
             { MetricsConstants.HealthTags.Service, Process.GetCurrentProcess().ProcessName },
             { MetricsConstants.HealthTags.Component, "BTMS Gateway" },
             { MetricsConstants.HealthTags.Description, "Overall health of the BTMS Gateway" },
+            { MetricsConstants.HealthTags.InstanceId, InstanceMetadata.InstanceId },
         };
     }
 }

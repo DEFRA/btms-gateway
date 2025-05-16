@@ -17,6 +17,7 @@ using Serilog.Core;
 using Environment = System.Environment;
 
 var app = CreateWebApplication(args);
+await app.InitializeAsync();
 await app.RunAsync();
 
 [ExcludeFromCodeCoverage]

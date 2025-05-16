@@ -1,5 +1,7 @@
 using System.Net;
 using System.Text;
+using System.Text.Json;
+using BtmsGateway.Domain;
 using BtmsGateway.Middleware;
 using BtmsGateway.Utils.Http;
 using Microsoft.AspNetCore.HeaderPropagation;
@@ -27,11 +29,15 @@ public interface IApiSender
         CancellationToken cancellationToken,
         IHeaderDictionary? headers = null
     );
+
+    Task<EcsMetadata?> GetEcsMetadataAsync(CancellationToken cancellationToken);
 }
 
 public class ApiSender(IHttpClientFactory clientFactory, IServiceProvider serviceProvider, IConfiguration configuration)
     : IApiSender
 {
+    private static readonly JsonSerializerOptions s_jsonSerializerOptions = new();
+
     public async Task<RoutingResult> Send(RoutingResult routingResult, MessageData messageData, bool fork)
     {
         var client = clientFactory.CreateClient(fork ? Proxy.ForkedClientWithRetry : Proxy.RoutedClientWithRetry);
@@ -115,6 +121,24 @@ public class ApiSender(IHttpClientFactory clientFactory, IServiceProvider servic
         request.Content = new StringContent(decision, Encoding.UTF8, contentType);
 
         return await client.SendAsync(request, cancellationToken);
+    }
+
+    public async Task<EcsMetadata?> GetEcsMetadataAsync(CancellationToken cancellationToken)
+    {
+        var metadataUri = Environment.GetEnvironmentVariable("ECS_CONTAINER_METADATA_URI_V4");
+
+        if (string.IsNullOrEmpty(metadataUri))
+            return null;
+
+        var client = clientFactory.CreateClient(Proxy.ProxyClientWithoutRetry);
+        var taskMetadataUri = metadataUri + "/task";
+        var request = new HttpRequestMessage(HttpMethod.Get, taskMetadataUri);
+
+        var response = await client.SendAsync(request, cancellationToken);
+
+        await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
+
+        return await JsonSerializer.DeserializeAsync<EcsMetadata>(stream, s_jsonSerializerOptions, cancellationToken);
     }
 
     private void InitializeHeaderPropagationValues(IHeaderDictionary? headers)

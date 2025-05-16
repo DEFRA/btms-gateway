@@ -4,7 +4,7 @@ namespace BtmsGateway.Services.Metrics;
 
 public static class InstanceMetadata
 {
-    private static ILogger s_logger = null!;
+    private static ILogger _logger = null!;
 
     public static string? InstanceId { get; private set; }
 
@@ -12,15 +12,16 @@ public static class InstanceMetadata
     {
         try
         {
-            s_logger = loggerFactory.CreateLogger(nameof(InstanceMetadata));
+            _logger = loggerFactory.CreateLogger(nameof(InstanceMetadata));
 
             var ecsMetadata = await apiSender.GetEcsMetadataAsync(CancellationToken.None);
 
-            InstanceId = ecsMetadata?.TaskArn?.Split('/').Last() ?? Guid.NewGuid().ToString();
+            var taskArnParts = ecsMetadata?.TaskArn?.Split('/');
+            InstanceId = taskArnParts?[^1] ?? Guid.NewGuid().ToString();
         }
         catch (Exception ex)
         {
-            s_logger.LogWarning(
+            _logger.LogWarning(
                 ex,
                 "Unable to retrieve ECS instance metadata. Configuring instance ID with GUID instead."
             );

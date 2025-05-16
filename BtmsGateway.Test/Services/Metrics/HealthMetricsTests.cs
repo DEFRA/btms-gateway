@@ -60,23 +60,27 @@ public class HealthMetricsTests : MetricsTestBase
             .Tags[MetricsConstants.HealthTags.Description]
             .Should()
             .Be("Overall health of the BTMS Gateway");
+        healthMeasurements[0].ContainsTags(MetricsConstants.HealthTags.InstanceId).Should().BeTrue();
 
         healthMeasurements[1].Value.Should().Be(0);
         healthMeasurements[1].ContainsTags(MetricsConstants.HealthTags.Component).Should().BeTrue();
         healthMeasurements[1].Tags[MetricsConstants.HealthTags.Component].Should().Be("BTMS Gateway Dependency 1");
         healthMeasurements[1].Tags[MetricsConstants.HealthTags.Description].Should().Be("Health report 1");
+        healthMeasurements[1].ContainsTags(MetricsConstants.HealthTags.InstanceId).Should().BeTrue();
         healthMeasurements[1].Tags["topic-arn"].Should().Be("aws_acc:some_topic.fifo");
 
         healthMeasurements[2].Value.Should().Be(1);
         healthMeasurements[2].ContainsTags(MetricsConstants.HealthTags.Component).Should().BeTrue();
         healthMeasurements[2].Tags[MetricsConstants.HealthTags.Component].Should().Be("BTMS Gateway Dependency 2");
         healthMeasurements[2].Tags[MetricsConstants.HealthTags.Description].Should().Be("Health report 2");
+        healthMeasurements[2].ContainsTags(MetricsConstants.HealthTags.InstanceId).Should().BeTrue();
         healthMeasurements[2].Tags["queue"].Should().Be("some_queue");
 
         healthMeasurements[3].Value.Should().Be(2);
         healthMeasurements[3].ContainsTags(MetricsConstants.HealthTags.Component).Should().BeTrue();
         healthMeasurements[3].Tags[MetricsConstants.HealthTags.Component].Should().Be("BTMS Gateway Dependency 3");
         healthMeasurements[3].Tags[MetricsConstants.HealthTags.Description].Should().Be("Health report 3");
+        healthMeasurements[3].ContainsTags(MetricsConstants.HealthTags.InstanceId).Should().BeTrue();
         healthMeasurements[3].Tags["api"].Should().Be("some_api");
     }
 }

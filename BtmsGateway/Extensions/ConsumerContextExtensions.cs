@@ -1,6 +1,6 @@
+using System.Diagnostics.CodeAnalysis;
 using Amazon.SQS.Model;
 using SlimMessageBus;
-using System.Diagnostics.CodeAnalysis;
 
 namespace BtmsGateway.Extensions;
 

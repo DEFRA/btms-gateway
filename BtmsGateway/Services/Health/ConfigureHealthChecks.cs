@@ -63,7 +63,11 @@ public static class ConfigureHealthChecks
         if (routingConfig == null || routingConfig.AutomatedHealthCheckDisabled)
             return builder;
 
-        foreach (var queues in routingConfig.NamedLinks.Where(x => x.Value.LinkType == LinkType.Queue))
+        foreach (
+            var queues in routingConfig.NamedLinks.Where(x =>
+                x.Value.LinkType == LinkType.Queue && x.Key != "AlvsErrorQueue" // To be removed as part of CDMS-616
+            )
+        )
         {
             builder.AddTypeActivatedCheck<TopicHealthCheck>(
                 queues.Key,

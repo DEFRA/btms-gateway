@@ -45,7 +45,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddTracingForConsumers(this IServiceCollection services)
     {
         services.AddScoped(typeof(IConsumerInterceptor<>), typeof(TraceContextInterceptor<>));
-        services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(TraceContextInterceptor<>));
+        services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(LoggingInterceptor<>));
 
         return services;
     }

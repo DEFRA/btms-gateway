@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Web;
 using System.Xml;
 
@@ -5,6 +6,7 @@ namespace BtmsGateway.Services.Converter;
 
 public class SoapContent
 {
+    [SuppressMessage("SonarLint", "S5332", Justification = "The HTTP web links are XML namespaces so cannot change")]
     private static readonly string[] s_htmlCodedMessageNamespaces =
     [
         "http://www.hmrc.gov.uk/webservices/itsw/ws/decisionnotification",

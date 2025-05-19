@@ -1,5 +1,6 @@
 using Amazon.SQS.Model;
 using SlimMessageBus;
+using System.Diagnostics.CodeAnalysis;
 
 namespace BtmsGateway.Extensions;
 
@@ -10,6 +11,7 @@ public static class MessageBusHeaders
     public const string SqsBusMessage = "Sqs_Message";
 }
 
+[ExcludeFromCodeCoverage]
 public static class ConsumerContextExtensions
 {
     public static string GetResourceType(this IConsumerContext consumerContext)

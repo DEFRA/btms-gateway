@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:oas="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+  <soap:Header>
+    <oas:Security soap:role="system" soap:mustUnderstand="true">
+      <oas:UsernameToken>
+        <oas:Username>systemID=ALVSHMRCCDS,ou=gsi systems,o=defra</oas:Username>
+        <oas:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText">password</oas:Password>
+      </oas:UsernameToken>
+    </oas:Security>
+  </soap:Header>
+  <soap:Body>
+    <ALVSClearanceRequest xmlns="http://submitimportdocumenthmrcfacade.types.esb.ws.cara.defra.com">
+      <ServiceHeader>
+        <SourceSystem>CDS</SourceSystem>
+        <DestinationSystem>ALVS</DestinationSystem>
+        <CorrelationId>1225712</CorrelationId>
+        <ServiceCallTimestamp>1730426760000</ServiceCallTimestamp>
+      </ServiceHeader>
+      <Header>
+        <EntryReference>24GBC1MRYLWODXRAR6</EntryReference>
+        <EntryVersionNumber>2</EntryVersionNumber>
+        <PreviousVersionNumber>1</PreviousVersionNumber>
+        <DeclarationUCR>4GB198244863000-KX-I6J2-184</DeclarationUCR>
+        <DeclarationPartNumber>null</DeclarationPartNumber>
+        <DeclarationType>S</DeclarationType>
+        <ArrivalDateTime>null</ArrivalDateTime>
+        <SubmitterTURN>GB331948590000</SubmitterTURN>
+        <DeclarantId>GB331948590000</DeclarantId>
+        <DeclarantName>GB331948590000</DeclarantName>
+        <DispatchCountryCode>PL</DispatchCountryCode>
+        <GoodsLocationCode>HULHULHULGVM</GoodsLocationCode>
+        <MasterUCR>null</MasterUCR>
+      </Header>
+      <Item>
+        <ItemNumber>1</ItemNumber>
+        <CustomsProcedureCode>4000000</CustomsProcedureCode>
+        <TaricCommodityCode>1601009110</TaricCommodityCode>
+        <GoodsDescription>XML Character Entities &quot; &apos; &lt; &gt; &amp;</GoodsDescription>
+        <ConsigneeId>GB198244863000</ConsigneeId>
+        <ConsigneeName>GB198244863000</ConsigneeName>
+        <ItemNetMass>60.95</ItemNetMass>
+        <ItemSupplementaryUnits>0</ItemSupplementaryUnits>
+        <ItemThirdQuantity>null</ItemThirdQuantity>
+        <ItemOriginCountryCode>SK</ItemOriginCountryCode>
+        <Document>
+          <DocumentCode>N853</DocumentCode>
+          <DocumentReference>GBCHD2024.5069802</DocumentReference>
+          <DocumentStatus>AE</DocumentStatus>
+          <DocumentControl>P</DocumentControl>
+          <DocumentQuantity>null</DocumentQuantity>
+        </Document>
+        <Check>
+          <CheckCode>H222</CheckCode>
+          <DepartmentCode>PHA</DepartmentCode>
+        </Check>
+      </Item>
+    </ALVSClearanceRequest>
+  </soap:Body>
+</soap:Envelope>

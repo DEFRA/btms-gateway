@@ -70,7 +70,7 @@ public class MessageData
 
     public HttpRequestMessage CreateOriginalSoapRequest(string? routeUrl, string? hostHeader)
     {
-        return CreateForwardingRequest(routeUrl, hostHeader, OriginalSoapContent.SoapString, OriginalContentType);
+        return CreateForwardingRequest(routeUrl, hostHeader, OriginalSoapContent.RawSoapString, OriginalContentType);
     }
 
     private HttpRequestMessage CreateForwardingRequest(

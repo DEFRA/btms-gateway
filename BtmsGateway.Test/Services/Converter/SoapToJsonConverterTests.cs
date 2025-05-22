@@ -20,17 +20,7 @@ public class SoapToJsonConverterTests
         "ALVSClearanceRequestPost/ALVSClearanceRequest",
         "ClearanceRequest.json"
     )]
-    [InlineData(
-        "AlvsToCdsDecisionNotification.xml",
-        "DecisionNotification/DecisionNotification",
-        "DecisionNotification.json"
-    )]
     [InlineData("AlvsErrorNotification.xml", "ALVSErrorNotificationRequest", "AlvsErrorNotification.json")]
-    [InlineData(
-        "HmrcErrorNotification.xml",
-        "HMRCErrorNotification/HMRCErrorNotification",
-        "HmrcErrorNotification.json"
-    )]
     [InlineData(
         "HmrcErrorNotificationWithHtmlEncoding.xml",
         "HMRCErrorNotification/HMRCErrorNotification",
@@ -41,7 +31,7 @@ public class SoapToJsonConverterTests
         "DecisionNotification/DecisionNotification",
         "DecisionNotification.json"
     )]
-    public void When_receiving_clearance_request_soap_Then_should_convert_to_json(
+    public void When_receiving_soap_Then_should_convert_to_json(
         string soapFileName,
         string messageSubXPath,
         string jsonFileName

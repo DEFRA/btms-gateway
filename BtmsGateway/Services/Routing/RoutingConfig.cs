@@ -106,6 +106,7 @@ public enum LinkType
     Url,
     Queue,
     DecisionComparer,
+    DecisionComparerErrorNotifications,
 }
 
 public record RoutedLink

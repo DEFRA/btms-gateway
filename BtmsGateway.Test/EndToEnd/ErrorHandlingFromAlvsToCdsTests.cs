@@ -8,7 +8,7 @@ namespace BtmsGateway.Test.EndToEnd;
 
 public class ErrorHandlingFromAlvsToCdsTests : TargetRoutingTestBase
 {
-    private const string UrlPath = "/route/path/alvs-cds/decision-notification";
+    private const string UrlPath = "/route/path/alvs-cds/error-notification";
 
     private readonly string _alvsRequestSoap = File.ReadAllText(Path.Combine(FixturesPath, "CdsErrorHandling.xml"));
     private readonly string _btmsRequestJson = File.ReadAllText(Path.Combine(FixturesPath, "CdsErrorHandling.json"))
@@ -42,14 +42,16 @@ public class ErrorHandlingFromAlvsToCdsTests : TargetRoutingTestBase
     }
 
     [Fact]
-    public async Task When_receiving_request_from_alvs_Then_should_forward_converted_json_to_btms()
+    public async Task When_receiving_request_from_alvs_Then_should_forward_decision_to_decision_comparer()
     {
         await HttpClient.PostAsync(UrlPath, _alvsRequestSoapContent);
 
-        TestWebServer.ForkedHttpHandler.LastRequest!.RequestUri!.AbsoluteUri.Should().Be($"http://btms-host{UrlPath}");
-        (await TestWebServer.ForkedHttpHandler.LastRequest!.Content!.ReadAsStringAsync())
+        TestWebServer
+            .DecisionComparerClientWithRetryHttpHandler.LastRequest!.RequestUri!.AbsoluteUri.Should()
+            .Be($"http://trade-imports-decision-comparer-host/alvs-outbound-errors/25GB2Q3M9H9K5MSAR8");
+        (await TestWebServer.DecisionComparerClientWithRetryHttpHandler.LastRequest!.Content!.ReadAsStringAsync())
             .LinuxLineEndings()
             .Should()
-            .Be(_btmsRequestJson);
+            .Be(_alvsRequestSoap);
     }
 }

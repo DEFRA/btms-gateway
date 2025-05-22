@@ -22,7 +22,7 @@ public static class MessagingConstants
         public const string ALVSErrorNotificationRequest = "ALVSErrorNotificationRequest";
     }
 
-    public enum DecisionSource
+    public enum MessageSource
     {
         Alvs,
         Btms,
@@ -33,5 +33,7 @@ public static class MessagingConstants
         public const string BtmsCds = "BtmsCds";
         public const string BtmsDecisionComparer = "BtmsDecisionComparer";
         public const string AlvsDecisionComparer = "AlvsDecisionComparer";
+        public const string BtmsOutboundErrors = "BtmsOutboundErrors";
+        public const string AlvsOutboundErrors = "AlvsOutboundErrors";
     }
 }

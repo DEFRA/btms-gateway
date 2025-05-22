@@ -5,7 +5,9 @@ using BtmsGateway.Extensions;
 using BtmsGateway.Services.Routing;
 using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
+using Defra.TradeImportsDataApi.Domain.Errors;
 using Defra.TradeImportsDataApi.Domain.Events;
+using Defra.TradeImportsDataApi.Domain.ProcessingErrors;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
@@ -28,6 +30,7 @@ public class ConsumerMediatorTests
         var subject = new ConsumerMediator(
             Substitute.For<ITradeImportsDataApiClient>(),
             Substitute.For<IDecisionSender>(),
+            Substitute.For<IErrorNotificationSender>(),
             Substitute.For<ILoggerFactory>()
         )
         {
@@ -52,7 +55,7 @@ public class ConsumerMediatorTests
     }
 
     [Fact]
-    public async Task WhenProcessingError_ShouldNotThrow()
+    public async Task WhenProcessingError_ShouldPassThroughToProcessingErrorConsumer()
     {
         var context = Substitute.For<IConsumerContext>();
         context.Headers.Returns(
@@ -64,6 +67,7 @@ public class ConsumerMediatorTests
         var subject = new ConsumerMediator(
             Substitute.For<ITradeImportsDataApiClient>(),
             Substitute.For<IDecisionSender>(),
+            Substitute.For<IErrorNotificationSender>(),
             Substitute.For<ILoggerFactory>()
         )
         {
@@ -72,18 +76,19 @@ public class ConsumerMediatorTests
 
         var message = JsonSerializer.Deserialize<JsonElement>(
             JsonSerializer.Serialize(
-                new ResourceEvent<CustomsDeclaration>
+                new ResourceEvent<ProcessingError>
                 {
                     ResourceId = "mrn",
                     ResourceType = ResourceEventResourceTypes.ProcessingError,
                     Operation = ResourceEventOperations.Created,
+                    Resource = new ProcessingError { Notifications = [new ErrorNotification()] },
                 }
             )
         );
 
         var act = async () => await subject.OnHandle(message, CancellationToken.None);
 
-        await act.Should().NotThrowAsync<ClearanceDecisionProcessingException>();
+        await act.Should().ThrowAsync<ProcessingErrorProcessingException>();
     }
 
     [Fact]
@@ -99,6 +104,7 @@ public class ConsumerMediatorTests
         var subject = new ConsumerMediator(
             Substitute.For<ITradeImportsDataApiClient>(),
             Substitute.For<IDecisionSender>(),
+            Substitute.For<IErrorNotificationSender>(),
             Substitute.For<ILoggerFactory>()
         )
         {

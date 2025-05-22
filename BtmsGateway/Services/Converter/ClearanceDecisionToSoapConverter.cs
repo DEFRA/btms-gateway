@@ -33,13 +33,20 @@ public static class ClearanceDecisionToSoapConverter
             ))
         );
 
-        var soapBody = new XElement("DecisionNotification", soapContent);
+        XNamespace rootNs = SoapUtils.GetRootAttributeValue("DecisionNotification");
+        XAttribute rootNsAttribute = new(XNamespace.Xmlns + "NS2", rootNs);
+        
+        var soapBody = new XElement(rootNs + "DecisionNotification", rootNsAttribute, soapContent);
 
         var soapMessage = SoapUtils.AddSoapEnvelope(soapBody, SoapType.AlvsToCds);
 
-        var soapDocument = new XDocument(JsonToXmlConverter.XmlDeclaration, soapMessage);
+        var soapDocument = new XDocument(new XDeclaration("1.0", "UTF-8", null), soapMessage);
 
-        return soapDocument.ToStringWithDeclaration();
+        var soapString = soapDocument
+            .ToStringWithDeclaration()
+            .Replace("\"" + rootNs + "\"", "&quot;" + rootNs + "&quot;");
+
+        return soapString;
     }
 
     private static XElement GetCheckElement(ClearanceDecisionCheck check)

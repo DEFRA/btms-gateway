@@ -75,7 +75,8 @@ public class SoapContent
             && s_htmlCodedMessages.Any(soapString.Contains)
         )
         {
-            return HttpUtility.HtmlDecode(soapString);
+            // Spec specifically refers to just these characters being encoded for these message types
+            return soapString.Replace("&lt;", "<").Replace("&gt;", ">");
         }
 
         return soapString;

@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using Amazon.CloudWatch.EMF.Model;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Services.Metrics;
 
@@ -12,9 +13,10 @@ public interface IHealthMetrics
 
 public class HealthMetrics : IHealthMetrics
 {
+    private readonly ILogger _logger;
     private readonly Gauge<int> health;
 
-    public HealthMetrics(IMeterFactory meterFactory)
+    public HealthMetrics(IMeterFactory meterFactory, ILogger logger)
     {
         var meter = meterFactory.Create(MetricsConstants.MetricNames.MeterName);
 
@@ -23,15 +25,37 @@ public class HealthMetrics : IHealthMetrics
             Unit.NONE.ToString(),
             description: "Application and Dependency Health"
         );
+
+        _logger = logger;
     }
 
     public void ReportHealth(HealthReport report)
     {
-        health.Record((int)report.Status, BuildOverallTags());
+        try
+        {
+            health.Record((int)report.Status, BuildOverallTags());
+            _logger.Information("Health Report for BTMS Gateway with Status {Status} recorded", (int)report.Status);
+        }
+        catch (Exception ex)
+        {
+            _logger.Error(ex, "Error attempting to record health for BTMS Gateway");
+        }
 
         foreach (var healthReportEntry in report.Entries)
         {
-            health.Record((int)healthReportEntry.Value.Status, BuildComponentTags(healthReportEntry));
+            try
+            {
+                health.Record((int)healthReportEntry.Value.Status, BuildComponentTags(healthReportEntry));
+                _logger.Information(
+                    "Health Report for {Component} with Status {Status} recorded",
+                    healthReportEntry.Key,
+                    (int)healthReportEntry.Value.Status
+                );
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error attempting to record health for {Component}", healthReportEntry.Key);
+            }
         }
     }
 

@@ -2,6 +2,9 @@ using BtmsGateway.Services.Metrics;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using NSubstitute;
+using NSubstitute.Core;
+using Serilog;
 
 namespace BtmsGateway.Test.Services.Metrics;
 
@@ -78,5 +81,50 @@ public class HealthMetricsTests : MetricsTestBase
         healthMeasurements[3].Tags[MetricsConstants.HealthTags.Component].Should().Be("BTMS Gateway Dependency 3");
         healthMeasurements[3].Tags[MetricsConstants.HealthTags.Description].Should().Be("Health report 3");
         healthMeasurements[3].Tags["api"].Should().Be("some_api");
+    }
+
+    [Fact]
+    public void When_health_report_published_and_error_occurs_Then_remaining_health_metrics_are_still_reported()
+    {
+        var logger = ServiceProvider.GetRequiredService<ILogger>();
+        logger
+            .When(x => x.Information(Arg.Any<string>(), Arg.Any<int>()))
+            .Do(Callback.FirstThrow(new Exception()).Then(_ => { }));
+        logger
+            .When(x => x.Information(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<int>()))
+            .Do(Callback.FirstThrow(new Exception()).Then(_ => { }));
+
+        var metrics = ServiceProvider.GetRequiredService<IHealthMetrics>();
+        var reportHealthCollector = GetCollector<int>(MetricsConstants.InstrumentNames.Health);
+
+        var reportEntries = new Dictionary<string, HealthReportEntry>
+        {
+            {
+                "BTMS Gateway Dependency 1",
+                new HealthReportEntry(
+                    HealthStatus.Unhealthy,
+                    description: "Health report 1",
+                    TimeSpan.Zero,
+                    null,
+                    new Dictionary<string, object> { { "topic-arn", "aws_acc:some_topic.fifo" } }
+                )
+            },
+            {
+                "BTMS Gateway Dependency 2",
+                new HealthReportEntry(
+                    HealthStatus.Degraded,
+                    description: "Health report 2",
+                    TimeSpan.Zero,
+                    null,
+                    new Dictionary<string, object> { { "queue", "some_queue" } }
+                )
+            },
+        };
+        var healthReport = new HealthReport(reportEntries, HealthStatus.Degraded, TimeSpan.FromSeconds(1));
+
+        metrics.ReportHealth(healthReport);
+
+        var healthMeasurements = reportHealthCollector.GetMeasurementSnapshot();
+        healthMeasurements.Count.Should().Be(3);
     }
 }

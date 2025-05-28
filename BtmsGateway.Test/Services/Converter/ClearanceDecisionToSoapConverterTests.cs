@@ -41,6 +41,47 @@ public class ClearanceDecisionToSoapConverterTests
                         },
                     ],
                 },
+                new ClearanceDecisionItem
+                {
+                    ItemNumber = 2,
+                    Checks =
+                    [
+                        new ClearanceDecisionCheck
+                        {
+                            CheckCode = "H218",
+                            DecisionCode = "C02",
+                            DecisionsValidUntil = new DateTime(2025, 1, 1),
+                            DecisionReasons = ["Some decision reason 1", "Some decision reason 2"],
+                        },
+                    ],
+                },
+                new ClearanceDecisionItem
+                {
+                    ItemNumber = 3,
+                    Checks =
+                    [
+                        new ClearanceDecisionCheck
+                        {
+                            CheckCode = "H218",
+                            DecisionCode = "C02",
+                            DecisionsValidUntil = new DateTime(2025, 1, 1),
+                        },
+                    ],
+                },
+                new ClearanceDecisionItem
+                {
+                    ItemNumber = 4,
+                    Checks =
+                    [
+                        new ClearanceDecisionCheck
+                        {
+                            CheckCode = "H218",
+                            DecisionCode = "C02",
+                            DecisionsValidUntil = new DateTime(2025, 1, 1),
+                            DecisionReasons = [""],
+                        },
+                    ],
+                },
             ],
         };
 

@@ -1,4 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
+using BtmsGateway.Config;
+using BtmsGateway.Extensions;
 using BtmsGateway.Services.Checking;
 using BtmsGateway.Services.Routing;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -17,11 +19,17 @@ public static class ConfigureHealthChecks
         RoutingConfig? routingConfig
     )
     {
+        var awsSqsOptions = builder.Services.GetOptions<AwsSqsOptions>();
+        var dataApiOptions = builder.Services.GetOptions<DataApiOptions>();
+        var decisionComparerApiOptions = builder.Services.GetOptions<DecisionComparerApiOptions>();
+
         builder
             .Services.AddHealthChecks()
             .AddResourceUtilizationHealthCheck()
             .AddNetworkChecks(healthCheckConfig)
-            .AddQueueChecks(routingConfig);
+            .AddTopicChecks(routingConfig)
+            .AddQueueChecks(awsSqsOptions, builder.Configuration)
+            .AddApiChecks(dataApiOptions, decisionComparerApiOptions);
         builder.Services.Configure<HealthCheckPublisherOptions>(options =>
         {
             options.Delay = TimeSpan.FromSeconds(30);
@@ -50,23 +58,70 @@ public static class ConfigureHealthChecks
         return builder;
     }
 
-    private static void AddQueueChecks(this IHealthChecksBuilder builder, RoutingConfig? routingConfig)
+    private static IHealthChecksBuilder AddTopicChecks(this IHealthChecksBuilder builder, RoutingConfig? routingConfig)
     {
         if (routingConfig == null || routingConfig.AutomatedHealthCheckDisabled)
-            return;
+            return builder;
 
         foreach (
             var queues in routingConfig.NamedLinks.Where(x =>
-                x.Value.LinkType == LinkType.Queue && x.Key != "InboundCustomsDeclarationReceivedTopic"
+                x.Value.LinkType == LinkType.Queue && x.Key != "AlvsErrorQueue" // To be removed as part of CDMS-616
             )
         )
         {
-            builder.AddTypeActivatedCheck<QueueHealthCheck>(
+            builder.AddTypeActivatedCheck<TopicHealthCheck>(
                 queues.Key,
                 failureStatus: HealthStatus.Unhealthy,
                 args: [queues.Key, queues.Value.Link]
             );
         }
+
+        return builder;
+    }
+
+    private static IHealthChecksBuilder AddQueueChecks(
+        this IHealthChecksBuilder builder,
+        AwsSqsOptions? awsSqsOptions,
+        IConfiguration configuration
+    )
+    {
+        if (awsSqsOptions is null || string.IsNullOrEmpty(awsSqsOptions.OutboundClearanceDecisionsQueueName))
+            return builder;
+
+        builder.AddTypeActivatedCheck<QueueHealthCheck>(
+            "OutboundClearanceDecisionsQueue",
+            failureStatus: HealthStatus.Unhealthy,
+            args: ["OutboundClearanceDecisionsQueue", awsSqsOptions.OutboundClearanceDecisionsQueueName, configuration]
+        );
+
+        return builder;
+    }
+
+    private static IHealthChecksBuilder AddApiChecks(
+        this IHealthChecksBuilder builder,
+        DataApiOptions? dataApiOptions,
+        DecisionComparerApiOptions? decisionComparerApiOptions
+    )
+    {
+        if (dataApiOptions is not null && !string.IsNullOrEmpty(dataApiOptions.BaseAddress))
+        {
+            builder.AddTypeActivatedCheck<ApiHealthCheck<DataApiOptions>>(
+                "TradeImportsDataApi",
+                failureStatus: HealthStatus.Unhealthy,
+                args: ["TradeImportsDataApi", "/health/authorized", dataApiOptions]
+            );
+        }
+
+        if (decisionComparerApiOptions is not null && !string.IsNullOrEmpty(decisionComparerApiOptions.BaseAddress))
+        {
+            builder.AddTypeActivatedCheck<ApiHealthCheck<DecisionComparerApiOptions>>(
+                "TradeImportsDecisionComparerApi",
+                failureStatus: HealthStatus.Unhealthy,
+                args: ["DecisionComparerApi", "/health/authorized", decisionComparerApiOptions]
+            );
+        }
+
+        return builder;
     }
 
     public static void UseCustomHealthChecks(this WebApplication app)

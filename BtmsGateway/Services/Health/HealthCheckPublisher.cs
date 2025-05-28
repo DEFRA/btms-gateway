@@ -7,7 +7,8 @@ using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Services.Health;
 
-public class HealthCheckPublisher(MetricsHost metricsHost, ILogger logger) : IHealthCheckPublisher
+public class HealthCheckPublisher(MetricsHost metricsHost, IHealthMetrics healthMetrics, ILogger logger)
+    : IHealthCheckPublisher
 {
     private readonly IMetrics _metrics = metricsHost.GetMetrics();
 
@@ -41,6 +42,8 @@ public class HealthCheckPublisher(MetricsHost metricsHost, ILogger logger) : IHe
         {
             SendMetrics(report);
         }
+
+        healthMetrics.ReportHealth(report);
 
         return Task.CompletedTask;
     }

@@ -7,27 +7,29 @@ using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 using Defra.TradeImportsDataApi.Domain.Events;
 using SlimMessageBus;
-using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Consumers;
 
-public class ClearanceDecisionConsumer(ITradeImportsDataApiClient api, IDecisionSender decisionSender, ILogger logger)
-    : IConsumer<IConsumerContext<ResourceEvent<CustomsDeclaration>>>
+public class ClearanceDecisionConsumer(
+    ITradeImportsDataApiClient api,
+    IDecisionSender decisionSender,
+    ILogger<ClearanceDecisionConsumer> logger
+) : IConsumer<ResourceEvent<CustomsDeclaration>>
 {
-    public async Task OnHandle(
-        IConsumerContext<ResourceEvent<CustomsDeclaration>> context,
-        CancellationToken cancellationToken
-    )
+    public async Task OnHandle(ResourceEvent<CustomsDeclaration> message, CancellationToken cancellationToken)
     {
-        logger.Information("Clearance Decision Resource Event received from queue.");
-
-        if (context.Message is null)
+        if (message.SubResourceType != ResourceEventSubResourceTypes.ClearanceDecision)
         {
-            logger.Error("Invalid message received from queue {Message}.", context.Message);
-            throw new InvalidOperationException($"Invalid message received from queue {context.Message}.");
+            logger.LogInformation(
+                "Customs Declaration Sub Resource Type {SubResourceType} skipped.",
+                message.SubResourceType
+            );
+            return;
         }
 
-        var mrn = context.Message.ResourceId;
+        logger.LogInformation("Clearance Decision Resource Event received from queue.");
+
+        var mrn = message.ResourceId;
 
         try
         {
@@ -35,13 +37,13 @@ public class ClearanceDecisionConsumer(ITradeImportsDataApiClient api, IDecision
 
             if (customsDeclaration is null)
             {
-                logger.Error("{MRN} Customs Declaration not found from Data API.", mrn);
+                logger.LogError("{MRN} Customs Declaration not found from Data API.", mrn);
                 throw new InvalidOperationException($"{mrn} Customs Declaration not found from Data API.");
             }
 
             if (customsDeclaration.ClearanceDecision is null)
             {
-                logger.Error("{MRN} Customs Declaration does not contain a Clearance Decision.", mrn);
+                logger.LogError("{MRN} Customs Declaration does not contain a Clearance Decision.", mrn);
                 throw new InvalidOperationException(
                     $"{mrn} Customs Declaration does not contain a Clearance Decision."
                 );
@@ -53,12 +55,13 @@ public class ClearanceDecisionConsumer(ITradeImportsDataApiClient api, IDecision
                 mrn,
                 soapMessage,
                 MessagingConstants.DecisionSource.Btms,
+                externalCorrelationId: customsDeclaration.ClearanceDecision.ExternalCorrelationId,
                 cancellationToken: cancellationToken
             );
 
             if (!result.StatusCode.IsSuccessStatusCode())
             {
-                logger.Error(
+                logger.LogError(
                     "{MRN} Failed to send clearance decision to Decision Comparer. Decision Comparer Response Status Code: {StatusCode}, Reason: {Reason}, Content: {Content}",
                     mrn,
                     result.StatusCode,
@@ -70,14 +73,14 @@ public class ClearanceDecisionConsumer(ITradeImportsDataApiClient api, IDecision
                 );
             }
 
-            logger.Information(
+            logger.LogInformation(
                 "{MRN} Clearance Decision Resource Event successfully processed by ClearanceDecisionConsumer.",
                 mrn
             );
         }
         catch (Exception ex)
         {
-            logger.Error(ex, "{MRN} Failed to process clearance decision resource event.", mrn);
+            logger.LogError(ex, "{MRN} Failed to process clearance decision resource event.", mrn);
             throw new ClearanceDecisionProcessingException(
                 $"{mrn} Failed to process clearance decision resource event.",
                 ex

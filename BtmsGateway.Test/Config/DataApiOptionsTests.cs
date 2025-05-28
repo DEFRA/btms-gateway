@@ -1,3 +1,4 @@
+using System.Net.Http.Headers;
 using System.Text;
 using BtmsGateway.Config;
 using FluentAssertions;
@@ -46,5 +47,25 @@ public class DataApiOptionsTests
         };
 
         dataApiOptions.BasicAuthCredential.Should().BeNullOrEmpty();
+    }
+
+    [Fact]
+    public void When_configure_http_client_Then_client_should_be_configured_correctly()
+    {
+        var dataApiOptions = new DataApiOptions
+        {
+            BaseAddress = "https://some-uri",
+            Username = "user",
+            Password = "password",
+        };
+        var httpClient = new HttpClient();
+
+        dataApiOptions.Configure(httpClient);
+
+        httpClient.BaseAddress.Should().Be($"https://some-uri");
+        httpClient
+            .DefaultRequestHeaders.Authorization.Should()
+            .BeEquivalentTo(new AuthenticationHeaderValue("Basic", dataApiOptions.BasicAuthCredential));
+        httpClient.DefaultRequestVersion.Should().BeEquivalentTo(new Version(2, 0));
     }
 }

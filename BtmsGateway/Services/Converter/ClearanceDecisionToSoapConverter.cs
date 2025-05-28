@@ -14,8 +14,8 @@ public static class ClearanceDecisionToSoapConverter
                 "ServiceHeader",
                 new XElement("SourceSystem", "ALVS"),
                 new XElement("DestinationSystem", "CDS"),
-                new XElement("CorrelationId", clearanceDecision.ExternalCorrelationId),
-                new XElement("ServiceCallTimestamp", clearanceDecision.Timestamp.ToString("yyyy-MM-ddTHH:mm:ss.sss"))
+                new XElement("CorrelationId", "000"),
+                new XElement("ServiceCallTimestamp", clearanceDecision.Timestamp.ToString("yyyy-MM-ddTHH:mm:ss.fff"))
             ),
             new XElement(
                 "Header",
@@ -57,9 +57,13 @@ public static class ClearanceDecisionToSoapConverter
             );
         }
 
-        if (check.DecisionReasons is not null)
+        if (check.DecisionReasons is null)
+            return checkElement;
+
+        foreach (var checkDecisionReason in check.DecisionReasons)
         {
-            checkElement.Add(new XElement("DecisionReason", string.Join(", ", check.DecisionReasons)));
+            if (!string.IsNullOrEmpty(checkDecisionReason))
+                checkElement.Add(new XElement("DecisionReason", checkDecisionReason));
         }
 
         return checkElement;

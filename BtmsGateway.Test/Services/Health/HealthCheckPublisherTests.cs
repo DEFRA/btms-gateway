@@ -25,6 +25,7 @@ public class HealthCheckPublisherTests
         var meterFactory = Substitute.For<IMeterFactory>();
         meterFactory.Create(null!).ReturnsForAnyArgs(meter);
         var metricsHost = Substitute.For<MetricsHost>(meterFactory);
+        var healthMetrics = Substitute.For<IHealthMetrics>();
 
         var logger = Substitute.For<ILogger>();
         var loggedMessage = string.Empty;
@@ -32,7 +33,7 @@ public class HealthCheckPublisherTests
         logger.When(x => x.Warning(Arg.Any<string>())).Do(message => loggedMessage = message[0].ToString());
         logger.When(x => x.Error(Arg.Any<string>())).Do(message => loggedMessage = message[0].ToString());
 
-        var sut = new HealthCheckPublisher(metricsHost, logger);
+        var sut = new HealthCheckPublisher(metricsHost, healthMetrics, logger);
 
         var healthReport = new HealthReport(
             new Dictionary<string, HealthReportEntry>

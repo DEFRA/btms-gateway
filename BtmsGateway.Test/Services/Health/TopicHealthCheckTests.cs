@@ -11,17 +11,17 @@ using Exception = System.Exception;
 
 namespace BtmsGateway.Test.Services.Health;
 
-public class QueueHealthCheckTests
+public class TopicHealthCheckTests
 {
     private readonly IAmazonSimpleNotificationService _snsClient;
 
-    private readonly QueueHealthCheck _queueHealthCheck;
+    private readonly TopicHealthCheck _topicHealthCheck;
 
-    public QueueHealthCheckTests()
+    public TopicHealthCheckTests()
     {
         _snsClient = Substitute.For<IAmazonSimpleNotificationService>();
 
-        _queueHealthCheck = new QueueHealthCheck("test", "test-arn", _snsClient, Substitute.For<ILogger>());
+        _topicHealthCheck = new TopicHealthCheck("test", "test-arn", _snsClient, Substitute.For<ILogger>());
     }
 
     [Theory]
@@ -38,7 +38,7 @@ public class QueueHealthCheckTests
             .GetTopicAttributesAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
             .ReturnsForAnyArgs(attributes);
 
-        var result = await _queueHealthCheck.CheckHealthAsync(new HealthCheckContext(), CancellationToken.None);
+        var result = await _topicHealthCheck.CheckHealthAsync(new HealthCheckContext(), CancellationToken.None);
 
         result.Should().NotBeNull();
         result.Status.Should().Be(expectedHealthStatus);
@@ -62,7 +62,7 @@ public class QueueHealthCheckTests
             .GetTopicAttributesAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
             .ThrowsAsyncForAnyArgs(new TaskCanceledException());
 
-        var result = await _queueHealthCheck.CheckHealthAsync(new HealthCheckContext(), CancellationToken.None);
+        var result = await _topicHealthCheck.CheckHealthAsync(new HealthCheckContext(), CancellationToken.None);
 
         result.Should().NotBeNull();
         result.Status.Should().Be(HealthStatus.Degraded);
@@ -88,7 +88,7 @@ public class QueueHealthCheckTests
             .GetTopicAttributesAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
             .ThrowsAsyncForAnyArgs(new Exception("Some error happened"));
 
-        var result = await _queueHealthCheck.CheckHealthAsync(new HealthCheckContext(), CancellationToken.None);
+        var result = await _topicHealthCheck.CheckHealthAsync(new HealthCheckContext(), CancellationToken.None);
 
         result.Should().NotBeNull();
         result.Status.Should().Be(HealthStatus.Degraded);

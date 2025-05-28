@@ -14,8 +14,8 @@
         <ServiceHeader>
           <SourceSystem>ALVS</SourceSystem>
           <DestinationSystem>CDS</DestinationSystem>
-          <CorrelationId>external-correlation-id</CorrelationId>
-          <ServiceCallTimestamp>2025-01-01T00:00:00.00</ServiceCallTimestamp>
+          <CorrelationId>000</CorrelationId>
+          <ServiceCallTimestamp>2025-01-01T00:00:00.000</ServiceCallTimestamp>
         </ServiceHeader>
         <Header>
           <EntryReference>MRN123</EntryReference>
@@ -29,6 +29,32 @@
             <DecisionCode>C02</DecisionCode>
             <DecisionValidUntil>202501010000</DecisionValidUntil>
             <DecisionReason>Some decision reason</DecisionReason>
+          </Check>
+        </Item>
+        <Item>
+          <ItemNumber>2</ItemNumber>
+          <Check>
+            <CheckCode>H218</CheckCode>
+            <DecisionCode>C02</DecisionCode>
+            <DecisionValidUntil>202501010000</DecisionValidUntil>
+            <DecisionReason>Some decision reason 1</DecisionReason>
+            <DecisionReason>Some decision reason 2</DecisionReason>
+          </Check>
+        </Item>
+        <Item>
+          <ItemNumber>3</ItemNumber>
+          <Check>
+            <CheckCode>H218</CheckCode>
+            <DecisionCode>C02</DecisionCode>
+            <DecisionValidUntil>202501010000</DecisionValidUntil>
+          </Check>
+        </Item>
+        <Item>
+          <ItemNumber>4</ItemNumber>
+          <Check>
+            <CheckCode>H218</CheckCode>
+            <DecisionCode>C02</DecisionCode>
+            <DecisionValidUntil>202501010000</DecisionValidUntil>
           </Check>
         </Item>
       </DecisionNotification>

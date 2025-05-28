@@ -6,6 +6,7 @@ using BtmsGateway.Services.Metrics;
 using BtmsGateway.Services.Routing;
 using BtmsGateway.Utils.Http;
 using FluentValidation;
+using Microsoft.FeatureManagement;
 using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Config;
@@ -51,5 +52,7 @@ public static class ConfigureServices
         builder.Services.AddSingleton<CheckRoutes>();
         builder.Services.AddSingleton<MetricsHost>();
         builder.Services.AddSingleton<IDecisionSender, DecisionSender>();
+
+        builder.Services.AddFeatureManagement(builder.Configuration.GetSection("FeatureFlags"));
     }
 }

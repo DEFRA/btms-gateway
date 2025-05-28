@@ -1,7 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Net;
-using System.Net.Http.Headers;
 using BtmsGateway.Config;
+using BtmsGateway.Services.Metrics;
 using BtmsGateway.Utils.Logging;
 using Defra.TradeImportsDataApi.Api.Client;
 using Microsoft.Extensions.Http.Resilience;
@@ -33,22 +32,7 @@ public static class ServiceCollectionExtensions
 
         services
             .AddTradeImportsDataApiClient()
-            .ConfigureHttpClient(
-                (sp, c) =>
-                {
-                    var options = sp.GetRequiredService<IOptions<DataApiOptions>>().Value;
-                    c.BaseAddress = new Uri(options.BaseAddress);
-
-                    if (options.BasicAuthCredential != null)
-                        c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
-                            "Basic",
-                            options.BasicAuthCredential
-                        );
-
-                    if (c.BaseAddress.Scheme.Equals("https", StringComparison.OrdinalIgnoreCase))
-                        c.DefaultRequestVersion = HttpVersion.Version20;
-                }
-            )
+            .ConfigureHttpClient((sp, c) => sp.GetRequiredService<IOptions<DataApiOptions>>().Value.Configure(c))
             .AddHeaderPropagation()
             .AddStandardResilienceHandler(o =>
             {
@@ -61,6 +45,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddTracingForConsumers(this IServiceCollection services)
     {
         services.AddScoped(typeof(IConsumerInterceptor<>), typeof(TraceContextInterceptor<>));
+        services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(LoggingInterceptor<>));
 
         return services;
     }
@@ -68,5 +53,15 @@ public static class ServiceCollectionExtensions
     public static IHttpContextAccessor GetHttpContextAccessor(this IServiceCollection services)
     {
         return services.BuildServiceProvider().GetRequiredService<IHttpContextAccessor>();
+    }
+
+    public static IServiceCollection AddOperationalMetrics(this IServiceCollection services)
+    {
+        services.AddSingleton<IRequestMetrics, RequestMetrics>();
+        services.AddSingleton<IConsumerMetrics, ConsumerMetrics>();
+        services.AddSingleton<IHealthMetrics, HealthMetrics>();
+        services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(MetricsInterceptor<>));
+
+        return services;
     }
 }

@@ -1,6 +1,7 @@
 using Amazon.Extensions.NETCore.Setup;
 using Amazon.Runtime;
 using BtmsGateway.Config;
+using BtmsGateway.Extensions;
 using BtmsGateway.Middleware;
 using BtmsGateway.Services.Checking;
 using BtmsGateway.Services.Routing;
@@ -49,6 +50,7 @@ public class TestWebServer : IDisposable
         foreach (var testService in testServices)
             builder.Services.Replace(testService);
         builder.Services.AddHealthChecks();
+        builder.Services.AddOperationalMetrics();
 
         var options = builder.Configuration.GetAWSOptions();
         options.Credentials = new BasicAWSCredentials(
@@ -79,6 +81,22 @@ public class TestWebServer : IDisposable
         _app = app;
 
         _app.RunAsync();
+
+        AsyncWaiter
+            .WaitForAsync(async () =>
+            {
+                try
+                {
+                    var response = await HttpServiceClient.GetAsync("/health");
+                    return response.IsSuccessStatusCode;
+                }
+                catch
+                {
+                    return false;
+                }
+            })
+            .GetAwaiter()
+            .GetResult();
     }
 
     public void Dispose()

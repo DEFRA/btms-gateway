@@ -7,9 +7,9 @@ using BtmsGateway.Services.Routing;
 using BtmsGateway.Test.TestUtils;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Primitives;
 using NSubstitute;
+using Serilog;
 using Serilog.Core;
 
 namespace BtmsGateway.Test.Middleware;
@@ -475,5 +475,16 @@ public class MessageDataTests
         publishRequest
             .MessageAttributes.Should()
             .NotContainKey(MessagingConstants.MessageAttributeKeys.InboundHmrcMessageType);
+    }
+
+    [Fact]
+    public async Task When_receiving_a_request_that_should_be_logged_Then_it_should_log()
+    {
+        var logger = Substitute.For<ILogger>();
+        _httpContext.Request.Path = new PathString("/alvs_cds");
+
+        await MessageData.Create(_httpContext.Request, logger, true);
+
+        logger.Received(1).Information(Arg.Is("Request Content: {Content}"), Arg.Any<string>());
     }
 }

@@ -27,9 +27,13 @@ public class MessageData
     private readonly ILogger _logger;
     public IHeaderDictionary Headers { get; }
 
-    public static async Task<MessageData> Create(HttpRequest request, ILogger logger)
+    public static async Task<MessageData> Create(HttpRequest request, ILogger logger, bool logRawMessage)
     {
         var content = await RetrieveContent(request);
+
+        if (logRawMessage)
+            logger.Information("Request Content: {Content}", content);
+
         return new MessageData(request, content, logger);
     }
 

@@ -83,6 +83,11 @@ static Logger ConfigureLoggingAndTracing(WebApplicationBuilder builder)
         loggerConfiguration.Enrich.WithCorrelationId(traceIdHeader);
     }
 
+    builder
+        .Services.AddOptions<MessageLoggingOptions>()
+        .BindConfiguration(MessageLoggingOptions.SectionName)
+        .ValidateDataAnnotations();
+
     var logger = loggerConfiguration.CreateLogger();
     builder.Logging.AddSerilog(logger);
     logger.Information("Starting application");

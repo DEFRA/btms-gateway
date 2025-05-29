@@ -1,6 +1,8 @@
+using BtmsGateway.Config;
 using BtmsGateway.Exceptions;
 using BtmsGateway.Services.Metrics;
 using BtmsGateway.Services.Routing;
+using Microsoft.Extensions.Options;
 using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Middleware;
@@ -10,7 +12,8 @@ public class RoutingInterceptor(
     IMessageRouter messageRouter,
     MetricsHost metricsHost,
     IRequestMetrics requestMetrics,
-    ILogger logger
+    ILogger logger,
+    IOptions<MessageLoggingOptions> messageLoggingOptions
 )
 {
     private const string RouteAction = "Routing";
@@ -22,7 +25,11 @@ public class RoutingInterceptor(
         {
             var metrics = metricsHost.GetMetrics();
 
-            var messageData = await MessageData.Create(context.Request, logger);
+            var messageData = await MessageData.Create(
+                context.Request,
+                logger,
+                messageLoggingOptions.Value.LogRawMessage
+            );
 
             if (messageData.ShouldProcessRequest)
             {

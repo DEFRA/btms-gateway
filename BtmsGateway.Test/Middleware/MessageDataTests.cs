@@ -7,7 +7,9 @@ using BtmsGateway.Services.Routing;
 using BtmsGateway.Test.TestUtils;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Primitives;
+using NSubstitute;
 using Serilog.Core;
 
 namespace BtmsGateway.Test.Middleware;
@@ -49,7 +51,7 @@ public class MessageDataTests
     {
         _httpContext.Request.Path = new PathString(path);
 
-        var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
+        var messageData = await MessageData.Create(_httpContext.Request, Logger.None, false);
 
         messageData.ShouldProcessRequest.Should().BeTrue();
     }
@@ -60,7 +62,9 @@ public class MessageDataTests
         _httpContext.Request.Path = new PathString("/");
         _httpContext.Request.Protocol = null!;
 
-        await Assert.ThrowsAsync<NullReferenceException>(() => MessageData.Create(_httpContext.Request, Logger.None));
+        await Assert.ThrowsAsync<NullReferenceException>(() =>
+            MessageData.Create(_httpContext.Request, Logger.None, false)
+        );
     }
 
     [Theory]
@@ -71,7 +75,7 @@ public class MessageDataTests
         _httpContext.Request.Method = "POST";
         _httpContext.Request.Path = new PathString(path);
 
-        var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
+        var messageData = await MessageData.Create(_httpContext.Request, Logger.None, false);
 
         messageData.ShouldProcessRequest.Should().BeTrue();
     }
@@ -87,7 +91,7 @@ public class MessageDataTests
     {
         _httpContext.Request.Path = new PathString(path);
 
-        var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
+        var messageData = await MessageData.Create(_httpContext.Request, Logger.None, false);
 
         messageData.ShouldProcessRequest.Should().BeFalse();
     }
@@ -97,7 +101,7 @@ public class MessageDataTests
     {
         _httpContext.Request.Headers.Add(new KeyValuePair<string, StringValues>("Accept", "application/json"));
 
-        var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
+        var messageData = await MessageData.Create(_httpContext.Request, Logger.None, false);
 
         messageData.OriginalContentType.Should().Be("application/json");
     }
@@ -105,7 +109,7 @@ public class MessageDataTests
     [Fact]
     public async Task When_creating_a_routable_get_request_without_host_header_Then_it_should_create_forwarding_request()
     {
-        var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
+        var messageData = await MessageData.Create(_httpContext.Request, Logger.None, false);
 
         var request = messageData.CreateOriginalSoapRequest("https://localhost:456/cds/path", null);
 
@@ -121,7 +125,7 @@ public class MessageDataTests
     [Fact]
     public async Task When_creating_a_routable_get_request_with_host_header_Then_it_should_create_forwarding_request()
     {
-        var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
+        var messageData = await MessageData.Create(_httpContext.Request, Logger.None, false);
 
         var request = messageData.CreateOriginalSoapRequest("https://localhost:456/cds/path", "host-header");
 
@@ -133,7 +137,7 @@ public class MessageDataTests
     public async Task When_creating_a_routable_get_request_with_content_Then_it_should_create_forwarding_request()
     {
         _httpContext.Request.Headers.ContentType = "application/soap+xml";
-        var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
+        var messageData = await MessageData.Create(_httpContext.Request, Logger.None, false);
 
         var request = messageData.CreateOriginalSoapRequest("https://localhost:456/cds/path", null);
 
@@ -148,7 +152,7 @@ public class MessageDataTests
     public async Task When_creating_a_routable_get_request_with_accept_header_Then_it_should_create_forwarding_request()
     {
         _httpContext.Request.Headers.Add(new KeyValuePair<string, StringValues>("Accept", "application/json"));
-        var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
+        var messageData = await MessageData.Create(_httpContext.Request, Logger.None, false);
 
         var request = messageData.CreateOriginalSoapRequest("https://localhost:456/cds/path", null);
 
@@ -165,7 +169,7 @@ public class MessageDataTests
         _httpContext.Request.Path = new PathString("/cds/path");
         _httpContext.Request.Headers.ContentType = "application/soap+xml";
 
-        var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
+        var messageData = await MessageData.Create(_httpContext.Request, Logger.None, false);
 
         messageData.HttpString.Should().Be("POST http://localhost:123/cds/path HTTP/1.1 application/soap+xml");
         messageData.Method.Should().Be("POST");
@@ -187,7 +191,7 @@ public class MessageDataTests
             "<s:Envelope xmlns:s=\"http://soap\"><s:Body><ALVSClearanceRequest><Header><EntryReference>ALVSCDSTEST00000000688</EntryReference><DispatchCountryCode>NI</DispatchCountryCode><CorrelationId>123456789</CorrelationId></Header></ALVSClearanceRequest></s:Body></s:Envelope>"u8.ToArray()
         );
 
-        var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
+        var messageData = await MessageData.Create(_httpContext.Request, Logger.None, false);
 
         messageData.ContentMap.EntryReference.Should().Be("ALVSCDSTEST00000000688");
         messageData.ContentMap.CountryCode.Should().Be("NI");
@@ -200,7 +204,7 @@ public class MessageDataTests
         _httpContext.Request.Method = "POST";
         _httpContext.Request.Path = new PathString("/cds/path");
         _httpContext.Request.Headers.ContentType = "application/soap+xml";
-        var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
+        var messageData = await MessageData.Create(_httpContext.Request, Logger.None, false);
 
         var request = messageData.CreateOriginalSoapRequest("https://localhost:456/cds/path", "host-header");
 
@@ -222,7 +226,7 @@ public class MessageDataTests
         _httpContext.Request.Method = "POST";
         _httpContext.Request.Path = new PathString("/cds/path");
         _httpContext.Request.Headers.ContentType = "application/soap+xml";
-        var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
+        var messageData = await MessageData.Create(_httpContext.Request, Logger.None, false);
 
         var request = messageData.CreateConvertedJsonRequest("https://localhost:456/cds/path", null, "Root");
 
@@ -239,7 +243,7 @@ public class MessageDataTests
     public async Task When_creating_a_routable_converted_post_request_and_exception_occurs_Then_it_should_throw_the_exception()
     {
         _httpContext.Request.Method = "";
-        var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
+        var messageData = await MessageData.Create(_httpContext.Request, Logger.None, false);
 
         Assert.Throws<ArgumentException>(() =>
             messageData.CreateConvertedJsonRequest("https://localhost:456/cds/path", null, "Root")
@@ -253,7 +257,7 @@ public class MessageDataTests
         _httpContext.Request.Method = "POST";
         _httpContext.Request.Path = new PathString("/cds/path");
         _httpContext.Request.Headers.ContentType = "application/soap+xml";
-        var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
+        var messageData = await MessageData.Create(_httpContext.Request, Logger.None, false);
         var responseBody = new MemoryStream();
         _httpContext.Response.Body = responseBody;
 
@@ -283,7 +287,7 @@ public class MessageDataTests
     {
         _httpContext.Request.Method = "POST";
         _httpContext.Request.Path = new PathString("/cds/path");
-        var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
+        var messageData = await MessageData.Create(_httpContext.Request, Logger.None, false);
 
         await messageData.PopulateResponse(
             _httpContext.Response,
@@ -300,7 +304,7 @@ public class MessageDataTests
         _httpContext.Request.Method = "POST";
         _httpContext.Request.Path = new PathString("/cds/path");
         _httpContext.Request.Headers.ContentType = "application/soap+xml";
-        var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
+        var messageData = await MessageData.Create(_httpContext.Request, Logger.None, false);
         var responseBody = new MemoryStream();
         _httpContext.Response.Body = responseBody;
 
@@ -322,7 +326,7 @@ public class MessageDataTests
         _httpContext.Request.Method = "POST";
         _httpContext.Request.Path = new PathString("/cds/path");
         _httpContext.Request.Headers.ContentType = [];
-        var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
+        var messageData = await MessageData.Create(_httpContext.Request, Logger.None, false);
         var responseBody = new MemoryStream();
         _httpContext.Response.Body = responseBody;
 
@@ -344,7 +348,7 @@ public class MessageDataTests
         _httpContext.Request.Method = "POST";
         _httpContext.Request.Path = new PathString("/cds/path");
         _httpContext.Request.Headers.ContentType = [];
-        var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
+        var messageData = await MessageData.Create(_httpContext.Request, Logger.None, false);
         var responseBody = new MemoryStream();
         _httpContext.Response.Body = responseBody;
 
@@ -366,7 +370,7 @@ public class MessageDataTests
         const string traceHeaderValue = "some-request-guid";
         _httpContext.Request.Path = new PathString("/");
         _httpContext.Request.Headers.Append(TraceHeaderKey, traceHeaderValue);
-        var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
+        var messageData = await MessageData.Create(_httpContext.Request, Logger.None, false);
 
         var publishRequest = messageData.CreatePublishRequest("route-arn", "Root", TraceHeaderKey);
 
@@ -385,7 +389,7 @@ public class MessageDataTests
         );
         _httpContext.Request.Path = new PathString("/");
         _httpContext.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(alvsClearanceRequest));
-        var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
+        var messageData = await MessageData.Create(_httpContext.Request, Logger.None, false);
 
         var publishRequest = messageData.CreatePublishRequest(
             "route-arn",
@@ -410,7 +414,7 @@ public class MessageDataTests
         );
         _httpContext.Request.Path = new PathString("/");
         _httpContext.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(finalisationNotificationRequest));
-        var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
+        var messageData = await MessageData.Create(_httpContext.Request, Logger.None, false);
 
         var publishRequest = messageData.CreatePublishRequest(
             "route-arn",
@@ -435,7 +439,7 @@ public class MessageDataTests
         );
         _httpContext.Request.Path = new PathString("/");
         _httpContext.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(errorNotificationRequest));
-        var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
+        var messageData = await MessageData.Create(_httpContext.Request, Logger.None, false);
 
         var publishRequest = messageData.CreatePublishRequest(
             "route-arn",
@@ -460,7 +464,7 @@ public class MessageDataTests
         );
         _httpContext.Request.Path = new PathString("/");
         _httpContext.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(errorNotificationRequest));
-        var messageData = await MessageData.Create(_httpContext.Request, Logger.None);
+        var messageData = await MessageData.Create(_httpContext.Request, Logger.None, false);
 
         var publishRequest = messageData.CreatePublishRequest(
             "route-arn",

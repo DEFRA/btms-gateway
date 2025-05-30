@@ -6,6 +6,8 @@ namespace BtmsGateway.Services.Converter;
 
 public static class ErrorNotificationToSoapConverter
 {
+    private const string MessageType = "HMRCErrorNotification";
+
     public static string Convert(ErrorNotification errorNotification, string mrn)
     {
         var soapContent = new List<XElement>
@@ -33,18 +35,20 @@ public static class ErrorNotificationToSoapConverter
             ))
         );
 
-        XNamespace rootNs = SoapUtils.GetRootAttributeValue("HMRCErrorNotification");
-        XAttribute rootNsAttribute = new(XNamespace.Xmlns + "NS2", rootNs);
+        XNamespace errorNotificationRootNs = SoapUtils.GetRootAttributeValue(MessageType);
+        XAttribute errorNotificationRootNsAttribute = new(XNamespace.Xmlns + "NS2", errorNotificationRootNs);
 
-        var soapBody = new XElement(rootNs + "HMRCErrorNotification", rootNsAttribute, soapContent);
+        var soapBody = new XElement(
+            errorNotificationRootNs + MessageType,
+            errorNotificationRootNsAttribute,
+            soapContent
+        );
 
         var soapMessage = SoapUtils.AddSoapEnvelope(soapBody, SoapType.AlvsToCds);
 
         var soapDocument = new XDocument(new XDeclaration("1.0", "UTF-8", null), soapMessage);
 
-        var soapString = soapDocument
-            .ToStringWithDeclaration()
-            .Replace("\"" + rootNs + "\"", "&quot;" + rootNs + "&quot;");
+        var soapString = soapDocument.ToStringWithDeclaration(errorNotificationRootNs);
 
         return soapString;
     }

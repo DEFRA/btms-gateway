@@ -1,5 +1,4 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Web;
 using System.Xml;
 
 namespace BtmsGateway.Services.Converter;
@@ -15,12 +14,14 @@ public class SoapContent
     private static readonly string[] s_htmlCodedMessages = ["DecisionNotification", "HMRCErrorNotification"];
 
     public string? SoapString { get; }
+    public string? RawSoapString { get; }
 
     private readonly XmlNode? _soapXmlNode;
 
     public SoapContent(string? soapString)
     {
         SoapString = GetDecodedString(soapString);
+        RawSoapString = soapString;
         var soapXmlNode = GetElement(SoapString);
         _soapXmlNode = soapXmlNode;
     }
@@ -76,7 +77,8 @@ public class SoapContent
         )
         {
             // Spec specifically refers to just these characters being encoded for these message types
-            return soapString.Replace("&lt;", "<").Replace("&gt;", ">");
+            // Captured messages show double quotes are also encoded
+            return soapString.Replace("&lt;", "<").Replace("&gt;", ">").Replace("&quot;", "\"");
         }
 
         return soapString;

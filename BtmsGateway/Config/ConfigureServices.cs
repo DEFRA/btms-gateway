@@ -52,6 +52,7 @@ public static class ConfigureServices
         builder.Services.AddSingleton<CheckRoutes>();
         builder.Services.AddSingleton<MetricsHost>();
         builder.Services.AddSingleton<IDecisionSender, DecisionSender>();
+        builder.Services.AddSingleton<IErrorNotificationSender, ErrorNotificationSender>();
 
         builder.Services.AddFeatureManagement(builder.Configuration.GetSection("FeatureFlags"));
     }

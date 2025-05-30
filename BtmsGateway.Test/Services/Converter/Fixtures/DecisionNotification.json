@@ -3,42 +3,20 @@
     "sourceSystem": "ALVS",
     "destinationSystem": "CDS",
     "correlationId": "000",
-    "serviceCallTimestamp": "2023-06-30T07:34:14.405827"
+    "serviceCallTimestamp": "2025-05-29T18:57:29.298"
   },
   "header": {
-    "entryReference": "23GB1234567890ABC8",
-    "entryVersionNumber": 1,
-    "decisionNumber": 1
+    "entryReference": "25GB1HG99NHUJO3999",
+    "entryVersionNumber": 3,
+    "decisionNumber": 3
   },
   "items": [
     {
       "itemNumber": 1,
       "checks": [
         {
-          "checkCode": "H218",
-          "decisionCode": "C02",
-          "decisionValidUntil": "202307042359"
-        },
-        {
           "checkCode": "H219",
-          "decisionCode": "C03"
-        },
-        {
-          "checkCode": "H223",
-          "decisionCode": "C03"
-        }
-      ]
-    },
-    {
-      "itemNumber": 2,
-      "checks": [
-        {
-          "checkCode": "H219",
-          "decisionCode": "C03"
-        },
-        {
-          "checkCode": "H223",
-          "decisionCode": "C03"
+          "decisionCode": "H02"
         }
       ]
     }

@@ -6,6 +6,8 @@ namespace BtmsGateway.Services.Converter;
 
 public static class ClearanceDecisionToSoapConverter
 {
+    private const string MessageType = "DecisionNotification";
+
     public static string Convert(ClearanceDecision clearanceDecision, string mrn)
     {
         var soapContent = new List<XElement>
@@ -33,13 +35,22 @@ public static class ClearanceDecisionToSoapConverter
             ))
         );
 
-        var soapBody = new XElement("DecisionNotification", soapContent);
+        XNamespace decisionNotificationRootNs = SoapUtils.GetRootAttributeValue(MessageType);
+        XAttribute decisionNotificationRootNsAttribute = new(XNamespace.Xmlns + "NS2", decisionNotificationRootNs);
+
+        var soapBody = new XElement(
+            decisionNotificationRootNs + MessageType,
+            decisionNotificationRootNsAttribute,
+            soapContent
+        );
 
         var soapMessage = SoapUtils.AddSoapEnvelope(soapBody, SoapType.AlvsToCds);
 
-        var soapDocument = new XDocument(JsonToXmlConverter.XmlDeclaration, soapMessage);
+        var soapDocument = new XDocument(new XDeclaration("1.0", "UTF-8", null), soapMessage);
 
-        return soapDocument.ToStringWithDeclaration();
+        var soapString = soapDocument.ToStringWithDeclaration(decisionNotificationRootNs);
+
+        return soapString;
     }
 
     private static XElement GetCheckElement(ClearanceDecisionCheck check)

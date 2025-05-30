@@ -34,11 +34,11 @@
       "RouteTo": "Legacy"
     },
     "ALVSErrorNotificationToCds": {
-      "RoutePath": "/route/path/alvs-cds/decision-notification",
+      "RoutePath": "/route/path/alvs-cds/error-notification",
       "MessageSubXPath": "HMRCErrorNotification/HMRCErrorNotification",
       "Legend": "Legend",
       "LegacyLinkName": "AlvsCds",
-      "BtmsLinkName": "Btms",
+      "BtmsLinkName": "DecisionComparerErrorNotifications",
       "MessageBodyDepth": 2,
       "RouteTo": "Legacy"
     },
@@ -264,6 +264,10 @@
     "DecisionComparer": {
       "LinkType": "DecisionComparer",
       "Link": "DecisionSender"
+    },
+    "DecisionComparerErrorNotifications": {
+      "LinkType": "DecisionComparerErrorNotifications",
+      "Link": "ErrorNotificationSender"
     }
   },
   "Destinations": {
@@ -285,6 +289,18 @@
       "LinkType": "Url",
       "Link": "http://trade-imports-decision-comparer-host",
       "RoutePath": "/alvs-decisions/",
+      "ContentType": "application/soap+xml"
+    },
+    "BtmsOutboundErrors": {
+      "LinkType": "Url",
+      "Link": "http://trade-imports-decision-comparer-host",
+      "RoutePath": "/btms-outbound-errors/",
+      "ContentType": "application/soap+xml"
+    },
+    "AlvsOutboundErrors": {
+      "LinkType": "Url",
+      "Link": "http://trade-imports-decision-comparer-host",
+      "RoutePath": "/alvs-outbound-errors/",
       "ContentType": "application/soap+xml"
     }
   }

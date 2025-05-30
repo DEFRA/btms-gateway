@@ -17,7 +17,8 @@ public class ErrorNotificationToSoapConverterTests
     [Fact]
     public void When_convert_Then_should_return_error_notification_soap_message()
     {
-        var expectedSoap = File.ReadAllText(Path.Combine(TestDataPath, "HmrcErrorNotificationWithHtmlEncoding.xml")).LinuxLineEndings();
+        var expectedSoap = File.ReadAllText(Path.Combine(TestDataPath, "HmrcErrorNotificationWithHtmlEncoding.xml"))
+            .LinuxLineEndings();
 
         var errorNotification = new ErrorNotification
         {

@@ -35,7 +35,7 @@ public static class ClearanceDecisionToSoapConverter
 
         XNamespace rootNs = SoapUtils.GetRootAttributeValue("DecisionNotification");
         XAttribute rootNsAttribute = new(XNamespace.Xmlns + "NS2", rootNs);
-        
+
         var soapBody = new XElement(rootNs + "DecisionNotification", rootNsAttribute, soapContent);
 
         var soapMessage = SoapUtils.AddSoapEnvelope(soapBody, SoapType.AlvsToCds);

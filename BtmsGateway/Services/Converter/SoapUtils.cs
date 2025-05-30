@@ -84,10 +84,7 @@ public static class SoapUtils
                 new XElement(
                     AlvsCommonRootNs + rootElement.Name.LocalName,
                     AlvsCommonRootNsAttribute,
-                    AddNamespace(rootElement, rootNs)
-                        .ToString()
-                        .Replace("\n", "")
-                        .Replace("  ", "")
+                    AddNamespace(rootElement, rootNs).ToString().Replace("\n", "").Replace("  ", "")
                 )
             )
         );

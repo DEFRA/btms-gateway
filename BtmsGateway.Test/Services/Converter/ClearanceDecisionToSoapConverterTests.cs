@@ -17,7 +17,8 @@ public class ClearanceDecisionToSoapConverterTests
     [Fact]
     public void When_receiving_clearance_decision_Then_should_convert_to_soap()
     {
-        var expectedSoap = File.ReadAllText(Path.Combine(TestDataPath, "DecisionNotificationWithHtmlEncoding.xml")).LinuxLineEndings();
+        var expectedSoap = File.ReadAllText(Path.Combine(TestDataPath, "DecisionNotificationWithHtmlEncoding.xml"))
+            .LinuxLineEndings();
 
         var clearanceDecision = new ClearanceDecision
         {
@@ -30,14 +31,7 @@ public class ClearanceDecisionToSoapConverterTests
                 new ClearanceDecisionItem
                 {
                     ItemNumber = 1,
-                    Checks =
-                    [
-                        new ClearanceDecisionCheck
-                        {
-                            CheckCode = "H219",
-                            DecisionCode = "H02",
-                        },
-                    ],
+                    Checks = [new ClearanceDecisionCheck { CheckCode = "H219", DecisionCode = "H02" }],
                 },
             ],
         };

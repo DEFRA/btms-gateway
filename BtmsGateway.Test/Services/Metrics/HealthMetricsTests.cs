@@ -28,7 +28,7 @@ public class HealthMetricsTests : MetricsTestBase
                     new Dictionary<string, object>
                     {
                         { "topic-arn", "aws_acc:some_topic.fifo" },
-                        { "content", "some content" }
+                        { "content", "some content" },
                     }
                 )
             },

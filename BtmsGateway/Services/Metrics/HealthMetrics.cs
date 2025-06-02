@@ -68,7 +68,11 @@ public class HealthMetrics : IHealthMetrics
             { MetricsConstants.HealthTags.Description, reportEntry.Value.Description },
         };
 
-        foreach (var keyValuePair in reportEntry.Value.Data)
+        foreach (
+            var keyValuePair in reportEntry.Value.Data.Where(kvp =>
+                !string.Equals(kvp.Key, "content", StringComparison.InvariantCultureIgnoreCase)
+            )
+        )
         {
             tags.Add(keyValuePair.Key, keyValuePair.Value);
         }

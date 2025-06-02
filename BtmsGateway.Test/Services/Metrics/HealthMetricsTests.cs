@@ -25,7 +25,11 @@ public class HealthMetricsTests : MetricsTestBase
                     description: "Health report 1",
                     TimeSpan.Zero,
                     null,
-                    new Dictionary<string, object> { { "topic-arn", "aws_acc:some_topic.fifo" } }
+                    new Dictionary<string, object>
+                    {
+                        { "topic-arn", "aws_acc:some_topic.fifo" },
+                        { "content", "some content" }
+                    }
                 )
             },
             {
@@ -58,6 +62,7 @@ public class HealthMetricsTests : MetricsTestBase
         healthMeasurements.Count.Should().Be(4);
         healthMeasurements[0].Value.Should().Be(1);
         healthMeasurements[0].ContainsTags(MetricsConstants.HealthTags.Component).Should().BeTrue();
+        healthMeasurements[0].ContainsTags("content").Should().BeFalse();
         healthMeasurements[0].Tags[MetricsConstants.HealthTags.Component].Should().Be("BTMS Gateway");
         healthMeasurements[0]
             .Tags[MetricsConstants.HealthTags.Description]

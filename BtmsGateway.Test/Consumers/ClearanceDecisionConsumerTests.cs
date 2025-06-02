@@ -87,7 +87,8 @@ public class ClearanceDecisionConsumerTests
             .SendDecisionAsync(
                 Arg.Any<string>(),
                 Arg.Any<string>(),
-                Arg.Any<MessagingConstants.DecisionSource>(),
+                Arg.Any<MessagingConstants.MessageSource>(),
+                Arg.Any<RoutingResult>(),
                 Arg.Any<IHeaderDictionary>(),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>()
@@ -101,7 +102,8 @@ public class ClearanceDecisionConsumerTests
             .SendDecisionAsync(
                 Arg.Any<string>(),
                 Arg.Any<string>(),
-                Arg.Any<MessagingConstants.DecisionSource>(),
+                Arg.Any<MessagingConstants.MessageSource>(),
+                Arg.Any<RoutingResult>(),
                 Arg.Any<IHeaderDictionary>(),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>()
@@ -158,7 +160,8 @@ public class ClearanceDecisionConsumerTests
             .SendDecisionAsync(
                 Arg.Any<string>(),
                 Arg.Any<string>(),
-                Arg.Any<MessagingConstants.DecisionSource>(),
+                Arg.Any<MessagingConstants.MessageSource>(),
+                Arg.Any<RoutingResult>(),
                 Arg.Any<IHeaderDictionary>(),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>()
@@ -182,7 +185,8 @@ public class ClearanceDecisionConsumerTests
             .SendDecisionAsync(
                 Arg.Any<string>(),
                 Arg.Any<string>(),
-                Arg.Any<MessagingConstants.DecisionSource>(),
+                Arg.Any<MessagingConstants.MessageSource>(),
+                Arg.Any<RoutingResult>(),
                 Arg.Any<IHeaderDictionary>(),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>()
@@ -221,7 +225,8 @@ public class ClearanceDecisionConsumerTests
             .SendDecisionAsync(
                 Arg.Any<string>(),
                 Arg.Any<string>(),
-                Arg.Any<MessagingConstants.DecisionSource>(),
+                Arg.Any<MessagingConstants.MessageSource>(),
+                Arg.Any<RoutingResult>(),
                 Arg.Any<IHeaderDictionary>(),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>()

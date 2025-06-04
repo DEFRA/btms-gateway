@@ -8,6 +8,6 @@ public class AwsSqsOptions
 
     [Required]
     public required string OutboundClearanceDecisionsQueueName { get; set; }
-    
+
     public int ConsumersPerHost { get; init; } = 20;
 }

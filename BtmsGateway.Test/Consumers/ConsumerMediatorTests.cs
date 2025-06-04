@@ -75,12 +75,12 @@ public class ConsumerMediatorTests
 
         var message = JsonSerializer.Deserialize<JsonElement>(
             JsonSerializer.Serialize(
-                new ResourceEvent<ProcessingError>
+                new ResourceEvent<ProcessingError[]>
                 {
                     ResourceId = "mrn",
                     ResourceType = ResourceEventResourceTypes.ProcessingError,
                     Operation = ResourceEventOperations.Created,
-                    Resource = new ProcessingError(),
+                    Resource = [new ProcessingError()],
                 }
             )
         );

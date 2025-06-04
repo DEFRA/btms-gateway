@@ -12,9 +12,9 @@ namespace BtmsGateway.Consumers;
 public class ProcessingErrorConsumer(
     IErrorNotificationSender errorNotificationSender,
     ILogger<ProcessingErrorConsumer> logger
-) : IConsumer<ResourceEvent<ProcessingError>>
+) : IConsumer<ResourceEvent<ProcessingError[]>>
 {
-    public async Task OnHandle(ResourceEvent<ProcessingError> message, CancellationToken cancellationToken)
+    public async Task OnHandle(ResourceEvent<ProcessingError[]> message, CancellationToken cancellationToken)
     {
         logger.LogInformation("Processing Error Resource Event received from queue.");
 
@@ -28,9 +28,19 @@ public class ProcessingErrorConsumer(
 
         try
         {
-            var processingError = message.Resource;
+            var processingErrors = message.Resource;
 
-            var soapMessage = ErrorNotificationToSoapConverter.Convert(processingError, mrn);
+            var latestProcessingError = processingErrors
+                .OrderBy(processingError => processingError.Created)
+                .LastOrDefault();
+
+            if (latestProcessingError is null)
+            {
+                logger.LogWarning("{MRN} Processing Errors contained no processing errors.", mrn);
+                return;
+            }
+
+            var soapMessage = ErrorNotificationToSoapConverter.Convert(latestProcessingError, mrn);
 
             var result = await errorNotificationSender.SendErrorNotificationAsync(
                 mrn,

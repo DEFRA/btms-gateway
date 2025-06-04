@@ -50,7 +50,7 @@ public class ConsumerMediator(
             loggerFactory.CreateLogger<ProcessingErrorConsumer>()
         );
 
-        return consumer.OnHandle(Deserialize<ProcessingError>(message), cancellationToken);
+        return consumer.OnHandle(Deserialize<ProcessingError[]>(message), cancellationToken);
     }
 
     private Task HandleUnknown(string resourceType)

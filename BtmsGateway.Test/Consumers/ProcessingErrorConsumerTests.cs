@@ -27,12 +27,12 @@ public class ProcessingErrorConsumerTests
     [Fact]
     public async Task When_processing_succeeds_Then_message_should_be_sent()
     {
-        var message = new ResourceEvent<ProcessingError>
+        var message = new ResourceEvent<ProcessingError[]>
         {
             ResourceId = "24GB123456789AB012",
             ResourceType = "ProcessingError",
             Operation = "Created",
-            Resource = new ProcessingError(),
+            Resource = [new ProcessingError()],
         };
 
         var sendErrorNotificationResult = new RoutingResult { StatusCode = HttpStatusCode.OK };
@@ -65,7 +65,7 @@ public class ProcessingErrorConsumerTests
     [Fact]
     public async Task When_resource_is_null_Then_message_is_not_sent()
     {
-        var message = new ResourceEvent<ProcessingError>
+        var message = new ResourceEvent<ProcessingError[]>
         {
             ResourceId = "24GB123456789AB012",
             ResourceType = "ProcessingError",
@@ -87,14 +87,64 @@ public class ProcessingErrorConsumerTests
     }
 
     [Fact]
-    public async Task When_sending_to_decision_comparer_is_not_successful_Then_exception_is_thrown()
+    public async Task When_processing_errors_resource_is_null_Then_message_is_not_sent()
     {
-        var message = new ResourceEvent<ProcessingError>
+        var message = new ResourceEvent<ProcessingError[]>
         {
             ResourceId = "24GB123456789AB012",
             ResourceType = "ProcessingError",
             Operation = "Created",
-            Resource = new ProcessingError(),
+            Resource = null,
+        };
+
+        await _consumer.OnHandle(message, CancellationToken.None);
+
+        await _errorNotificationSender
+            .DidNotReceiveWithAnyArgs()
+            .SendErrorNotificationAsync(
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<MessagingConstants.MessageSource>(),
+                Arg.Any<RoutingResult>(),
+                Arg.Any<IHeaderDictionary>(),
+                Arg.Any<CancellationToken>()
+            );
+    }
+
+    [Fact]
+    public async Task When_processing_errors_resource_is_empty_Then_message_is_not_sent()
+    {
+        var message = new ResourceEvent<ProcessingError[]>
+        {
+            ResourceId = "24GB123456789AB012",
+            ResourceType = "ProcessingError",
+            Operation = "Created",
+            Resource = [],
+        };
+
+        await _consumer.OnHandle(message, CancellationToken.None);
+
+        await _errorNotificationSender
+            .DidNotReceiveWithAnyArgs()
+            .SendErrorNotificationAsync(
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<MessagingConstants.MessageSource>(),
+                Arg.Any<RoutingResult>(),
+                Arg.Any<IHeaderDictionary>(),
+                Arg.Any<CancellationToken>()
+            );
+    }
+
+    [Fact]
+    public async Task When_sending_to_decision_comparer_is_not_successful_Then_exception_is_thrown()
+    {
+        var message = new ResourceEvent<ProcessingError[]>
+        {
+            ResourceId = "24GB123456789AB012",
+            ResourceType = "ProcessingError",
+            Operation = "Created",
+            Resource = [new ProcessingError()],
         };
 
         var sendErrorNotificationResult = new RoutingResult { StatusCode = HttpStatusCode.BadRequest };

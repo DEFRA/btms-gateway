@@ -16,8 +16,8 @@ public static class ClearanceDecisionToSoapConverter
                 "ServiceHeader",
                 new XElement("SourceSystem", "ALVS"),
                 new XElement("DestinationSystem", "CDS"),
-                new XElement("CorrelationId", "000"),
-                new XElement("ServiceCallTimestamp", clearanceDecision.Timestamp.ToString("yyyy-MM-ddTHH:mm:ss.fff"))
+                new XElement("CorrelationId", clearanceDecision.CorrelationId),
+                new XElement("ServiceCallTimestamp", clearanceDecision.Created.ToString("yyyy-MM-ddTHH:mm:ss.fff"))
             ),
             new XElement(
                 "Header",

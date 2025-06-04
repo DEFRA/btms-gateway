@@ -37,8 +37,8 @@ public class ClearanceDecisionConsumerTests
 
         var clearanceDecision = new ClearanceDecision
         {
-            ExternalCorrelationId = "external-correlation-id",
-            Timestamp = DateTime.Now,
+            CorrelationId = "external-correlation-id",
+            Created = DateTime.Now,
             ExternalVersionNumber = 1,
             DecisionNumber = 1,
             Items =
@@ -65,7 +65,7 @@ public class ClearanceDecisionConsumerTests
             ClearanceRequest: null,
             clearanceDecision,
             Finalisation: null,
-            InboundError: null,
+            ExternalErrors: null,
             DateTime.Now,
             DateTime.Now,
             null
@@ -133,7 +133,7 @@ public class ClearanceDecisionConsumerTests
             ClearanceRequest: null,
             ClearanceDecision: null,
             Finalisation: null,
-            InboundError: null,
+            ExternalErrors: null,
             DateTime.Now,
             DateTime.Now,
             null

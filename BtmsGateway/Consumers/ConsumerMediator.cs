@@ -3,8 +3,8 @@ using BtmsGateway.Extensions;
 using BtmsGateway.Services.Routing;
 using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
+using Defra.TradeImportsDataApi.Domain.Errors;
 using Defra.TradeImportsDataApi.Domain.Events;
-using Defra.TradeImportsDataApi.Domain.ProcessingErrors;
 using SlimMessageBus;
 
 namespace BtmsGateway.Consumers;

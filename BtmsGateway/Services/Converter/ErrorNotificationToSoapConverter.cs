@@ -8,7 +8,7 @@ public static class ErrorNotificationToSoapConverter
 {
     private const string MessageType = "HMRCErrorNotification";
 
-    public static string Convert(ErrorNotification errorNotification, string mrn)
+    public static string Convert(ProcessingError processingError, string mrn)
     {
         var soapContent = new List<XElement>
         {
@@ -16,19 +16,19 @@ public static class ErrorNotificationToSoapConverter
                 "ServiceHeader",
                 new XElement("SourceSystem", "ALVS"),
                 new XElement("DestinationSystem", "CDS"),
-                new XElement("CorrelationId", "000"),
-                new XElement("ServiceCallTimestamp", errorNotification.Created?.ToString("yyyy-MM-ddTHH:mm:ss.fff"))
+                new XElement("CorrelationId", processingError.CorrelationId),
+                new XElement("ServiceCallTimestamp", processingError.Created?.ToString("yyyy-MM-ddTHH:mm:ss.fff"))
             ),
             new(
                 "Header",
-                new XElement("SourceCorrelationId", "101"),
+                new XElement("SourceCorrelationId", processingError.SourceExternalCorrelationId),
                 new XElement("EntryReference", mrn),
-                new XElement("EntryVersionNumber", errorNotification.ExternalVersion)
+                new XElement("EntryVersionNumber", processingError.ExternalVersion)
             ),
         };
 
         soapContent.AddRange(
-            errorNotification.Errors.Select(error => new XElement(
+            processingError.Errors.Select(error => new XElement(
                 "Error",
                 new XElement("ErrorCode", error.Code),
                 new XElement("ErrorMessage", error.Message)

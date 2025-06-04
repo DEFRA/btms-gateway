@@ -7,7 +7,6 @@ using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 using Defra.TradeImportsDataApi.Domain.Errors;
 using Defra.TradeImportsDataApi.Domain.Events;
-using Defra.TradeImportsDataApi.Domain.ProcessingErrors;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
@@ -81,7 +80,7 @@ public class ConsumerMediatorTests
                     ResourceId = "mrn",
                     ResourceType = ResourceEventResourceTypes.ProcessingError,
                     Operation = ResourceEventOperations.Created,
-                    Resource = new ProcessingError { Notifications = [new ErrorNotification()] },
+                    Resource = new ProcessingError(),
                 }
             )
         );

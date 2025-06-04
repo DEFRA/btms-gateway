@@ -3,8 +3,8 @@ using BtmsGateway.Exceptions;
 using BtmsGateway.Services.Converter;
 using BtmsGateway.Services.Routing;
 using BtmsGateway.Utils;
+using Defra.TradeImportsDataApi.Domain.Errors;
 using Defra.TradeImportsDataApi.Domain.Events;
-using Defra.TradeImportsDataApi.Domain.ProcessingErrors;
 using SlimMessageBus;
 
 namespace BtmsGateway.Consumers;
@@ -30,41 +30,28 @@ public class ProcessingErrorConsumer(
         {
             var processingError = message.Resource;
 
-            if (processingError.Notifications is not null)
+            var soapMessage = ErrorNotificationToSoapConverter.Convert(processingError, mrn);
+
+            var result = await errorNotificationSender.SendErrorNotificationAsync(
+                mrn,
+                soapMessage,
+                MessagingConstants.MessageSource.Btms,
+                new RoutingResult(),
+                cancellationToken: cancellationToken
+            );
+
+            if (!result.StatusCode.IsSuccessStatusCode())
             {
-                var processingErrorNotification = processingError
-                    .Notifications.OrderBy(notification => notification.Created)
-                    .LastOrDefault();
-
-                if (processingErrorNotification is null)
-                {
-                    logger.LogWarning("{MRN} Processing Error Notifications contained no error notifications.", mrn);
-                    return;
-                }
-
-                var soapMessage = ErrorNotificationToSoapConverter.Convert(processingErrorNotification, mrn);
-
-                var result = await errorNotificationSender.SendErrorNotificationAsync(
+                logger.LogError(
+                    "{MRN} Failed to send error notification to Decision Comparer. Decision Comparer Response Status Code: {StatusCode}, Reason: {Reason}, Content: {Content}",
                     mrn,
-                    soapMessage,
-                    MessagingConstants.MessageSource.Btms,
-                    new RoutingResult(),
-                    cancellationToken: cancellationToken
+                    result.StatusCode,
+                    result.ErrorMessage,
+                    result.ResponseContent
                 );
-
-                if (!result.StatusCode.IsSuccessStatusCode())
-                {
-                    logger.LogError(
-                        "{MRN} Failed to send error notification to Decision Comparer. Decision Comparer Response Status Code: {StatusCode}, Reason: {Reason}, Content: {Content}",
-                        mrn,
-                        result.StatusCode,
-                        result.ErrorMessage,
-                        result.ResponseContent
-                    );
-                    throw new ProcessingErrorProcessingException(
-                        $"{mrn} Failed to send error notification to Decision Comparer."
-                    );
-                }
+                throw new ProcessingErrorProcessingException(
+                    $"{mrn} Failed to send error notification to Decision Comparer."
+                );
             }
 
             logger.LogInformation(

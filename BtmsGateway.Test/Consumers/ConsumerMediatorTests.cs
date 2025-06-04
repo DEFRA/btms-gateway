@@ -1,5 +1,6 @@
 using System.Text.Json;
 using BtmsGateway.Consumers;
+using BtmsGateway.Domain;
 using BtmsGateway.Exceptions;
 using BtmsGateway.Extensions;
 using BtmsGateway.Services.Routing;
@@ -75,12 +76,12 @@ public class ConsumerMediatorTests
 
         var message = JsonSerializer.Deserialize<JsonElement>(
             JsonSerializer.Serialize(
-                new ResourceEvent<ProcessingError[]>
+                new ResourceEvent<ProcessingErrorResource>
                 {
                     ResourceId = "mrn",
                     ResourceType = ResourceEventResourceTypes.ProcessingError,
                     Operation = ResourceEventOperations.Created,
-                    Resource = [new ProcessingError()],
+                    Resource = new ProcessingErrorResource { ProcessingErrors = [new ProcessingError()] },
                 }
             )
         );

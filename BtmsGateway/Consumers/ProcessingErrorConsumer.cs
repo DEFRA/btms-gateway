@@ -3,7 +3,6 @@ using BtmsGateway.Exceptions;
 using BtmsGateway.Services.Converter;
 using BtmsGateway.Services.Routing;
 using BtmsGateway.Utils;
-using Defra.TradeImportsDataApi.Domain.Errors;
 using Defra.TradeImportsDataApi.Domain.Events;
 using SlimMessageBus;
 
@@ -12,9 +11,9 @@ namespace BtmsGateway.Consumers;
 public class ProcessingErrorConsumer(
     IErrorNotificationSender errorNotificationSender,
     ILogger<ProcessingErrorConsumer> logger
-) : IConsumer<ResourceEvent<ProcessingError[]>>
+) : IConsumer<ResourceEvent<ProcessingErrorResource>>
 {
-    public async Task OnHandle(ResourceEvent<ProcessingError[]> message, CancellationToken cancellationToken)
+    public async Task OnHandle(ResourceEvent<ProcessingErrorResource> message, CancellationToken cancellationToken)
     {
         logger.LogInformation("Processing Error Resource Event received from queue.");
 
@@ -28,7 +27,7 @@ public class ProcessingErrorConsumer(
 
         try
         {
-            var processingErrors = message.Resource;
+            var processingErrors = message.Resource.ProcessingErrors;
 
             var latestProcessingError = processingErrors
                 .OrderBy(processingError => processingError.Created)

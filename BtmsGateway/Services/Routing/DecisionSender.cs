@@ -131,12 +131,7 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
         {
             _logger.Debug("{MRN} Sending BTMS Decision to CDS.", mrn);
 
-            return await SendCdsFormattedSoapMessageAsync(
-                mrn,
-                originalDecision,
-                correlationId,
-                cancellationToken
-            );
+            return await SendCdsFormattedSoapMessageAsync(mrn, originalDecision, correlationId, cancellationToken);
         }
 
         if (

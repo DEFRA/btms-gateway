@@ -56,7 +56,7 @@ public class ClearanceDecisionConsumer(
                 soapMessage,
                 MessagingConstants.MessageSource.Btms,
                 new RoutingResult(),
-                externalCorrelationId: customsDeclaration.ClearanceDecision.CorrelationId,
+                correlationId: customsDeclaration.ClearanceDecision.CorrelationId,
                 cancellationToken: cancellationToken
             );
 

@@ -405,7 +405,7 @@ public class DecisionSenderTests
             "<BtmsDecisionNotification />",
             MessagingConstants.MessageSource.Btms,
             new RoutingResult(),
-            externalCorrelationId: "external-correlation-id",
+            correlationId: "external-correlation-id",
             cancellationToken: CancellationToken.None
         );
 
@@ -462,7 +462,7 @@ public class DecisionSenderTests
                 "<BtmsDecisionNotification />",
                 MessagingConstants.MessageSource.Btms,
                 new RoutingResult(),
-                externalCorrelationId: "external-correlation-id",
+                correlationId: "external-correlation-id",
                 cancellationToken: CancellationToken.None
             )
         );
@@ -491,7 +491,7 @@ public class DecisionSenderTests
             "<BtmsDecisionNotification />",
             MessagingConstants.MessageSource.Alvs,
             new RoutingResult(),
-            externalCorrelationId: "external-correlation-id",
+            correlationId: "external-correlation-id",
             cancellationToken: CancellationToken.None
         );
 

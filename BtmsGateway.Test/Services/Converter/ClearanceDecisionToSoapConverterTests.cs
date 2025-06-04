@@ -22,8 +22,8 @@ public class ClearanceDecisionToSoapConverterTests
 
         var clearanceDecision = new ClearanceDecision
         {
-            ExternalCorrelationId = "external-correlation-id",
-            Timestamp = DateTime.Parse("2025-05-29T18:57:29.298"),
+            CorrelationId = "000",
+            Created = DateTime.Parse("2025-05-29T18:57:29.298"),
             ExternalVersionNumber = 3,
             DecisionNumber = 3,
             Items =

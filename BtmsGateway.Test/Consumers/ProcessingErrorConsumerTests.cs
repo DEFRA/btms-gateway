@@ -5,7 +5,6 @@ using BtmsGateway.Exceptions;
 using BtmsGateway.Services.Routing;
 using Defra.TradeImportsDataApi.Domain.Errors;
 using Defra.TradeImportsDataApi.Domain.Events;
-using Defra.TradeImportsDataApi.Domain.ProcessingErrors;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -28,12 +27,12 @@ public class ProcessingErrorConsumerTests
     [Fact]
     public async Task When_processing_succeeds_Then_message_should_be_sent()
     {
-        var message = new ResourceEvent<ProcessingError>
+        var message = new ResourceEvent<ProcessingErrorResource>
         {
             ResourceId = "24GB123456789AB012",
             ResourceType = "ProcessingError",
             Operation = "Created",
-            Resource = new ProcessingError { Notifications = [new ErrorNotification()] },
+            Resource = new ProcessingErrorResource { ProcessingErrors = [new ProcessingError()] },
         };
 
         var sendErrorNotificationResult = new RoutingResult { StatusCode = HttpStatusCode.OK };
@@ -66,7 +65,7 @@ public class ProcessingErrorConsumerTests
     [Fact]
     public async Task When_resource_is_null_Then_message_is_not_sent()
     {
-        var message = new ResourceEvent<ProcessingError>
+        var message = new ResourceEvent<ProcessingErrorResource>
         {
             ResourceId = "24GB123456789AB012",
             ResourceType = "ProcessingError",
@@ -88,14 +87,14 @@ public class ProcessingErrorConsumerTests
     }
 
     [Fact]
-    public async Task When_notifications_is_null_Then_message_is_not_sent()
+    public async Task When_processing_errors_resource_is_null_Then_message_is_not_sent()
     {
-        var message = new ResourceEvent<ProcessingError>
+        var message = new ResourceEvent<ProcessingErrorResource>
         {
             ResourceId = "24GB123456789AB012",
             ResourceType = "ProcessingError",
             Operation = "Created",
-            Resource = new ProcessingError(),
+            Resource = null,
         };
 
         await _consumer.OnHandle(message, CancellationToken.None);
@@ -113,14 +112,14 @@ public class ProcessingErrorConsumerTests
     }
 
     [Fact]
-    public async Task When_notifications_is_empty_Then_message_is_not_sent()
+    public async Task When_resource_processing_errors_is_empty_Then_message_is_not_sent()
     {
-        var message = new ResourceEvent<ProcessingError>
+        var message = new ResourceEvent<ProcessingErrorResource>
         {
             ResourceId = "24GB123456789AB012",
             ResourceType = "ProcessingError",
             Operation = "Created",
-            Resource = new ProcessingError { Notifications = [] },
+            Resource = new ProcessingErrorResource { ProcessingErrors = [] },
         };
 
         await _consumer.OnHandle(message, CancellationToken.None);
@@ -140,12 +139,12 @@ public class ProcessingErrorConsumerTests
     [Fact]
     public async Task When_sending_to_decision_comparer_is_not_successful_Then_exception_is_thrown()
     {
-        var message = new ResourceEvent<ProcessingError>
+        var message = new ResourceEvent<ProcessingErrorResource>
         {
             ResourceId = "24GB123456789AB012",
             ResourceType = "ProcessingError",
             Operation = "Created",
-            Resource = new ProcessingError { Notifications = [new ErrorNotification()] },
+            Resource = new ProcessingErrorResource { ProcessingErrors = [new ProcessingError()] },
         };
 
         var sendErrorNotificationResult = new RoutingResult { StatusCode = HttpStatusCode.BadRequest };

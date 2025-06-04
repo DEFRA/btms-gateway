@@ -15,7 +15,7 @@ public interface IDecisionSender
         MessagingConstants.MessageSource messageSource,
         RoutingResult routingResult,
         IHeaderDictionary? headers = null,
-        string? externalCorrelationId = null,
+        string? correlationId = null,
         CancellationToken cancellationToken = default
     );
 }
@@ -55,7 +55,7 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
         MessagingConstants.MessageSource messageSource,
         RoutingResult routingResult,
         IHeaderDictionary? headers = null,
-        string? externalCorrelationId = null,
+        string? correlationId = null,
         CancellationToken cancellationToken = default
     )
     {
@@ -98,7 +98,7 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
             messageSource,
             comparerResponse,
             decision,
-            externalCorrelationId,
+            correlationId,
             cancellationToken
         );
 
@@ -120,7 +120,7 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
         MessagingConstants.MessageSource messageSource,
         HttpResponseMessage? comparerResponse,
         string originalDecision,
-        string? externalCorrelationId,
+        string? correlationId,
         CancellationToken cancellationToken
     )
     {
@@ -131,12 +131,7 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
         {
             _logger.Debug("{MRN} Sending BTMS Decision to CDS.", mrn);
 
-            return await SendCdsFormattedSoapMessageAsync(
-                mrn,
-                originalDecision,
-                externalCorrelationId,
-                cancellationToken
-            );
+            return await SendCdsFormattedSoapMessageAsync(mrn, originalDecision, correlationId, cancellationToken);
         }
 
         if (
@@ -175,15 +170,15 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
     private async Task<HttpResponseMessage?> SendCdsFormattedSoapMessageAsync(
         string? mrn,
         string soapMessage,
-        string? externalCorrelationId,
+        string? correlationId,
         CancellationToken cancellationToken
     )
     {
         var destination = string.Concat(_btmsToCdsDestination.Link, _btmsToCdsDestination.RoutePath);
         var headers = new Dictionary<string, string> { { AcceptHeaderName, _btmsToCdsDestination.ContentType } };
 
-        if (!string.IsNullOrWhiteSpace(externalCorrelationId))
-            headers.Add(CorrelationIdHeaderName, externalCorrelationId);
+        if (!string.IsNullOrWhiteSpace(correlationId))
+            headers.Add(CorrelationIdHeaderName, correlationId);
 
         var response = await _apiSender.SendSoapMessageAsync(
             _btmsToCdsDestination.Method ?? "POST",

@@ -1,10 +1,11 @@
 using System.Text.Json;
+using BtmsGateway.Domain;
 using BtmsGateway.Extensions;
 using BtmsGateway.Services.Routing;
 using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
+using Defra.TradeImportsDataApi.Domain.Errors;
 using Defra.TradeImportsDataApi.Domain.Events;
-using Defra.TradeImportsDataApi.Domain.ProcessingErrors;
 using SlimMessageBus;
 
 namespace BtmsGateway.Consumers;
@@ -50,7 +51,7 @@ public class ConsumerMediator(
             loggerFactory.CreateLogger<ProcessingErrorConsumer>()
         );
 
-        return consumer.OnHandle(Deserialize<ProcessingError>(message), cancellationToken);
+        return consumer.OnHandle(Deserialize<ProcessingErrorResource>(message), cancellationToken);
     }
 
     private Task HandleUnknown(string resourceType)

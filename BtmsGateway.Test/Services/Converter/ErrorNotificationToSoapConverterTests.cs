@@ -20,9 +20,10 @@ public class ErrorNotificationToSoapConverterTests
         var expectedSoap = File.ReadAllText(Path.Combine(TestDataPath, "HmrcErrorNotificationWithHtmlEncoding.xml"))
             .LinuxLineEndings();
 
-        var errorNotification = new ErrorNotification
+        var errorNotification = new ProcessingError
         {
-            ExternalCorrelationId = "12866638",
+            CorrelationId = "000",
+            SourceExternalCorrelationId = "101",
             Created = DateTime.Parse("2025-05-29T19:10:13.259"),
             ExternalVersion = 2,
             Errors =

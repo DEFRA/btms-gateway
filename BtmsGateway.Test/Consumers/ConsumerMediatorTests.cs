@@ -1,5 +1,6 @@
 using System.Text.Json;
 using BtmsGateway.Consumers;
+using BtmsGateway.Domain;
 using BtmsGateway.Exceptions;
 using BtmsGateway.Extensions;
 using BtmsGateway.Services.Routing;
@@ -7,7 +8,6 @@ using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 using Defra.TradeImportsDataApi.Domain.Errors;
 using Defra.TradeImportsDataApi.Domain.Events;
-using Defra.TradeImportsDataApi.Domain.ProcessingErrors;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
@@ -76,12 +76,12 @@ public class ConsumerMediatorTests
 
         var message = JsonSerializer.Deserialize<JsonElement>(
             JsonSerializer.Serialize(
-                new ResourceEvent<ProcessingError>
+                new ResourceEvent<ProcessingErrorResource>
                 {
                     ResourceId = "mrn",
                     ResourceType = ResourceEventResourceTypes.ProcessingError,
                     Operation = ResourceEventOperations.Created,
-                    Resource = new ProcessingError { Notifications = [new ErrorNotification()] },
+                    Resource = new ProcessingErrorResource { ProcessingErrors = [new ProcessingError()] },
                 }
             )
         );

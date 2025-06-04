@@ -4,7 +4,6 @@ using BtmsGateway.Services.Converter;
 using BtmsGateway.Services.Routing;
 using BtmsGateway.Utils;
 using Defra.TradeImportsDataApi.Domain.Events;
-using Defra.TradeImportsDataApi.Domain.ProcessingErrors;
 using SlimMessageBus;
 
 namespace BtmsGateway.Consumers;
@@ -12,9 +11,9 @@ namespace BtmsGateway.Consumers;
 public class ProcessingErrorConsumer(
     IErrorNotificationSender errorNotificationSender,
     ILogger<ProcessingErrorConsumer> logger
-) : IConsumer<ResourceEvent<ProcessingError>>
+) : IConsumer<ResourceEvent<ProcessingErrorResource>>
 {
-    public async Task OnHandle(ResourceEvent<ProcessingError> message, CancellationToken cancellationToken)
+    public async Task OnHandle(ResourceEvent<ProcessingErrorResource> message, CancellationToken cancellationToken)
     {
         logger.LogInformation("Processing Error Resource Event received from queue.");
 
@@ -28,43 +27,40 @@ public class ProcessingErrorConsumer(
 
         try
         {
-            var processingError = message.Resource;
+            var processingErrors = message.Resource.ProcessingErrors;
 
-            if (processingError.Notifications is not null)
+            var latestProcessingError = processingErrors
+                .OrderBy(processingError => processingError.Created)
+                .LastOrDefault();
+
+            if (latestProcessingError is null)
             {
-                var processingErrorNotification = processingError
-                    .Notifications.OrderBy(notification => notification.Created)
-                    .LastOrDefault();
+                logger.LogWarning("{MRN} Processing Errors contained no processing errors.", mrn);
+                return;
+            }
 
-                if (processingErrorNotification is null)
-                {
-                    logger.LogWarning("{MRN} Processing Error Notifications contained no error notifications.", mrn);
-                    return;
-                }
+            var soapMessage = ErrorNotificationToSoapConverter.Convert(latestProcessingError, mrn);
 
-                var soapMessage = ErrorNotificationToSoapConverter.Convert(processingErrorNotification, mrn);
+            var result = await errorNotificationSender.SendErrorNotificationAsync(
+                mrn,
+                soapMessage,
+                MessagingConstants.MessageSource.Btms,
+                new RoutingResult(),
+                cancellationToken: cancellationToken
+            );
 
-                var result = await errorNotificationSender.SendErrorNotificationAsync(
+            if (!result.StatusCode.IsSuccessStatusCode())
+            {
+                logger.LogError(
+                    "{MRN} Failed to send error notification to Decision Comparer. Decision Comparer Response Status Code: {StatusCode}, Reason: {Reason}, Content: {Content}",
                     mrn,
-                    soapMessage,
-                    MessagingConstants.MessageSource.Btms,
-                    new RoutingResult(),
-                    cancellationToken: cancellationToken
+                    result.StatusCode,
+                    result.ErrorMessage,
+                    result.ResponseContent
                 );
-
-                if (!result.StatusCode.IsSuccessStatusCode())
-                {
-                    logger.LogError(
-                        "{MRN} Failed to send error notification to Decision Comparer. Decision Comparer Response Status Code: {StatusCode}, Reason: {Reason}, Content: {Content}",
-                        mrn,
-                        result.StatusCode,
-                        result.ErrorMessage,
-                        result.ResponseContent
-                    );
-                    throw new ProcessingErrorProcessingException(
-                        $"{mrn} Failed to send error notification to Decision Comparer."
-                    );
-                }
+                throw new ProcessingErrorProcessingException(
+                    $"{mrn} Failed to send error notification to Decision Comparer."
+                );
             }
 
             logger.LogInformation(

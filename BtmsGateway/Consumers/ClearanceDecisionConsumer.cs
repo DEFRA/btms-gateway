@@ -54,8 +54,9 @@ public class ClearanceDecisionConsumer(
             var result = await decisionSender.SendDecisionAsync(
                 mrn,
                 soapMessage,
-                MessagingConstants.DecisionSource.Btms,
-                externalCorrelationId: customsDeclaration.ClearanceDecision.ExternalCorrelationId,
+                MessagingConstants.MessageSource.Btms,
+                new RoutingResult(),
+                correlationId: customsDeclaration.ClearanceDecision.CorrelationId,
                 cancellationToken: cancellationToken
             );
 

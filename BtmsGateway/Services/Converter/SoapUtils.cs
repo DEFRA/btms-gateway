@@ -18,6 +18,12 @@ public static class SoapUtils
         "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText"
     );
 
+    //ALVS to CDS Namespaces
+    private static readonly XNamespace AlvsCommonRootNs = "http://uk.gov.hmrc.ITSW2.ws";
+    private static readonly XAttribute AlvsSoapNsAttribute = new(XNamespace.Xmlns + "NS1", SoapNs);
+    private static readonly XAttribute AlvsSecurityNsAttribute = new(XNamespace.Xmlns + "NS2", OasNs);
+    private static readonly XAttribute AlvsCommonRootNsAttribute = new(XNamespace.Xmlns + "NS3", AlvsCommonRootNs);
+
     public static XElement AddSoapEnvelope(XElement rootElement, SoapType soapType)
     {
         return soapType switch
@@ -55,18 +61,17 @@ public static class SoapUtils
 
     private static XElement GetAlvsToCdsSoapEnvelope(XElement rootElement)
     {
-        XNamespace commonRootNs = "http://uk.gov.hmrc.ITSW2.ws";
         XNamespace rootNs = GetRootAttributeValue(rootElement.Name.LocalName);
+
         return new XElement(
             SoapNs + "Envelope",
-            SoapNsAttribute,
+            AlvsSoapNsAttribute,
             new XElement(
                 SoapNs + "Header",
                 new XElement(
                     OasNs + "Security",
+                    AlvsSecurityNsAttribute,
                     RoleAttribute,
-                    MustUnderstandAttribute,
-                    OasNsAttribute,
                     new XElement(
                         OasNs + "UsernameToken",
                         new XElement(OasNs + "Username", "ibmtest"),
@@ -76,7 +81,11 @@ public static class SoapUtils
             ),
             new XElement(
                 SoapNs + "Body",
-                new XElement(commonRootNs + rootElement.Name.LocalName, AddNamespace(rootElement, rootNs))
+                new XElement(
+                    AlvsCommonRootNs + rootElement.Name.LocalName,
+                    AlvsCommonRootNsAttribute,
+                    AddNamespace(rootElement, rootNs).ToString().Replace("\n", "").Replace("  ", "")
+                )
             )
         );
     }
@@ -112,7 +121,7 @@ public static class SoapUtils
         return element;
     }
 
-    private static string GetRootAttributeValue(string rootName)
+    public static string GetRootAttributeValue(string rootName)
     {
         return rootName switch
         {
@@ -120,7 +129,7 @@ public static class SoapUtils
             "DecisionNotification" => "http://www.hmrc.gov.uk/webservices/itsw/ws/decisionnotification",
             "FinalisationNotificationRequest" => "http://notifyfinalisedstatehmrcfacade.types.esb.ws.cara.defra.com",
             "ALVSErrorNotificationRequest" => "http://alvserrornotification.types.esb.ws.cara.defra.com",
-            "HMRCErrorNotification" => "http://hmrcerror.types.esb.ws.cara.defra.com",
+            "HMRCErrorNotification" => "http://www.hmrc.gov.uk/webservices/itsw/ws/hmrcerrornotification",
             _ => throw new ArgumentOutOfRangeException(nameof(rootName), rootName, "Unknown message root name"),
         };
     }

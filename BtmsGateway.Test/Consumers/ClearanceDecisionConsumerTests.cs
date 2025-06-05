@@ -37,8 +37,8 @@ public class ClearanceDecisionConsumerTests
 
         var clearanceDecision = new ClearanceDecision
         {
-            ExternalCorrelationId = "external-correlation-id",
-            Timestamp = DateTime.Now,
+            CorrelationId = "external-correlation-id",
+            Created = DateTime.Now,
             ExternalVersionNumber = 1,
             DecisionNumber = 1,
             Items =
@@ -65,7 +65,7 @@ public class ClearanceDecisionConsumerTests
             ClearanceRequest: null,
             clearanceDecision,
             Finalisation: null,
-            InboundError: null,
+            ExternalErrors: null,
             DateTime.Now,
             DateTime.Now,
             null
@@ -87,7 +87,8 @@ public class ClearanceDecisionConsumerTests
             .SendDecisionAsync(
                 Arg.Any<string>(),
                 Arg.Any<string>(),
-                Arg.Any<MessagingConstants.DecisionSource>(),
+                Arg.Any<MessagingConstants.MessageSource>(),
+                Arg.Any<RoutingResult>(),
                 Arg.Any<IHeaderDictionary>(),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>()
@@ -101,7 +102,8 @@ public class ClearanceDecisionConsumerTests
             .SendDecisionAsync(
                 Arg.Any<string>(),
                 Arg.Any<string>(),
-                Arg.Any<MessagingConstants.DecisionSource>(),
+                Arg.Any<MessagingConstants.MessageSource>(),
+                Arg.Any<RoutingResult>(),
                 Arg.Any<IHeaderDictionary>(),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>()
@@ -131,7 +133,7 @@ public class ClearanceDecisionConsumerTests
             ClearanceRequest: null,
             ClearanceDecision: null,
             Finalisation: null,
-            InboundError: null,
+            ExternalErrors: null,
             DateTime.Now,
             DateTime.Now,
             null
@@ -158,7 +160,8 @@ public class ClearanceDecisionConsumerTests
             .SendDecisionAsync(
                 Arg.Any<string>(),
                 Arg.Any<string>(),
-                Arg.Any<MessagingConstants.DecisionSource>(),
+                Arg.Any<MessagingConstants.MessageSource>(),
+                Arg.Any<RoutingResult>(),
                 Arg.Any<IHeaderDictionary>(),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>()
@@ -182,7 +185,8 @@ public class ClearanceDecisionConsumerTests
             .SendDecisionAsync(
                 Arg.Any<string>(),
                 Arg.Any<string>(),
-                Arg.Any<MessagingConstants.DecisionSource>(),
+                Arg.Any<MessagingConstants.MessageSource>(),
+                Arg.Any<RoutingResult>(),
                 Arg.Any<IHeaderDictionary>(),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>()
@@ -221,7 +225,8 @@ public class ClearanceDecisionConsumerTests
             .SendDecisionAsync(
                 Arg.Any<string>(),
                 Arg.Any<string>(),
-                Arg.Any<MessagingConstants.DecisionSource>(),
+                Arg.Any<MessagingConstants.MessageSource>(),
+                Arg.Any<RoutingResult>(),
                 Arg.Any<IHeaderDictionary>(),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>()

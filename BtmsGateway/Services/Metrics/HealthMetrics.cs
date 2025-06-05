@@ -34,7 +34,7 @@ public class HealthMetrics : IHealthMetrics
         try
         {
             health.Record((int)report.Status, BuildOverallTags());
-            _logger.Information("Health Report for BTMS Gateway with Status {Status} recorded", (int)report.Status);
+            _logger.Debug("Health Report for BTMS Gateway with Status {Status} recorded", (int)report.Status);
         }
         catch (Exception ex)
         {
@@ -46,7 +46,7 @@ public class HealthMetrics : IHealthMetrics
             try
             {
                 health.Record((int)healthReportEntry.Value.Status, BuildComponentTags(healthReportEntry));
-                _logger.Information(
+                _logger.Debug(
                     "Health Report for {Component} with Status {Status} recorded",
                     healthReportEntry.Key,
                     (int)healthReportEntry.Value.Status

@@ -2,6 +2,8 @@ using System.Diagnostics.Metrics;
 using BtmsGateway.Services.Metrics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.Metrics.Testing;
+using NSubstitute;
+using Serilog;
 
 namespace BtmsGateway.Test.Services.Metrics;
 
@@ -23,6 +25,7 @@ public abstract class MetricsTestBase
         serviceCollection.AddSingleton<IRequestMetrics, RequestMetrics>();
         serviceCollection.AddSingleton<IConsumerMetrics, ConsumerMetrics>();
         serviceCollection.AddSingleton<IHealthMetrics, HealthMetrics>();
+        serviceCollection.AddSingleton(Substitute.For<ILogger>());
         return serviceCollection.BuildServiceProvider();
     }
 

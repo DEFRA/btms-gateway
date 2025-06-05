@@ -1,10 +1,11 @@
 using System.Text.Json;
+using BtmsGateway.Domain;
 using BtmsGateway.Extensions;
 using BtmsGateway.Services.Routing;
 using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
+using Defra.TradeImportsDataApi.Domain.Errors;
 using Defra.TradeImportsDataApi.Domain.Events;
-using Defra.TradeImportsDataApi.Domain.ProcessingErrors;
 using SlimMessageBus;
 
 namespace BtmsGateway.Consumers;
@@ -12,6 +13,7 @@ namespace BtmsGateway.Consumers;
 public class ConsumerMediator(
     ITradeImportsDataApiClient api,
     IDecisionSender decisionSender,
+    IErrorNotificationSender errorNotificationSender,
     ILoggerFactory loggerFactory
 ) : IConsumer<JsonElement>, IConsumerWithContext
 {
@@ -26,7 +28,7 @@ public class ConsumerMediator(
         return resourceType switch
         {
             ResourceEventResourceTypes.CustomsDeclaration => HandleCustomsDeclaration(message, cancellationToken),
-            ResourceEventResourceTypes.ProcessingError => HandleProcessingError(message),
+            ResourceEventResourceTypes.ProcessingError => HandleProcessingError(message, cancellationToken),
             _ => HandleUnknown(resourceType),
         };
     }
@@ -42,13 +44,14 @@ public class ConsumerMediator(
         return consumer.OnHandle(Deserialize<CustomsDeclaration>(message), cancellationToken);
     }
 
-    private Task HandleProcessingError(JsonElement message)
+    private Task HandleProcessingError(JsonElement message, CancellationToken cancellationToken)
     {
-        var @event = Deserialize<ProcessingError>(message);
+        var consumer = new ProcessingErrorConsumer(
+            errorNotificationSender,
+            loggerFactory.CreateLogger<ProcessingErrorConsumer>()
+        );
 
-        _logger.LogInformation("Processing Error Resource Event received from queue: {ProcessingError}", @event);
-
-        return Task.CompletedTask;
+        return consumer.OnHandle(Deserialize<ProcessingErrorResource>(message), cancellationToken);
     }
 
     private Task HandleUnknown(string resourceType)

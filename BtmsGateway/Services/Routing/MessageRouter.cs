@@ -17,7 +17,8 @@ public class MessageRouter(
     IApiSender apiSender,
     IQueueSender queueSender,
     ILogger logger,
-    IDecisionSender decisionSender
+    IDecisionSender decisionSender,
+    IErrorNotificationSender errorNotificationSender
 ) : IMessageRouter
 {
     public async Task<RoutingResult> Route(MessageData messageData, IMetrics metrics)
@@ -36,10 +37,18 @@ public class MessageRouter(
                 LinkType.Url => await apiSender.Send(routingResult, messageData, fork: false),
                 LinkType.DecisionComparer => await decisionSender.SendDecisionAsync(
                     messageData.ContentMap.EntryReference,
-                    messageData.OriginalSoapContent.SoapString,
-                    MessagingConstants.DecisionSource.Alvs,
+                    messageData.OriginalSoapContent.RawSoapString,
+                    MessagingConstants.MessageSource.Alvs,
+                    routingResult,
                     messageData.Headers,
                     messageData.ContentMap.CorrelationId
+                ),
+                LinkType.DecisionComparerErrorNotifications => await errorNotificationSender.SendErrorNotificationAsync(
+                    messageData.ContentMap.EntryReference,
+                    messageData.OriginalSoapContent.RawSoapString,
+                    MessagingConstants.MessageSource.Alvs,
+                    routingResult,
+                    messageData.Headers
                 ),
                 _ => routingResult,
             };
@@ -77,10 +86,18 @@ public class MessageRouter(
                 LinkType.Url => await apiSender.Send(routingResult, messageData, fork: true),
                 LinkType.DecisionComparer => await decisionSender.SendDecisionAsync(
                     messageData.ContentMap.EntryReference,
-                    messageData.OriginalSoapContent.SoapString,
-                    MessagingConstants.DecisionSource.Alvs,
+                    messageData.OriginalSoapContent.RawSoapString,
+                    MessagingConstants.MessageSource.Alvs,
+                    routingResult,
                     messageData.Headers,
                     messageData.ContentMap.CorrelationId
+                ),
+                LinkType.DecisionComparerErrorNotifications => await errorNotificationSender.SendErrorNotificationAsync(
+                    messageData.ContentMap.EntryReference,
+                    messageData.OriginalSoapContent.RawSoapString,
+                    MessagingConstants.MessageSource.Alvs,
+                    routingResult,
+                    messageData.Headers
                 ),
                 _ => routingResult,
             };

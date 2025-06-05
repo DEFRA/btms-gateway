@@ -20,9 +20,9 @@ public interface IApiSender
         CancellationToken cancellationToken
     );
 
-    Task<HttpResponseMessage> SendDecisionAsync(
-        string decision,
-        string destination,
+    Task<HttpResponseMessage> SendToDecisionComparerAsync(
+        string messageContent,
+        string destinationUrl,
         string contentType,
         CancellationToken cancellationToken,
         IHeaderDictionary? headers = null
@@ -99,9 +99,9 @@ public class ApiSender(IHttpClientFactory clientFactory, IServiceProvider servic
         return await client.SendAsync(request, cancellationToken);
     }
 
-    public async Task<HttpResponseMessage> SendDecisionAsync(
-        string decision,
-        string destination,
+    public async Task<HttpResponseMessage> SendToDecisionComparerAsync(
+        string messageContent,
+        string destinationUrl,
         string contentType,
         CancellationToken cancellationToken,
         IHeaderDictionary? headers = null
@@ -111,8 +111,8 @@ public class ApiSender(IHttpClientFactory clientFactory, IServiceProvider servic
 
         var client = clientFactory.CreateClient(Proxy.DecisionComparerProxyClientWithRetry);
 
-        var request = new HttpRequestMessage(HttpMethod.Put, destination);
-        request.Content = new StringContent(decision, Encoding.UTF8, contentType);
+        var request = new HttpRequestMessage(HttpMethod.Put, destinationUrl);
+        request.Content = new StringContent(messageContent, Encoding.UTF8, contentType);
 
         return await client.SendAsync(request, cancellationToken);
     }

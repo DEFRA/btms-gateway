@@ -46,14 +46,14 @@ public class ApiHealthCheck<T>(string name, string checkEndpoint, T options, ILo
         if (response != null)
         {
             if (!response.IsSuccessStatusCode)
-                healthStatus = HealthStatus.Degraded;
+                healthStatus = HealthStatus.Unhealthy;
 
             data.Add("http-status-code", response.StatusCode);
         }
 
         if (exception != null)
         {
-            healthStatus = HealthStatus.Degraded;
+            healthStatus = HealthStatus.Unhealthy;
             data.Add("error", $"{exception.Message} - {exception.InnerException?.Message}");
         }
 

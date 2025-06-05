@@ -1,12 +1,14 @@
 using System.Diagnostics.Metrics;
 using System.Net;
 using System.Text;
+using BtmsGateway.Config;
 using BtmsGateway.Exceptions;
 using BtmsGateway.Middleware;
 using BtmsGateway.Services.Metrics;
 using BtmsGateway.Services.Routing;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
@@ -36,6 +38,16 @@ public class RoutingInterceptorTests
         },
     };
 
+    private readonly IOptions<MessageLoggingOptions> _messageLoggingOptions = Substitute.For<
+        IOptions<MessageLoggingOptions>
+    >();
+
+    public RoutingInterceptorTests()
+    {
+        var loggingOptions = new MessageLoggingOptions();
+        _messageLoggingOptions.Value.Returns(loggingOptions);
+    }
+
     [Fact]
     public async Task When_invoking_and_exception_is_thrown_Then_exception_is_rethrown()
     {
@@ -54,7 +66,8 @@ public class RoutingInterceptorTests
             messageRouter,
             metricsHost,
             Substitute.For<IRequestMetrics>(),
-            Substitute.For<ILogger>()
+            Substitute.For<ILogger>(),
+            _messageLoggingOptions
         );
 
         var ex = await Assert.ThrowsAsync<RoutingException>(() => sut.InvokeAsync(_httpContext));
@@ -78,8 +91,20 @@ public class RoutingInterceptorTests
                     Legend = "Known Message Type",
                     RouteLinkType = LinkType.Url,
                     RoutingSuccessful = true,
-                    FullRouteLink = "http://localhost/some-known-route-link",
+                    FullRouteLink = "http://localhost/some-known-route-path",
                     StatusCode = HttpStatusCode.OK,
+                    ResponseContent = RequestBody,
+                },
+                new RoutingResult
+                {
+                    RouteFound = true,
+                    MessageSubXPath = "KnownMessageType",
+                    UrlPath = "/some-broken-route-path",
+                    Legend = "Known Message Type",
+                    RouteLinkType = LinkType.Url,
+                    RoutingSuccessful = false,
+                    FullRouteLink = "http://localhost/some-broken-route-path",
+                    StatusCode = HttpStatusCode.ServiceUnavailable,
                     ResponseContent = RequestBody,
                 }
             );
@@ -112,9 +137,11 @@ public class RoutingInterceptorTests
             messageRouter,
             metricsHost,
             requestMetric,
-            Substitute.For<ILogger>()
+            Substitute.For<ILogger>(),
+            _messageLoggingOptions
         );
 
+        await sut.InvokeAsync(_httpContext);
         await sut.InvokeAsync(_httpContext);
 
         requestMetric
@@ -127,6 +154,14 @@ public class RoutingInterceptorTests
             );
         requestMetric
             .Received(1)
+            .MessageReceived(
+                Arg.Is("KnownMessageType"),
+                Arg.Is("/some-broken-route-path"),
+                Arg.Is("Known Message Type"),
+                Arg.Is("Routing")
+            );
+        requestMetric
+            .Received(2)
             .MessageReceived(
                 Arg.Is("KnownMessageType"),
                 Arg.Is("/some-known-route-path"),

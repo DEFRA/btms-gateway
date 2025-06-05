@@ -2,6 +2,8 @@ using System.Text;
 using BtmsGateway.Middleware;
 using BtmsGateway.Services.Routing;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using NSubstitute;
 using Serilog;
 
 namespace BtmsGateway.Test.Services.Routing;
@@ -29,7 +31,10 @@ public static class TestHelpers
         httpContext.Request.ContentType = contentType;
         httpContext.Request.Body = contentStream;
 
-        var msgData = await MessageData.Create(httpContext.Request, logger);
+        var logRawMessageConfigSection = Substitute.For<IConfigurationSection>();
+        logRawMessageConfigSection.Value.Returns("false");
+
+        var msgData = await MessageData.Create(httpContext.Request, logger, false);
         var routing = new RoutingResult
         {
             MessageSubXPath = "ALVSClearanceRequest",

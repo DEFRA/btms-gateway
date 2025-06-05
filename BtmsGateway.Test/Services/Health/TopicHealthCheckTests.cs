@@ -26,7 +26,7 @@ public class TopicHealthCheckTests
 
     [Theory]
     [InlineData(HttpStatusCode.OK, HealthStatus.Healthy)]
-    [InlineData(HttpStatusCode.ServiceUnavailable, HealthStatus.Degraded)]
+    [InlineData(HttpStatusCode.ServiceUnavailable, HealthStatus.Unhealthy)]
     public async Task When_checking_communication_with_sns_Then_health_check_result_should_indicate_health(
         HttpStatusCode snsStatusCode,
         HealthStatus expectedHealthStatus
@@ -65,7 +65,7 @@ public class TopicHealthCheckTests
         var result = await _topicHealthCheck.CheckHealthAsync(new HealthCheckContext(), CancellationToken.None);
 
         result.Should().NotBeNull();
-        result.Status.Should().Be(HealthStatus.Degraded);
+        result.Status.Should().Be(HealthStatus.Unhealthy);
         result.Exception.Should().BeAssignableTo<TimeoutException>();
         result
             .Data.Should()
@@ -91,7 +91,7 @@ public class TopicHealthCheckTests
         var result = await _topicHealthCheck.CheckHealthAsync(new HealthCheckContext(), CancellationToken.None);
 
         result.Should().NotBeNull();
-        result.Status.Should().Be(HealthStatus.Degraded);
+        result.Status.Should().Be(HealthStatus.Unhealthy);
         result.Exception.Should().BeAssignableTo<Exception>();
         result
             .Data.Should()

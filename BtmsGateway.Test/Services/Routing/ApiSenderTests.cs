@@ -114,12 +114,12 @@ public class ApiSenderTests
     }
 
     [Fact]
-    public async Task When_send_decision_Then_should_return_response()
+    public async Task When_send_message_to_decision_comparer_Then_should_return_response()
     {
         var mocks = CreateMocks();
         var sut = new ApiSender(mocks.Factory, mocks.ServiceProvider, mocks.Configuration);
 
-        var response = await sut.SendDecisionAsync(
+        var response = await sut.SendToDecisionComparerAsync(
             "<decision />",
             "http://trade-imports-decision-comparer-host",
             "application/soap+xml",

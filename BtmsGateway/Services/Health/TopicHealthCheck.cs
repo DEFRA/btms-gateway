@@ -42,7 +42,7 @@ public class TopicHealthCheck(string name, string topicArn, IAmazonSimpleNotific
         if (attributes != null)
         {
             if (!attributes.HttpStatusCode.IsSuccessStatusCode())
-                healthStatus = HealthStatus.Degraded;
+                healthStatus = HealthStatus.Unhealthy;
 
             data.Add("content-length", attributes.ContentLength);
             data.Add("http-status-code", attributes.HttpStatusCode);
@@ -50,7 +50,7 @@ public class TopicHealthCheck(string name, string topicArn, IAmazonSimpleNotific
 
         if (exception != null)
         {
-            healthStatus = HealthStatus.Degraded;
+            healthStatus = HealthStatus.Unhealthy;
             data.Add("error", $"{exception.Message} - {exception.InnerException?.Message}");
         }
 

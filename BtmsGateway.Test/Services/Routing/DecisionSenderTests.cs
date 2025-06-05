@@ -62,7 +62,12 @@ public class DecisionSenderTests
         };
 
         _apiSender
-            .SendDecisionAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .SendToDecisionComparerAsync(
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>()
+            )
             .Returns(new HttpResponseMessage(HttpStatusCode.OK));
 
         _apiSender
@@ -88,7 +93,8 @@ public class DecisionSenderTests
         var result = await _decisionSender.SendDecisionAsync(
             "mrn-123",
             "<BtmsDecisionNotification />",
-            MessagingConstants.DecisionSource.Btms,
+            MessagingConstants.MessageSource.Btms,
+            new RoutingResult(),
             cancellationToken: CancellationToken.None
         );
 
@@ -129,7 +135,7 @@ public class DecisionSenderTests
         comparerResponse.Content = new StringContent("<ComparerDecisionNotification />");
 
         _apiSender
-            .SendDecisionAsync(
+            .SendToDecisionComparerAsync(
                 Arg.Any<string>(),
                 Arg.Any<string>(),
                 Arg.Any<string>(),
@@ -141,7 +147,8 @@ public class DecisionSenderTests
         var result = await _decisionSender.SendDecisionAsync(
             "mrn-123",
             "<AlvsDecisionNotification />",
-            MessagingConstants.DecisionSource.Alvs,
+            MessagingConstants.MessageSource.Alvs,
+            new RoutingResult(),
             new HeaderDictionary(),
             "external-correlation-id",
             CancellationToken.None
@@ -291,7 +298,8 @@ public class DecisionSenderTests
             _decisionSender.SendDecisionAsync(
                 "mrn-123",
                 null,
-                MessagingConstants.DecisionSource.Btms,
+                MessagingConstants.MessageSource.Btms,
+                new RoutingResult(),
                 cancellationToken: CancellationToken.None
             )
         );
@@ -305,7 +313,7 @@ public class DecisionSenderTests
         var comparerResponse = new HttpResponseMessage(HttpStatusCode.BadRequest);
 
         _apiSender
-            .SendDecisionAsync(
+            .SendToDecisionComparerAsync(
                 Arg.Any<string>(),
                 Arg.Any<string>(),
                 Arg.Any<string>(),
@@ -318,7 +326,8 @@ public class DecisionSenderTests
             _decisionSender.SendDecisionAsync(
                 "mrn-123",
                 "<AlvsDecisionNotification />",
-                MessagingConstants.DecisionSource.Alvs,
+                MessagingConstants.MessageSource.Alvs,
+                new RoutingResult(),
                 new HeaderDictionary(),
                 "external-correlation-id",
                 CancellationToken.None
@@ -334,7 +343,7 @@ public class DecisionSenderTests
         comparerResponse.Content = new StringContent(string.Empty);
 
         _apiSender
-            .SendDecisionAsync(
+            .SendToDecisionComparerAsync(
                 Arg.Any<string>(),
                 Arg.Any<string>(),
                 Arg.Any<string>(),
@@ -347,7 +356,8 @@ public class DecisionSenderTests
             _decisionSender.SendDecisionAsync(
                 "mrn-123",
                 "<AlvsDecisionNotification />",
-                MessagingConstants.DecisionSource.Alvs,
+                MessagingConstants.MessageSource.Alvs,
+                new RoutingResult(),
                 new HeaderDictionary(),
                 "external-correlation-id",
                 CancellationToken.None
@@ -362,7 +372,7 @@ public class DecisionSenderTests
         var comparerResponse = new HttpResponseMessage(HttpStatusCode.NoContent);
 
         _apiSender
-            .SendDecisionAsync(
+            .SendToDecisionComparerAsync(
                 Arg.Any<string>(),
                 Arg.Any<string>(),
                 Arg.Any<string>(),
@@ -375,7 +385,8 @@ public class DecisionSenderTests
             _decisionSender.SendDecisionAsync(
                 "mrn-123",
                 "<AlvsDecisionNotification />",
-                MessagingConstants.DecisionSource.Alvs,
+                MessagingConstants.MessageSource.Alvs,
+                new RoutingResult(),
                 new HeaderDictionary(),
                 "external-correlation-id",
                 CancellationToken.None
@@ -392,8 +403,9 @@ public class DecisionSenderTests
         var result = await _decisionSender.SendDecisionAsync(
             "mrn-123",
             "<BtmsDecisionNotification />",
-            MessagingConstants.DecisionSource.Btms,
-            externalCorrelationId: "external-correlation-id",
+            MessagingConstants.MessageSource.Btms,
+            new RoutingResult(),
+            correlationId: "external-correlation-id",
             cancellationToken: CancellationToken.None
         );
 
@@ -448,8 +460,9 @@ public class DecisionSenderTests
             _decisionSender.SendDecisionAsync(
                 "mrn-123",
                 "<BtmsDecisionNotification />",
-                MessagingConstants.DecisionSource.Btms,
-                externalCorrelationId: "external-correlation-id",
+                MessagingConstants.MessageSource.Btms,
+                new RoutingResult(),
+                correlationId: "external-correlation-id",
                 cancellationToken: CancellationToken.None
             )
         );
@@ -476,8 +489,9 @@ public class DecisionSenderTests
         var result = await _decisionSender.SendDecisionAsync(
             "mrn-123",
             "<BtmsDecisionNotification />",
-            MessagingConstants.DecisionSource.Alvs,
-            externalCorrelationId: "external-correlation-id",
+            MessagingConstants.MessageSource.Alvs,
+            new RoutingResult(),
+            correlationId: "external-correlation-id",
             cancellationToken: CancellationToken.None
         );
 

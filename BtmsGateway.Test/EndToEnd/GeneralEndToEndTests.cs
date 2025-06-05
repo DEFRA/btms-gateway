@@ -91,6 +91,26 @@ public sealed class GeneralEndToEndTests : IDisposable
                         ContentType = "application/soap+xml",
                     }
                 },
+                {
+                    "BtmsOutboundErrors",
+                    new Destination
+                    {
+                        LinkType = LinkType.Url,
+                        Link = "http://trade-imports-decision-comparer-host",
+                        RoutePath = "/btms-outbound-errors/",
+                        ContentType = "application/soap+xml",
+                    }
+                },
+                {
+                    "AlvsOutboundErrors",
+                    new Destination
+                    {
+                        LinkType = LinkType.Url,
+                        Link = "http://trade-imports-decision-comparer-host",
+                        RoutePath = "/alvs-outbound-errors/",
+                        ContentType = "application/soap+xml",
+                    }
+                },
             },
         };
         _testWebServer = TestWebServer.BuildAndRun(ServiceDescriptor.Singleton(routingConfig));

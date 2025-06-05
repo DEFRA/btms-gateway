@@ -28,7 +28,9 @@ public static class AmazonConsumerExtensions
         messageBusBuilder.AddJsonSerializer();
 
         messageBusBuilder.Consume<JsonElement>(x =>
-            x.WithConsumer<ConsumerMediator>().Queue(options.OutboundClearanceDecisionsQueueName)
+            x.WithConsumer<ConsumerMediator>()
+                .Queue(options.OutboundClearanceDecisionsQueueName)
+                .Instances(options.ConsumersPerHost)
         );
     }
 }

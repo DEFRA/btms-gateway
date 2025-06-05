@@ -84,6 +84,8 @@ public static class ConfigureHealthChecks
         return builder;
     }
 
+    [SuppressMessage("SonarLint", "S1172", Justification = "Parameter will be required immediately after the upcoming release")]
+    [SuppressMessage("SonarLint", "S125", Justification = "Commented code will be required immediately after the upcoming release")]
     private static IHealthChecksBuilder AddQueueChecks(
         this IHealthChecksBuilder builder,
         AwsSqsOptions? awsSqsOptions,
@@ -92,7 +94,7 @@ public static class ConfigureHealthChecks
     {
         if (awsSqsOptions is null || string.IsNullOrEmpty(awsSqsOptions.OutboundClearanceDecisionsQueueName))
             return builder;
-
+        
         // builder.AddTypeActivatedCheck<QueueHealthCheck>(
         //     "OutboundClearanceDecisionsQueue",
         //     failureStatus: HealthStatus.Unhealthy,
@@ -102,6 +104,7 @@ public static class ConfigureHealthChecks
         return builder;
     }
 
+    [SuppressMessage("SonarLint", "S125", Justification = "Commented code will be required immediately after the upcoming release")]
     private static IHealthChecksBuilder AddApiChecks(
         this IHealthChecksBuilder builder,
         DataApiOptions? dataApiOptions,

@@ -132,7 +132,7 @@ public class RoutingInterceptor(
 
     private void LogRouteNotFoundResults(MessageData messageData, RoutingResult routingResult, string action)
     {
-        logger.Information(
+        logger.Warning(
             "{ContentCorrelationId} {MessageReference} {Action} not {Reason} for [{HttpString}]",
             messageData.ContentMap.CorrelationId,
             messageData.ContentMap.MessageReference,

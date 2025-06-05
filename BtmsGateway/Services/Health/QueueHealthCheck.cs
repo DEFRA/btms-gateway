@@ -47,7 +47,7 @@ public class QueueHealthCheck(string name, string queue, IConfiguration configur
         if (queueUrlResponse != null)
         {
             if (!queueUrlResponse.HttpStatusCode.IsSuccessStatusCode())
-                healthStatus = HealthStatus.Degraded;
+                healthStatus = HealthStatus.Unhealthy;
 
             data.Add("content-length", queueUrlResponse.ContentLength);
             data.Add("http-status-code", queueUrlResponse.HttpStatusCode);
@@ -55,7 +55,7 @@ public class QueueHealthCheck(string name, string queue, IConfiguration configur
 
         if (checkException != null)
         {
-            healthStatus = HealthStatus.Degraded;
+            healthStatus = HealthStatus.Unhealthy;
             data.Add("error", $"{checkException.Message} - {checkException.InnerException?.Message}");
         }
 

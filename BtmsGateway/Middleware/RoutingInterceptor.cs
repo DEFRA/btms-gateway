@@ -137,7 +137,13 @@ public class RoutingInterceptor(
             messageData.ContentMap.CorrelationId,
             messageData.ContentMap.MessageReference,
             action,
-            routingResult.RouteLinkType == LinkType.None ? "configured" : "supported",
+            action == RouteAction
+                ? routingResult.RouteLinkType == LinkType.None
+                    ? "configured"
+                    : "supported"
+                : routingResult.ForkLinkType == LinkType.None
+                    ? "configured"
+                    : "supported",
             messageData.HttpString
         );
     }

@@ -1,6 +1,8 @@
+using BtmsGateway.Config;
 using BtmsGateway.Exceptions;
 using BtmsGateway.Services.Metrics;
 using BtmsGateway.Services.Routing;
+using Microsoft.Extensions.Options;
 using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Middleware;
@@ -10,7 +12,8 @@ public class RoutingInterceptor(
     IMessageRouter messageRouter,
     MetricsHost metricsHost,
     IRequestMetrics requestMetrics,
-    ILogger logger
+    ILogger logger,
+    IOptions<MessageLoggingOptions> messageLoggingOptions
 )
 {
     private const string RouteAction = "Routing";
@@ -22,7 +25,11 @@ public class RoutingInterceptor(
         {
             var metrics = metricsHost.GetMetrics();
 
-            var messageData = await MessageData.Create(context.Request, logger);
+            var messageData = await MessageData.Create(
+                context.Request,
+                logger,
+                messageLoggingOptions.Value.LogRawMessage
+            );
 
             if (messageData.ShouldProcessRequest)
             {
@@ -96,12 +103,27 @@ public class RoutingInterceptor(
 
     private void LogRouteFoundResults(MessageData messageData, RoutingResult routingResult, string action)
     {
-        logger.Information(
+        if (routingResult.RoutingSuccessful)
+        {
+            logger.Information(
+                "{ContentCorrelationId} {MessageReference} {Action} {Success} for route {RouteUrl} with response {StatusCode} \"{Content}\"",
+                messageData.ContentMap.CorrelationId,
+                messageData.ContentMap.MessageReference,
+                action,
+                "successful",
+                action == RouteAction ? routingResult.FullRouteLink : routingResult.FullForkLink,
+                routingResult.StatusCode,
+                routingResult.ResponseContent
+            );
+            return;
+        }
+
+        logger.Error(
             "{ContentCorrelationId} {MessageReference} {Action} {Success} for route {RouteUrl} with response {StatusCode} \"{Content}\"",
             messageData.ContentMap.CorrelationId,
             messageData.ContentMap.MessageReference,
             action,
-            routingResult.RoutingSuccessful ? "successful" : "failed",
+            "failed",
             action == RouteAction ? routingResult.FullRouteLink : routingResult.FullForkLink,
             routingResult.StatusCode,
             routingResult.ResponseContent
@@ -110,7 +132,7 @@ public class RoutingInterceptor(
 
     private void LogRouteNotFoundResults(MessageData messageData, RoutingResult routingResult, string action)
     {
-        logger.Information(
+        logger.Warning(
             "{ContentCorrelationId} {MessageReference} {Action} not {Reason} for [{HttpString}]",
             messageData.ContentMap.CorrelationId,
             messageData.ContentMap.MessageReference,

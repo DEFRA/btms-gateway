@@ -14,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Serilog;
 using Serilog.Core;
+using Serilog.Events;
 using Environment = System.Environment;
 
 var app = CreateWebApplication(args);
@@ -54,7 +55,6 @@ static Logger ConfigureLoggingAndTracing(WebApplicationBuilder builder)
 
     builder.Services.TryAddSingleton<ITraceContextAccessor, TraceContextAccessor>();
     builder.Services.AddOptions<TraceHeader>().Bind(builder.Configuration).ValidateDataAnnotations().ValidateOnStart();
-    builder.Services.AddTracingForConsumers();
     builder.Services.AddOperationalMetrics();
 
     builder.Services.AddSingleton<IConfigureOptions<HeaderPropagationOptions>>(sp =>
@@ -76,7 +76,19 @@ static Logger ConfigureLoggingAndTracing(WebApplicationBuilder builder)
         .Enrich.FromLogContext()
         .Enrich.With(new TraceContextEnricher())
         .Enrich.With<LogLevelMapper>()
-        .Enrich.WithProperty("service.version", Environment.GetEnvironmentVariable("SERVICE_VERSION"));
+        .Enrich.WithProperty("service.version", Environment.GetEnvironmentVariable("SERVICE_VERSION"))
+        .Filter.ByExcluding(x =>
+            x.Level == LogEventLevel.Information
+            && x.Properties.TryGetValue("RequestPath", out var path)
+            && path.ToString().Contains("/health")
+            && !x.MessageTemplate.Text.StartsWith("Request finished")
+        )
+        .Filter.ByExcluding(x =>
+            x.Level == LogEventLevel.Error
+            && x.Properties.TryGetValue("SourceContext", out var sourceContext)
+            && sourceContext.ToString().Contains("SlimMessageBus.Host.AmazonSQS.SqsQueueConsumer")
+            && x.MessageTemplate.Text.StartsWith("Message processing error")
+        );
 
     if (traceIdHeader != null)
     {
@@ -102,7 +114,6 @@ static WebApplication ConfigureWebApplication(WebApplication app)
     app.UseMiddleware<RoutingInterceptor>();
     app.UseCustomHealthChecks();
     app.UseCheckRoutesEndpoints();
-
     app.ConfigureSwaggerApp();
 
     return app;

@@ -5,6 +5,7 @@ using BtmsGateway.Utils.Logging;
 using Defra.TradeImportsDataApi.Api.Client;
 using Microsoft.Extensions.Http.Resilience;
 using Microsoft.Extensions.Options;
+using Polly;
 using SlimMessageBus.Host;
 using SlimMessageBus.Host.Interceptor;
 
@@ -28,16 +29,34 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddDataApiHttpClient(this IServiceCollection services)
     {
+        var resilienceOptions = new HttpStandardResilienceOptions { Retry = { UseJitter = true } };
+        resilienceOptions.Retry.DisableForUnsafeHttpMethods();
+
         services.AddOptions<DataApiOptions>().BindConfiguration(DataApiOptions.SectionName).ValidateDataAnnotations();
 
         services
             .AddTradeImportsDataApiClient()
-            .ConfigureHttpClient((sp, c) => sp.GetRequiredService<IOptions<DataApiOptions>>().Value.Configure(c))
+            .ConfigureHttpClient(
+                (sp, c) =>
+                {
+                    sp.GetRequiredService<IOptions<DataApiOptions>>().Value.Configure(c);
+
+                    // Disable the HttpClient timeout to allow the resilient pipeline below
+                    // to handle all timeouts
+                    c.Timeout = Timeout.InfiniteTimeSpan;
+                }
+            )
             .AddHeaderPropagation()
-            .AddStandardResilienceHandler(o =>
-            {
-                o.Retry.DisableForUnsafeHttpMethods();
-            });
+            .AddResilienceHandler(
+                "DataApi",
+                builder =>
+                {
+                    builder
+                        .AddTimeout(resilienceOptions.TotalRequestTimeout)
+                        .AddRetry(resilienceOptions.Retry)
+                        .AddTimeout(resilienceOptions.AttemptTimeout);
+                }
+            );
 
         return services;
     }

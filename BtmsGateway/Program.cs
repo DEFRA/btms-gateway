@@ -14,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Serilog;
 using Serilog.Core;
+using Serilog.Events;
 using Environment = System.Environment;
 
 var app = CreateWebApplication(args);
@@ -76,7 +77,13 @@ static Logger ConfigureLoggingAndTracing(WebApplicationBuilder builder)
         .Enrich.FromLogContext()
         .Enrich.With(new TraceContextEnricher())
         .Enrich.With<LogLevelMapper>()
-        .Enrich.WithProperty("service.version", Environment.GetEnvironmentVariable("SERVICE_VERSION"));
+        .Enrich.WithProperty("service.version", Environment.GetEnvironmentVariable("SERVICE_VERSION"))
+        .Filter.ByExcluding(x =>
+            x.Level == LogEventLevel.Information
+            && x.Properties.TryGetValue("RequestPath", out var path)
+            && path.ToString().Contains("/health")
+            && !x.MessageTemplate.Text.StartsWith("Request finished")
+        );
 
     if (traceIdHeader != null)
     {

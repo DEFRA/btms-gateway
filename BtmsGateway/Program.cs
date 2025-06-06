@@ -102,7 +102,6 @@ static WebApplication ConfigureWebApplication(WebApplication app)
     app.UseMiddleware<RoutingInterceptor>();
     app.UseCustomHealthChecks();
     app.UseCheckRoutesEndpoints();
-
     app.ConfigureSwaggerApp();
 
     return app;

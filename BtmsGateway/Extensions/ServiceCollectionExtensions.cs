@@ -16,6 +16,12 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddConsumers(this IServiceCollection services, IConfiguration configuration)
     {
+        // Order of interceptors is important here
+        services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(TraceContextInterceptor<>));
+        services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(LoggingInterceptor<>));
+        services.AddSingleton<IConsumerMetrics, ConsumerMetrics>();
+        services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(MetricsInterceptor<>));
+
         services.AddSlimMessageBus(messageBusBuilder =>
         {
             var awsSqsOptions = services
@@ -61,14 +67,6 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection AddTracingForConsumers(this IServiceCollection services)
-    {
-        services.AddScoped(typeof(IConsumerInterceptor<>), typeof(TraceContextInterceptor<>));
-        services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(LoggingInterceptor<>));
-
-        return services;
-    }
-
     public static IHttpContextAccessor GetHttpContextAccessor(this IServiceCollection services)
     {
         return services.BuildServiceProvider().GetRequiredService<IHttpContextAccessor>();
@@ -77,9 +75,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddOperationalMetrics(this IServiceCollection services)
     {
         services.AddSingleton<IRequestMetrics, RequestMetrics>();
-        services.AddSingleton<IConsumerMetrics, ConsumerMetrics>();
         services.AddSingleton<IHealthMetrics, HealthMetrics>();
-        services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(MetricsInterceptor<>));
 
         return services;
     }

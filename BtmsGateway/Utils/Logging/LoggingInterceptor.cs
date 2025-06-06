@@ -11,7 +11,7 @@ public class LoggingInterceptor<TMessage>(ILogger<LoggingInterceptor<TMessage>> 
     public async Task<object> OnHandle(TMessage message, Func<Task<object>> next, IConsumerContext context)
     {
         var messageId = context.GetMessageId();
-        logger.LogInformation("Started Processing MessageId {MessageId}", messageId);
+        logger.LogInformation("Processing MessageId {MessageId}", messageId);
 
         try
         {
@@ -23,10 +23,6 @@ public class LoggingInterceptor<TMessage>(ILogger<LoggingInterceptor<TMessage>> 
         {
             logger.LogError(exception, "Error Processing MessageId {MessageId}", messageId);
             throw;
-        }
-        finally
-        {
-            logger.LogInformation("Finished Processing MessageId {MessageId}", messageId);
         }
     }
 }

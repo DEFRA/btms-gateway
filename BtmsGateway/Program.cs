@@ -55,7 +55,6 @@ static Logger ConfigureLoggingAndTracing(WebApplicationBuilder builder)
 
     builder.Services.TryAddSingleton<ITraceContextAccessor, TraceContextAccessor>();
     builder.Services.AddOptions<TraceHeader>().Bind(builder.Configuration).ValidateDataAnnotations().ValidateOnStart();
-    builder.Services.AddTracingForConsumers();
     builder.Services.AddOperationalMetrics();
 
     builder.Services.AddSingleton<IConfigureOptions<HeaderPropagationOptions>>(sp =>
@@ -83,6 +82,12 @@ static Logger ConfigureLoggingAndTracing(WebApplicationBuilder builder)
             && x.Properties.TryGetValue("RequestPath", out var path)
             && path.ToString().Contains("/health")
             && !x.MessageTemplate.Text.StartsWith("Request finished")
+        )
+        .Filter.ByExcluding(x =>
+            x.Level == LogEventLevel.Error
+            && x.Properties.TryGetValue("SourceContext", out var sourceContext)
+            && sourceContext.ToString().Contains("SlimMessageBus.Host.AmazonSQS.SqsQueueConsumer")
+            && x.MessageTemplate.Text.StartsWith("Message processing error")
         );
 
     if (traceIdHeader != null)

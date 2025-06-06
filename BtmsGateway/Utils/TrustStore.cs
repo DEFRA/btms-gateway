@@ -2,21 +2,20 @@ using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using Serilog.Core;
 
 namespace BtmsGateway.Utils;
 
 [ExcludeFromCodeCoverage]
 public static class TrustStore
 {
-    public static void AddCustomTrustStore(this IServiceCollection _, Logger logger)
+    public static void AddCustomTrustStore(this IServiceCollection _, Serilog.ILogger logger)
     {
         logger.Information("Loading Certificates into Trust store");
         var certificates = GetCertificates(logger);
         AddCertificates(certificates);
     }
 
-    private static List<string> GetCertificates(Logger logger)
+    private static List<string> GetCertificates(Serilog.ILogger logger)
     {
         return Environment
             .GetEnvironmentVariables()

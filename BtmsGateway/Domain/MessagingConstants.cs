@@ -6,6 +6,7 @@ public static class MessagingConstants
     {
         public const string CorrelationId = "CorrelationId";
         public const string InboundHmrcMessageType = "InboundHmrcMessageType";
+        public const string ResourceId = "ResourceId";
     }
 
     public static class MessageTypes

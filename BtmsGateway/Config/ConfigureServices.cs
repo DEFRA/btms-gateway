@@ -7,7 +7,7 @@ using BtmsGateway.Services.Routing;
 using BtmsGateway.Utils.Http;
 using FluentValidation;
 using Microsoft.FeatureManagement;
-using Serilog;
+using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Config;
 
@@ -19,12 +19,17 @@ public static class ConfigureServices
     public static IHttpClientBuilder? DecisionComparerHttpClientWithRetryBuilder { get; private set; }
 
     [ExcludeFromCodeCoverage]
-    public static void AddServices(this WebApplicationBuilder builder, bool integrationTest)
+    public static void AddServices(this WebApplicationBuilder builder, ILogger? logger = null)
     {
-        if (integrationTest)
+        if (logger != null)
         {
-            builder.Services.AddSingleton(_ => Log.Logger);
+            // This is added to support end to end tests that boostrap their own configuration
+            // making use of common methods such as this to add the application services. The
+            // end to end tests need to be reworked so they use an actual BTMS gateway host
+            // running in Docker.
+            builder.Services.AddSingleton(_ => logger);
         }
+
         builder.Services.AddHttpLogging(o =>
         {
             o.RequestHeaders.Add("X-cdp-request-id");

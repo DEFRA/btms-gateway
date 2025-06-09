@@ -45,7 +45,7 @@ public class TestWebServer : IDisposable
         builder.ConfigureToType<RoutingConfig>();
         builder.ConfigureToType<HealthCheckConfig>();
         builder.WebHost.UseUrls(url);
-        builder.AddServices();
+        builder.AddServices(integrationTest: true);
         foreach (var testService in testServices)
             builder.Services.Replace(testService);
         builder.Services.AddHealthChecks();

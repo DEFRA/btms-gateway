@@ -19,9 +19,12 @@ public static class ConfigureServices
     public static IHttpClientBuilder? DecisionComparerHttpClientWithRetryBuilder { get; private set; }
 
     [ExcludeFromCodeCoverage]
-    public static void AddServices(this WebApplicationBuilder builder)
+    public static void AddServices(this WebApplicationBuilder builder, bool integrationTest)
     {
-        builder.Services.AddSingleton(Log.Logger);
+        if (integrationTest)
+        {
+            builder.Services.AddSingleton(_ => Log.Logger);
+        }
         builder.Services.AddHttpLogging(o =>
         {
             o.RequestHeaders.Add("X-cdp-request-id");

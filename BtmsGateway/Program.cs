@@ -41,7 +41,7 @@ static void ConfigureWebApplication(WebApplicationBuilder builder)
     builder.Configuration.AddIniFile("Properties/local.env", true);
     builder.ConfigureLoggingAndTracing();
     builder.Services.AddCustomTrustStore();
-    builder.AddServices();
+    builder.AddServices(integrationTest: false);
 
     var routingConfig = builder.ConfigureToType<RoutingConfig>();
     var healthCheckConfig = builder.ConfigureToType<HealthCheckConfig>();

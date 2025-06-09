@@ -7,6 +7,7 @@ using BtmsGateway.Services.Routing;
 using BtmsGateway.Utils.Http;
 using FluentValidation;
 using Microsoft.FeatureManagement;
+using Serilog;
 
 namespace BtmsGateway.Config;
 
@@ -20,6 +21,7 @@ public static class ConfigureServices
     [ExcludeFromCodeCoverage]
     public static void AddServices(this WebApplicationBuilder builder)
     {
+        builder.Services.AddSingleton(Log.Logger);
         builder.Services.AddHttpLogging(o =>
         {
             o.RequestHeaders.Add("X-cdp-request-id");

@@ -67,11 +67,6 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    public static IHttpContextAccessor GetHttpContextAccessor(this IServiceCollection services)
-    {
-        return services.BuildServiceProvider().GetRequiredService<IHttpContextAccessor>();
-    }
-
     public static IServiceCollection AddOperationalMetrics(this IServiceCollection services)
     {
         services.AddSingleton<IRequestMetrics, RequestMetrics>();

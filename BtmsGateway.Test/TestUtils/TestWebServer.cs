@@ -11,7 +11,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using NSubstitute;
 
 [assembly: CollectionBehavior(DisableTestParallelization = true)]
 
@@ -46,7 +45,7 @@ public class TestWebServer : IDisposable
         builder.ConfigureToType<RoutingConfig>();
         builder.ConfigureToType<HealthCheckConfig>();
         builder.WebHost.UseUrls(url);
-        builder.AddServices(Substitute.For<Serilog.ILogger>());
+        builder.AddServices();
         foreach (var testService in testServices)
             builder.Services.Replace(testService);
         builder.Services.AddHealthChecks();

@@ -7,7 +7,6 @@ using BtmsGateway.Services.Routing;
 using BtmsGateway.Utils.Http;
 using FluentValidation;
 using Microsoft.FeatureManagement;
-using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Config;
 
@@ -19,22 +18,19 @@ public static class ConfigureServices
     public static IHttpClientBuilder? DecisionComparerHttpClientWithRetryBuilder { get; private set; }
 
     [ExcludeFromCodeCoverage]
-    public static void AddServices(this WebApplicationBuilder builder, ILogger logger)
+    public static void AddServices(this WebApplicationBuilder builder)
     {
-        builder.Services.AddSingleton(logger);
         builder.Services.AddHttpLogging(o =>
         {
             o.RequestHeaders.Add("X-cdp-request-id");
             o.RequestHeaders.Add("X-Amzn-Trace-Id");
         });
-        HttpRoutedClientWithRetryBuilder = builder.Services.AddHttpProxyRoutedClientWithRetry(logger);
-        HttpForkedClientWithRetryBuilder = builder.Services.AddHttpProxyForkedClientWithRetry(logger);
-        HttpClientWithRetryBuilder = builder.Services.AddHttpProxyClientWithRetry(logger);
-        DecisionComparerHttpClientWithRetryBuilder = builder.Services.AddDecisionComparerHttpProxyClientWithRetry(
-            logger
-        );
+        HttpRoutedClientWithRetryBuilder = builder.Services.AddHttpProxyRoutedClientWithRetry();
+        HttpForkedClientWithRetryBuilder = builder.Services.AddHttpProxyForkedClientWithRetry();
+        HttpClientWithRetryBuilder = builder.Services.AddHttpProxyClientWithRetry();
+        DecisionComparerHttpClientWithRetryBuilder = builder.Services.AddDecisionComparerHttpProxyClientWithRetry();
 
-        builder.Services.AddHttpProxyClientWithoutRetry(logger);
+        builder.Services.AddHttpProxyClientWithoutRetry();
         builder.Services.AddDataApiHttpClient();
 
         builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());

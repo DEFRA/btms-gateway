@@ -13,7 +13,8 @@ public class LoggingInterceptor<TMessage>(ILogger<LoggingInterceptor<TMessage>> 
     public async Task<object> OnHandle(TMessage message, Func<Task<object>> next, IConsumerContext context)
     {
         var messageId = context.GetMessageId();
-        logger.LogInformation("Processing MessageId {MessageId}", messageId);
+        var resourceId = context.GetResourceId();
+        logger.LogInformation("Processing message {MessageId} for resource {ResourceId}", messageId, resourceId);
 
         try
         {
@@ -22,12 +23,22 @@ public class LoggingInterceptor<TMessage>(ILogger<LoggingInterceptor<TMessage>> 
         catch (HttpRequestException httpRequestException)
             when (httpRequestException.StatusCode == HttpStatusCode.Conflict)
         {
-            logger.LogWarning(httpRequestException, "409 Conflict Processing MessageId {MessageId}", messageId);
+            logger.LogWarning(
+                httpRequestException,
+                "409 Conflict processing message {MessageId} for resource {ResourceId}",
+                messageId,
+                resourceId
+            );
             throw;
         }
         catch (Exception exception)
         {
-            logger.LogError(exception, "Error Processing MessageId {MessageId}", messageId);
+            logger.LogError(
+                exception,
+                "Error processing message {MessageId} for resource {ResourceId}",
+                messageId,
+                resourceId
+            );
             throw;
         }
     }

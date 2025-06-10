@@ -14,7 +14,7 @@ namespace BtmsGateway.Utils.Logging;
 [ExcludeFromCodeCoverage]
 public static class WebApplicationBuilderExtensions
 {
-    public static void ConfigureLoggingAndTracing(this WebApplicationBuilder builder, bool integrationTest = false)
+    public static void ConfigureLoggingAndTracing(this WebApplicationBuilder builder)
     {
         builder.Services.AddHttpContextAccessor();
         builder.Services.TryAddSingleton<ITraceContextAccessor, TraceContextAccessor>();
@@ -42,13 +42,7 @@ public static class WebApplicationBuilderExtensions
         });
         builder.Services.TryAddSingleton<HeaderPropagationValues>();
 
-        if (!integrationTest)
-        {
-            // Configuring Serilog below wipes out the framework logging
-            // so we don't execute the following when the host is running
-            // within an integration test
-            builder.Host.UseSerilog(ConfigureLogging);
-        }
+        builder.Host.UseSerilog(ConfigureLogging);
     }
 
     private static void ConfigureLogging(

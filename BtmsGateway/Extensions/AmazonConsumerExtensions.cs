@@ -15,9 +15,7 @@ public static class AmazonConsumerExtensions
         IConfiguration configuration
     )
     {
-        messageBusBuilder
-            .AddServicesFromAssemblyContaining<ClearanceDecisionConsumer>(consumerLifetime: ServiceLifetime.Scoped)
-            .PerMessageScopeEnabled();
+        messageBusBuilder.AddServicesFromAssemblyContaining<ClearanceDecisionConsumer>();
 
         messageBusBuilder.WithProviderAmazonSQS(cfg =>
         {

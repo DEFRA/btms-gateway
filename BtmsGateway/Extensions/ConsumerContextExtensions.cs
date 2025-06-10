@@ -4,6 +4,7 @@ using SlimMessageBus;
 
 namespace BtmsGateway.Extensions;
 
+[ExcludeFromCodeCoverage]
 public static class MessageBusHeaders
 {
     public const string ResourceType = nameof(ResourceType);

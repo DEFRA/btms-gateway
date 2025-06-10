@@ -15,8 +15,7 @@ public static class AmazonConsumerExtensions
         IConfiguration configuration
     )
     {
-        messageBusBuilder
-            .AddServicesFromAssemblyContaining<ClearanceDecisionConsumer>();
+        messageBusBuilder.AddServicesFromAssemblyContaining<ClearanceDecisionConsumer>();
 
         messageBusBuilder.WithProviderAmazonSQS(cfg =>
         {

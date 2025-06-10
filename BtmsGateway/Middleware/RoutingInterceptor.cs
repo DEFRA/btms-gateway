@@ -115,6 +115,14 @@ public class RoutingInterceptor(
                 routingResult.StatusCode,
                 routingResult.ResponseContent
             );
+
+            requestMetrics.MessageSuccessfullySent(
+                routingResult.MessageSubXPath,
+                routingResult.UrlPath,
+                routingResult.Legend,
+                action
+            );
+
             return;
         }
 

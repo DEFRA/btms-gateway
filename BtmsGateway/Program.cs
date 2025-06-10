@@ -6,9 +6,10 @@ using BtmsGateway.Services.Metrics;
 using BtmsGateway.Services.Routing;
 using BtmsGateway.Utils;
 using BtmsGateway.Utils.Logging;
+using Elastic.CommonSchema.Serilog;
 using Serilog;
 
-Log.Logger = new LoggerConfiguration().WriteTo.Console().CreateBootstrapLogger();
+Log.Logger = new LoggerConfiguration().WriteTo.Console(new EcsTextFormatter()).CreateBootstrapLogger();
 
 try
 {
@@ -40,8 +41,8 @@ static void ConfigureWebApplication(WebApplicationBuilder builder)
     builder.Configuration.AddEnvironmentVariables();
     builder.Configuration.AddIniFile("Properties/local.env", true);
     builder.ConfigureLoggingAndTracing();
-    builder.Services.AddCustomTrustStore(Log.Logger);
-    builder.AddServices(Log.Logger);
+    builder.Services.AddCustomTrustStore();
+    builder.AddServices();
 
     var routingConfig = builder.ConfigureToType<RoutingConfig>();
     var healthCheckConfig = builder.ConfigureToType<HealthCheckConfig>();

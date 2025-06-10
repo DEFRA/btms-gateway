@@ -18,7 +18,7 @@ public class ProxyTest
     {
         var proxy = new System.Net.WebProxy { BypassProxyOnLocal = true };
 
-        Proxy.ConfigureProxy(proxy, ProxyUri, _logger);
+        Proxy.ConfigureProxy(proxy, ProxyUri);
 
         var credentials = proxy.Credentials?.GetCredential(new Uri(ProxyUri), "Basic");
 
@@ -33,7 +33,7 @@ public class ProxyTest
 
         var proxy = new System.Net.WebProxy { BypassProxyOnLocal = true };
 
-        Proxy.ConfigureProxy(proxy, noPasswordUri, _logger);
+        Proxy.ConfigureProxy(proxy, noPasswordUri);
 
         proxy.Credentials.Should().BeNull();
     }
@@ -43,7 +43,7 @@ public class ProxyTest
     {
         var proxy = new System.Net.WebProxy { BypassProxyOnLocal = true };
 
-        Proxy.ConfigureProxy(proxy, ProxyUri, _logger);
+        Proxy.ConfigureProxy(proxy, ProxyUri);
         proxy.Address.Should().NotBeNull();
         proxy.Address?.AbsoluteUri.Should().Be(LocalProxy);
     }
@@ -51,7 +51,7 @@ public class ProxyTest
     [Fact]
     public void CreateProxyFromUri()
     {
-        var proxy = Proxy.CreateProxy(ProxyUri, _logger);
+        var proxy = Proxy.CreateProxy(ProxyUri);
 
         proxy.Address.Should().NotBeNull();
         proxy.Address?.AbsoluteUri.Should().Be(LocalProxy);
@@ -60,7 +60,7 @@ public class ProxyTest
     [Fact]
     public void CreateNoProxyFromEmptyUri()
     {
-        var proxy = Proxy.CreateProxy(null, _logger);
+        var proxy = Proxy.CreateProxy(null);
 
         proxy.Address.Should().BeNull();
     }
@@ -68,7 +68,7 @@ public class ProxyTest
     [Fact]
     public void ProxyShouldBypassLocal()
     {
-        var proxy = Proxy.CreateProxy(ProxyUri, _logger);
+        var proxy = Proxy.CreateProxy(ProxyUri);
 
         proxy.BypassProxyOnLocal.Should().BeTrue();
         proxy.IsBypassed(new Uri(Localhost)).Should().BeTrue();
@@ -78,7 +78,7 @@ public class ProxyTest
     [Fact]
     public void HandlerShouldHaveProxy()
     {
-        var handler = Proxy.CreateHttpClientHandler(ProxyUri, _logger);
+        var handler = Proxy.CreateHttpClientHandler(ProxyUri);
 
         handler.Proxy.Should().NotBeNull();
         handler.UseProxy.Should().BeTrue();

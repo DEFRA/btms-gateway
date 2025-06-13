@@ -83,7 +83,7 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
             throw new DecisionComparisonException($"{mrn} Failed to send Error Notification to Decision Comparer.");
         }
 
-        ForwardErrorNotificationAsync(mrn, messageSource, errorNotification);
+        ForwardErrorNotificationAsync(mrn, messageSource);
 
         return routingResult with
         {
@@ -98,19 +98,11 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
         };
     }
 
-    private void ForwardErrorNotificationAsync(
-        string? mrn,
-        MessagingConstants.MessageSource messageSource,
-        string errorNotification
-    )
+    private void ForwardErrorNotificationAsync(string? mrn, MessagingConstants.MessageSource messageSource)
     {
         if (messageSource == MessagingConstants.MessageSource.Btms)
         {
-            _logger.Information(
-                "{MRN} Produced Error Notification to send to CDS: {ErrorNotification}",
-                mrn,
-                errorNotification
-            );
+            _logger.Information("{MRN} Produced Error Notification to send to CDS", mrn);
             // Just log error notification for now. Eventually, in cut over, will send the notification to CDS.
             // Ensure original ALVS request headers are passed through and appended in the CDS request!
             // Pass the CDS response back out!

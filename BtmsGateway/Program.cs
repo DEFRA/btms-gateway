@@ -56,6 +56,8 @@ static WebApplication BuildWebApplication(WebApplicationBuilder builder)
 
     app.UseEmfExporter();
     app.UseHttpLogging();
+    // Order of middleware matters!
+    app.UseMiddleware<MetricsMiddleware>();
     app.UseMiddleware<RoutingInterceptor>();
     app.UseCustomHealthChecks();
     app.UseCheckRoutesEndpoints();

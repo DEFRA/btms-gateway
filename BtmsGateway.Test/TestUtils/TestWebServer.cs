@@ -73,6 +73,7 @@ public class TestWebServer : IDisposable
 
         var app = builder.Build();
 
+        app.UseMiddleware<MetricsMiddleware>();
         app.UseMiddleware<RoutingInterceptor>();
 
         app.MapHealthChecks("/health");

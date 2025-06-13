@@ -114,7 +114,7 @@ public class RequestMetricsTests : MetricsTestBase
         durationMeasurements[1].ContainsTags(MetricsConstants.RequestTags.StatusCode).Should().BeTrue();
         durationMeasurements[1].Tags[MetricsConstants.RequestTags.StatusCode].Should().Be(204);
     }
-    
+
     [Fact]
     public void When_request_faulted_Then_faulted_metric_is_emitted()
     {

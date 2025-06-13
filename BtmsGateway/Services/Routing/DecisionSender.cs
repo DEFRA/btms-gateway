@@ -145,17 +145,11 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
 
             if (string.IsNullOrWhiteSpace(comparerDecision))
             {
-                _logger.Error(
-                    "{MRN} Decision Comparer returned an invalid decision",
-                    mrn
-                );
+                _logger.Error("{MRN} Decision Comparer returned an invalid decision", mrn);
                 throw new DecisionComparisonException($"{mrn} Decision Comparer returned an invalid decision.");
             }
 
-            _logger.Information(
-                "{MRN} Received Decision from Decision Comparer to send to CDS",
-                mrn
-            );
+            _logger.Information("{MRN} Received Decision from Decision Comparer to send to CDS", mrn);
             // Just log decision for now. Eventually, in cut over, will send the Decision to CDS.
             // Ensure original ALVS request headers are passed through and appended in SendCdsFormattedSoapMessageAsync!
             // Pass the CDS response back out!

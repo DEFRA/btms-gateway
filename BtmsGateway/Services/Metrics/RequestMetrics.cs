@@ -35,7 +35,7 @@ public class RequestMetrics : IRequestMetrics
             Unit.COUNT.ToString(),
             "Count of messages successfully sent"
         );
-        
+
         requestsReceived = meter.CreateCounter<long>(
             "RequestReceived",
             Unit.COUNT.ToString(),
@@ -60,7 +60,7 @@ public class RequestMetrics : IRequestMetrics
     {
         messagesSuccessfullySent.Add(1, BuildTags(messageType, requestPath, legend, routeAction));
     }
-    
+
     public void RequestCompleted(string requestPath, string httpMethod, int statusCode, double milliseconds)
     {
         requestsReceived.Add(1, BuildRequestTags(requestPath, httpMethod, statusCode));
@@ -85,7 +85,7 @@ public class RequestMetrics : IRequestMetrics
             { MetricsConstants.RequestTags.RouteAction, routeAction },
         };
     }
-    
+
     private static TagList BuildRequestTags(string requestPath, string httpMethod, int statusCode)
     {
         return new TagList

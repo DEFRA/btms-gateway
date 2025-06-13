@@ -98,18 +98,11 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
         };
     }
 
-    private void ForwardErrorNotificationAsync(
-        string? mrn,
-        MessagingConstants.MessageSource messageSource,
-        string _
-    )
+    private void ForwardErrorNotificationAsync(string? mrn, MessagingConstants.MessageSource messageSource, string _)
     {
         if (messageSource == MessagingConstants.MessageSource.Btms)
         {
-            _logger.Information(
-                "{MRN} Produced Error Notification to send to CDS",
-                mrn
-            );
+            _logger.Information("{MRN} Produced Error Notification to send to CDS", mrn);
             // Just log error notification for now. Eventually, in cut over, will send the notification to CDS.
             // Ensure original ALVS request headers are passed through and appended in the CDS request!
             // Pass the CDS response back out!

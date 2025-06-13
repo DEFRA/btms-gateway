@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using BtmsGateway.Config;
+using BtmsGateway.Middleware;
 using BtmsGateway.Services.Metrics;
 using BtmsGateway.Utils.Logging;
 using Defra.TradeImportsDataApi.Api.Client;
@@ -71,6 +72,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddSingleton<IRequestMetrics, RequestMetrics>();
         services.AddSingleton<IHealthMetrics, HealthMetrics>();
+        services.AddTransient<MetricsMiddleware>();
 
         return services;
     }

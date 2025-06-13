@@ -14,6 +14,9 @@ public static class MetricsConstants
         public const string RequestPath = "RequestPath";
         public const string Legend = "Legend";
         public const string RouteAction = "RouteAction";
+        public const string HttpMethod = "HttpMethod";
+        public const string StatusCode = "StatusCode";
+        public const string ExceptionType = "ExceptionType";
     }
 
     public static class ConsumerTags

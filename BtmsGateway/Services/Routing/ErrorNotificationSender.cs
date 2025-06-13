@@ -83,7 +83,7 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
             throw new DecisionComparisonException($"{mrn} Failed to send Error Notification to Decision Comparer.");
         }
 
-        ForwardErrorNotificationAsync(mrn, messageSource, errorNotification);
+        ForwardErrorNotificationAsync(mrn, messageSource);
 
         return routingResult with
         {
@@ -98,7 +98,7 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
         };
     }
 
-    private void ForwardErrorNotificationAsync(string? mrn, MessagingConstants.MessageSource messageSource, string _)
+    private void ForwardErrorNotificationAsync(string? mrn, MessagingConstants.MessageSource messageSource)
     {
         if (messageSource == MessagingConstants.MessageSource.Btms)
         {

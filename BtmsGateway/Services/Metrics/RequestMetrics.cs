@@ -37,18 +37,22 @@ public class RequestMetrics : IRequestMetrics
         );
 
         requestsReceived = meter.CreateCounter<long>(
-            "RequestReceived",
+            MetricsConstants.InstrumentNames.RequestReceived,
             Unit.COUNT.ToString(),
             "Count of messages received"
         );
 
         requestDuration = meter.CreateHistogram<double>(
-            "RequestDuration",
+            MetricsConstants.InstrumentNames.RequestDuration,
             Unit.MILLISECONDS.ToString(),
             "Duration of request"
         );
 
-        requestsFaulted = meter.CreateCounter<long>("RequestFaulted", Unit.COUNT.ToString(), "Count of request faults");
+        requestsFaulted = meter.CreateCounter<long>(
+            MetricsConstants.InstrumentNames.RequestFaulted,
+            Unit.COUNT.ToString(),
+            "Count of request faults"
+        );
     }
 
     public void MessageReceived(string? messageType, string? requestPath, string? legend, string routeAction)

@@ -40,6 +40,9 @@ public static class MetricsConstants
     {
         public const string MessagesReceived = "MessagesReceived";
         public const string MessagesSuccessfullySent = "MessagesSuccessfullySent";
+        public const string RequestReceived = "RequestReceived";
+        public const string RequestDuration = "RequestDuration";
+        public const string RequestFaulted = "RequestFaulted";
         public const string MessagingConsume = "MessagingConsume";
         public const string MessagingConsumeErrors = "MessagingConsumeErrors";
         public const string MessagingConsumeActive = "MessagingConsumeActive";

@@ -14,6 +14,9 @@ public static class MetricsConstants
         public const string RequestPath = "RequestPath";
         public const string Legend = "Legend";
         public const string RouteAction = "RouteAction";
+        public const string HttpMethod = "HttpMethod";
+        public const string StatusCode = "StatusCode";
+        public const string ExceptionType = "ExceptionType";
     }
 
     public static class ConsumerTags
@@ -36,6 +39,10 @@ public static class MetricsConstants
     public static class InstrumentNames
     {
         public const string MessagesReceived = "MessagesReceived";
+        public const string MessagesSuccessfullySent = "MessagesSuccessfullySent";
+        public const string RequestReceived = "RequestReceived";
+        public const string RequestDuration = "RequestDuration";
+        public const string RequestFaulted = "RequestFaulted";
         public const string MessagingConsume = "MessagingConsume";
         public const string MessagingConsumeErrors = "MessagingConsumeErrors";
         public const string MessagingConsumeActive = "MessagingConsumeActive";

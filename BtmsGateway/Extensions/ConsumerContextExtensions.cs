@@ -4,11 +4,13 @@ using SlimMessageBus;
 
 namespace BtmsGateway.Extensions;
 
+[ExcludeFromCodeCoverage]
 public static class MessageBusHeaders
 {
     public const string ResourceType = nameof(ResourceType);
     public const string SubResourceType = nameof(SubResourceType);
     public const string SqsBusMessage = "Sqs_Message";
+    public const string ResourceId = nameof(ResourceId);
 }
 
 [ExcludeFromCodeCoverage]
@@ -39,6 +41,16 @@ public static class ConsumerContextExtensions
         if (consumerContext.Properties.TryGetValue(MessageBusHeaders.SqsBusMessage, out var sqsMessage))
         {
             return ((Message)sqsMessage).MessageId;
+        }
+
+        return string.Empty;
+    }
+
+    public static string GetResourceId(this IConsumerContext consumerContext)
+    {
+        if (consumerContext.Headers.TryGetValue(MessageBusHeaders.ResourceId, out var value))
+        {
+            return value.ToString()!;
         }
 
         return string.Empty;

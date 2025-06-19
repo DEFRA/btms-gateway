@@ -4,7 +4,6 @@ using BtmsGateway.Domain;
 using BtmsGateway.Exceptions;
 using BtmsGateway.Extensions;
 using BtmsGateway.Services.Routing;
-using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 using Defra.TradeImportsDataApi.Domain.Errors;
 using Defra.TradeImportsDataApi.Domain.Events;
@@ -28,7 +27,6 @@ public class ConsumerMediatorTests
             }
         );
         var subject = new ConsumerMediator(
-            Substitute.For<ITradeImportsDataApiClient>(),
             Substitute.For<IDecisionSender>(),
             Substitute.For<IErrorNotificationSender>(),
             Substitute.For<ILoggerFactory>()
@@ -65,7 +63,6 @@ public class ConsumerMediatorTests
             }
         );
         var subject = new ConsumerMediator(
-            Substitute.For<ITradeImportsDataApiClient>(),
             Substitute.For<IDecisionSender>(),
             Substitute.For<IErrorNotificationSender>(),
             Substitute.For<ILoggerFactory>()
@@ -102,7 +99,6 @@ public class ConsumerMediatorTests
             }
         );
         var subject = new ConsumerMediator(
-            Substitute.For<ITradeImportsDataApiClient>(),
             Substitute.For<IDecisionSender>(),
             Substitute.For<IErrorNotificationSender>(),
             Substitute.For<ILoggerFactory>()

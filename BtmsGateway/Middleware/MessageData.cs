@@ -175,6 +175,11 @@ public class MessageData
             },
         };
 
+        messageAttributes.Add(
+            MessagingConstants.MessageAttributeKeys.ResourceId,
+            new MessageAttributeValue { DataType = "String", StringValue = ContentMap.EntryReference }
+        );
+
         var attributeValue = messageSubXPath switch
         {
             MessagingConstants.SoapMessageTypes.ALVSClearanceRequest => MessagingConstants

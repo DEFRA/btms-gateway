@@ -15,9 +15,7 @@ public static class AmazonConsumerExtensions
         IConfiguration configuration
     )
     {
-        messageBusBuilder
-            .AddServicesFromAssemblyContaining<ClearanceDecisionConsumer>(consumerLifetime: ServiceLifetime.Scoped)
-            .PerMessageScopeEnabled();
+        messageBusBuilder.AddServicesFromAssemblyContaining<ClearanceDecisionConsumer>();
 
         messageBusBuilder.WithProviderAmazonSQS(cfg =>
         {
@@ -27,10 +25,12 @@ public static class AmazonConsumerExtensions
 
         messageBusBuilder.AddJsonSerializer();
 
-        messageBusBuilder.Consume<JsonElement>(x =>
-            x.WithConsumer<ConsumerMediator>()
-                .Queue(options.OutboundClearanceDecisionsQueueName)
-                .Instances(options.ConsumersPerHost)
-        );
+        messageBusBuilder
+            .AutoStartConsumersEnabled(options.AutoStartConsumers)
+            .Consume<JsonElement>(x =>
+                x.WithConsumer<ConsumerMediator>()
+                    .Queue(options.OutboundClearanceDecisionsQueueName)
+                    .Instances(options.ConsumersPerHost)
+            );
     }
 }

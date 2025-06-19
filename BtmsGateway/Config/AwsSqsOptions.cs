@@ -10,4 +10,6 @@ public class AwsSqsOptions
     public required string OutboundClearanceDecisionsQueueName { get; set; }
 
     public int ConsumersPerHost { get; init; } = 20;
+
+    public bool AutoStartConsumers { get; init; } = true;
 }

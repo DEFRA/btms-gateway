@@ -63,7 +63,16 @@ public static class ConfigureHealthChecks
         if (routingConfig == null || routingConfig.AutomatedHealthCheckDisabled)
             return builder;
 
-        foreach (var queues in routingConfig.NamedLinks.Where(x => x.Value.LinkType == LinkType.Queue))
+        foreach (
+            var queues in routingConfig.NamedLinks.Where(x =>
+                x.Value.LinkType == LinkType.Queue
+                && !string.Equals(
+                    x.Key,
+                    "InboundCustomsDeclarationReceivedTopic",
+                    StringComparison.InvariantCultureIgnoreCase
+                )
+            )
+        )
         {
             builder.AddTypeActivatedCheck<TopicHealthCheck>(
                 queues.Key,
@@ -75,6 +84,16 @@ public static class ConfigureHealthChecks
         return builder;
     }
 
+    [SuppressMessage(
+        "SonarLint",
+        "S1172",
+        Justification = "Parameter will be required immediately after the upcoming release"
+    )]
+    [SuppressMessage(
+        "SonarLint",
+        "S125",
+        Justification = "Commented code will be required immediately after the upcoming release"
+    )]
     private static IHealthChecksBuilder AddQueueChecks(
         this IHealthChecksBuilder builder,
         AwsSqsOptions? awsSqsOptions,
@@ -84,15 +103,20 @@ public static class ConfigureHealthChecks
         if (awsSqsOptions is null || string.IsNullOrEmpty(awsSqsOptions.OutboundClearanceDecisionsQueueName))
             return builder;
 
-        builder.AddTypeActivatedCheck<QueueHealthCheck>(
-            "OutboundClearanceDecisionsQueue",
-            failureStatus: HealthStatus.Unhealthy,
-            args: ["OutboundClearanceDecisionsQueue", awsSqsOptions.OutboundClearanceDecisionsQueueName, configuration]
-        );
+        // builder.AddTypeActivatedCheck<QueueHealthCheck>(
+        //     "OutboundClearanceDecisionsQueue",
+        //     failureStatus: HealthStatus.Unhealthy,
+        //     args: ["OutboundClearanceDecisionsQueue", awsSqsOptions.OutboundClearanceDecisionsQueueName, configuration]
+        // );
 
         return builder;
     }
 
+    [SuppressMessage(
+        "SonarLint",
+        "S125",
+        Justification = "Commented code will be required immediately after the upcoming release"
+    )]
     private static IHealthChecksBuilder AddApiChecks(
         this IHealthChecksBuilder builder,
         DataApiOptions? dataApiOptions,
@@ -101,20 +125,20 @@ public static class ConfigureHealthChecks
     {
         if (dataApiOptions is not null && !string.IsNullOrEmpty(dataApiOptions.BaseAddress))
         {
-            builder.AddTypeActivatedCheck<ApiHealthCheck<DataApiOptions>>(
-                "TradeImportsDataApi",
-                failureStatus: HealthStatus.Unhealthy,
-                args: ["TradeImportsDataApi", "/health/authorized", dataApiOptions]
-            );
+            // builder.AddTypeActivatedCheck<ApiHealthCheck<DataApiOptions>>(
+            //     "TradeImportsDataApi",
+            //     failureStatus: HealthStatus.Unhealthy,
+            //     args: ["TradeImportsDataApi", "/health/authorized", dataApiOptions]
+            // );
         }
 
         if (decisionComparerApiOptions is not null && !string.IsNullOrEmpty(decisionComparerApiOptions.BaseAddress))
         {
-            builder.AddTypeActivatedCheck<ApiHealthCheck<DecisionComparerApiOptions>>(
-                "TradeImportsDecisionComparerApi",
-                failureStatus: HealthStatus.Unhealthy,
-                args: ["DecisionComparerApi", "/health/authorized", decisionComparerApiOptions]
-            );
+            // builder.AddTypeActivatedCheck<ApiHealthCheck<DecisionComparerApiOptions>>(
+            //     "TradeImportsDecisionComparerApi",
+            //     failureStatus: HealthStatus.Unhealthy,
+            //     args: ["DecisionComparerApi", "/health/authorized", decisionComparerApiOptions]
+            // );
         }
 
         return builder;

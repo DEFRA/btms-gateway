@@ -115,6 +115,14 @@ public class RoutingInterceptor(
                 routingResult.StatusCode,
                 routingResult.ResponseContent
             );
+
+            requestMetrics.MessageSuccessfullySent(
+                routingResult.MessageSubXPath,
+                routingResult.UrlPath,
+                routingResult.Legend,
+                action
+            );
+
             return;
         }
 
@@ -132,13 +140,18 @@ public class RoutingInterceptor(
 
     private void LogRouteNotFoundResults(MessageData messageData, RoutingResult routingResult, string action)
     {
-        logger.Information(
+        logger.Warning(
             "{ContentCorrelationId} {MessageReference} {Action} not {Reason} for [{HttpString}]",
             messageData.ContentMap.CorrelationId,
             messageData.ContentMap.MessageReference,
             action,
-            routingResult.RouteLinkType == LinkType.None ? "configured" : "supported",
+            GetReason(action == RouteAction ? routingResult.RouteLinkType : routingResult.ForkLinkType),
             messageData.HttpString
         );
+    }
+
+    private static string GetReason(LinkType linkType)
+    {
+        return linkType == LinkType.None ? "configured" : "supported";
     }
 }

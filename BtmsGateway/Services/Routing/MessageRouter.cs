@@ -48,7 +48,8 @@ public class MessageRouter(
                     messageData.OriginalSoapContent.RawSoapString,
                     MessagingConstants.MessageSource.Alvs,
                     routingResult,
-                    messageData.Headers
+                    messageData.Headers,
+                    messageData.ContentMap.CorrelationId
                 ),
                 _ => routingResult,
             };
@@ -97,7 +98,8 @@ public class MessageRouter(
                     messageData.OriginalSoapContent.RawSoapString,
                     MessagingConstants.MessageSource.Alvs,
                     routingResult,
-                    messageData.Headers
+                    messageData.Headers,
+                    messageData.ContentMap.CorrelationId
                 ),
                 _ => routingResult,
             };

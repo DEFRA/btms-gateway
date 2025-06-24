@@ -2,6 +2,7 @@ using System.Net;
 using BtmsGateway.Domain;
 using BtmsGateway.Exceptions;
 using BtmsGateway.Utils;
+using Microsoft.FeatureManagement;
 using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Services.Routing;
@@ -14,6 +15,7 @@ public interface IErrorNotificationSender
         MessagingConstants.MessageSource messageSource,
         RoutingResult routingResult,
         IHeaderDictionary? headers = null,
+        string? correlationId = null,
         CancellationToken cancellationToken = default
     );
 }
@@ -22,17 +24,26 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
 {
     private readonly Destination _btmsOutboundErrorsDestination;
     private readonly Destination _alvsOutboundErrorsDestination;
+    private readonly Destination _btmsToCdsDestination;
     private readonly IApiSender _apiSender;
     private readonly ILogger _logger;
+    private readonly IFeatureManager _featureManager;
 
-    public ErrorNotificationSender(RoutingConfig? routingConfig, IApiSender apiSender, ILogger logger)
-        : base(routingConfig, logger)
+    public ErrorNotificationSender(
+        RoutingConfig? routingConfig,
+        IApiSender apiSender,
+        IFeatureManager featureManager,
+        ILogger logger
+    )
+        : base(apiSender, routingConfig, logger)
     {
         _apiSender = apiSender;
+        _featureManager = featureManager;
         _logger = logger;
 
         _btmsOutboundErrorsDestination = GetDestination(MessagingConstants.Destinations.BtmsOutboundErrors);
         _alvsOutboundErrorsDestination = GetDestination(MessagingConstants.Destinations.AlvsOutboundErrors);
+        _btmsToCdsDestination = GetDestination(MessagingConstants.Destinations.BtmsCds);
     }
 
     public async Task<RoutingResult> SendErrorNotificationAsync(
@@ -41,6 +52,7 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
         MessagingConstants.MessageSource messageSource,
         RoutingResult routingResult,
         IHeaderDictionary? headers = null,
+        string? correlationId = null,
         CancellationToken cancellationToken = default
     )
     {
@@ -83,7 +95,13 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
             throw new DecisionComparisonException($"{mrn} Failed to send Error Notification to Decision Comparer.");
         }
 
-        ForwardErrorNotificationAsync(mrn, messageSource);
+        var cdsResponse = await ForwardErrorNotificationAsync(
+            mrn,
+            messageSource,
+            errorNotification,
+            correlationId,
+            cancellationToken
+        );
 
         return routingResult with
         {
@@ -93,19 +111,60 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
             RoutingSuccessful = true,
             FullRouteLink = destinationConfig.DestinationUrl,
             FullForkLink = destinationConfig.DestinationUrl,
-            StatusCode = HttpStatusCode.NoContent,
-            ResponseContent = string.Empty,
+            StatusCode = cdsResponse?.StatusCode ?? HttpStatusCode.NoContent,
+            ResponseContent = await GetResponseContentAsync(cdsResponse, cancellationToken),
         };
     }
 
-    private void ForwardErrorNotificationAsync(string? mrn, MessagingConstants.MessageSource messageSource)
+    private async Task<HttpResponseMessage?> ForwardErrorNotificationAsync(
+        string? mrn,
+        MessagingConstants.MessageSource messageSource,
+        string errorNotification,
+        string? correlationId,
+        CancellationToken cancellationToken
+    )
     {
-        if (messageSource == MessagingConstants.MessageSource.Btms)
+        if (
+            (
+                await _featureManager.IsEnabledAsync(Features.SendOnlyBtmsErrorNotificationToCds)
+                && messageSource == MessagingConstants.MessageSource.Btms
+            )
+            || (
+                !await _featureManager.IsEnabledAsync(Features.SendOnlyBtmsErrorNotificationToCds)
+                && messageSource == MessagingConstants.MessageSource.Alvs
+            )
+        )
         {
-            _logger.Information("{MRN} Produced Error Notification to send to CDS", mrn);
-            // Just log error notification for now. Eventually, in cut over, will send the notification to CDS.
-            // Ensure original ALVS request headers are passed through and appended in the CDS request!
-            // Pass the CDS response back out!
+            _logger.Debug("{MRN} Sending {MessageSource} Error Notification to CDS.", mrn, messageSource);
+
+            var response = await SendCdsFormattedSoapMessageAsync(
+                errorNotification,
+                correlationId,
+                _btmsToCdsDestination,
+                cancellationToken
+            );
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.Error(
+                    "{MRN} Failed to send error notification to CDS. CDS Response Status Code: {StatusCode}, Reason: {Reason}, Content: {Content}",
+                    mrn,
+                    response.StatusCode,
+                    response.ReasonPhrase,
+                    await GetResponseContentAsync(response, cancellationToken)
+                );
+                throw new DecisionComparisonException($"{mrn} Failed to send error notification to CDS.");
+            }
+
+            _logger.Information(
+                "{MRN} Successfully sent {MessageSource} Error Notification to CDS.",
+                mrn,
+                messageSource
+            );
+
+            return response;
         }
+
+        return null;
     }
 }

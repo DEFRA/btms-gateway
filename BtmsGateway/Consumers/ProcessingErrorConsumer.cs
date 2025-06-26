@@ -46,6 +46,7 @@ public class ProcessingErrorConsumer(
                 soapMessage,
                 MessagingConstants.MessageSource.Btms,
                 new RoutingResult(),
+                correlationId: latestProcessingError.CorrelationId,
                 cancellationToken: cancellationToken
             );
 

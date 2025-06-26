@@ -22,9 +22,6 @@ public interface IDecisionSender
 
 public class DecisionSender : SoapMessageSenderBase, IDecisionSender
 {
-    private const string CorrelationIdHeaderName = "CorrelationId";
-    private const string AcceptHeaderName = "Accept";
-
     private readonly IApiSender _apiSender;
     private readonly IFeatureManager _featureManager;
     private readonly ILogger _logger;
@@ -38,7 +35,7 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
         IFeatureManager featureManager,
         ILogger logger
     )
-        : base(routingConfig, logger)
+        : base(apiSender, routingConfig, logger)
     {
         _apiSender = apiSender;
         _featureManager = featureManager;
@@ -131,7 +128,26 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
         {
             _logger.Debug("{MRN} Sending BTMS Decision to CDS.", mrn);
 
-            return await SendCdsFormattedSoapMessageAsync(mrn, originalDecision, correlationId, cancellationToken);
+            var response = await SendCdsFormattedSoapMessageAsync(
+                originalDecision,
+                correlationId,
+                _btmsToCdsDestination,
+                cancellationToken
+            );
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.Error(
+                    "{MRN} Failed to send clearance decision to CDS. CDS Response Status Code: {StatusCode}, Reason: {Reason}, Content: {Content}",
+                    mrn,
+                    response.StatusCode,
+                    response.ReasonPhrase,
+                    await GetResponseContentAsync(response, cancellationToken)
+                );
+                throw new DecisionComparisonException($"{mrn} Failed to send clearance decision to CDS.");
+            }
+
+            return response;
         }
 
         if (
@@ -157,43 +173,5 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
         }
 
         return null;
-    }
-
-    private async Task<HttpResponseMessage?> SendCdsFormattedSoapMessageAsync(
-        string? mrn,
-        string soapMessage,
-        string? correlationId,
-        CancellationToken cancellationToken
-    )
-    {
-        var destination = string.Concat(_btmsToCdsDestination.Link, _btmsToCdsDestination.RoutePath);
-        var headers = new Dictionary<string, string> { { AcceptHeaderName, _btmsToCdsDestination.ContentType } };
-
-        if (!string.IsNullOrWhiteSpace(correlationId))
-            headers.Add(CorrelationIdHeaderName, correlationId);
-
-        var response = await _apiSender.SendSoapMessageAsync(
-            _btmsToCdsDestination.Method ?? "POST",
-            destination,
-            _btmsToCdsDestination.ContentType,
-            _btmsToCdsDestination.HostHeader,
-            headers,
-            soapMessage,
-            cancellationToken
-        );
-
-        if (!response.IsSuccessStatusCode)
-        {
-            _logger.Error(
-                "{MRN} Failed to send clearance decision to CDS. CDS Response Status Code: {StatusCode}, Reason: {Reason}, Content: {Content}",
-                mrn,
-                response.StatusCode,
-                response.ReasonPhrase,
-                await GetResponseContentAsync(response, cancellationToken)
-            );
-            throw new DecisionComparisonException($"{mrn} Failed to send clearance decision to CDS.");
-        }
-
-        return response;
     }
 }

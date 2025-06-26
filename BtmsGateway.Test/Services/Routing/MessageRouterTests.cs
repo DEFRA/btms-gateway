@@ -619,6 +619,7 @@ public class MessageRouterTests
                     Arg.Any<MessagingConstants.MessageSource>(),
                     Arg.Any<RoutingResult>(),
                     Arg.Any<HeaderDictionary>(),
+                    Arg.Any<string>(),
                     Arg.Any<CancellationToken>()
                 )
                 .Returns(
@@ -639,6 +640,7 @@ public class MessageRouterTests
                     Arg.Any<MessagingConstants.MessageSource>(),
                     Arg.Any<RoutingResult>(),
                     Arg.Any<HeaderDictionary>(),
+                    Arg.Any<string>(),
                     Arg.Any<CancellationToken>()
                 )
                 .ThrowsAsync<Exception>();

@@ -1,10 +1,14 @@
 using System.Net;
+using BtmsGateway.Exceptions;
 using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Services.Routing;
 
-public abstract class SoapMessageSenderBase(RoutingConfig? routingConfig, ILogger logger)
+public abstract class SoapMessageSenderBase(IApiSender apiSender, RoutingConfig? routingConfig, ILogger logger)
 {
+    private const string CorrelationIdHeaderName = "CorrelationId";
+    private const string AcceptHeaderName = "Accept";
+
     protected Destination GetDestination(string destinationKey)
     {
         Destination? destination = null;
@@ -19,6 +23,30 @@ public abstract class SoapMessageSenderBase(RoutingConfig? routingConfig, ILogge
         }
 
         return destination;
+    }
+
+    protected async Task<HttpResponseMessage> SendCdsFormattedSoapMessageAsync(
+        string soapMessage,
+        string? correlationId,
+        Destination btmsToCdsDestination,
+        CancellationToken cancellationToken
+    )
+    {
+        var destination = string.Concat(btmsToCdsDestination.Link, btmsToCdsDestination.RoutePath);
+        var headers = new Dictionary<string, string> { { AcceptHeaderName, btmsToCdsDestination.ContentType } };
+
+        if (!string.IsNullOrWhiteSpace(correlationId))
+            headers.Add(CorrelationIdHeaderName, correlationId);
+
+        return await apiSender.SendSoapMessageAsync(
+            btmsToCdsDestination.Method ?? "POST",
+            destination,
+            btmsToCdsDestination.ContentType,
+            btmsToCdsDestination.HostHeader,
+            headers,
+            soapMessage,
+            cancellationToken
+        );
     }
 
     protected static (string DestinationUrl, string ContentType) GetDestinationConfiguration(

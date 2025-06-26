@@ -44,6 +44,7 @@ public class ProcessingErrorConsumerTests
                 Arg.Any<MessagingConstants.MessageSource>(),
                 Arg.Any<RoutingResult>(),
                 Arg.Any<IHeaderDictionary>(),
+                Arg.Any<string>(),
                 Arg.Any<CancellationToken>()
             )
             .Returns(sendErrorNotificationResult);
@@ -58,6 +59,7 @@ public class ProcessingErrorConsumerTests
                 Arg.Any<MessagingConstants.MessageSource>(),
                 Arg.Any<RoutingResult>(),
                 Arg.Any<IHeaderDictionary>(),
+                Arg.Any<string>(),
                 Arg.Any<CancellationToken>()
             );
     }
@@ -82,6 +84,7 @@ public class ProcessingErrorConsumerTests
                 Arg.Any<MessagingConstants.MessageSource>(),
                 Arg.Any<RoutingResult>(),
                 Arg.Any<IHeaderDictionary>(),
+                Arg.Any<string>(),
                 Arg.Any<CancellationToken>()
             );
     }
@@ -107,6 +110,7 @@ public class ProcessingErrorConsumerTests
                 Arg.Any<MessagingConstants.MessageSource>(),
                 Arg.Any<RoutingResult>(),
                 Arg.Any<IHeaderDictionary>(),
+                Arg.Any<string>(),
                 Arg.Any<CancellationToken>()
             );
     }
@@ -132,6 +136,7 @@ public class ProcessingErrorConsumerTests
                 Arg.Any<MessagingConstants.MessageSource>(),
                 Arg.Any<RoutingResult>(),
                 Arg.Any<IHeaderDictionary>(),
+                Arg.Any<string>(),
                 Arg.Any<CancellationToken>()
             );
     }
@@ -156,6 +161,7 @@ public class ProcessingErrorConsumerTests
                 Arg.Any<MessagingConstants.MessageSource>(),
                 Arg.Any<RoutingResult>(),
                 Arg.Any<IHeaderDictionary>(),
+                Arg.Any<string>(),
                 Arg.Any<CancellationToken>()
             )
             .Returns(sendErrorNotificationResult);

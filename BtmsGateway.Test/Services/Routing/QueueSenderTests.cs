@@ -12,7 +12,7 @@ namespace BtmsGateway.Test.Services.Routing;
 public class QueueSenderTests
 {
     IConfiguration config = new ConfigurationBuilder()
-        .AddInMemoryCollection(new List<KeyValuePair<string, string>>() { new("traceHeader", "trace-header") })
+        .AddInMemoryCollection(new List<KeyValuePair<string, string>> { new("traceHeader", "trace-header") })
         .Build();
 
     [Fact]
@@ -21,7 +21,7 @@ public class QueueSenderTests
         // Arrange
         var mocks = CreateMocks(HttpStatusCode.BadRequest);
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
-        var sut = new QueueSender(mocks.SnsService, config);
+        var sut = new QueueSender(mocks.SnsService, config, mocks.Logger);
 
         // Act
         var response = await sut.Send(msgData.Routing, msgData.MessageData, "");
@@ -29,6 +29,7 @@ public class QueueSenderTests
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         response.RoutingSuccessful.Should().BeFalse();
+        response.ResponseContent.Should().Contain("Failed to publish message to inbound topic");
     }
 
     [Fact]
@@ -37,7 +38,7 @@ public class QueueSenderTests
         // Arrange
         var mocks = CreateMocks();
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
-        var sut = new QueueSender(mocks.SnsService, config);
+        var sut = new QueueSender(mocks.SnsService, config, mocks.Logger);
 
         // Act
         var response = await sut.Send(msgData.Routing, msgData.MessageData, "");
@@ -45,6 +46,7 @@ public class QueueSenderTests
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         response.RoutingSuccessful.Should().BeTrue();
+        response.ResponseContent.Should().Contain("<StatusCode>000</StatusCode>");
     }
 
     [Fact]
@@ -53,7 +55,7 @@ public class QueueSenderTests
         // Arrange
         var mocks = CreateMocks(HttpStatusCode.BadRequest);
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
-        var sut = new QueueSender(mocks.SnsService, config);
+        var sut = new QueueSender(mocks.SnsService, config, mocks.Logger);
 
         // Act
         var response = await sut.Send(msgData.Routing, msgData.MessageData, "");
@@ -61,6 +63,7 @@ public class QueueSenderTests
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         response.RoutingSuccessful.Should().BeFalse();
+        response.ResponseContent.Should().Contain("Failed to publish message to inbound topic");
     }
 
     [Fact]
@@ -69,7 +72,7 @@ public class QueueSenderTests
         // Arrange
         var mocks = CreateMocks();
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
-        var sut = new QueueSender(mocks.SnsService, config);
+        var sut = new QueueSender(mocks.SnsService, config, mocks.Logger);
 
         // Act
         var response = await sut.Send(msgData.Routing, msgData.MessageData, "");
@@ -77,6 +80,7 @@ public class QueueSenderTests
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         response.RoutingSuccessful.Should().BeTrue();
+        response.ResponseContent.Should().Contain("<StatusCode>000</StatusCode>");
     }
 
     [Fact]
@@ -85,7 +89,7 @@ public class QueueSenderTests
         // Arrange
         var mocks = CreateMocks();
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
-        var sut = new QueueSender(mocks.SnsService, config);
+        var sut = new QueueSender(mocks.SnsService, config, mocks.Logger);
 
         // Act
         var response = await sut.Send(msgData.Routing, msgData.MessageData, "");
@@ -93,6 +97,7 @@ public class QueueSenderTests
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         response.RoutingSuccessful.Should().BeTrue();
+        response.ResponseContent.Should().Contain("<StatusCode>000</StatusCode>");
     }
 
     private static (IAmazonSimpleNotificationService SnsService, ILogger Logger) CreateMocks(

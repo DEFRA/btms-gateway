@@ -106,7 +106,7 @@ public class ErrorNotificationSenderTests
             );
 
         await _apiSender
-            .Received(1)
+            .Received(0)
             .SendSoapMessageAsync(
                 Arg.Any<string>(),
                 Arg.Any<string>(),
@@ -210,7 +210,7 @@ public class ErrorNotificationSenderTests
             );
 
         await _apiSender
-            .Received(1)
+            .Received(0)
             .SendSoapMessageAsync(
                 Arg.Any<string>(),
                 Arg.Any<string>(),
@@ -448,32 +448,32 @@ public class ErrorNotificationSenderTests
         thrownException.Message.Should().Be("mrn-123 Failed to send Error Notification to Decision Comparer.");
     }
 
-    [Fact]
-    public async Task When_sending_error_notification_to_cds_fails_Then_exception_is_thrown()
-    {
-        var cdsResponse = new HttpResponseMessage(HttpStatusCode.BadRequest);
-
-        _apiSender
-            .SendSoapMessageAsync(
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<Dictionary<string, string>>(),
-                Arg.Any<string>(),
-                Arg.Any<CancellationToken>()
-            )
-            .Returns(cdsResponse);
-
-        var thrownException = await Assert.ThrowsAsync<DecisionComparisonException>(() =>
-            _errorNotificationSender.SendErrorNotificationAsync(
-                "mrn-123",
-                "<HMRCErrorNotification />",
-                MessagingConstants.MessageSource.Alvs,
-                new RoutingResult(),
-                cancellationToken: CancellationToken.None
-            )
-        );
-        thrownException.Message.Should().Be("mrn-123 Failed to send error notification to CDS.");
-    }
+    // [Fact]
+    // public async Task When_sending_error_notification_to_cds_fails_Then_exception_is_thrown()
+    // {
+    //     var cdsResponse = new HttpResponseMessage(HttpStatusCode.BadRequest);
+    //
+    //     _apiSender
+    //         .SendSoapMessageAsync(
+    //             Arg.Any<string>(),
+    //             Arg.Any<string>(),
+    //             Arg.Any<string>(),
+    //             Arg.Any<string>(),
+    //             Arg.Any<Dictionary<string, string>>(),
+    //             Arg.Any<string>(),
+    //             Arg.Any<CancellationToken>()
+    //         )
+    //         .Returns(cdsResponse);
+    //
+    //     var thrownException = await Assert.ThrowsAsync<DecisionComparisonException>(() =>
+    //         _errorNotificationSender.SendErrorNotificationAsync(
+    //             "mrn-123",
+    //             "<HMRCErrorNotification />",
+    //             MessagingConstants.MessageSource.Alvs,
+    //             new RoutingResult(),
+    //             cancellationToken: CancellationToken.None
+    //         )
+    //     );
+    //     thrownException.Message.Should().Be("mrn-123 Failed to send error notification to CDS.");
+    // }
 }

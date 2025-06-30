@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using BtmsGateway.Domain;
 using BtmsGateway.Exceptions;
@@ -46,6 +47,11 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
         _btmsToCdsDestination = GetDestination(MessagingConstants.Destinations.BtmsCds);
     }
 
+    [SuppressMessage(
+        "SonarLint",
+        "S125",
+        Justification = "Commented code will be required immediately after the upcoming release"
+    )]
     public async Task<RoutingResult> SendErrorNotificationAsync(
         string? mrn,
         string? errorNotification,
@@ -57,7 +63,8 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
     )
     {
         _logger.Debug(
-            "{MRN} Sending error notification from {MessageSource} to Decision Comparer.",
+            "{CorrelationId} {MRN} Sending error notification from {MessageSource} to Decision Comparer.",
+            correlationId,
             mrn,
             messageSource
         );
@@ -87,7 +94,8 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
         if (!comparerResponse.StatusCode.IsSuccessStatusCode())
         {
             _logger.Error(
-                "{MRN} Failed to send Error Notification to Decision Comparer: Status Code: {ComparerResponseStatusCode}, Reason: {ComparerResponseReason}.",
+                "{CorrelationId} {MRN} Failed to send Error Notification to Decision Comparer: Status Code: {ComparerResponseStatusCode}, Reason: {ComparerResponseReason}.",
+                correlationId,
                 mrn,
                 comparerResponse.StatusCode,
                 comparerResponse.ReasonPhrase
@@ -95,13 +103,14 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
             throw new DecisionComparisonException($"{mrn} Failed to send Error Notification to Decision Comparer.");
         }
 
-        var cdsResponse = await ForwardErrorNotificationAsync(
-            mrn,
-            messageSource,
-            errorNotification,
-            correlationId,
-            cancellationToken
-        );
+        // var cdsResponse = await ForwardErrorNotificationAsync(
+        //     mrn,
+        //     messageSource,
+        //     errorNotification,
+        //     correlationId,
+        //     cancellationToken
+        // );
+        ForwardErrorNotificationAsync(mrn, messageSource);
 
         return routingResult with
         {
@@ -111,11 +120,29 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
             RoutingSuccessful = true,
             FullRouteLink = destinationConfig.DestinationUrl,
             FullForkLink = destinationConfig.DestinationUrl,
-            StatusCode = cdsResponse?.StatusCode ?? HttpStatusCode.NoContent,
-            ResponseContent = await GetResponseContentAsync(cdsResponse, cancellationToken),
+            StatusCode = HttpStatusCode.NoContent,
+            ResponseContent = string.Empty,
+            // StatusCode = cdsResponse?.StatusCode ?? HttpStatusCode.NoContent,
+            // ResponseContent = await GetResponseContentAsync(cdsResponse, cancellationToken),
         };
     }
 
+    private void ForwardErrorNotificationAsync(string? mrn, MessagingConstants.MessageSource messageSource)
+    {
+        if (messageSource == MessagingConstants.MessageSource.Btms)
+        {
+            _logger.Information("{MRN} Produced Error Notification to send to CDS", mrn);
+            // Just log error notification for now. Eventually, in cut over, will send the notification to CDS.
+            // Ensure original ALVS request headers are passed through and appended in the CDS request!
+            // Pass the CDS response back out!
+        }
+    }
+
+    [SuppressMessage(
+        "SonarLint",
+        "S1144",
+        Justification = "Commented code will be required immediately after the upcoming release"
+    )]
     private async Task<HttpResponseMessage?> ForwardErrorNotificationAsync(
         string? mrn,
         MessagingConstants.MessageSource messageSource,
@@ -135,7 +162,12 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
             )
         )
         {
-            _logger.Debug("{MRN} Sending {MessageSource} Error Notification to CDS.", mrn, messageSource);
+            _logger.Debug(
+                "{CorrelationId} {MRN} Sending {MessageSource} Error Notification to CDS.",
+                correlationId,
+                mrn,
+                messageSource
+            );
 
             var response = await SendCdsFormattedSoapMessageAsync(
                 errorNotification,
@@ -147,7 +179,8 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
             if (!response.IsSuccessStatusCode)
             {
                 _logger.Error(
-                    "{MRN} Failed to send error notification to CDS. CDS Response Status Code: {StatusCode}, Reason: {Reason}, Content: {Content}",
+                    "{CorrelationId} {MRN} Failed to send error notification to CDS. CDS Response Status Code: {StatusCode}, Reason: {Reason}, Content: {Content}",
+                    correlationId,
                     mrn,
                     response.StatusCode,
                     response.ReasonPhrase,
@@ -157,7 +190,8 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
             }
 
             _logger.Information(
-                "{MRN} Successfully sent {MessageSource} Error Notification to CDS.",
+                "{CorrelationId} {MRN} Successfully sent {MessageSource} Error Notification to CDS.",
+                correlationId,
                 mrn,
                 messageSource
             );

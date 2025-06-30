@@ -21,7 +21,12 @@ public class DifferentMessageTypesOnSameRouteTests
             Substitute.For<ILogger>()
         );
 
-        var route = messageRoutes.GetRoute("/route/path-A/sub/path", CreateSoap("Message1"));
+        var route = messageRoutes.GetRoute(
+            "/route/path-A/sub/path",
+            CreateSoap("Message1"),
+            "test-correlation-id",
+            "test-mrn"
+        );
 
         route.RouteFound.Should().BeTrue();
         route.RouteName.Should().Be("route-1");
@@ -37,7 +42,12 @@ public class DifferentMessageTypesOnSameRouteTests
             Substitute.For<ILogger>()
         );
 
-        var route = messageRoutes.GetRoute("/route/path-A/sub/path", CreateSoap("Message2"));
+        var route = messageRoutes.GetRoute(
+            "/route/path-A/sub/path",
+            CreateSoap("Message2"),
+            "test-correlation-id",
+            "test-mrn"
+        );
 
         route.RouteFound.Should().BeTrue();
         route.RouteName.Should().Be("route-2");

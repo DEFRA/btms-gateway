@@ -17,7 +17,12 @@ public class MessageRoutesTests
     {
         var messageRoutes = new MessageRoutes(TestRoutes.RoutingConfig, Substitute.For<ILogger>());
 
-        var route = messageRoutes.GetRoute("/route/path-1/sub/path/", GetSoap("Message1"));
+        var route = messageRoutes.GetRoute(
+            "/route/path-1/sub/path/",
+            GetSoap("Message1"),
+            "test-correlation-id",
+            "test-mrn"
+        );
 
         route.RouteFound.Should().BeTrue();
         route.RouteName.Should().Be("route-1");
@@ -39,7 +44,12 @@ public class MessageRoutesTests
     {
         var messageRoutes = new MessageRoutes(TestRoutes.RoutingConfig, Substitute.For<ILogger>());
 
-        var route = messageRoutes.GetRoute("/route/path-2/sub/path/", GetSoap("Message2"));
+        var route = messageRoutes.GetRoute(
+            "/route/path-2/sub/path/",
+            GetSoap("Message2"),
+            "test-correlation-id",
+            "test-mrn"
+        );
 
         route.RouteFound.Should().BeTrue();
         route.RouteName.Should().Be("route-2");
@@ -60,7 +70,12 @@ public class MessageRoutesTests
     {
         var messageRoutes = new MessageRoutes(TestRoutes.RoutingConfig, Substitute.For<ILogger>());
 
-        var route = messageRoutes.GetRoute("/route/path-3/sub/path/", GetSoap("Message3"));
+        var route = messageRoutes.GetRoute(
+            "/route/path-3/sub/path/",
+            GetSoap("Message3"),
+            "test-correlation-id",
+            "test-mrn"
+        );
 
         route.RouteFound.Should().BeTrue();
         route.RouteName.Should().Be("route-3");
@@ -81,7 +96,12 @@ public class MessageRoutesTests
     {
         var messageRoutes = new MessageRoutes(TestRoutes.RoutingConfig, Substitute.For<ILogger>());
 
-        var route = messageRoutes.GetRoute("/route/path-4/sub/path/", GetSoap("Message4"));
+        var route = messageRoutes.GetRoute(
+            "/route/path-4/sub/path/",
+            GetSoap("Message4"),
+            "test-correlation-id",
+            "test-mrn"
+        );
 
         route.RouteFound.Should().BeTrue();
         route.RouteName.Should().Be("route-4");
@@ -102,7 +122,12 @@ public class MessageRoutesTests
     {
         var messageRoutes = new MessageRoutes(TestRoutes.RoutingConfig, Substitute.For<ILogger>());
 
-        var route = messageRoutes.GetRoute("/route-99/sub/path/", GetSoap("Message1"));
+        var route = messageRoutes.GetRoute(
+            "/route-99/sub/path/",
+            GetSoap("Message1"),
+            "test-correlation-id",
+            "test-mrn"
+        );
 
         route.RouteFound.Should().BeFalse();
         route.RouteName.Should().BeNull();

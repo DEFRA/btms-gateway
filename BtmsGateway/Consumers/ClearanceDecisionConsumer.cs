@@ -23,9 +23,9 @@ public class ClearanceDecisionConsumer(IDecisionSender decisionSender, ILogger<C
             return;
         }
 
-        logger.LogInformation("Clearance Decision Resource Event received from queue.");
-
         var mrn = message.ResourceId;
+
+        logger.LogInformation("{MRN} Clearance Decision Resource Event received from queue.", mrn);
 
         try
         {

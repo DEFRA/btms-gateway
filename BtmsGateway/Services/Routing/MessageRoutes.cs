@@ -8,7 +8,7 @@ namespace BtmsGateway.Services.Routing;
 
 public interface IMessageRoutes
 {
-    RoutingResult GetRoute(string routePath, SoapContent soapContent);
+    RoutingResult GetRoute(string routePath, SoapContent soapContent, string? correlationId, string? mrn);
 }
 
 public class MessageRoutes : IMessageRoutes
@@ -40,7 +40,7 @@ public class MessageRoutes : IMessageRoutes
         }
     }
 
-    public RoutingResult GetRoute(string routePath, SoapContent soapContent)
+    public RoutingResult GetRoute(string routePath, SoapContent soapContent, string? correlationId, string? mrn)
     {
         string routeName;
         try
@@ -65,7 +65,7 @@ public class MessageRoutes : IMessageRoutes
         }
         catch (Exception ex)
         {
-            _logger.Error(ex, "Error getting route");
+            _logger.Error(ex, "{ContentCorrelationId} {MRN} Error getting route", correlationId, mrn);
             return new RoutingResult
             {
                 RouteFound = false,

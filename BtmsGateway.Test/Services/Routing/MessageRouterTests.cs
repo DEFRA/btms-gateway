@@ -523,7 +523,9 @@ public class MessageRouterTests
                     FullRouteLink = "full-route-link",
                 };
 
-        routes.GetRoute(Arg.Any<string>(), Arg.Any<SoapContent>()).Returns(routingResult);
+        routes
+            .GetRoute(Arg.Any<string>(), Arg.Any<SoapContent>(), Arg.Any<string>(), Arg.Any<string>())
+            .Returns(routingResult);
 
         var apiSender = Substitute.For<IApiSender>();
 

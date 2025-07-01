@@ -108,7 +108,11 @@ public class MessageData
     {
         var content = SoapToJsonConverter.Convert(OriginalSoapContent, messageSubXPath);
 
-        _logger.Debug("{ContentCorrelationId} Publish JSON content", ContentMap.CorrelationId);
+        _logger.Debug(
+            "{ContentCorrelationId} {MessageReference} Publish JSON content",
+            ContentMap.CorrelationId,
+            ContentMap.MessageReference
+        );
 
         var request = new PublishRequest
         {
@@ -129,16 +133,18 @@ public class MessageData
                     new MessageAttributeValue { StringValue = traceHeaderValue, DataType = "String" }
                 );
                 _logger.Debug(
-                    "{ContentCorrelationId} TraceHeaderKey found and set to {TraceValue}",
+                    "{ContentCorrelationId} {MessageReference} TraceHeaderKey found and set to {TraceValue}",
                     ContentMap.CorrelationId,
+                    ContentMap.MessageReference,
                     traceHeaderValue
                 );
             }
             else
             {
                 _logger.Debug(
-                    "{ContentCorrelationId} TraceHeaderKey not found {TraceHeaderKey}",
+                    "{ContentCorrelationId} {MessageReference} TraceHeaderKey not found {TraceHeaderKey}",
                     ContentMap.CorrelationId,
+                    ContentMap.MessageReference,
                     traceHeaderKey
                 );
             }
@@ -201,8 +207,9 @@ public class MessageData
                 new MessageAttributeValue { DataType = "String", StringValue = attributeValue }
             );
             _logger.Debug(
-                "{ContentCorrelationId} Message Type Attribute Value {AttributeValue} added for SOAP message type {SOAPMessageType}",
+                "{ContentCorrelationId} {MessageReference} Message Type Attribute Value {AttributeValue} added for SOAP message type {SOAPMessageType}",
                 ContentMap.CorrelationId,
+                ContentMap.MessageReference,
                 attributeValue,
                 messageSubXPath
             );
@@ -210,8 +217,9 @@ public class MessageData
         else
         {
             _logger.Debug(
-                "{ContentCorrelationId} Message Type Attribute Value not added for SOAP message type {SOAPMessageType}",
+                "{ContentCorrelationId} {MessageReference} Message Type Attribute Value not added for SOAP message type {SOAPMessageType}",
                 ContentMap.CorrelationId,
+                ContentMap.MessageReference,
                 messageSubXPath
             );
         }

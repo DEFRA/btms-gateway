@@ -15,9 +15,9 @@ public class ProcessingErrorConsumer(
 {
     public async Task OnHandle(ResourceEvent<ProcessingErrorResource> message, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Processing Error Resource Event received from queue.");
-
         var mrn = message.ResourceId;
+
+        logger.LogInformation("{MRN} Processing Error Resource Event received from queue.", mrn);
 
         if (message.Resource is null)
         {

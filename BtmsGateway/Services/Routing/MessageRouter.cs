@@ -23,7 +23,7 @@ public class MessageRouter(
 {
     public async Task<RoutingResult> Route(MessageData messageData, IMetrics metrics)
     {
-        var routingResult = messageRoutes.GetRoute(messageData.Path, messageData.OriginalSoapContent);
+        var routingResult = GetRoutingResult(messageData);
         if (!routingResult.RouteFound || routingResult.RouteLinkType == LinkType.None)
             return routingResult;
 
@@ -58,7 +58,7 @@ public class MessageRouter(
         }
         catch (Exception ex)
         {
-            logger.Error(ex, "Error routing");
+            LogError(ex, messageData, "routing");
             return routingResult with
             {
                 StatusCode = HttpStatusCode.ServiceUnavailable,
@@ -73,7 +73,7 @@ public class MessageRouter(
 
     public async Task<RoutingResult> Fork(MessageData messageData, IMetrics metrics)
     {
-        var routingResult = messageRoutes.GetRoute(messageData.Path, messageData.OriginalSoapContent);
+        var routingResult = GetRoutingResult(messageData);
         if (!routingResult.RouteFound || routingResult.ForkLinkType == LinkType.None)
             return routingResult;
 
@@ -108,7 +108,7 @@ public class MessageRouter(
         }
         catch (Exception ex)
         {
-            logger.Error(ex, "Error forking");
+            LogError(ex, messageData, "forking");
             return routingResult with
             {
                 StatusCode = HttpStatusCode.ServiceUnavailable,
@@ -119,5 +119,26 @@ public class MessageRouter(
         {
             metrics.RecordForkedRequest(routingResult);
         }
+    }
+
+    private void LogError(Exception? ex, MessageData messageData, string action)
+    {
+        logger.Error(
+            ex,
+            "{ContentCorrelationId} {MessageReference} Error {action}",
+            messageData.ContentMap.CorrelationId,
+            messageData.ContentMap.MessageReference,
+            action
+        );
+    }
+
+    private RoutingResult GetRoutingResult(MessageData messageData)
+    {
+        return messageRoutes.GetRoute(
+            messageData.Path,
+            messageData.OriginalSoapContent,
+            messageData.ContentMap.CorrelationId,
+            messageData.ContentMap.MessageReference
+        );
     }
 }

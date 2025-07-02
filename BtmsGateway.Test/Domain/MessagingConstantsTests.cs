@@ -10,7 +10,7 @@ public class MessagingConstantsTests
     [InlineData("")]
     [InlineData(" ")]
     [InlineData("FOO")]
-    public void When_soap_message_type_is_null_Then_message_type_is_unknown(string? soapMessageType)
+    public void When_soap_message_type_is_null_Then_message_type_is_unknown(string soapMessageType)
     {
         MessagingConstants.MessageTypes.FromSoapMessageType(soapMessageType).Should().Be("UnknownMessageType");
     }

@@ -482,7 +482,7 @@ public class ErrorNotificationSenderTests
             )
             .Returns(comparerResponse);
 
-        var thrownException = await Assert.ThrowsAsync<DecisionComparisonException>(() =>
+        var thrownException = await Assert.ThrowsAsync<ConflictException>(() =>
             _errorNotificationSender.SendErrorNotificationAsync(
                 "mrn-123",
                 "<HMRCErrorNotification />",

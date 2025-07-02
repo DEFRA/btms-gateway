@@ -370,7 +370,7 @@ public class DecisionSenderTests
             )
             .Returns(comparerResponse);
 
-        var thrownException = await Assert.ThrowsAsync<DecisionComparisonException>(() =>
+        var thrownException = await Assert.ThrowsAsync<ConflictException>(() =>
             _decisionSender.SendDecisionAsync(
                 "mrn-123",
                 "<AlvsDecisionNotification />",

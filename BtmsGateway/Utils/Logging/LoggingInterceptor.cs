@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
+using BtmsGateway.Exceptions;
 using BtmsGateway.Extensions;
 using SlimMessageBus;
 using SlimMessageBus.Host.Interceptor;
@@ -26,6 +27,16 @@ public class LoggingInterceptor<TMessage>(ILogger<LoggingInterceptor<TMessage>> 
             logger.LogWarning(
                 httpRequestException,
                 "409 Conflict processing message {MessageId} for resource {ResourceId}",
+                messageId,
+                resourceId
+            );
+            throw;
+        }
+        catch (ConflictException conflictException)
+        {
+            logger.LogWarning(
+                conflictException,
+                "Error processing message {MessageId} for resource {ResourceId}",
                 messageId,
                 resourceId
             );

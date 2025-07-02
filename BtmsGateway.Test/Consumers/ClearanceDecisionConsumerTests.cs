@@ -211,4 +211,27 @@ public class ClearanceDecisionConsumerTests
                 Arg.Any<CancellationToken>()
             );
     }
+
+    [Fact]
+    public async Task When_sending_to_comparer_returns_conflict_exception_Then_conflict_exception_is_thrown()
+    {
+        _decisionSender
+            .SendDecisionAsync(
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<MessagingConstants.MessageSource>(),
+                Arg.Any<RoutingResult>(),
+                Arg.Any<IHeaderDictionary>(),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>()
+            )
+            .ThrowsAsync(new ConflictException("Something went wrong"));
+
+        var thrownException = await Assert.ThrowsAsync<ConflictException>(() =>
+            _consumer.OnHandle(_message, CancellationToken.None)
+        );
+        thrownException.Message.Should().Be("24GB123456789AB012 Failed to process clearance decision resource event.");
+        thrownException.InnerException.Should().BeAssignableTo<Exception>();
+        thrownException.InnerException?.Message.Should().Be("Something went wrong");
+    }
 }

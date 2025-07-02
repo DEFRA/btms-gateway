@@ -86,13 +86,27 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
 
         if (!comparerResponse.StatusCode.IsSuccessStatusCode())
         {
-            _logger.Error(
-                "{CorrelationId} {MRN} Failed to send Decision to Decision Comparer: Status Code: {ComparerResponseStatusCode}, Reason: {ComparerResponseReason}.",
-                correlationId,
-                mrn,
-                comparerResponse.StatusCode,
-                comparerResponse.ReasonPhrase
-            );
+            if (comparerResponse.StatusCode == HttpStatusCode.Conflict)
+            {
+                _logger.Warning(
+                    "{CorrelationId} {MRN} Failed to send Decision to Decision Comparer: Status Code: {ComparerResponseStatusCode}, Reason: {ComparerResponseReason}.",
+                    correlationId,
+                    mrn,
+                    comparerResponse.StatusCode,
+                    comparerResponse.ReasonPhrase
+                );
+            }
+            else
+            {
+                _logger.Error(
+                    "{CorrelationId} {MRN} Failed to send Decision to Decision Comparer: Status Code: {ComparerResponseStatusCode}, Reason: {ComparerResponseReason}.",
+                    correlationId,
+                    mrn,
+                    comparerResponse.StatusCode,
+                    comparerResponse.ReasonPhrase
+                );
+            }
+
             throw new DecisionComparisonException($"{mrn} Failed to send Decision to Decision Comparer.");
         }
 

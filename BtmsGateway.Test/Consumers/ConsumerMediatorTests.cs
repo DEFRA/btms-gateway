@@ -1,3 +1,5 @@
+using System.IO.Compression;
+using System.Text;
 using System.Text.Json;
 using BtmsGateway.Consumers;
 using BtmsGateway.Domain;
@@ -35,16 +37,14 @@ public class ConsumerMediatorTests
             Context = context,
         };
 
-        var message = JsonSerializer.Deserialize<JsonElement>(
-            JsonSerializer.Serialize(
-                new ResourceEvent<CustomsDeclaration>
-                {
-                    ResourceId = "mrn",
-                    ResourceType = ResourceEventResourceTypes.CustomsDeclaration,
-                    Operation = ResourceEventOperations.Created,
-                    SubResourceType = ResourceEventSubResourceTypes.ClearanceDecision,
-                }
-            )
+        var message = JsonSerializer.Serialize(
+            new ResourceEvent<CustomsDeclaration>
+            {
+                ResourceId = "mrn",
+                ResourceType = ResourceEventResourceTypes.CustomsDeclaration,
+                Operation = ResourceEventOperations.Created,
+                SubResourceType = ResourceEventSubResourceTypes.ClearanceDecision,
+            }
         );
 
         var act = async () => await subject.OnHandle(message, CancellationToken.None);
@@ -71,16 +71,14 @@ public class ConsumerMediatorTests
             Context = context,
         };
 
-        var message = JsonSerializer.Deserialize<JsonElement>(
-            JsonSerializer.Serialize(
-                new ResourceEvent<ProcessingErrorResource>
-                {
-                    ResourceId = "mrn",
-                    ResourceType = ResourceEventResourceTypes.ProcessingError,
-                    Operation = ResourceEventOperations.Created,
-                    Resource = new ProcessingErrorResource { ProcessingErrors = [new ProcessingError()] },
-                }
-            )
+        var message = JsonSerializer.Serialize(
+            new ResourceEvent<ProcessingErrorResource>
+            {
+                ResourceId = "mrn",
+                ResourceType = ResourceEventResourceTypes.ProcessingError,
+                Operation = ResourceEventOperations.Created,
+                Resource = new ProcessingErrorResource { ProcessingErrors = [new ProcessingError()] },
+            }
         );
 
         var act = async () => await subject.OnHandle(message, CancellationToken.None);
@@ -107,19 +105,63 @@ public class ConsumerMediatorTests
             Context = context,
         };
 
-        var message = JsonSerializer.Deserialize<JsonElement>(
-            JsonSerializer.Serialize(
-                new ResourceEvent<CustomsDeclaration>
-                {
-                    ResourceId = "mrn",
-                    ResourceType = ResourceEventResourceTypes.ImportPreNotification,
-                    Operation = ResourceEventOperations.Created,
-                }
-            )
+        var message = JsonSerializer.Serialize(
+            new ResourceEvent<CustomsDeclaration>
+            {
+                ResourceId = "mrn",
+                ResourceType = ResourceEventResourceTypes.ImportPreNotification,
+                Operation = ResourceEventOperations.Created,
+            }
         );
 
         var act = async () => await subject.OnHandle(message, CancellationToken.None);
 
         await act.Should().NotThrowAsync<ClearanceDecisionProcessingException>();
+    }
+
+    [Fact]
+    public async Task WhenCompressedMessage_ShouldPassThroughToConsumer()
+    {
+        var context = Substitute.For<IConsumerContext>();
+        context.Headers.Returns(
+            new Dictionary<string, object>
+            {
+                { MessageBusHeaders.ResourceType, ResourceEventResourceTypes.CustomsDeclaration },
+                { MessageBusHeaders.ContentEncoding, "gzip, base64" },
+            }
+        );
+        var subject = new ConsumerMediator(
+            Substitute.For<IDecisionSender>(),
+            Substitute.For<IErrorNotificationSender>(),
+            Substitute.For<ILoggerFactory>()
+        )
+        {
+            Context = context,
+        };
+
+        var message = JsonSerializer.Serialize(
+            new ResourceEvent<CustomsDeclaration>
+            {
+                ResourceId = "mrn",
+                ResourceType = ResourceEventResourceTypes.CustomsDeclaration,
+                Operation = ResourceEventOperations.Created,
+                SubResourceType = ResourceEventSubResourceTypes.ClearanceDecision,
+            }
+        );
+
+        var act = async () => await subject.OnHandle(CompressMessage(message), CancellationToken.None);
+
+        await act.Should().ThrowAsync<ClearanceDecisionProcessingException>();
+    }
+
+    private static string CompressMessage(string message)
+    {
+        var buffer = Encoding.UTF8.GetBytes(message);
+        var memoryStream = new MemoryStream();
+        using var gzipStream = new GZipStream(memoryStream, CompressionLevel.Optimal);
+        gzipStream.Write(buffer, 0, buffer.Length);
+        gzipStream.Flush();
+
+        return Convert.ToBase64String(memoryStream.ToArray());
     }
 }

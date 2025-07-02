@@ -2,6 +2,8 @@ using System.Text.Json;
 using BtmsGateway.Domain;
 using BtmsGateway.Extensions;
 using BtmsGateway.Services.Routing;
+using BtmsGateway.Utils;
+using BtmsGateway.Utils.Logging;
 using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 using Defra.TradeImportsDataApi.Domain.Events;
 using SlimMessageBus;
@@ -12,14 +14,16 @@ public class ConsumerMediator(
     IDecisionSender decisionSender,
     IErrorNotificationSender errorNotificationSender,
     ILoggerFactory loggerFactory
-) : IConsumer<JsonElement>, IConsumerWithContext
+) : IConsumer<string>, IConsumerWithContext
 {
     private readonly ILogger<ConsumerMediator> _logger = loggerFactory.CreateLogger<ConsumerMediator>();
 
     public IConsumerContext Context { get; set; } = null!;
 
-    public Task OnHandle(JsonElement message, CancellationToken cancellationToken)
+    public Task OnHandle(string received, CancellationToken cancellationToken)
     {
+        var message = MessageDeserializer.Deserialize<JsonElement>(received, Context.Headers.GetContentEncoding());
+
         var resourceType = Context.GetResourceType();
 
         return resourceType switch

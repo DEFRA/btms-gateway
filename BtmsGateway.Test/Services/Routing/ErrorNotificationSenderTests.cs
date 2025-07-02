@@ -447,24 +447,8 @@ public class ErrorNotificationSenderTests
         );
         thrownException.Message.Should().Be("mrn-123 Failed to send Error Notification to Decision Comparer.");
 
-        _logger
-            .Received(1)
-            .Error(
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<HttpStatusCode>(),
-                Arg.Any<string>()
-            );
-        _logger
-            .DidNotReceiveWithAnyArgs()
-            .Warning(
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<HttpStatusCode>(),
-                Arg.Any<string>()
-            );
+        _logger.Received(1).Error(Arg.Any<string>());
+        _logger.DidNotReceiveWithAnyArgs().Warning(Arg.Any<string>());
     }
 
     [Fact]
@@ -493,24 +477,8 @@ public class ErrorNotificationSenderTests
         );
         thrownException.Message.Should().Be("mrn-123 Failed to send Error Notification to Decision Comparer.");
 
-        _logger
-            .Received(1)
-            .Warning(
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<HttpStatusCode>(),
-                Arg.Any<string>()
-            );
-        _logger
-            .DidNotReceiveWithAnyArgs()
-            .Error(
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<HttpStatusCode>(),
-                Arg.Any<string>()
-            );
+        _logger.Received(1).Warning(Arg.Any<string>());
+        _logger.DidNotReceiveWithAnyArgs().Error(Arg.Any<string>());
     }
 
     // [Fact]

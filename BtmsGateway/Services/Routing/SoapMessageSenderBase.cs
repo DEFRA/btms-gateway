@@ -1,5 +1,6 @@
 using System.Net;
 using BtmsGateway.Exceptions;
+using BtmsGateway.Utils;
 using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Services.Routing;
@@ -69,5 +70,24 @@ public abstract class SoapMessageSenderBase(IApiSender apiSender, RoutingConfig?
             return await response.Content.ReadAsStringAsync(cancellationToken);
 
         return string.Empty;
+    }
+
+    protected void CheckComparerResponse(
+        HttpResponseMessage comparerResponse,
+        string logMessage,
+        string exceptionMessage
+    )
+    {
+        if (comparerResponse.StatusCode == HttpStatusCode.Conflict)
+        {
+            logger.Warning(logMessage);
+            throw new ConflictException(exceptionMessage);
+        }
+
+        if (!comparerResponse.StatusCode.IsSuccessStatusCode())
+        {
+            logger.Error(logMessage);
+            throw new DecisionComparisonException(exceptionMessage);
+        }
     }
 }

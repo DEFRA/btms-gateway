@@ -105,27 +105,13 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
 
         if (!comparerResponse.StatusCode.IsSuccessStatusCode())
         {
-            if (comparerResponse.StatusCode == HttpStatusCode.Conflict)
-            {
-                _logger.Warning(
-                    "{CorrelationId} {MRN} Failed to send Error Notification to Decision Comparer: Status Code: {ComparerResponseStatusCode}, Reason: {ComparerResponseReason}.",
-                    correlationId,
-                    mrn,
-                    comparerResponse.StatusCode,
-                    comparerResponse.ReasonPhrase
-                );
-            }
-            else
-            {
-                _logger.Error(
-                    "{CorrelationId} {MRN} Failed to send Error Notification to Decision Comparer: Status Code: {ComparerResponseStatusCode}, Reason: {ComparerResponseReason}.",
-                    correlationId,
-                    mrn,
-                    comparerResponse.StatusCode,
-                    comparerResponse.ReasonPhrase
-                );
-            }
-
+            _logger.Error(
+                "{CorrelationId} {MRN} Failed to send Error Notification to Decision Comparer: Status Code: {ComparerResponseStatusCode}, Reason: {ComparerResponseReason}.",
+                correlationId,
+                mrn,
+                comparerResponse.StatusCode,
+                comparerResponse.ReasonPhrase
+            );
             throw new DecisionComparisonException($"{mrn} Failed to send Error Notification to Decision Comparer.");
         }
 

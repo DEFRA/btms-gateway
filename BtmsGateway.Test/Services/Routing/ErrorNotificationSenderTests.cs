@@ -446,6 +446,71 @@ public class ErrorNotificationSenderTests
             )
         );
         thrownException.Message.Should().Be("mrn-123 Failed to send Error Notification to Decision Comparer.");
+
+        _logger
+            .Received(1)
+            .Error(
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<HttpStatusCode>(),
+                Arg.Any<string>()
+            );
+        _logger
+            .DidNotReceiveWithAnyArgs()
+            .Warning(
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<HttpStatusCode>(),
+                Arg.Any<string>()
+            );
+    }
+
+    [Fact]
+    public async Task When_sending_error_notification_and_comparer_returns_conflict_status_response_Then_exception_is_thrown()
+    {
+        var comparerResponse = new HttpResponseMessage(HttpStatusCode.Conflict);
+
+        _apiSender
+            .SendToDecisionComparerAsync(
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>(),
+                Arg.Any<IHeaderDictionary>()
+            )
+            .Returns(comparerResponse);
+
+        var thrownException = await Assert.ThrowsAsync<DecisionComparisonException>(() =>
+            _errorNotificationSender.SendErrorNotificationAsync(
+                "mrn-123",
+                "<HMRCErrorNotification />",
+                MessagingConstants.MessageSource.Btms,
+                new RoutingResult(),
+                cancellationToken: CancellationToken.None
+            )
+        );
+        thrownException.Message.Should().Be("mrn-123 Failed to send Error Notification to Decision Comparer.");
+
+        _logger
+            .Received(1)
+            .Warning(
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<HttpStatusCode>(),
+                Arg.Any<string>()
+            );
+        _logger
+            .DidNotReceiveWithAnyArgs()
+            .Error(
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<HttpStatusCode>(),
+                Arg.Any<string>()
+            );
     }
 
     // [Fact]

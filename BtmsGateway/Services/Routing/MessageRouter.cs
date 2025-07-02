@@ -58,7 +58,7 @@ public class MessageRouter(
         }
         catch (Exception ex)
         {
-            LogError(ex, messageData, "routing", routingResult);
+            LogRoutingError(ex, messageData, routingResult);
             return routingResult with
             {
                 StatusCode = HttpStatusCode.ServiceUnavailable,
@@ -108,7 +108,7 @@ public class MessageRouter(
         }
         catch (Exception ex)
         {
-            LogError(ex, messageData, "forking", routingResult);
+            LogForkingError(ex, messageData, routingResult);
             return routingResult with
             {
                 StatusCode = HttpStatusCode.ServiceUnavailable,
@@ -119,6 +119,16 @@ public class MessageRouter(
         {
             metrics.RecordForkedRequest(routingResult);
         }
+    }
+
+    private void LogRoutingError(Exception? ex, MessageData messageData, RoutingResult routingResult)
+    {
+        LogError(ex, messageData, "routing", routingResult);
+    }
+
+    private void LogForkingError(Exception? ex, MessageData messageData, RoutingResult routingResult)
+    {
+        LogError(ex, messageData, "forking", routingResult);
     }
 
     private void LogError(Exception? ex, MessageData messageData, string action, RoutingResult routingResult)

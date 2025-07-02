@@ -135,7 +135,7 @@ public class MessageRouter(
     {
         logger.Error(
             ex,
-            "{ContentCorrelationId} {MessageReference} Error {action} message type {messageType}",
+            "{ContentCorrelationId} {MessageReference} Error {Action} message type {MessageType}",
             messageData.ContentMap.CorrelationId,
             messageData.ContentMap.MessageReference,
             action,

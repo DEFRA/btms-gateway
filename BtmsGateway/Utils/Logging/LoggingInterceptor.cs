@@ -34,6 +34,7 @@ public class LoggingInterceptor<TMessage>(ILogger<LoggingInterceptor<TMessage>> 
         }
         catch (ConflictException)
         {
+            // Avoiding duplicate logging here as it's already logged at the point where the ConflictException is being thrown
             throw;
         }
         catch (Exception exception)

@@ -354,7 +354,7 @@ public class DecisionSenderTests
                 Arg.Any<string>()
             );
     }
-    
+
     [Fact]
     public async Task When_sending_decision_and_comparer_returns_conflict_status_response_Then_exception_is_thrown()
     {

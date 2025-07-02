@@ -446,7 +446,7 @@ public class ErrorNotificationSenderTests
             )
         );
         thrownException.Message.Should().Be("mrn-123 Failed to send Error Notification to Decision Comparer.");
-        
+
         _logger
             .Received(1)
             .Error(
@@ -466,7 +466,7 @@ public class ErrorNotificationSenderTests
                 Arg.Any<string>()
             );
     }
-    
+
     [Fact]
     public async Task When_sending_error_notification_and_comparer_returns_conflict_status_response_Then_exception_is_thrown()
     {
@@ -492,7 +492,7 @@ public class ErrorNotificationSenderTests
             )
         );
         thrownException.Message.Should().Be("mrn-123 Failed to send Error Notification to Decision Comparer.");
-        
+
         _logger
             .Received(1)
             .Warning(

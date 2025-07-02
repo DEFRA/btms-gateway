@@ -91,12 +91,7 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
             headers
         );
 
-        CheckComparerResponse(
-            comparerResponse,
-            correlationId,
-            mrn,
-            "Error Notification"
-        );
+        CheckComparerResponse(comparerResponse, correlationId, mrn, "Error Notification");
 
         // var cdsResponse = await ForwardErrorNotificationAsync(
         //     mrn,

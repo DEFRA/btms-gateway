@@ -84,12 +84,7 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
             headers
         );
 
-        CheckComparerResponse(
-            comparerResponse,
-            correlationId,
-            mrn,
-            "Decision"
-        );
+        CheckComparerResponse(comparerResponse, correlationId, mrn, "Decision");
 
         var cdsResponse = await ForwardDecisionAsync(
             mrn,

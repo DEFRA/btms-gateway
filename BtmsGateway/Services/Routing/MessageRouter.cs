@@ -58,7 +58,7 @@ public class MessageRouter(
         }
         catch (Exception ex)
         {
-            LogError(ex, messageData, "routing");
+            LogError(ex, messageData, "routing", routingResult);
             return routingResult with
             {
                 StatusCode = HttpStatusCode.ServiceUnavailable,
@@ -108,7 +108,7 @@ public class MessageRouter(
         }
         catch (Exception ex)
         {
-            LogError(ex, messageData, "forking");
+            LogError(ex, messageData, "forking", routingResult);
             return routingResult with
             {
                 StatusCode = HttpStatusCode.ServiceUnavailable,
@@ -121,14 +121,15 @@ public class MessageRouter(
         }
     }
 
-    private void LogError(Exception? ex, MessageData messageData, string action)
+    private void LogError(Exception? ex, MessageData messageData, string action, RoutingResult routingResult)
     {
         logger.Error(
             ex,
-            "{ContentCorrelationId} {MessageReference} Error {action}",
+            "{ContentCorrelationId} {MessageReference} Error {action} message type {messageType}",
             messageData.ContentMap.CorrelationId,
             messageData.ContentMap.MessageReference,
-            action
+            action,
+            MessagingConstants.MessageTypes.FromSoapMessageType(routingResult.MessageSubXPath)
         );
     }
 

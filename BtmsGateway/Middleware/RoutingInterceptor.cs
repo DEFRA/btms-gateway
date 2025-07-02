@@ -1,4 +1,5 @@
 using BtmsGateway.Config;
+using BtmsGateway.Domain;
 using BtmsGateway.Exceptions;
 using BtmsGateway.Services.Metrics;
 using BtmsGateway.Services.Routing;
@@ -106,12 +107,13 @@ public class RoutingInterceptor(
         if (routingResult.RoutingSuccessful)
         {
             logger.Information(
-                "{ContentCorrelationId} {MessageReference} {Action} {Success} for route {RouteUrl} with response {StatusCode} \"{Content}\"",
+                "{ContentCorrelationId} {MessageReference} {Action} {Success} for route {RouteUrl}, message type {MessageType} with response {StatusCode} \"{Content}\"",
                 messageData.ContentMap.CorrelationId,
                 messageData.ContentMap.MessageReference,
                 action,
                 "successful",
                 action == RouteAction ? routingResult.FullRouteLink : routingResult.FullForkLink,
+                MessagingConstants.MessageTypes.FromSoapMessageType(routingResult.MessageSubXPath),
                 routingResult.StatusCode,
                 routingResult.ResponseContent
             );
@@ -127,12 +129,13 @@ public class RoutingInterceptor(
         }
 
         logger.Error(
-            "{ContentCorrelationId} {MessageReference} {Action} {Success} for route {RouteUrl} with response {StatusCode} \"{Content}\"",
+            "{ContentCorrelationId} {MessageReference} {Action} {Success} for route {RouteUrl}, message type {MessageType} with response {StatusCode} \"{Content}\"",
             messageData.ContentMap.CorrelationId,
             messageData.ContentMap.MessageReference,
             action,
             "failed",
             action == RouteAction ? routingResult.FullRouteLink : routingResult.FullForkLink,
+            MessagingConstants.MessageTypes.FromSoapMessageType(routingResult.MessageSubXPath),
             routingResult.StatusCode,
             routingResult.ResponseContent
         );

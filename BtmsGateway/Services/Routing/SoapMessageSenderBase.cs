@@ -74,20 +74,35 @@ public abstract class SoapMessageSenderBase(IApiSender apiSender, RoutingConfig?
 
     protected void CheckComparerResponse(
         HttpResponseMessage comparerResponse,
-        string logMessage,
-        string exceptionMessage
+        string? correlationId,
+        string? mrn,
+        string messageType
     )
     {
         if (comparerResponse.StatusCode == HttpStatusCode.Conflict)
         {
-            logger.Warning(logMessage);
-            throw new ConflictException(exceptionMessage);
+            logger.Warning(
+                "{CorrelationId} {MRN} Failed to send {MessageType} to Decision Comparer: Status Code: {ComparerResponseStatusCode}, Reason: {ComparerResponseReason}.",
+                correlationId,
+                mrn,
+                messageType,
+                comparerResponse.StatusCode,
+                comparerResponse.ReasonPhrase
+            );
+            throw new ConflictException($"{mrn} Failed to send {messageType} to Decision Comparer.");
         }
 
         if (!comparerResponse.StatusCode.IsSuccessStatusCode())
         {
-            logger.Error(logMessage);
-            throw new DecisionComparisonException(exceptionMessage);
+            logger.Error(
+                "{CorrelationId} {MRN} Failed to send {MessageType} to Decision Comparer: Status Code: {ComparerResponseStatusCode}, Reason: {ComparerResponseReason}.",
+                correlationId,
+                mrn,
+                messageType,
+                comparerResponse.StatusCode,
+                comparerResponse.ReasonPhrase
+            );
+            throw new DecisionComparisonException($"{mrn} Failed to send {messageType} to Decision Comparer.");
         }
     }
 }

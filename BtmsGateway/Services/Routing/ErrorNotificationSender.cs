@@ -93,8 +93,9 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
 
         CheckComparerResponse(
             comparerResponse,
-            $"{correlationId} {mrn} Failed to send Error Notification to Decision Comparer: Status Code: {comparerResponse.StatusCode}, Reason: {comparerResponse.ReasonPhrase}.",
-            $"{mrn} Failed to send Error Notification to Decision Comparer."
+            correlationId,
+            mrn,
+            "Error Notification"
         );
 
         // var cdsResponse = await ForwardErrorNotificationAsync(

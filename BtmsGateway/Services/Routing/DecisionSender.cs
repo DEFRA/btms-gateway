@@ -86,8 +86,9 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
 
         CheckComparerResponse(
             comparerResponse,
-            $"{correlationId} {mrn} Failed to send Decision to Decision Comparer: Status Code: {comparerResponse.StatusCode}, Reason: {comparerResponse.ReasonPhrase}.",
-            $"{mrn} Failed to send Decision to Decision Comparer."
+            correlationId,
+            mrn,
+            "Decision"
         );
 
         var cdsResponse = await ForwardDecisionAsync(

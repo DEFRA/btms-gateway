@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 
 namespace BtmsGateway.Test.Consumers;
 
@@ -174,5 +175,36 @@ public class ProcessingErrorConsumerTests
         thrownException
             .InnerException?.Message.Should()
             .Be("24GB123456789AB012 Failed to send error notification to Decision Comparer.");
+    }
+
+    [Fact]
+    public async Task When_sending_to_decision_comparer_returns_conflict_exception_Then_conflict_exception_is_thrown()
+    {
+        var message = new ResourceEvent<ProcessingErrorResource>
+        {
+            ResourceId = "24GB123456789AB012",
+            ResourceType = "ProcessingError",
+            Operation = "Created",
+            Resource = new ProcessingErrorResource { ProcessingErrors = [new ProcessingError()] },
+        };
+
+        _errorNotificationSender
+            .SendErrorNotificationAsync(
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<MessagingConstants.MessageSource>(),
+                Arg.Any<RoutingResult>(),
+                Arg.Any<IHeaderDictionary>(),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>()
+            )
+            .ThrowsAsync(new ConflictException("Something went wrong"));
+
+        var thrownException = await Assert.ThrowsAsync<ConflictException>(() =>
+            _consumer.OnHandle(message, CancellationToken.None)
+        );
+        thrownException.Message.Should().Be("24GB123456789AB012 Failed to process processing error resource event.");
+        thrownException.InnerException.Should().BeAssignableTo<ConflictException>();
+        thrownException.InnerException?.Message.Should().Be("Something went wrong");
     }
 }

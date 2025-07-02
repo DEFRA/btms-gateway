@@ -453,12 +453,14 @@ public class ErrorNotificationSenderTests
                 Arg.Any<string>(),
                 Arg.Any<string>(),
                 Arg.Any<string>(),
+                Arg.Any<string>(),
                 Arg.Any<HttpStatusCode>(),
                 Arg.Any<string>()
             );
         _logger
             .DidNotReceiveWithAnyArgs()
             .Warning(
+                Arg.Any<string>(),
                 Arg.Any<string>(),
                 Arg.Any<string>(),
                 Arg.Any<string>(),
@@ -482,7 +484,7 @@ public class ErrorNotificationSenderTests
             )
             .Returns(comparerResponse);
 
-        var thrownException = await Assert.ThrowsAsync<DecisionComparisonException>(() =>
+        var thrownException = await Assert.ThrowsAsync<ConflictException>(() =>
             _errorNotificationSender.SendErrorNotificationAsync(
                 "mrn-123",
                 "<HMRCErrorNotification />",
@@ -499,12 +501,14 @@ public class ErrorNotificationSenderTests
                 Arg.Any<string>(),
                 Arg.Any<string>(),
                 Arg.Any<string>(),
+                Arg.Any<string>(),
                 Arg.Any<HttpStatusCode>(),
                 Arg.Any<string>()
             );
         _logger
             .DidNotReceiveWithAnyArgs()
             .Error(
+                Arg.Any<string>(),
                 Arg.Any<string>(),
                 Arg.Any<string>(),
                 Arg.Any<string>(),

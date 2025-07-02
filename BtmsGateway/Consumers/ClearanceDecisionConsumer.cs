@@ -75,6 +75,11 @@ public class ClearanceDecisionConsumer(IDecisionSender decisionSender, ILogger<C
                 mrn
             );
         }
+        catch (ConflictException ex)
+        {
+            logger.LogWarning(ex, "{MRN} Failed to process clearance decision resource event.", mrn);
+            throw new ConflictException($"{mrn} Failed to process clearance decision resource event.", ex);
+        }
         catch (Exception ex)
         {
             logger.LogError(ex, "{MRN} Failed to process clearance decision resource event.", mrn);

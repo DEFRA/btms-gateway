@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
+using BtmsGateway.Exceptions;
 using BtmsGateway.Extensions;
 using SlimMessageBus;
 using SlimMessageBus.Host.Interceptor;
@@ -29,6 +30,11 @@ public class LoggingInterceptor<TMessage>(ILogger<LoggingInterceptor<TMessage>> 
                 messageId,
                 resourceId
             );
+            throw;
+        }
+        catch (ConflictException)
+        {
+            // Avoiding duplicate logging here as it's already logged at the point where the ConflictException is being thrown
             throw;
         }
         catch (Exception exception)

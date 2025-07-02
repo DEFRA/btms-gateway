@@ -69,6 +69,11 @@ public class ProcessingErrorConsumer(
                 mrn
             );
         }
+        catch (ConflictException ex)
+        {
+            logger.LogWarning(ex, "{MRN} Failed to process processing error resource event.", mrn);
+            throw new ConflictException($"{mrn} Failed to process processing error resource event.", ex);
+        }
         catch (Exception ex)
         {
             logger.LogError(ex, "{MRN} Failed to process processing error resource event.", mrn);

@@ -341,12 +341,14 @@ public class DecisionSenderTests
                 Arg.Any<string>(),
                 Arg.Any<string>(),
                 Arg.Any<string>(),
+                Arg.Any<string>(),
                 Arg.Any<HttpStatusCode>(),
                 Arg.Any<string>()
             );
         _logger
             .DidNotReceiveWithAnyArgs()
             .Warning(
+                Arg.Any<string>(),
                 Arg.Any<string>(),
                 Arg.Any<string>(),
                 Arg.Any<string>(),
@@ -370,7 +372,7 @@ public class DecisionSenderTests
             )
             .Returns(comparerResponse);
 
-        var thrownException = await Assert.ThrowsAsync<DecisionComparisonException>(() =>
+        var thrownException = await Assert.ThrowsAsync<ConflictException>(() =>
             _decisionSender.SendDecisionAsync(
                 "mrn-123",
                 "<AlvsDecisionNotification />",
@@ -389,12 +391,14 @@ public class DecisionSenderTests
                 Arg.Any<string>(),
                 Arg.Any<string>(),
                 Arg.Any<string>(),
+                Arg.Any<string>(),
                 Arg.Any<HttpStatusCode>(),
                 Arg.Any<string>()
             );
         _logger
             .DidNotReceiveWithAnyArgs()
             .Error(
+                Arg.Any<string>(),
                 Arg.Any<string>(),
                 Arg.Any<string>(),
                 Arg.Any<string>(),

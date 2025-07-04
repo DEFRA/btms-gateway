@@ -1,6 +1,8 @@
 using Amazon.SimpleNotificationService;
 using BtmsGateway.Middleware;
+using BtmsGateway.Services.Converter;
 using BtmsGateway.Utils;
+using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Services.Routing;
 
@@ -9,7 +11,8 @@ public interface IQueueSender
     Task<RoutingResult> Send(RoutingResult routingResult, MessageData messageData, string? route);
 }
 
-public class QueueSender(IAmazonSimpleNotificationService snsService, IConfiguration configuration) : IQueueSender
+public class QueueSender(IAmazonSimpleNotificationService snsService, IConfiguration configuration, ILogger logger)
+    : IQueueSender
 {
     public async Task<RoutingResult> Send(RoutingResult routingResult, MessageData messageData, string? route)
     {
@@ -18,10 +21,33 @@ public class QueueSender(IAmazonSimpleNotificationService snsService, IConfigura
 
         var response = await snsService.PublishAsync(request);
 
+        if (response.HttpStatusCode.IsSuccessStatusCode())
+        {
+            logger.Information(
+                "{ContentCorrelationId} {MessageReference} Successfully published MessageId: {MessageId}",
+                messageData.ContentMap.CorrelationId,
+                messageData.ContentMap.MessageReference,
+                response.MessageId
+            );
+
+            return routingResult with
+            {
+                RoutingSuccessful = true,
+                ResponseContent = SoapUtils.GetMessageTypeSuccessResponse(routingResult.MessageSubXPath),
+                StatusCode = response.HttpStatusCode,
+            };
+        }
+
+        logger.Error(
+            "{ContentCorrelationId} {MessageReference} Failed to publish message to inbound topic",
+            messageData.ContentMap.CorrelationId,
+            messageData.ContentMap.MessageReference
+        );
+
         return routingResult with
         {
-            RoutingSuccessful = response.HttpStatusCode.IsSuccessStatusCode(),
-            ResponseContent = $"Successfully published MessageId: {response.MessageId}",
+            RoutingSuccessful = false,
+            ResponseContent = "Failed to publish message to inbound topic",
             StatusCode = response.HttpStatusCode,
         };
     }

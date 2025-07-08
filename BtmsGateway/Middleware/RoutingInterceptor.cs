@@ -1,6 +1,9 @@
+using System.Net;
+using System.Text;
 using BtmsGateway.Config;
 using BtmsGateway.Domain;
 using BtmsGateway.Exceptions;
+using BtmsGateway.Services.Converter;
 using BtmsGateway.Services.Metrics;
 using BtmsGateway.Services.Routing;
 using Microsoft.Extensions.Options;
@@ -14,7 +17,8 @@ public class RoutingInterceptor(
     MetricsHost metricsHost,
     IRequestMetrics requestMetrics,
     ILogger logger,
-    IOptions<MessageLoggingOptions> messageLoggingOptions
+    IOptions<MessageLoggingOptions> messageLoggingOptions,
+    IMessageRoutes messageRoutes
 )
 {
     private const string RouteAction = "Routing";
@@ -56,11 +60,40 @@ public class RoutingInterceptor(
 
             await next(context);
         }
+        catch (InvalidSoapException ex)
+        {
+            logger.Warning(ex, "Invalid SOAP Message");
+
+            if (messageRoutes.IsCdsRoute(context.Request.Path))
+            {
+                await PopulateInvalidSoapResponse(context);
+            }
+            else
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+            }
+
+            throw new RoutingException($"Invalid SOAP Message: {ex.Message}", ex);
+        }
         catch (Exception ex)
         {
             logger.Error(ex, "There was a routing error");
+            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             throw new RoutingException($"There was a routing error: {ex.Message}", ex);
         }
+    }
+
+    private static async Task PopulateInvalidSoapResponse(HttpContext context)
+    {
+        context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+        context.Response.ContentType = "application/soap+xml";
+        context.Response.Headers.Date = DateTimeOffset.Now.ToString("R");
+        context.Response.Headers["x-requested-path"] = context.Request.Path.HasValue
+            ? $"/{context.Request.Path.Value.Trim('/')}"
+            : string.Empty;
+        await context.Response.BodyWriter.WriteAsync(
+            new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes(SoapUtils.FailedSoapRequestResponseBody))
+        );
     }
 
     private async Task Route(HttpContext context, MessageData messageData, IMetrics metrics)

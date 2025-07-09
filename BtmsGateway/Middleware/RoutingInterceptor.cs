@@ -68,6 +68,8 @@ public class RoutingInterceptor(
         {
             if (await featureManager.IsEnabledAsync(Features.Cutover) && messageRoutes.IsCdsRoute(context.Request.Path))
             {
+                // Log as Warning as we won't do anything with it at this point, and we don't want additional errors causing potential alerts.
+                // The upstream system needs to sort out the invalid request
                 logger.Warning(ex, "Invalid SOAP Message");
                 await PopulateInvalidSoapResponse(context);
                 throw new RoutingException("Invalid SOAP Message", ex);

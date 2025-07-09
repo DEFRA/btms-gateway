@@ -2,6 +2,7 @@ using System.Diagnostics.Metrics;
 using System.Net;
 using System.Text;
 using BtmsGateway.Config;
+using BtmsGateway.Domain;
 using BtmsGateway.Exceptions;
 using BtmsGateway.Middleware;
 using BtmsGateway.Services.Metrics;
@@ -10,6 +11,7 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
+using Microsoft.FeatureManagement;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using Serilog;
@@ -67,7 +69,9 @@ public class RoutingInterceptorTests
             metricsHost,
             Substitute.For<IRequestMetrics>(),
             Substitute.For<ILogger>(),
-            _messageLoggingOptions
+            _messageLoggingOptions,
+            Substitute.For<IMessageRoutes>(),
+            Substitute.For<IFeatureManager>()
         );
 
         var ex = await Assert.ThrowsAsync<RoutingException>(() => sut.InvokeAsync(_httpContext));
@@ -138,7 +142,9 @@ public class RoutingInterceptorTests
             metricsHost,
             requestMetric,
             Substitute.For<ILogger>(),
-            _messageLoggingOptions
+            _messageLoggingOptions,
+            Substitute.For<IMessageRoutes>(),
+            Substitute.For<IFeatureManager>()
         );
 
         await sut.InvokeAsync(_httpContext);
@@ -232,7 +238,9 @@ public class RoutingInterceptorTests
             metricsHost,
             requestMetric,
             Substitute.For<ILogger>(),
-            _messageLoggingOptions
+            _messageLoggingOptions,
+            Substitute.For<IMessageRoutes>(),
+            Substitute.For<IFeatureManager>()
         );
 
         await sut.InvokeAsync(_httpContext);
@@ -262,5 +270,62 @@ public class RoutingInterceptorTests
                 Arg.Is("Known Message Type"),
                 Arg.Is("Forking")
             );
+    }
+
+    [Theory]
+    [InlineData(true, true, HttpStatusCode.BadRequest)]
+    [InlineData(true, false, HttpStatusCode.InternalServerError)]
+    [InlineData(false, true, HttpStatusCode.InternalServerError)]
+    [InlineData(false, false, HttpStatusCode.InternalServerError)]
+    public async Task When_invoking_and_invalid_soap_exception_is_thrown_Then_routing_exception_is_thrown(
+        bool isCdsRoute,
+        bool isCutover,
+        HttpStatusCode expectedStatusCode
+    )
+    {
+        const string unparsableBody =
+            "<Envelope><Body><Root><Data>&</Data><CorrelationId>correlation-id</CorrelationId></Root></Body></Envelope>";
+        var unparsableContext = new DefaultHttpContext
+        {
+            Request =
+            {
+                Protocol = "HTTP/1.1",
+                Scheme = "http",
+                Method = "GET",
+                Host = new HostString("localhost", 123),
+                Body = new MemoryStream(Encoding.UTF8.GetBytes(unparsableBody)),
+                Headers =
+                {
+                    new KeyValuePair<string, StringValues>("Content-Length", "999"),
+                    new KeyValuePair<string, StringValues>("X-Custom", "custom"),
+                },
+                Path = "/some-route-path",
+            },
+        };
+
+        var meter = new Meter("test");
+        var meterFactory = Substitute.For<IMeterFactory>();
+        meterFactory.Create(null!).ReturnsForAnyArgs(meter);
+        var metricsHost = Substitute.For<MetricsHost>(meterFactory);
+
+        var messageRoutes = Substitute.For<IMessageRoutes>();
+        messageRoutes.IsCdsRoute("/some-route-path").Returns(isCdsRoute);
+
+        var featureManager = Substitute.For<IFeatureManager>();
+        featureManager.IsEnabledAsync(Features.Cutover).Returns(isCutover);
+
+        var sut = new RoutingInterceptor(
+            Substitute.For<RequestDelegate>(),
+            Substitute.For<IMessageRouter>(),
+            metricsHost,
+            Substitute.For<IRequestMetrics>(),
+            Substitute.For<ILogger>(),
+            _messageLoggingOptions,
+            messageRoutes,
+            featureManager
+        );
+
+        await Assert.ThrowsAsync<RoutingException>(() => sut.InvokeAsync(unparsableContext));
+        unparsableContext.Response.StatusCode.Should().Be((int)expectedStatusCode);
     }
 }

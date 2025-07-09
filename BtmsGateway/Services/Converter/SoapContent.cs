@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Xml;
+using BtmsGateway.Exceptions;
 
 namespace BtmsGateway.Services.Converter;
 
@@ -20,10 +21,17 @@ public class SoapContent
 
     public SoapContent(string? soapString)
     {
-        SoapString = GetDecodedString(soapString);
-        RawSoapString = soapString;
-        var soapXmlNode = GetElement(SoapString);
-        _soapXmlNode = soapXmlNode;
+        try
+        {
+            SoapString = GetDecodedString(soapString);
+            RawSoapString = soapString;
+            var soapXmlNode = GetElement(SoapString);
+            _soapXmlNode = soapXmlNode;
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidSoapException("Invalid SOAP Message", ex);
+        }
     }
 
     public bool HasMessage(string messageSubXPath)

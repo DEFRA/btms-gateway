@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
+using BtmsGateway.Domain;
 using BtmsGateway.Exceptions;
 using BtmsGateway.Services.Converter;
 using ILogger = Serilog.ILogger;
@@ -9,6 +10,7 @@ namespace BtmsGateway.Services.Routing;
 public interface IMessageRoutes
 {
     RoutingResult GetRoute(string routePath, SoapContent soapContent, string? correlationId, string? mrn);
+    bool IsCdsRoute(string routePath);
 }
 
 public class MessageRoutes : IMessageRoutes
@@ -75,6 +77,13 @@ public class MessageRoutes : IMessageRoutes
                 ErrorMessage = $"Error getting route - {ex.Message} - {ex.InnerException?.Message}",
             };
         }
+    }
+
+    public bool IsCdsRoute(string routePath)
+    {
+        return _routes.Any(x =>
+            x.IsCds && x.RoutePath.Equals(routePath.Trim('/'), StringComparison.InvariantCultureIgnoreCase)
+        );
     }
 
     private static RoutingResult SelectRoute(RoutedLink route, string routePath)

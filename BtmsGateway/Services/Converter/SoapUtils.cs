@@ -33,6 +33,10 @@ public static class SoapUtils
     private static string SuccessfulAlvsErrorNotificationResponseBody =>
         "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<soapenv:Envelope xmlns:soapenv=\"http://www.w3.org/2003/05/soap-envelope\">\n\t<soapenv:Body>\n\t\t<ALVSErrorNotificationResponse xmlns=\"http://alvserrornotification.types.esb.ws.cara.defra.com\" xmlns:ns2=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\" xmlns:ns3=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\">\n\t\t\t<StatusCode>000</StatusCode>\n\t\t</ALVSErrorNotificationResponse>\n\t</soapenv:Body>\n</soapenv:Envelope>";
 
+    //HMRC requests failure responses
+    public static string FailedSoapRequestResponseBody =>
+        "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<soapenv:Envelope xmlns:soapenv=\"http://www.w3.org/2003/05/soap-envelope\">\n\t<soapenv:Body>\n\t\t<soapenv:Fault>\n\t\t\t<soapenv:Code>\n\t\t\t\t<soapenv:Value>soapenv:Receiver</soapenv:Value>\n\t\t\t</soapenv:Code>\n\t\t\t<soapenv:Reason>\n\t\t\t\t<soapenv:Text xml:lang=\"en\">A soap fault was returned.</soapenv:Text>\n\t\t\t</soapenv:Reason>\n\t\t</soapenv:Fault>\n\t</soapenv:Body>\n</soapenv:Envelope>";
+
     public static XElement AddSoapEnvelope(XElement rootElement, SoapType soapType)
     {
         return soapType switch

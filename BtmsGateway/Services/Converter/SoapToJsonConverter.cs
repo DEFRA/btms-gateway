@@ -1,4 +1,5 @@
 using System.Xml.Linq;
+using BtmsGateway.Exceptions;
 
 namespace BtmsGateway.Services.Converter;
 
@@ -25,7 +26,7 @@ public static class SoapToJsonConverter
         }
         catch (Exception ex)
         {
-            throw new ArgumentException("The XML message is not valid", ex);
+            throw new InvalidSoapException("The XML message is not valid", ex);
         }
     }
 }

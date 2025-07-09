@@ -1,7 +1,6 @@
 using System.Net;
 using BtmsGateway.Domain;
 using BtmsGateway.Exceptions;
-using BtmsGateway.Utils;
 using Microsoft.FeatureManagement;
 using ILogger = Serilog.ILogger;
 

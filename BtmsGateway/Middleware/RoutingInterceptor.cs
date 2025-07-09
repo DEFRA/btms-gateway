@@ -1,20 +1,28 @@
+using System.Diagnostics.CodeAnalysis;
+using System.Net;
+using System.Text;
 using BtmsGateway.Config;
 using BtmsGateway.Domain;
 using BtmsGateway.Exceptions;
+using BtmsGateway.Services.Converter;
 using BtmsGateway.Services.Metrics;
 using BtmsGateway.Services.Routing;
 using Microsoft.Extensions.Options;
+using Microsoft.FeatureManagement;
 using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Middleware;
 
+[SuppressMessage("SonarLint", "S107", Justification = "Parameters will be reduced once the feature flag is removed")]
 public class RoutingInterceptor(
     RequestDelegate next,
     IMessageRouter messageRouter,
     MetricsHost metricsHost,
     IRequestMetrics requestMetrics,
     ILogger logger,
-    IOptions<MessageLoggingOptions> messageLoggingOptions
+    IOptions<MessageLoggingOptions> messageLoggingOptions,
+    IMessageRoutes messageRoutes,
+    IFeatureManager featureManager
 )
 {
     private const string RouteAction = "Routing";
@@ -56,11 +64,43 @@ public class RoutingInterceptor(
 
             await next(context);
         }
+        catch (InvalidSoapException ex)
+        {
+            if (await featureManager.IsEnabledAsync(Features.Cutover) && messageRoutes.IsCdsRoute(context.Request.Path))
+            {
+                // Log as Warning as we won't do anything with it at this point, and we don't want additional errors causing potential alerts.
+                // The upstream system needs to sort out the invalid request
+                logger.Warning(ex, "Invalid SOAP Message");
+                await PopulateInvalidSoapResponse(context);
+                throw new RoutingException("Invalid SOAP Message", ex);
+            }
+
+            ReturnRoutingError(ex, context);
+        }
         catch (Exception ex)
         {
-            logger.Error(ex, "There was a routing error");
-            throw new RoutingException($"There was a routing error: {ex.Message}", ex);
+            ReturnRoutingError(ex, context);
         }
+    }
+
+    private void ReturnRoutingError(Exception ex, HttpContext context)
+    {
+        logger.Error(ex, "There was a routing error");
+        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+        throw new RoutingException($"There was a routing error: {ex.Message}", ex);
+    }
+
+    private static async Task PopulateInvalidSoapResponse(HttpContext context)
+    {
+        context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+        context.Response.ContentType = "application/soap+xml";
+        context.Response.Headers.Date = DateTimeOffset.Now.ToString("R");
+        context.Response.Headers["x-requested-path"] = context.Request.Path.HasValue
+            ? $"/{context.Request.Path.Value.Trim('/')}"
+            : string.Empty;
+        await context.Response.BodyWriter.WriteAsync(
+            new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes(SoapUtils.FailedSoapRequestResponseBody))
+        );
     }
 
     private async Task Route(HttpContext context, MessageData messageData, IMetrics metrics)

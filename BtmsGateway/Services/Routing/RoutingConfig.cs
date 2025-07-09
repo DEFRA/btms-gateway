@@ -23,6 +23,7 @@ public record RoutingConfig
                     nr.Value.MessageSubXPath,
                     nr.Value.Legend,
                     nr.Value.RouteTo,
+                    nr.Value.IsCds,
                 }
         );
         var btms = NamedRoutes.Join(
@@ -40,6 +41,7 @@ public record RoutingConfig
                     nr.Value.MessageSubXPath,
                     nr.Value.Legend,
                     nr.Value.RouteTo,
+                    nr.Value.IsCds,
                 }
         );
         var output = legacy
@@ -61,6 +63,7 @@ public record RoutingConfig
                         RoutePath = l.RoutePath.Trim('/'),
                         MessageSubXPath = l.MessageSubXPath,
                         RouteTo = b.RouteTo,
+                        IsCds = b.IsCds,
                     }
             )
             .ToArray();
@@ -81,6 +84,7 @@ public record NamedRoute
     public string? LegacyLinkName { get; init; }
     public string? BtmsLinkName { get; init; }
     public required RouteTo RouteTo { get; init; }
+    public bool IsCds { get; init; }
 }
 
 public record NamedLink
@@ -122,6 +126,7 @@ public record RoutedLink
     public required LinkType BtmsLinkType { get; init; }
     public string? BtmsHostHeader { get; init; }
     public required RouteTo RouteTo { get; init; }
+    public required bool IsCds { get; init; }
 }
 
 public enum RouteTo

@@ -1,3 +1,4 @@
+using BtmsGateway.Exceptions;
 using BtmsGateway.Services.Converter;
 using FluentAssertions;
 
@@ -146,5 +147,15 @@ public class SoapContentTests
         soapContent
             .SoapString.Should()
             .Contain("<GoodsDescription>XML Character Entities &quot; &apos; &lt; &gt; &amp;</GoodsDescription>");
+    }
+
+    [Fact]
+    public void When_soap_is_unparsable_Then_invalid_soap_exception_should_be_thrown()
+    {
+        const string soap = $"{Declaration}<Envelope><Body><Message1><Data>&</Data></Message1></Body></Envelope>";
+
+        var thrownException = Assert.Throws<InvalidSoapException>(() => new SoapContent(soap));
+        thrownException.Message.Should().Be("Invalid SOAP Message");
+        thrownException.InnerException.Should().NotBeNull();
     }
 }

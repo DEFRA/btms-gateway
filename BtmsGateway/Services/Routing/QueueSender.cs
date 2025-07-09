@@ -59,7 +59,7 @@ public class QueueSender(IAmazonSimpleNotificationService snsService, IConfigura
                 messageData.ContentMap.CorrelationId,
                 messageData.ContentMap.MessageReference
             );
-            return RoutingResultWithStatusCode(routingResult, HttpStatusCode.BadGateway);
+            return RoutingResultWithStatusCode(routingResult, HttpStatusCode.BadRequest);
         }
         catch (Exception ex)
         {
@@ -74,7 +74,7 @@ public class QueueSender(IAmazonSimpleNotificationService snsService, IConfigura
         }
     }
 
-    private RoutingResult RoutingResultWithStatusCode(RoutingResult routingResult, HttpStatusCode statusCode)
+    private static RoutingResult RoutingResultWithStatusCode(RoutingResult routingResult, HttpStatusCode statusCode)
     {
         return routingResult with
         {

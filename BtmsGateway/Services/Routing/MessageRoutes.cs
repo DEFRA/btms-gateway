@@ -81,11 +81,9 @@ public class MessageRoutes : IMessageRoutes
 
     public bool IsCdsRoute(string routePath)
     {
-        var route = _routes.FirstOrDefault(x =>
-            x.RoutePath.Equals(routePath.Trim('/'), StringComparison.InvariantCultureIgnoreCase)
+        return _routes.Any(x =>
+            x.IsCds && x.RoutePath.Equals(routePath.Trim('/'), StringComparison.InvariantCultureIgnoreCase)
         );
-
-        return MessagingConstants.Routes.CdsRoutes.Contains(route?.Name);
     }
 
     private static RoutingResult SelectRoute(RoutedLink route, string routePath)

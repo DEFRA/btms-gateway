@@ -70,14 +70,4 @@ public static class MessagingConstants
         public const string BtmsOutboundErrors = "BtmsOutboundErrors";
         public const string AlvsOutboundErrors = "AlvsOutboundErrors";
     }
-
-    public static class Routes
-    {
-        public static string[] CdsRoutes =
-        [
-            "CDSClearanceRequestToAlvs",
-            "CDSFinalisationNotificationToAlvs",
-            "CDSErrorNotificationToAlvs",
-        ];
-    }
 }

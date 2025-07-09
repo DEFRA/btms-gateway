@@ -7,6 +7,7 @@ using BtmsGateway.Services.Converter;
 using BtmsGateway.Services.Metrics;
 using BtmsGateway.Services.Routing;
 using Microsoft.Extensions.Options;
+using Microsoft.FeatureManagement;
 using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Middleware;
@@ -18,7 +19,8 @@ public class RoutingInterceptor(
     IRequestMetrics requestMetrics,
     ILogger logger,
     IOptions<MessageLoggingOptions> messageLoggingOptions,
-    IMessageRoutes messageRoutes
+    IMessageRoutes messageRoutes,
+    IFeatureManager featureManager
 )
 {
     private const string RouteAction = "Routing";
@@ -62,25 +64,26 @@ public class RoutingInterceptor(
         }
         catch (InvalidSoapException ex)
         {
-            logger.Warning(ex, "Invalid SOAP Message");
-
-            if (messageRoutes.IsCdsRoute(context.Request.Path))
+            if (await featureManager.IsEnabledAsync(Features.Cutover) && messageRoutes.IsCdsRoute(context.Request.Path))
             {
+                logger.Warning(ex, "Invalid SOAP Message");
                 await PopulateInvalidSoapResponse(context);
-            }
-            else
-            {
-                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                throw new RoutingException("Invalid SOAP Message", ex);
             }
 
-            throw new RoutingException($"Invalid SOAP Message: {ex.Message}", ex);
+            ReturnRoutingError(ex, context);
         }
         catch (Exception ex)
         {
-            logger.Error(ex, "There was a routing error");
-            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-            throw new RoutingException($"There was a routing error: {ex.Message}", ex);
+            ReturnRoutingError(ex, context);
         }
+    }
+
+    private void ReturnRoutingError(Exception ex, HttpContext context)
+    {
+        logger.Error(ex, "There was a routing error");
+        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+        throw new RoutingException($"There was a routing error: {ex.Message}", ex);
     }
 
     private static async Task PopulateInvalidSoapResponse(HttpContext context)

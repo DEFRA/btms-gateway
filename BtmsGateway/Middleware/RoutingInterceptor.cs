@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Text;
 using BtmsGateway.Config;
@@ -12,6 +13,7 @@ using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Middleware;
 
+[SuppressMessage("SonarLint", "S107", Justification = "Parameters will be reduced once the feature flag is removed")]
 public class RoutingInterceptor(
     RequestDelegate next,
     IMessageRouter messageRouter,

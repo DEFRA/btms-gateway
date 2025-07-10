@@ -37,7 +37,12 @@ public class ErrorNotificationToSoapConverterTests
             ],
         };
 
-        var result = ErrorNotificationToSoapConverter.Convert(errorNotification, "25GB1HG99NHUBO3999");
+        var result = ErrorNotificationToSoapConverter.Convert(
+            errorNotification,
+            "25GB1HG99NHUBO3999",
+            "test-username",
+            "test-password"
+        );
 
         result.Should().Be(expectedSoap);
     }

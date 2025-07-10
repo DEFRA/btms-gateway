@@ -4,6 +4,8 @@ namespace BtmsGateway.Services.Routing;
 
 public record RoutingResult
 {
+    public static RoutingResult Empty => new();
+
     public string? RouteName { get; init; }
     public string? MessageSubXPath { get; set; }
     public string? Legend { get; init; }

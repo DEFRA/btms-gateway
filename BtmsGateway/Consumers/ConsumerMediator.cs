@@ -1,4 +1,5 @@
 using System.Text.Json;
+using BtmsGateway.Config;
 using BtmsGateway.Domain;
 using BtmsGateway.Extensions;
 using BtmsGateway.Services.Routing;
@@ -6,6 +7,7 @@ using BtmsGateway.Utils;
 using BtmsGateway.Utils.Logging;
 using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 using Defra.TradeImportsDataApi.Domain.Events;
+using Microsoft.Extensions.Options;
 using SlimMessageBus;
 
 namespace BtmsGateway.Consumers;
@@ -13,7 +15,8 @@ namespace BtmsGateway.Consumers;
 public class ConsumerMediator(
     IDecisionSender decisionSender,
     IErrorNotificationSender errorNotificationSender,
-    ILoggerFactory loggerFactory
+    ILoggerFactory loggerFactory,
+    IOptions<CdsOptions> cdsOptions
 ) : IConsumer<string>, IConsumerWithContext
 {
     private readonly ILogger<ConsumerMediator> _logger = loggerFactory.CreateLogger<ConsumerMediator>();
@@ -38,7 +41,8 @@ public class ConsumerMediator(
     {
         var consumer = new ClearanceDecisionConsumer(
             decisionSender,
-            loggerFactory.CreateLogger<ClearanceDecisionConsumer>()
+            loggerFactory.CreateLogger<ClearanceDecisionConsumer>(),
+            cdsOptions
         );
 
         return consumer.OnHandle(Deserialize<CustomsDeclaration>(message), cancellationToken);
@@ -48,7 +52,8 @@ public class ConsumerMediator(
     {
         var consumer = new ProcessingErrorConsumer(
             errorNotificationSender,
-            loggerFactory.CreateLogger<ProcessingErrorConsumer>()
+            loggerFactory.CreateLogger<ProcessingErrorConsumer>(),
+            cdsOptions
         );
 
         return consumer.OnHandle(Deserialize<ProcessingErrorResource>(message), cancellationToken);

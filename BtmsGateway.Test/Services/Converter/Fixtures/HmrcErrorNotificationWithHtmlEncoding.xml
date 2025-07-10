@@ -3,8 +3,8 @@
   <NS1:Header>
     <NS2:Security xmlns:NS2="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" NS1:role="system">
       <NS2:UsernameToken>
-        <NS2:Username>ibmtest</NS2:Username>
-        <NS2:Password>password</NS2:Password>
+        <NS2:Username>test-username</NS2:Username>
+        <NS2:Password>test-password</NS2:Password>
       </NS2:UsernameToken>
     </NS2:Security>
   </NS1:Header>

@@ -1,16 +1,19 @@
+using BtmsGateway.Config;
 using BtmsGateway.Domain;
 using BtmsGateway.Exceptions;
 using BtmsGateway.Services.Converter;
 using BtmsGateway.Services.Routing;
 using BtmsGateway.Utils;
 using Defra.TradeImportsDataApi.Domain.Events;
+using Microsoft.Extensions.Options;
 using SlimMessageBus;
 
 namespace BtmsGateway.Consumers;
 
 public class ProcessingErrorConsumer(
     IErrorNotificationSender errorNotificationSender,
-    ILogger<ProcessingErrorConsumer> logger
+    ILogger<ProcessingErrorConsumer> logger,
+    IOptions<CdsOptions> cdsOptions
 ) : IConsumer<ResourceEvent<ProcessingErrorResource>>
 {
     public async Task OnHandle(ResourceEvent<ProcessingErrorResource> message, CancellationToken cancellationToken)
@@ -39,13 +42,18 @@ public class ProcessingErrorConsumer(
                 return;
             }
 
-            var soapMessage = ErrorNotificationToSoapConverter.Convert(latestProcessingError, mrn);
+            var soapMessage = ErrorNotificationToSoapConverter.Convert(
+                latestProcessingError,
+                mrn,
+                cdsOptions.Value.Username,
+                cdsOptions.Value.Password
+            );
 
             var result = await errorNotificationSender.SendErrorNotificationAsync(
                 mrn,
                 soapMessage,
                 MessagingConstants.MessageSource.Btms,
-                new RoutingResult(),
+                RoutingResult.Empty,
                 correlationId: latestProcessingError.CorrelationId,
                 cancellationToken: cancellationToken
             );

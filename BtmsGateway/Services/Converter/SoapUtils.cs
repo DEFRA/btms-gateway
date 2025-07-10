@@ -37,12 +37,17 @@ public static class SoapUtils
     public static string FailedSoapRequestResponseBody =>
         "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<soapenv:Envelope xmlns:soapenv=\"http://www.w3.org/2003/05/soap-envelope\">\n\t<soapenv:Body>\n\t\t<soapenv:Fault>\n\t\t\t<soapenv:Code>\n\t\t\t\t<soapenv:Value>soapenv:Receiver</soapenv:Value>\n\t\t\t</soapenv:Code>\n\t\t\t<soapenv:Reason>\n\t\t\t\t<soapenv:Text xml:lang=\"en\">A soap fault was returned.</soapenv:Text>\n\t\t\t</soapenv:Reason>\n\t\t</soapenv:Fault>\n\t</soapenv:Body>\n</soapenv:Envelope>";
 
-    public static XElement AddSoapEnvelope(XElement rootElement, SoapType soapType)
+    public static XElement AddSoapEnvelope(
+        XElement rootElement,
+        SoapType soapType,
+        string? username = null,
+        string? password = null
+    )
     {
         return soapType switch
         {
             SoapType.Cds => GetCdsSoapEnvelope(rootElement),
-            SoapType.AlvsToCds => GetAlvsToCdsSoapEnvelope(rootElement),
+            SoapType.AlvsToCds => GetAlvsToCdsSoapEnvelope(rootElement, username, password),
             SoapType.AlvsToIpaffs => GetAlvsToIpaffsSoapEnvelope(rootElement),
             _ => throw new ArgumentOutOfRangeException(nameof(soapType), soapType, "Unknown message soap type"),
         };
@@ -85,7 +90,11 @@ public static class SoapUtils
         );
     }
 
-    private static XElement GetAlvsToCdsSoapEnvelope(XElement rootElement)
+    private static XElement GetAlvsToCdsSoapEnvelope(
+        XElement rootElement,
+        string? username = null,
+        string? password = null
+    )
     {
         XNamespace rootNs = GetRootAttributeValue(rootElement.Name.LocalName);
 
@@ -100,8 +109,8 @@ public static class SoapUtils
                     RoleAttribute,
                     new XElement(
                         OasNs + "UsernameToken",
-                        new XElement(OasNs + "Username", "ibmtest"),
-                        new XElement(OasNs + "Password", "password")
+                        new XElement(OasNs + "Username", username ?? "ibmtest"),
+                        new XElement(OasNs + "Password", password ?? "password")
                     )
                 )
             ),

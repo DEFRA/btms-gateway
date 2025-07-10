@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using BtmsGateway.Domain;
 using BtmsGateway.Exceptions;
@@ -46,11 +45,6 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
         _btmsToCdsDestination = GetDestination(MessagingConstants.Destinations.BtmsCds);
     }
 
-    [SuppressMessage(
-        "SonarLint",
-        "S125",
-        Justification = "Commented code will be required immediately after the upcoming release"
-    )]
     public async Task<RoutingResult> SendErrorNotificationAsync(
         string? mrn,
         string? errorNotification,
@@ -92,14 +86,13 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
 
         CheckComparerResponse(comparerResponse, correlationId, mrn, "Error Notification");
 
-        // var cdsResponse = await ForwardErrorNotificationAsync(
-        //     mrn,
-        //     messageSource,
-        //     errorNotification,
-        //     correlationId,
-        //     cancellationToken
-        // );
-        ForwardErrorNotificationAsync(mrn, messageSource);
+        var cdsResponse = await ForwardErrorNotificationAsync(
+            mrn,
+            messageSource,
+            errorNotification,
+            correlationId,
+            cancellationToken
+        );
 
         return routingResult with
         {
@@ -109,29 +102,11 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
             RoutingSuccessful = true,
             FullRouteLink = destinationConfig.DestinationUrl,
             FullForkLink = destinationConfig.DestinationUrl,
-            StatusCode = HttpStatusCode.NoContent,
-            ResponseContent = string.Empty,
-            // StatusCode = cdsResponse?.StatusCode ?? HttpStatusCode.NoContent,
-            // ResponseContent = await GetResponseContentAsync(cdsResponse, cancellationToken),
+            StatusCode = cdsResponse?.StatusCode ?? HttpStatusCode.NoContent,
+            ResponseContent = await GetResponseContentAsync(cdsResponse, cancellationToken),
         };
     }
 
-    private void ForwardErrorNotificationAsync(string? mrn, MessagingConstants.MessageSource messageSource)
-    {
-        if (messageSource == MessagingConstants.MessageSource.Btms)
-        {
-            _logger.Information("{MRN} Produced Error Notification to send to CDS", mrn);
-            // Just log error notification for now. Eventually, in cut over, will send the notification to CDS.
-            // Ensure original ALVS request headers are passed through and appended in the CDS request!
-            // Pass the CDS response back out!
-        }
-    }
-
-    [SuppressMessage(
-        "SonarLint",
-        "S1144",
-        Justification = "Commented code will be required immediately after the upcoming release"
-    )]
     private async Task<HttpResponseMessage?> ForwardErrorNotificationAsync(
         string? mrn,
         MessagingConstants.MessageSource messageSource,
@@ -140,16 +115,7 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
         CancellationToken cancellationToken
     )
     {
-        if (
-            (
-                await _featureManager.IsEnabledAsync(Features.SendOnlyBtmsErrorNotificationToCds)
-                && messageSource == MessagingConstants.MessageSource.Btms
-            )
-            || (
-                !await _featureManager.IsEnabledAsync(Features.SendOnlyBtmsErrorNotificationToCds)
-                && messageSource == MessagingConstants.MessageSource.Alvs
-            )
-        )
+        if (messageSource == await MessageSourceToSend())
         {
             _logger.Debug(
                 "{CorrelationId} {MRN} Sending {MessageSource} Error Notification to CDS.",
@@ -188,6 +154,27 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
             return response;
         }
 
+        _logger.Information(
+            "{CorrelationId} {MRN} {MessageSource} Error Notification sent to NOOP.",
+            correlationId,
+            mrn,
+            messageSource
+        );
+
         return null;
+    }
+
+    private async Task<MessagingConstants.MessageSource> MessageSourceToSend()
+    {
+        if (
+            await _featureManager.IsEnabledAsync(Features.TrialCutover)
+            && !await _featureManager.IsEnabledAsync(Features.Cutover)
+        )
+            return MessagingConstants.MessageSource.Alvs; // Only send ALVS generated Error Notifications during Trial Cutover
+
+        if (await _featureManager.IsEnabledAsync(Features.Cutover))
+            return MessagingConstants.MessageSource.Btms; // Only send BTMS generated Error Notifications during Cutover
+
+        return MessagingConstants.MessageSource.None; // Don't send any Error Notifications during Connected Silent Running
     }
 }

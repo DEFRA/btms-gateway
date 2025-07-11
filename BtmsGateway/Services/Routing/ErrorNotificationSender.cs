@@ -26,7 +26,6 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
     private readonly Destination _btmsToCdsDestination;
     private readonly IApiSender _apiSender;
     private readonly ILogger _logger;
-    private readonly IFeatureManager _featureManager;
 
     public ErrorNotificationSender(
         RoutingConfig? routingConfig,
@@ -34,10 +33,9 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
         IFeatureManager featureManager,
         ILogger logger
     )
-        : base(apiSender, routingConfig, logger)
+        : base(apiSender, routingConfig, logger, featureManager)
     {
         _apiSender = apiSender;
-        _featureManager = featureManager;
         _logger = logger;
 
         _btmsOutboundErrorsDestination = GetDestination(MessagingConstants.Destinations.BtmsOutboundErrors);
@@ -162,19 +160,5 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
         );
 
         return null;
-    }
-
-    private async Task<MessagingConstants.MessageSource> MessageSourceToSend()
-    {
-        if (
-            await _featureManager.IsEnabledAsync(Features.TrialCutover)
-            && !await _featureManager.IsEnabledAsync(Features.Cutover)
-        )
-            return MessagingConstants.MessageSource.Alvs; // Only send ALVS generated Error Notifications during Trial Cutover
-
-        if (await _featureManager.IsEnabledAsync(Features.Cutover))
-            return MessagingConstants.MessageSource.Btms; // Only send BTMS generated Error Notifications during Cutover
-
-        return MessagingConstants.MessageSource.None; // Don't send any Error Notifications during Connected Silent Running
     }
 }

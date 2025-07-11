@@ -6,6 +6,7 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.FeatureManagement;
 using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 using Serilog;
 
 namespace BtmsGateway.Test.Services.Routing;
@@ -465,6 +466,68 @@ public class DecisionSenderTests
             )
         );
         thrownException.Message.Should().Be("mrn-123 Decision Comparer returned an invalid decision.");
+    }
+
+    [Fact]
+    public async Task When_sending_decision_and_cds_returns_unsuccessful_response_Then_exception_is_thrown()
+    {
+        _featureManager.IsEnabledAsync(Features.Cutover).Returns(true);
+
+        var comparerResponse = new HttpResponseMessage(HttpStatusCode.OK);
+        comparerResponse.Content = new StringContent("<ComparerDecisionNotification />");
+
+        _apiSender
+            .SendToDecisionComparerAsync(
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>(),
+                Arg.Any<IHeaderDictionary>()
+            )
+            .Returns(comparerResponse);
+
+        _apiSender
+            .SendSoapMessageAsync(
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<Dictionary<string, string>>(),
+                "<ComparerDecisionNotification />",
+                Arg.Any<CancellationToken>()
+            )
+            .Returns(new HttpResponseMessage(HttpStatusCode.BadRequest));
+
+        var thrownException = await Assert.ThrowsAsync<DecisionComparisonException>(() =>
+            _decisionSender.SendDecisionAsync(
+                "mrn-123",
+                "<DecisionNotification />",
+                MessagingConstants.MessageSource.Btms,
+                new RoutingResult(),
+                new HeaderDictionary(),
+                "external-correlation-id",
+                CancellationToken.None
+            )
+        );
+        thrownException.Message.Should().Be("mrn-123 Failed to send Decision to CDS.");
+    }
+
+    [Fact]
+    public async Task When_sending_decision_from_unexpected_source_Then_exception_is_thrown()
+    {
+        var thrownException = await Assert.ThrowsAsync<ArgumentException>(() =>
+            _decisionSender.SendDecisionAsync(
+                "mrn-123",
+                "<DecisionNotification />",
+                MessagingConstants.MessageSource.None,
+                new RoutingResult(),
+                new HeaderDictionary(),
+                "external-correlation-id",
+                CancellationToken.None
+            )
+        );
+
+        thrownException.Message.Should().Be($"mrn-123 Received decision from unexpected source None.");
     }
 
     [Fact]

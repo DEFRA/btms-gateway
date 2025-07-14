@@ -6,6 +6,7 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.FeatureManagement;
 using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 using Serilog;
 
 namespace BtmsGateway.Test.Services.Routing;
@@ -87,50 +88,26 @@ public class DecisionSenderTests
         _decisionSender = new DecisionSender(_routingConfig, _apiSender, _featureManager, _logger);
     }
 
-    [Fact]
-    public async Task When_sending_btms_decision_Then_decision_is_sent_to_comparer_and_comparer_response_is_not_sent_onto_cds()
+    [Theory]
+    [InlineData(true, false, MessagingConstants.MessageSource.Alvs, 1, "alvs-decisions")]
+    [InlineData(true, false, MessagingConstants.MessageSource.Btms, 0, "btms-decisions")]
+    [InlineData(true, true, MessagingConstants.MessageSource.Alvs, 0, "alvs-decisions")]
+    [InlineData(true, true, MessagingConstants.MessageSource.Btms, 1, "btms-decisions")]
+    [InlineData(false, true, MessagingConstants.MessageSource.Alvs, 0, "alvs-decisions")]
+    [InlineData(false, true, MessagingConstants.MessageSource.Btms, 1, "btms-decisions")]
+    [InlineData(false, false, MessagingConstants.MessageSource.Alvs, 0, "alvs-decisions")]
+    [InlineData(false, false, MessagingConstants.MessageSource.Btms, 0, "btms-decisions")]
+    public async Task When_sending_decision_Then_message_is_sent_to_comparer_and_comparer_response_optionally_sent_onto_cds(
+        bool trialCutover,
+        bool cutover,
+        MessagingConstants.MessageSource messageSource,
+        int expectedCallsToCds,
+        string expectedCallToComparerDecisions
+    )
     {
-        var result = await _decisionSender.SendDecisionAsync(
-            "mrn-123",
-            "<BtmsDecisionNotification />",
-            MessagingConstants.MessageSource.Btms,
-            new RoutingResult(),
-            cancellationToken: CancellationToken.None
-        );
+        _featureManager.IsEnabledAsync(Features.TrialCutover).Returns(trialCutover);
+        _featureManager.IsEnabledAsync(Features.Cutover).Returns(cutover);
 
-        result.Should().BeAssignableTo<RoutingResult>();
-        result
-            .Should()
-            .BeEquivalentTo(
-                new RoutingResult
-                {
-                    RouteFound = true,
-                    RouteLinkType = LinkType.DecisionComparer,
-                    ForkLinkType = LinkType.DecisionComparer,
-                    RoutingSuccessful = true,
-                    FullRouteLink = "http://decision-comparer-url/btms-decisions/mrn-123",
-                    FullForkLink = "http://decision-comparer-url/btms-decisions/mrn-123",
-                    StatusCode = HttpStatusCode.NoContent,
-                    ResponseContent = string.Empty,
-                }
-            );
-
-        await _apiSender
-            .DidNotReceive()
-            .SendSoapMessageAsync(
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<Dictionary<string, string>>(),
-                Arg.Any<string>(),
-                Arg.Any<CancellationToken>()
-            );
-    }
-
-    [Fact]
-    public async Task When_sending_alvs_decision_Then_decision_is_sent_to_comparer_and_comparer_response_sent_onto_cds()
-    {
         var comparerResponse = new HttpResponseMessage(HttpStatusCode.OK);
         comparerResponse.Content = new StringContent("<ComparerDecisionNotification />");
 
@@ -146,13 +123,35 @@ public class DecisionSenderTests
 
         var result = await _decisionSender.SendDecisionAsync(
             "mrn-123",
-            "<AlvsDecisionNotification />",
-            MessagingConstants.MessageSource.Alvs,
+            "<DecisionNotification />",
+            messageSource,
             new RoutingResult(),
             new HeaderDictionary(),
             "external-correlation-id",
             CancellationToken.None
         );
+
+        await _apiSender
+            .Received(1)
+            .SendToDecisionComparerAsync(
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>(),
+                Arg.Any<IHeaderDictionary>()
+            );
+
+        await _apiSender
+            .Received(expectedCallsToCds)
+            .SendSoapMessageAsync(
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<Dictionary<string, string>>(),
+                "<ComparerDecisionNotification />",
+                Arg.Any<CancellationToken>()
+            );
 
         result.Should().BeAssignableTo<RoutingResult>();
         result
@@ -164,13 +163,12 @@ public class DecisionSenderTests
                     RouteLinkType = LinkType.DecisionComparer,
                     ForkLinkType = LinkType.DecisionComparer,
                     RoutingSuccessful = true,
-                    FullRouteLink = "http://decision-comparer-url/alvs-decisions/mrn-123",
-                    FullForkLink = "http://decision-comparer-url/alvs-decisions/mrn-123",
+                    FullRouteLink = $"http://decision-comparer-url/{expectedCallToComparerDecisions}/mrn-123",
+                    FullForkLink = $"http://decision-comparer-url/{expectedCallToComparerDecisions}/mrn-123",
                     StatusCode = HttpStatusCode.NoContent,
                     ResponseContent = string.Empty,
                 }
             );
-        // In cut over, add assertion that a call to send to CDS was made
     }
 
     [Fact]
@@ -410,6 +408,8 @@ public class DecisionSenderTests
     [Fact]
     public async Task When_sending_decision_and_comparer_returns_invalid_decision_Then_exception_is_thrown()
     {
+        _featureManager.IsEnabledAsync(Features.Cutover).Returns(true);
+
         var comparerResponse = new HttpResponseMessage(HttpStatusCode.OK);
         comparerResponse.Content = new StringContent(string.Empty);
 
@@ -426,8 +426,8 @@ public class DecisionSenderTests
         var thrownException = await Assert.ThrowsAsync<DecisionComparisonException>(() =>
             _decisionSender.SendDecisionAsync(
                 "mrn-123",
-                "<AlvsDecisionNotification />",
-                MessagingConstants.MessageSource.Alvs,
+                "<DecisionNotification />",
+                MessagingConstants.MessageSource.Btms,
                 new RoutingResult(),
                 new HeaderDictionary(),
                 "external-correlation-id",
@@ -440,6 +440,8 @@ public class DecisionSenderTests
     [Fact]
     public async Task When_sending_decision_and_comparer_returns_no_content_Then_exception_is_thrown()
     {
+        _featureManager.IsEnabledAsync(Features.Cutover).Returns(true);
+
         var comparerResponse = new HttpResponseMessage(HttpStatusCode.NoContent);
 
         _apiSender
@@ -455,8 +457,8 @@ public class DecisionSenderTests
         var thrownException = await Assert.ThrowsAsync<DecisionComparisonException>(() =>
             _decisionSender.SendDecisionAsync(
                 "mrn-123",
-                "<AlvsDecisionNotification />",
-                MessagingConstants.MessageSource.Alvs,
+                "<DecisionNotification />",
+                MessagingConstants.MessageSource.Btms,
                 new RoutingResult(),
                 new HeaderDictionary(),
                 "external-correlation-id",
@@ -464,6 +466,68 @@ public class DecisionSenderTests
             )
         );
         thrownException.Message.Should().Be("mrn-123 Decision Comparer returned an invalid decision.");
+    }
+
+    [Fact]
+    public async Task When_sending_decision_and_cds_returns_unsuccessful_response_Then_exception_is_thrown()
+    {
+        _featureManager.IsEnabledAsync(Features.Cutover).Returns(true);
+
+        var comparerResponse = new HttpResponseMessage(HttpStatusCode.OK);
+        comparerResponse.Content = new StringContent("<ComparerDecisionNotification />");
+
+        _apiSender
+            .SendToDecisionComparerAsync(
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>(),
+                Arg.Any<IHeaderDictionary>()
+            )
+            .Returns(comparerResponse);
+
+        _apiSender
+            .SendSoapMessageAsync(
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<Dictionary<string, string>>(),
+                "<ComparerDecisionNotification />",
+                Arg.Any<CancellationToken>()
+            )
+            .Returns(new HttpResponseMessage(HttpStatusCode.BadRequest));
+
+        var thrownException = await Assert.ThrowsAsync<DecisionComparisonException>(() =>
+            _decisionSender.SendDecisionAsync(
+                "mrn-123",
+                "<DecisionNotification />",
+                MessagingConstants.MessageSource.Btms,
+                new RoutingResult(),
+                new HeaderDictionary(),
+                "external-correlation-id",
+                CancellationToken.None
+            )
+        );
+        thrownException.Message.Should().Be("mrn-123 Failed to send Decision to CDS.");
+    }
+
+    [Fact]
+    public async Task When_sending_decision_from_unexpected_source_Then_exception_is_thrown()
+    {
+        var thrownException = await Assert.ThrowsAsync<ArgumentException>(() =>
+            _decisionSender.SendDecisionAsync(
+                "mrn-123",
+                "<DecisionNotification />",
+                MessagingConstants.MessageSource.None,
+                new RoutingResult(),
+                new HeaderDictionary(),
+                "external-correlation-id",
+                CancellationToken.None
+            )
+        );
+
+        thrownException.Message.Should().Be($"mrn-123 Received decision from unexpected source None.");
     }
 
     [Fact]

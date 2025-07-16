@@ -22,7 +22,6 @@ public interface IDecisionSender
 public class DecisionSender : SoapMessageSenderBase, IDecisionSender
 {
     private readonly IApiSender _apiSender;
-    private readonly IFeatureManager _featureManager;
     private readonly ILogger _logger;
     private readonly Destination _btmsDecisionsComparerDestination;
     private readonly Destination _alvsDecisionComparerDestination;
@@ -37,7 +36,6 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
         : base(apiSender, routingConfig, logger, featureManager)
     {
         _apiSender = apiSender;
-        _featureManager = featureManager;
         _logger = logger;
 
         _btmsDecisionsComparerDestination = GetDestination(MessagingConstants.Destinations.BtmsDecisionComparer);

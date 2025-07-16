@@ -1,4 +1,5 @@
 using BtmsGateway.Config;
+using BtmsGateway.Exceptions;
 using BtmsGateway.Extensions;
 using Defra.TradeImportsDataApi.Domain.Events;
 using Microsoft.Extensions.Options;
@@ -40,6 +41,11 @@ public class MetricsInterceptor<TMessage>(
 
             consumerMetrics.Start(context.Path, context.Consumer.GetType().Name, resourceType, subResourceType);
             return await next();
+        }
+        catch (ConflictException)
+        {
+            // Exclude 409 exceptions from the Faulted metric as they are expected on rare occasions and will be retried
+            throw;
         }
         catch (Exception exception)
         {

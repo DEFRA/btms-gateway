@@ -1,4 +1,5 @@
 using System.Net;
+using BtmsGateway.Config;
 using BtmsGateway.Consumers;
 using BtmsGateway.Domain;
 using BtmsGateway.Exceptions;
@@ -9,6 +10,7 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
@@ -20,9 +22,16 @@ public class ProcessingErrorConsumerTests
     private readonly ILogger<ProcessingErrorConsumer> _logger = NullLogger<ProcessingErrorConsumer>.Instance;
     private readonly ProcessingErrorConsumer _consumer;
 
+    private const string Mrn = "24GB123456789AB012";
+    private const string CorrelationId = "external-correlation-id";
+
     public ProcessingErrorConsumerTests()
     {
-        _consumer = new ProcessingErrorConsumer(_errorNotificationSender, _logger);
+        _consumer = new ProcessingErrorConsumer(
+            _errorNotificationSender,
+            _logger,
+            new OptionsWrapper<CdsOptions>(new CdsOptions { Username = "test-username", Password = "test-password" })
+        );
     }
 
     [Fact]
@@ -30,10 +39,17 @@ public class ProcessingErrorConsumerTests
     {
         var message = new ResourceEvent<ProcessingErrorResource>
         {
-            ResourceId = "24GB123456789AB012",
+            ResourceId = Mrn,
             ResourceType = "ProcessingError",
             Operation = "Created",
-            Resource = new ProcessingErrorResource { ProcessingErrors = [new ProcessingError()] },
+            Resource = new ProcessingErrorResource
+            {
+                ProcessingErrors =
+                [
+                    new ProcessingError { Created = DateTime.UtcNow.AddSeconds(-10) },
+                    new ProcessingError { Created = DateTime.UtcNow, CorrelationId = CorrelationId },
+                ],
+            },
         };
 
         var sendErrorNotificationResult = new RoutingResult { StatusCode = HttpStatusCode.OK };
@@ -55,13 +71,15 @@ public class ProcessingErrorConsumerTests
         await _errorNotificationSender
             .Received(1)
             .SendErrorNotificationAsync(
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<MessagingConstants.MessageSource>(),
-                Arg.Any<RoutingResult>(),
-                Arg.Any<IHeaderDictionary>(),
-                Arg.Any<string>(),
-                Arg.Any<CancellationToken>()
+                Mrn,
+                errorNotification: Arg.Is<string>(soap =>
+                    soap.Contains(Mrn) && soap.Contains("test-username") && soap.Contains("test-password")
+                ),
+                MessagingConstants.MessageSource.Btms,
+                RoutingResult.Empty,
+                headers: null,
+                CorrelationId,
+                CancellationToken.None
             );
     }
 

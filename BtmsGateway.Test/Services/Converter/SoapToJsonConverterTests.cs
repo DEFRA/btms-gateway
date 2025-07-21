@@ -1,3 +1,4 @@
+using BtmsGateway.Exceptions;
 using BtmsGateway.Services.Converter;
 using BtmsGateway.Test.TestUtils;
 using FluentAssertions;
@@ -48,7 +49,7 @@ public class SoapToJsonConverterTests
     {
         var soapContent = new SoapContent(File.ReadAllText(Path.Combine(TestDataPath, "ClearanceRequestSoap.xml")));
 
-        var thrownException = Assert.Throws<ArgumentException>(() =>
+        var thrownException = Assert.Throws<InvalidSoapException>(() =>
             SoapToJsonConverter.Convert(soapContent, "NonExistingMessageSubPath")
         );
         thrownException.Message.Should().Be("The XML message is not valid");

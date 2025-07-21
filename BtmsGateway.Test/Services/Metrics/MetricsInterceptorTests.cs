@@ -1,4 +1,5 @@
 using BtmsGateway.Config;
+using BtmsGateway.Exceptions;
 using BtmsGateway.Extensions;
 using BtmsGateway.Services.Metrics;
 using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
@@ -102,6 +103,37 @@ public class MetricsInterceptorTests
         thrownException.Should().BeSameAs(exceptionToThrow);
         consumerMetrics
             .Received(1)
+            .Faulted(
+                "test-queue",
+                consumer.GetType().Name,
+                "CustomsDeclaration",
+                "ClearanceDecision",
+                exceptionToThrow
+            );
+    }
+
+    [Fact]
+    public async Task When_message_handled_and_409_fault_occurs_Then_consumer_fault_metric_is_not_recorded()
+    {
+        var exceptionToThrow = new ConflictException("Test 409 exception");
+        requestMetrics
+            .When(mockRequestMetrics =>
+                mockRequestMetrics.MessageReceived(
+                    Arg.Any<string>(),
+                    Arg.Any<string>(),
+                    Arg.Any<string>(),
+                    Arg.Any<string>()
+                )
+            )
+            .Throw(exceptionToThrow);
+
+        var thrownException = await Assert.ThrowsAsync<ConflictException>(() =>
+            interceptor.OnHandle(new CustomsDeclaration(), pipelineCompletedFunc, consumerContext)
+        );
+
+        thrownException.Should().BeSameAs(exceptionToThrow);
+        consumerMetrics
+            .Received(0)
             .Faulted(
                 "test-queue",
                 consumer.GetType().Name,

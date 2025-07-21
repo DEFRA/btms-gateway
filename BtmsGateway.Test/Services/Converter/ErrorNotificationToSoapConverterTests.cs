@@ -1,5 +1,4 @@
 using BtmsGateway.Services.Converter;
-using BtmsGateway.Test.TestUtils;
 using Defra.TradeImportsDataApi.Domain.Errors;
 using FluentAssertions;
 
@@ -17,8 +16,7 @@ public class ErrorNotificationToSoapConverterTests
     [Fact]
     public void When_convert_Then_should_return_error_notification_soap_message()
     {
-        var expectedSoap = File.ReadAllText(Path.Combine(TestDataPath, "HmrcErrorNotificationWithHtmlEncoding.xml"))
-            .LinuxLineEndings();
+        var expectedSoap = File.ReadAllText(Path.Combine(TestDataPath, "HmrcErrorNotificationWithHtmlEncoding.xml"));
 
         var errorNotification = new ProcessingError
         {

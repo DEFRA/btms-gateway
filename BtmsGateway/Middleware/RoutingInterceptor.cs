@@ -147,15 +147,14 @@ public class RoutingInterceptor(
         if (routingResult.RoutingSuccessful)
         {
             logger.Information(
-                "{ContentCorrelationId} {MessageReference} {Action} {Success} for route {RouteUrl}, message type {MessageType} with response {StatusCode} \"{Content}\"",
+                "{ContentCorrelationId} {MessageReference} {Action} {Success} for route {RouteUrl}, message type {MessageType} with response {StatusCode}",
                 messageData.ContentMap.CorrelationId,
                 messageData.ContentMap.MessageReference,
                 action,
                 "successful",
                 action == RouteAction ? routingResult.FullRouteLink : routingResult.FullForkLink,
                 MessagingConstants.MessageTypes.FromSoapMessageType(routingResult.MessageSubXPath),
-                routingResult.StatusCode,
-                routingResult.ResponseContent
+                routingResult.StatusCode
             );
 
             requestMetrics.MessageSuccessfullySent(
@@ -169,15 +168,14 @@ public class RoutingInterceptor(
         }
 
         logger.Error(
-            "{ContentCorrelationId} {MessageReference} {Action} {Success} for route {RouteUrl}, message type {MessageType} with response {StatusCode} \"{Content}\"",
+            "{ContentCorrelationId} {MessageReference} {Action} {Success} for route {RouteUrl}, message type {MessageType} with response {StatusCode}",
             messageData.ContentMap.CorrelationId,
             messageData.ContentMap.MessageReference,
             action,
             "failed",
             action == RouteAction ? routingResult.FullRouteLink : routingResult.FullForkLink,
             MessagingConstants.MessageTypes.FromSoapMessageType(routingResult.MessageSubXPath),
-            routingResult.StatusCode,
-            routingResult.ResponseContent
+            routingResult.StatusCode
         );
     }
 

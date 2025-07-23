@@ -8,7 +8,7 @@ public static class ErrorNotificationToSoapConverter
 {
     private const string MessageType = "HMRCErrorNotification";
 
-    public static string Convert(ProcessingError processingError, string mrn)
+    public static string Convert(ProcessingError processingError, string mrn, string username, string password)
     {
         var soapContent = new List<XElement>
         {
@@ -44,7 +44,7 @@ public static class ErrorNotificationToSoapConverter
             soapContent
         );
 
-        var soapMessage = SoapUtils.AddSoapEnvelope(soapBody, SoapType.AlvsToCds);
+        var soapMessage = SoapUtils.AddSoapEnvelope(soapBody, SoapType.AlvsToCds, username, password);
 
         var soapDocument = new XDocument(new XDeclaration("1.0", "UTF-8", null), soapMessage);
 

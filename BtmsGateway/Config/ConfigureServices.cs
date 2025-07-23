@@ -61,5 +61,7 @@ public static class ConfigureServices
         builder.Services.AddSingleton<IErrorNotificationSender, ErrorNotificationSender>();
 
         builder.Services.AddFeatureManagement(builder.Configuration.GetSection("FeatureFlags"));
+
+        builder.Services.AddOptions<CdsOptions>().BindConfiguration(CdsOptions.SectionName).ValidateDataAnnotations();
     }
 }

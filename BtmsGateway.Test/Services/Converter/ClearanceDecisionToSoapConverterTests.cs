@@ -36,7 +36,12 @@ public class ClearanceDecisionToSoapConverterTests
             ],
         };
 
-        var result = ClearanceDecisionToSoapConverter.Convert(clearanceDecision, "25GB1HG99NHUJO3999");
+        var result = ClearanceDecisionToSoapConverter.Convert(
+            clearanceDecision,
+            "25GB1HG99NHUJO3999",
+            "test-username",
+            "test-password"
+        );
 
         result.Should().Be(expectedSoap);
     }

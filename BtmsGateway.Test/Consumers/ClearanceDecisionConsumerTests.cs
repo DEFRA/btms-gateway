@@ -1,4 +1,5 @@
 using System.Net;
+using BtmsGateway.Config;
 using BtmsGateway.Consumers;
 using BtmsGateway.Domain;
 using BtmsGateway.Exceptions;
@@ -9,6 +10,7 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
@@ -21,11 +23,14 @@ public class ClearanceDecisionConsumerTests
     private readonly ResourceEvent<CustomsDeclaration> _message;
     private readonly ClearanceDecisionConsumer _consumer;
 
+    private const string Mrn = "24GB123456789AB012";
+    private const string CorrelationId = "external-correlation-id";
+
     public ClearanceDecisionConsumerTests()
     {
         var clearanceDecision = new ClearanceDecision
         {
-            CorrelationId = "external-correlation-id",
+            CorrelationId = CorrelationId,
             Created = DateTime.Now,
             ExternalVersionNumber = 1,
             DecisionNumber = 1,
@@ -50,14 +55,18 @@ public class ClearanceDecisionConsumerTests
 
         _message = new ResourceEvent<CustomsDeclaration>
         {
-            ResourceId = "24GB123456789AB012",
+            ResourceId = Mrn,
             ResourceType = "CustomsDeclaration",
             SubResourceType = "ClearanceDecision",
             Operation = "Updated",
             Resource = new CustomsDeclaration { ClearanceDecision = clearanceDecision },
         };
 
-        _consumer = new ClearanceDecisionConsumer(_decisionSender, _logger);
+        _consumer = new ClearanceDecisionConsumer(
+            _decisionSender,
+            _logger,
+            new OptionsWrapper<CdsOptions>(new CdsOptions { Username = "test-username", Password = "test-password" })
+        );
     }
 
     [Fact]
@@ -82,13 +91,15 @@ public class ClearanceDecisionConsumerTests
         await _decisionSender
             .Received(1)
             .SendDecisionAsync(
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<MessagingConstants.MessageSource>(),
-                Arg.Any<RoutingResult>(),
-                Arg.Any<IHeaderDictionary>(),
-                Arg.Any<string>(),
-                Arg.Any<CancellationToken>()
+                Mrn,
+                decision: Arg.Is<string>(soap =>
+                    soap.Contains(Mrn) && soap.Contains("test-username") && soap.Contains("test-password")
+                ),
+                MessagingConstants.MessageSource.Btms,
+                RoutingResult.Empty,
+                headers: null,
+                CorrelationId,
+                CancellationToken.None
             );
     }
 

@@ -304,4 +304,49 @@ public static class TestRoutes
             },
         },
     };
+
+    public static readonly RoutingConfig CdsDefinedRoutes = new()
+    {
+        NamedRoutes = new Dictionary<string, NamedRoute>
+        {
+            {
+                "cds-route",
+                new NamedRoute
+                {
+                    RoutePath = "/route/path-1/sub/path",
+                    Legend = "Route 1",
+                    LegacyLinkName = "none",
+                    BtmsLinkName = "none",
+                    MessageSubXPath = "Message1",
+                    RouteTo = RouteTo.Legacy,
+                    IsCds = true,
+                }
+            },
+            {
+                "some-other-route",
+                new NamedRoute
+                {
+                    RoutePath = "/route/path-2/sub/path",
+                    Legend = "Route 2",
+                    LegacyLinkName = "none",
+                    BtmsLinkName = "none",
+                    MessageSubXPath = "Message2",
+                    RouteTo = RouteTo.Legacy,
+                }
+            },
+        },
+        NamedLinks = new Dictionary<string, NamedLink>
+        {
+            {
+                "none",
+                new NamedLink
+                {
+                    Link = "none",
+                    LinkType = LinkType.None,
+                    HostHeader = null,
+                }
+            },
+        },
+        Destinations = new Dictionary<string, Destination>(),
+    };
 }

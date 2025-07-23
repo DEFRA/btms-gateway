@@ -8,7 +8,7 @@ public static class ClearanceDecisionToSoapConverter
 {
     private const string MessageType = "DecisionNotification";
 
-    public static string Convert(ClearanceDecision clearanceDecision, string mrn)
+    public static string Convert(ClearanceDecision clearanceDecision, string mrn, string username, string password)
     {
         var soapContent = new List<XElement>
         {
@@ -44,7 +44,7 @@ public static class ClearanceDecisionToSoapConverter
             soapContent
         );
 
-        var soapMessage = SoapUtils.AddSoapEnvelope(soapBody, SoapType.AlvsToCds);
+        var soapMessage = SoapUtils.AddSoapEnvelope(soapBody, SoapType.AlvsToCds, username, password);
 
         var soapDocument = new XDocument(new XDeclaration("1.0", "UTF-8", null), soapMessage);
 

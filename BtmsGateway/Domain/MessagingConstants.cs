@@ -60,6 +60,7 @@ public static class MessagingConstants
     {
         Alvs,
         Btms,
+        None,
     }
 
     public static class Destinations

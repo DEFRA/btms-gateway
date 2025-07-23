@@ -1,7 +1,6 @@
 using System.Net;
 using BtmsGateway.Domain;
 using BtmsGateway.Exceptions;
-using BtmsGateway.Utils;
 using Microsoft.FeatureManagement;
 using ILogger = Serilog.ILogger;
 
@@ -23,7 +22,6 @@ public interface IDecisionSender
 public class DecisionSender : SoapMessageSenderBase, IDecisionSender
 {
     private readonly IApiSender _apiSender;
-    private readonly IFeatureManager _featureManager;
     private readonly ILogger _logger;
     private readonly Destination _btmsDecisionsComparerDestination;
     private readonly Destination _alvsDecisionComparerDestination;
@@ -35,10 +33,9 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
         IFeatureManager featureManager,
         ILogger logger
     )
-        : base(apiSender, routingConfig, logger)
+        : base(apiSender, routingConfig, logger, featureManager)
     {
         _apiSender = apiSender;
-        _featureManager = featureManager;
         _logger = logger;
 
         _btmsDecisionsComparerDestination = GetDestination(MessagingConstants.Destinations.BtmsDecisionComparer);
@@ -90,7 +87,6 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
             mrn,
             messageSource,
             comparerResponse,
-            decision,
             correlationId,
             cancellationToken
         );
@@ -112,45 +108,11 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
         string? mrn,
         MessagingConstants.MessageSource messageSource,
         HttpResponseMessage? comparerResponse,
-        string originalDecision,
         string? correlationId,
         CancellationToken cancellationToken
     )
     {
-        if (
-            await _featureManager.IsEnabledAsync(Features.SendOnlyBtmsDecisionToCds)
-            && messageSource == MessagingConstants.MessageSource.Btms
-        )
-        {
-            _logger.Debug("{CorrelationId} {MRN} Sending BTMS Decision to CDS.", correlationId, mrn);
-
-            var response = await SendCdsFormattedSoapMessageAsync(
-                originalDecision,
-                correlationId,
-                _btmsToCdsDestination,
-                cancellationToken
-            );
-
-            if (!response.IsSuccessStatusCode)
-            {
-                _logger.Error(
-                    "{CorrelationId} {MRN} Failed to send clearance decision to CDS. CDS Response Status Code: {StatusCode}, Reason: {Reason}, Content: {Content}",
-                    correlationId,
-                    mrn,
-                    response.StatusCode,
-                    response.ReasonPhrase,
-                    await GetResponseContentAsync(response, cancellationToken)
-                );
-                throw new DecisionComparisonException($"{mrn} Failed to send clearance decision to CDS.");
-            }
-
-            return response;
-        }
-
-        if (
-            !await _featureManager.IsEnabledAsync(Features.SendOnlyBtmsDecisionToCds)
-            && messageSource == MessagingConstants.MessageSource.Alvs
-        )
+        if (messageSource == await MessageSourceToSend())
         {
             _logger.Debug(
                 "{CorrelationId} {MRN} Sending Decision received from Decision Comparer to CDS.",
@@ -170,16 +132,32 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
                 throw new DecisionComparisonException($"{mrn} Decision Comparer returned an invalid decision.");
             }
 
-            _logger.Information(
-                "{CorrelationId} {MRN} Received Decision from Decision Comparer to send to CDS",
+            var response = await SendCdsFormattedSoapMessageAsync(
+                comparerDecision,
                 correlationId,
-                mrn
+                _btmsToCdsDestination,
+                cancellationToken
             );
-            // Just log decision for now. Eventually, in cut over, will send the Decision to CDS.
-            // Ensure original ALVS request headers are passed through and appended in SendCdsFormattedSoapMessageAsync!
-            // Pass the CDS response back out!
-            return null;
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.Error(
+                    "{CorrelationId} {MRN} Failed to send Decision to CDS. CDS Response Status Code: {StatusCode}, Reason: {Reason}, Content: {Content}",
+                    correlationId,
+                    mrn,
+                    response.StatusCode,
+                    response.ReasonPhrase,
+                    await GetResponseContentAsync(response, cancellationToken)
+                );
+                throw new DecisionComparisonException($"{mrn} Failed to send Decision to CDS.");
+            }
+
+            _logger.Information("{CorrelationId} {MRN} Successfully sent Decision to CDS.", correlationId, mrn);
+
+            return response;
         }
+
+        _logger.Information("{CorrelationId} {MRN} Successfully sent Decision to NOOP.", correlationId, mrn);
 
         return null;
     }

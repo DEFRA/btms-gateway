@@ -173,4 +173,16 @@ public class MessageRoutesTests
             .WithInnerException<InvalidDataException>()
             .WithMessage("Invalid Link Type in config");
     }
+
+    [Theory]
+    [InlineData("/route/path-1/sub/path", true)]
+    [InlineData("/route/path-2/sub/path", false)]
+    [InlineData("/foo", false)]
+    [InlineData("/foo/", false)]
+    public void When_checking_for_cds_route_Then_should_return_expected(string routePath, bool expectedResult)
+    {
+        var messageRoutes = new MessageRoutes(TestRoutes.CdsDefinedRoutes, Substitute.For<ILogger>());
+
+        messageRoutes.IsCdsRoute(routePath).Should().Be(expectedResult);
+    }
 }

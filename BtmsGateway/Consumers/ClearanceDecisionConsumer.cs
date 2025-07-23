@@ -1,3 +1,4 @@
+using BtmsGateway.Config;
 using BtmsGateway.Domain;
 using BtmsGateway.Exceptions;
 using BtmsGateway.Services.Converter;
@@ -5,12 +6,16 @@ using BtmsGateway.Services.Routing;
 using BtmsGateway.Utils;
 using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 using Defra.TradeImportsDataApi.Domain.Events;
+using Microsoft.Extensions.Options;
 using SlimMessageBus;
 
 namespace BtmsGateway.Consumers;
 
-public class ClearanceDecisionConsumer(IDecisionSender decisionSender, ILogger<ClearanceDecisionConsumer> logger)
-    : IConsumer<ResourceEvent<CustomsDeclaration>>
+public class ClearanceDecisionConsumer(
+    IDecisionSender decisionSender,
+    ILogger<ClearanceDecisionConsumer> logger,
+    IOptions<CdsOptions> cdsOptions
+) : IConsumer<ResourceEvent<CustomsDeclaration>>
 {
     public async Task OnHandle(ResourceEvent<CustomsDeclaration> message, CancellationToken cancellationToken)
     {
@@ -45,7 +50,12 @@ public class ClearanceDecisionConsumer(IDecisionSender decisionSender, ILogger<C
                 );
             }
 
-            var soapMessage = ClearanceDecisionToSoapConverter.Convert(message.Resource.ClearanceDecision, mrn);
+            var soapMessage = ClearanceDecisionToSoapConverter.Convert(
+                message.Resource.ClearanceDecision,
+                mrn,
+                cdsOptions.Value.Username,
+                cdsOptions.Value.Password
+            );
 
             var result = await decisionSender.SendDecisionAsync(
                 mrn,

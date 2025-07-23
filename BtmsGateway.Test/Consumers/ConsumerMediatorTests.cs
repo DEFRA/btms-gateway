@@ -1,6 +1,7 @@
 using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
+using BtmsGateway.Config;
 using BtmsGateway.Consumers;
 using BtmsGateway.Domain;
 using BtmsGateway.Exceptions;
@@ -11,6 +12,7 @@ using Defra.TradeImportsDataApi.Domain.Errors;
 using Defra.TradeImportsDataApi.Domain.Events;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using NSubstitute;
 using SlimMessageBus;
 
@@ -31,7 +33,8 @@ public class ConsumerMediatorTests
         var subject = new ConsumerMediator(
             Substitute.For<IDecisionSender>(),
             Substitute.For<IErrorNotificationSender>(),
-            Substitute.For<ILoggerFactory>()
+            Substitute.For<ILoggerFactory>(),
+            Substitute.For<IOptions<CdsOptions>>()
         )
         {
             Context = context,
@@ -65,7 +68,8 @@ public class ConsumerMediatorTests
         var subject = new ConsumerMediator(
             Substitute.For<IDecisionSender>(),
             Substitute.For<IErrorNotificationSender>(),
-            Substitute.For<ILoggerFactory>()
+            Substitute.For<ILoggerFactory>(),
+            Substitute.For<IOptions<CdsOptions>>()
         )
         {
             Context = context,
@@ -99,7 +103,8 @@ public class ConsumerMediatorTests
         var subject = new ConsumerMediator(
             Substitute.For<IDecisionSender>(),
             Substitute.For<IErrorNotificationSender>(),
-            Substitute.For<ILoggerFactory>()
+            Substitute.For<ILoggerFactory>(),
+            Substitute.For<IOptions<CdsOptions>>()
         )
         {
             Context = context,
@@ -133,7 +138,8 @@ public class ConsumerMediatorTests
         var subject = new ConsumerMediator(
             Substitute.For<IDecisionSender>(),
             Substitute.For<IErrorNotificationSender>(),
-            Substitute.For<ILoggerFactory>()
+            Substitute.For<ILoggerFactory>(),
+            Substitute.For<IOptions<CdsOptions>>()
         )
         {
             Context = context,

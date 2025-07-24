@@ -1,5 +1,4 @@
 using BtmsGateway.Services.Converter;
-using BtmsGateway.Test.TestUtils;
 using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 using FluentAssertions;
 
@@ -17,8 +16,7 @@ public class ClearanceDecisionToSoapConverterTests
     [Fact]
     public void When_receiving_clearance_decision_Then_should_convert_to_soap()
     {
-        var expectedSoap = File.ReadAllText(Path.Combine(TestDataPath, "DecisionNotificationWithHtmlEncoding.xml"))
-            .LinuxLineEndings();
+        var expectedSoap = File.ReadAllText(Path.Combine(TestDataPath, "DecisionNotificationWithHtmlEncoding.xml"));
 
         var clearanceDecision = new ClearanceDecision
         {

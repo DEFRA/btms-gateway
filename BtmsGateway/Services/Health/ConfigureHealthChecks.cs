@@ -24,7 +24,6 @@ public static class ConfigureHealthChecks
 
         builder
             .Services.AddHealthChecks()
-            .AddResourceUtilizationHealthCheck()
             .AddNetworkChecks(healthCheckConfig)
             .AddTopicChecks(routingConfig)
             .AddQueueChecks(awsSqsOptions, builder.Configuration)

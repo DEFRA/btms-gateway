@@ -65,3 +65,11 @@ static WebApplication BuildWebApplication(WebApplicationBuilder builder)
 
     return app;
 }
+
+#pragma warning disable S2094
+namespace BtmsGateway
+{
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class Program;
+}
+#pragma warning restore S2094

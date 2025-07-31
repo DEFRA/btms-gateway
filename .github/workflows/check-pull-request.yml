@@ -34,16 +34,17 @@ jobs:
         run: |
           dotnet nuget remove source defra --configfile ./NuGet.config
           dotnet nuget add source --username USERNAME --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name defra "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --configfile ./NuGet.config
+#      Remove this running of docker compose once E2E tests have been updated and/or moved to the IntegrationTests project
       - name: Run docker-compose
         uses: hoverkraft-tech/compose-action@v2.3.0
         with:
           compose-file: "./compose.yml"
-      - name: Make Script Executable
-        run: chmod +x ./wait-for-docker-logs.sh
-      - name: Wait for Localstack
-        run: ./wait-for-docker-logs.sh sns-sqs-emulator "Ready." 60
       - name: Test
-        run: dotnet test ./BtmsGateway.sln
+        run: dotnet test BtmsGateway.Test
+      - name: Run integration tests
+        run: |
+          docker compose up -d
+          dotnet test tests/BtmsGateway.IntegrationTests
       - name: Docker Compose Logs
         if: always()
         run: |

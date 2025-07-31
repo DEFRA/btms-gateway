@@ -35,10 +35,18 @@ public static class ConfigureServices
             o.RequestHeaders.Add("X-cdp-request-id");
             o.RequestHeaders.Add("X-Amzn-Trace-Id");
         });
-        HttpRoutedClientWithRetryBuilder = builder.Services.AddHttpProxyRoutedClientWithRetry();
-        HttpForkedClientWithRetryBuilder = builder.Services.AddHttpProxyForkedClientWithRetry();
-        HttpClientWithRetryBuilder = builder.Services.AddHttpProxyClientWithRetry();
-        DecisionComparerHttpClientWithRetryBuilder = builder.Services.AddDecisionComparerHttpProxyClientWithRetry();
+
+        var httpClientTimeoutSeconds = builder.Configuration.GetValue(
+            "HttpClientTimeoutSeconds",
+            Proxy.DefaultHttpClientTimeoutSeconds
+        );
+
+        HttpRoutedClientWithRetryBuilder = builder.Services.AddHttpProxyRoutedClientWithRetry(httpClientTimeoutSeconds);
+        HttpForkedClientWithRetryBuilder = builder.Services.AddHttpProxyForkedClientWithRetry(httpClientTimeoutSeconds);
+        HttpClientWithRetryBuilder = builder.Services.AddHttpProxyClientWithRetry(httpClientTimeoutSeconds);
+        DecisionComparerHttpClientWithRetryBuilder = builder.Services.AddDecisionComparerHttpProxyClientWithRetry(
+            httpClientTimeoutSeconds
+        );
 
         builder.Services.AddHttpProxyClientWithoutRetry();
         builder.Services.AddDataApiHttpClient();

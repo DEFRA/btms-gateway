@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using BtmsGateway.Config;
+using BtmsGateway.Services.Health;
 using Microsoft.Extensions.Http.Resilience;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -10,8 +11,11 @@ using Environment = System.Environment;
 
 namespace BtmsGateway.Utils.Http;
 
+[ExcludeFromCodeCoverage]
 public static class Proxy
 {
+    public static readonly int DefaultHttpClientTimeoutSeconds = 10;
+
     public const string ProxyClientWithoutRetry = "proxy";
     public const string ProxyClientWithRetry = "proxy-with-retry";
     public const string RoutedClientWithRetry = "routed-with-retry";
@@ -23,7 +27,8 @@ public static class Proxy
     {
         return services
             .AddHttpClient(ProxyClientWithoutRetry)
-            .ConfigurePrimaryHttpMessageHandler(ConfigurePrimaryHttpMessageHandler);
+            .ConfigurePrimaryHttpMessageHandler(ConfigurePrimaryHttpMessageHandler)
+            .ConfigureHttpClient(client => client.Timeout = ConfigureHealthChecks.Timeout);
     }
 
     private static readonly AsyncRetryPolicy<HttpResponseMessage> WaitAndRetryAsync = HttpPolicyExtensions
@@ -31,34 +36,49 @@ public static class Proxy
         .WaitAndRetryAsync(3, _ => TimeSpan.FromMilliseconds(1000));
 
     [ExcludeFromCodeCoverage]
-    public static IHttpClientBuilder AddHttpProxyRoutedClientWithRetry(this IServiceCollection services)
+    public static IHttpClientBuilder AddHttpProxyRoutedClientWithRetry(
+        this IServiceCollection services,
+        int httpClientTimeoutInSeconds
+    )
     {
         return services
             .AddHttpClient(RoutedClientWithRetry)
             .ConfigurePrimaryHttpMessageHandler(ConfigurePrimaryHttpMessageHandler)
+            .ConfigureHttpClient(client => client.Timeout = TimeSpan.FromSeconds(httpClientTimeoutInSeconds))
             .AddPolicyHandler(_ => WaitAndRetryAsync);
     }
 
     [ExcludeFromCodeCoverage]
-    public static IHttpClientBuilder AddHttpProxyForkedClientWithRetry(this IServiceCollection services)
+    public static IHttpClientBuilder AddHttpProxyForkedClientWithRetry(
+        this IServiceCollection services,
+        int httpClientTimeoutInSeconds
+    )
     {
         return services
             .AddHttpClient(ForkedClientWithRetry)
             .ConfigurePrimaryHttpMessageHandler(ConfigurePrimaryHttpMessageHandler)
+            .ConfigureHttpClient(client => client.Timeout = TimeSpan.FromSeconds(httpClientTimeoutInSeconds))
             .AddPolicyHandler(_ => WaitAndRetryAsync);
     }
 
     [ExcludeFromCodeCoverage]
-    public static IHttpClientBuilder AddHttpProxyClientWithRetry(this IServiceCollection services)
+    public static IHttpClientBuilder AddHttpProxyClientWithRetry(
+        this IServiceCollection services,
+        int httpClientTimeoutInSeconds
+    )
     {
         return services
             .AddHttpClient(ProxyClientWithRetry)
             .ConfigurePrimaryHttpMessageHandler(ConfigurePrimaryHttpMessageHandler)
+            .ConfigureHttpClient(client => client.Timeout = TimeSpan.FromSeconds(httpClientTimeoutInSeconds))
             .AddPolicyHandler(_ => WaitAndRetryAsync);
     }
 
     [ExcludeFromCodeCoverage]
-    public static IHttpClientBuilder AddDecisionComparerHttpProxyClientWithRetry(this IServiceCollection services)
+    public static IHttpClientBuilder AddDecisionComparerHttpProxyClientWithRetry(
+        this IServiceCollection services,
+        int httpClientTimeoutInSeconds
+    )
     {
         services
             .AddOptions<DecisionComparerApiOptions>()
@@ -69,7 +89,11 @@ public static class Proxy
             .AddHttpClient(DecisionComparerProxyClientWithRetry)
             .ConfigurePrimaryHttpMessageHandler(ConfigurePrimaryHttpMessageHandler)
             .ConfigureHttpClient(
-                (sp, c) => sp.GetRequiredService<IOptions<DecisionComparerApiOptions>>().Value.Configure(c)
+                (sp, c) =>
+                {
+                    sp.GetRequiredService<IOptions<DecisionComparerApiOptions>>().Value.Configure(c);
+                    c.Timeout = TimeSpan.FromSeconds(httpClientTimeoutInSeconds);
+                }
             )
             .AddHeaderPropagation();
 

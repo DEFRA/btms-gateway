@@ -62,10 +62,8 @@ jobs:
         uses: hoverkraft-tech/compose-action@v2.3.0
         with:
           compose-file: "./compose.yml"
-      - name: Make Script Executable
-        run: chmod +x ./wait-for-docker-logs.sh
-      - name: Wait for Localstack
-        run: ./wait-for-docker-logs.sh sns-sqs-emulator "Ready." 60
+        env:
+          DEFRA_NUGET_PAT: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and analyze
         if: github.actor != 'dependabot[bot]'
         env:

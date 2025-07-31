@@ -1,6 +1,8 @@
 using System.Net;
 using BtmsGateway.Domain;
 using BtmsGateway.Exceptions;
+using BtmsGateway.Middleware;
+using BtmsGateway.Services.Converter;
 using Microsoft.FeatureManagement;
 using ILogger = Serilog.ILogger;
 
@@ -139,11 +141,14 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
                 cancellationToken
             );
 
+            var soapContent = new SoapContent(comparerDecision);
+            var contentMap = new ContentMap(soapContent);
+
             if (!response.IsSuccessStatusCode)
             {
                 _logger.Error(
                     "{CorrelationId} {MRN} Failed to send Decision to CDS. CDS Response Status Code: {StatusCode}, Reason: {Reason}, Content: {Content}",
-                    correlationId,
+                    contentMap.CorrelationId,
                     mrn,
                     response.StatusCode,
                     response.ReasonPhrase,
@@ -152,7 +157,11 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
                 throw new DecisionComparisonException($"{mrn} Failed to send Decision to CDS.");
             }
 
-            _logger.Information("{CorrelationId} {MRN} Successfully sent Decision to CDS.", correlationId, mrn);
+            _logger.Information(
+                "{CorrelationId} {MRN} Successfully sent Decision to CDS.",
+                contentMap.CorrelationId,
+                mrn
+            );
 
             return response;
         }

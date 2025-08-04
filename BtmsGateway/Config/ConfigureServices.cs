@@ -40,10 +40,17 @@ public static class ConfigureServices
             "HttpClientTimeoutSeconds",
             Proxy.DefaultHttpClientTimeoutSeconds
         );
+        var cdsHttpClientRetries = builder.Configuration.GetValue(
+            "CdsHttpClientRetries",
+            Proxy.DefaultCdsHttpClientRetries
+        );
 
         HttpRoutedClientWithRetryBuilder = builder.Services.AddHttpProxyRoutedClientWithRetry(httpClientTimeoutSeconds);
         HttpForkedClientWithRetryBuilder = builder.Services.AddHttpProxyForkedClientWithRetry(httpClientTimeoutSeconds);
-        HttpClientWithRetryBuilder = builder.Services.AddHttpProxyClientWithRetry(httpClientTimeoutSeconds);
+        HttpClientWithRetryBuilder = builder.Services.AddHttpProxyClientWithRetry(
+            httpClientTimeoutSeconds,
+            cdsHttpClientRetries
+        );
         DecisionComparerHttpClientWithRetryBuilder = builder.Services.AddDecisionComparerHttpProxyClientWithRetry(
             httpClientTimeoutSeconds
         );

@@ -16,6 +16,7 @@ namespace BtmsGateway.Utils.Http;
 public static class Proxy
 {
     public static readonly int DefaultHttpClientTimeoutSeconds = 10;
+    public static readonly int DefaultCdsHttpClientRetries = 3;
 
     public const string ProxyClientWithoutRetry = "proxy";
     public const string CdsProxyClientWithRetry = "proxy-with-retry";
@@ -74,15 +75,17 @@ public static class Proxy
     [ExcludeFromCodeCoverage]
     public static IHttpClientBuilder AddHttpProxyClientWithRetry(
         this IServiceCollection services,
-        int httpClientTimeoutInSeconds
+        int httpClientTimeoutInSeconds,
+        int httpClientRetryCount
     )
     {
         // Uses its own retry policy as this client affects SQS consumption, and the total retry time potentially exceeds the SQS Visibility Timeout if the number of retries is higher
+        // Left it as its own separate retry configuration to make any future updates easier
         var strategy = Policy.WrapAsync(
             HttpPolicyExtensions
                 .HandleTransientHttpError()
                 .Or<TimeoutRejectedException>()
-                .WaitAndRetryAsync(1, _ => TimeSpan.FromMilliseconds(1000)),
+                .WaitAndRetryAsync(httpClientRetryCount, _ => TimeSpan.FromMilliseconds(1000)),
             Policy.TimeoutAsync<HttpResponseMessage>(TimeSpan.FromSeconds(httpClientTimeoutInSeconds))
         );
 

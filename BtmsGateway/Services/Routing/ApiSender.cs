@@ -82,7 +82,7 @@ public class ApiSender(IHttpClientFactory clientFactory, IServiceProvider servic
         CancellationToken cancellationToken
     )
     {
-        var client = clientFactory.CreateClient(Proxy.ProxyClientWithRetry);
+        var client = clientFactory.CreateClient(Proxy.CdsProxyClientWithRetry);
 
         var request = new HttpRequestMessage(new HttpMethod(method), destination);
 

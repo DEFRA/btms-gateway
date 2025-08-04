@@ -2,6 +2,7 @@ using System.Net;
 using BtmsGateway.IntegrationTests.TestUtils;
 using BtmsGateway.Utils.Http;
 using FluentAssertions;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using WireMock.Client;
@@ -19,7 +20,10 @@ public class ProxyTests(WireMockClient wireMockClient)
     {
         var fixtureContent = FixtureTest.UsingContent("DecisionNotification.xml");
 
-        await using var application = new WebApplicationFactory<Program>();
+        await using var application = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
+        {
+            builder.UseEnvironment("IntegrationTests");
+        });
 
         var configuration = application.Services.GetService(typeof(IConfiguration));
         var httpClientTimeoutSeconds = ((ConfigurationManager)configuration!).GetValue<int>("HttpClientTimeoutSeconds");
@@ -27,11 +31,25 @@ public class ProxyTests(WireMockClient wireMockClient)
         var responseDelay =
             httpClientTimeoutSeconds > 0 ? httpClientTimeoutSeconds + 1 : Proxy.DefaultHttpClientTimeoutSeconds + 1;
 
-        var mappingBuilder = _wireMockAdminApi.GetMappingBuilder();
-        mappingBuilder.Given(m =>
+        var postMappingBuilder = _wireMockAdminApi.GetMappingBuilder();
+        postMappingBuilder.Given(m =>
             m.WithRequest(req => req.UsingPost().WithPath("/ws/CDS/defra/alvsclearanceinbound/v1"))
-                .WithResponse(rsp => rsp.WithStatusCode(HttpStatusCode.ServiceUnavailable).WithDelay(responseDelay))
+                .WithResponse(rsp =>
+                    rsp.WithStatusCode(HttpStatusCode.ServiceUnavailable).WithDelay(TimeSpan.FromSeconds(responseDelay))
+                )
         );
+        var postStatus = await postMappingBuilder.BuildAndPostAsync();
+        Assert.NotNull(postStatus.Guid);
+
+        var putMappingBuilder = _wireMockAdminApi.GetMappingBuilder();
+        putMappingBuilder.Given(m =>
+            m.WithRequest(req => req.UsingPut().WithPath("/alvs-decisions/25GB1HG99NHUJO3999"))
+                .WithResponse(rsp =>
+                    rsp.WithStatusCode(HttpStatusCode.ServiceUnavailable).WithDelay(TimeSpan.FromSeconds(responseDelay))
+                )
+        );
+        var putStatus = await putMappingBuilder.BuildAndPostAsync();
+        Assert.NotNull(putStatus.Guid);
 
         using var client = application.CreateClient();
 

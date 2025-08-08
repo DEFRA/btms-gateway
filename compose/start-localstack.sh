@@ -43,3 +43,15 @@ aws --endpoint-url=$ENDPOINT_URL sns subscribe --topic-arn $SNS_ARN:$CEN --proto
 aws --endpoint-url=$ENDPOINT_URL sns subscribe --topic-arn $SNS_ARN:$ADN --protocol sqs --notification-endpoint $SQS_ARN:$ADN --attributes '{"RawMessageDelivery": "true"}'
 aws --endpoint-url=$ENDPOINT_URL sns subscribe --topic-arn $SNS_ARN:$AEN --protocol sqs --notification-endpoint $SQS_ARN:$AEN --attributes '{"RawMessageDelivery": "true"}'
 aws --endpoint-url=$ENDPOINT_URL sns subscribe --topic-arn $SNS_ARN:$ICDR_Topic --protocol sqs --notification-endpoint $SQS_ARN:$ICDR_Queue --attributes '{"RawMessageDelivery": "true"}'
+
+function is_ready() {
+    aws --endpoint-url=http://sqs.eu-west-2.localhost.localstack.cloud:4566 sqs get-queue-url --queue-name trade_imports_data_upserted_btms_gateway || return 1
+    return 0
+}
+
+while ! is_ready; do
+    echo "Waiting until ready"
+    sleep 1
+done
+
+touch /tmp/ready

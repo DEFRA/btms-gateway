@@ -36,8 +36,10 @@ The available health endpoints can be viewed by visiting the swagger endpoint <c
 
 - Install the .NET 9 SDK installed
 - Ensure you have NSLookup and Dig available on your machine if you wish to execute the Health Checks locally
+- This project reference Nuget packages that are hosted in Github. In order for the build to access these packages you will need to configure a PAT token that gives you access to the Github Nuget.
+  - Create a Github PAT token for your account and configure it in the .env file. See .env.example file for an example of how your .env file should look
 - Install Docker
-  - Run the following Docker Compose to set up locally running queues for testing
+  - Run the following Docker Compose to set up locally running queues, wiremock instance for testing as well as the Gateway application itself
   ```bash
   docker compose -f compose.yml up -d
   ```
@@ -55,7 +57,7 @@ dotnet run --project BtmsGateway --launch-profile BtmsGateway
 Run the tests with:
 
 ```bash
-dotnet test
+dotnet test BtmsGateway.Test
 ```
 
 Unit tests execute without a running instance of the web server. 
@@ -63,6 +65,14 @@ End-to-end tests can start the web server using `TestWebServer.BuildAndRun()` ta
 - `Services` allows access to injected services.
 - `HttpServiceClient` provide a pre-configured `HttpClient` that can be used to access the web server.
 - `OutboundTestHttpHandler` is a `TestHttpHandler` class that intercepts all `HttpClient` requests to dependant services called by the web server.
+
+### How to run Integration Tests
+
+Run the integration tests with:
+
+```bash
+dotnet test tests/BtmsGateway.IntegrationTests
+```
 
 ### Deploying
 

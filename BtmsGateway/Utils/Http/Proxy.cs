@@ -1,19 +1,25 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using BtmsGateway.Config;
+using BtmsGateway.Services.Health;
 using Microsoft.Extensions.Http.Resilience;
 using Microsoft.Extensions.Options;
 using Polly;
 using Polly.Extensions.Http;
 using Polly.Retry;
+using Polly.Timeout;
 using Environment = System.Environment;
 
 namespace BtmsGateway.Utils.Http;
 
+[ExcludeFromCodeCoverage]
 public static class Proxy
 {
+    public static readonly int DefaultHttpClientTimeoutSeconds = 10;
+    public static readonly int DefaultCdsHttpClientRetries = 3;
+
     public const string ProxyClientWithoutRetry = "proxy";
-    public const string ProxyClientWithRetry = "proxy-with-retry";
+    public const string CdsProxyClientWithRetry = "proxy-with-retry";
     public const string RoutedClientWithRetry = "routed-with-retry";
     public const string ForkedClientWithRetry = "forked-with-retry";
     public const string DecisionComparerProxyClientWithRetry = "decision-comparer-proxy-with-retry";
@@ -23,42 +29,77 @@ public static class Proxy
     {
         return services
             .AddHttpClient(ProxyClientWithoutRetry)
-            .ConfigurePrimaryHttpMessageHandler(ConfigurePrimaryHttpMessageHandler);
+            .ConfigurePrimaryHttpMessageHandler(ConfigurePrimaryHttpMessageHandler)
+            .ConfigureHttpClient(client => client.Timeout = ConfigureHealthChecks.Timeout);
     }
 
     private static readonly AsyncRetryPolicy<HttpResponseMessage> WaitAndRetryAsync = HttpPolicyExtensions
         .HandleTransientHttpError()
+        .Or<TimeoutRejectedException>()
         .WaitAndRetryAsync(3, _ => TimeSpan.FromMilliseconds(1000));
 
     [ExcludeFromCodeCoverage]
-    public static IHttpClientBuilder AddHttpProxyRoutedClientWithRetry(this IServiceCollection services)
+    public static IHttpClientBuilder AddHttpProxyRoutedClientWithRetry(
+        this IServiceCollection services,
+        int httpClientTimeoutInSeconds
+    )
     {
+        var strategy = Policy.WrapAsync(
+            WaitAndRetryAsync,
+            Policy.TimeoutAsync<HttpResponseMessage>(TimeSpan.FromSeconds(httpClientTimeoutInSeconds))
+        );
+
         return services
             .AddHttpClient(RoutedClientWithRetry)
             .ConfigurePrimaryHttpMessageHandler(ConfigurePrimaryHttpMessageHandler)
-            .AddPolicyHandler(_ => WaitAndRetryAsync);
+            .AddPolicyHandler(strategy);
     }
 
     [ExcludeFromCodeCoverage]
-    public static IHttpClientBuilder AddHttpProxyForkedClientWithRetry(this IServiceCollection services)
+    public static IHttpClientBuilder AddHttpProxyForkedClientWithRetry(
+        this IServiceCollection services,
+        int httpClientTimeoutInSeconds
+    )
     {
+        var strategy = Policy.WrapAsync(
+            WaitAndRetryAsync,
+            Policy.TimeoutAsync<HttpResponseMessage>(TimeSpan.FromSeconds(httpClientTimeoutInSeconds))
+        );
+
         return services
             .AddHttpClient(ForkedClientWithRetry)
             .ConfigurePrimaryHttpMessageHandler(ConfigurePrimaryHttpMessageHandler)
-            .AddPolicyHandler(_ => WaitAndRetryAsync);
+            .AddPolicyHandler(strategy);
     }
 
     [ExcludeFromCodeCoverage]
-    public static IHttpClientBuilder AddHttpProxyClientWithRetry(this IServiceCollection services)
+    public static IHttpClientBuilder AddHttpProxyClientWithRetry(
+        this IServiceCollection services,
+        int httpClientTimeoutInSeconds,
+        int httpClientRetryCount
+    )
     {
+        // Uses its own retry policy as this client affects SQS consumption, and the total retry time potentially exceeds the SQS Visibility Timeout if the number of retries is higher
+        // Left it as its own separate retry configuration to make any future updates easier
+        var strategy = Policy.WrapAsync(
+            HttpPolicyExtensions
+                .HandleTransientHttpError()
+                .Or<TimeoutRejectedException>()
+                .WaitAndRetryAsync(httpClientRetryCount, _ => TimeSpan.FromMilliseconds(1000)),
+            Policy.TimeoutAsync<HttpResponseMessage>(TimeSpan.FromSeconds(httpClientTimeoutInSeconds))
+        );
+
         return services
-            .AddHttpClient(ProxyClientWithRetry)
+            .AddHttpClient(CdsProxyClientWithRetry)
             .ConfigurePrimaryHttpMessageHandler(ConfigurePrimaryHttpMessageHandler)
-            .AddPolicyHandler(_ => WaitAndRetryAsync);
+            .AddPolicyHandler(strategy);
     }
 
     [ExcludeFromCodeCoverage]
-    public static IHttpClientBuilder AddDecisionComparerHttpProxyClientWithRetry(this IServiceCollection services)
+    public static IHttpClientBuilder AddDecisionComparerHttpProxyClientWithRetry(
+        this IServiceCollection services,
+        int httpClientTimeoutInSeconds
+    )
     {
         services
             .AddOptions<DecisionComparerApiOptions>()
@@ -76,6 +117,7 @@ public static class Proxy
         clientBuilder.AddStandardResilienceHandler(o =>
         {
             o.Retry.DisableFor(HttpMethod.Delete, HttpMethod.Post, HttpMethod.Connect, HttpMethod.Patch);
+            o.AttemptTimeout.Timeout = TimeSpan.FromSeconds(httpClientTimeoutInSeconds);
         });
 
         return clientBuilder;

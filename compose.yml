@@ -1,13 +1,53 @@
-name: gateway-topics-and-queues
+name: btms-gateway-localstack
 
 services:
 
   localstack:
-    container_name: "sns-sqs-emulator"
-    build:
-      dockerfile: "./compose/Dockerfile.localstack"
+    container_name: "gateway-sns-sqs-emulator"
+    image: localstack/localstack:4.3.0
     ports:
       - "4966:4566"
       - "4910-4959:4510-4559"
+    env_file:
+      - 'compose/aws.env'
     environment:
-      - SERVICES=sns,sqs
+      SERVICES: sns,sqs
+    volumes:
+      - '${TMPDIR:-/tmp}/localstack:/var/lib/localstack'
+      - ./compose/start-localstack.sh:/etc/localstack/init/ready.d/start-localstack.sh
+    healthcheck:
+      test: cat /tmp/ready
+      interval: 5s
+      start_period: 5s
+      retries: 10
+
+  wiremock:
+    container_name: gateway-wiremock
+    environment:
+      TZ: Europe/London
+    image: sheyenrath/wiremock.net:latest
+    ports:
+      - "9090:80"
+  
+  gateway:
+    build:
+      args:
+        DEFRA_NUGET_PAT: ${DEFRA_NUGET_PAT}
+      dockerfile: Dockerfile
+    depends_on:
+      localstack:
+        condition: service_healthy
+      wiremock:
+        condition: service_started
+    ports:
+      - "3091:8080"
+    env_file:
+      - 'compose/aws.env'
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:3091/health" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s

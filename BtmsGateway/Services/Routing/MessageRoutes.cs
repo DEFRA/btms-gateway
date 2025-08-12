@@ -104,6 +104,7 @@ public class MessageRoutes : IMessageRoutes
                 ForkHostHeader = route.BtmsHostHeader,
                 ConvertForkedContentToFromJson = true,
                 UrlPath = routePath,
+                StatusCode = route.LegacyLinkType == LinkType.None ? HttpStatusCode.Accepted : default,
             },
             RouteTo.Btms => new RoutingResult
             {
@@ -119,6 +120,7 @@ public class MessageRoutes : IMessageRoutes
                 ForkHostHeader = route.LegacyHostHeader,
                 ConvertRoutedContentToFromJson = true,
                 UrlPath = routePath,
+                StatusCode = route.BtmsLinkType == LinkType.None ? HttpStatusCode.Accepted : default,
             },
             _ => throw new ArgumentOutOfRangeException(
                 nameof(route),

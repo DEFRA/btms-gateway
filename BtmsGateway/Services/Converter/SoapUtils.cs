@@ -37,6 +37,14 @@ public static class SoapUtils
     public static string FailedSoapRequestResponseBody =>
         "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<soapenv:Envelope xmlns:soapenv=\"http://www.w3.org/2003/05/soap-envelope\">\n\t<soapenv:Body>\n\t\t<soapenv:Fault>\n\t\t\t<soapenv:Code>\n\t\t\t\t<soapenv:Value>soapenv:Receiver</soapenv:Value>\n\t\t\t</soapenv:Code>\n\t\t\t<soapenv:Reason>\n\t\t\t\t<soapenv:Text xml:lang=\"en\">A soap fault was returned.</soapenv:Text>\n\t\t\t</soapenv:Reason>\n\t\t</soapenv:Fault>\n\t</soapenv:Body>\n</soapenv:Envelope>";
 
+    //ALVS to IPAFFS success responses
+    public static string AlvsIpaffsClearanceRequestSuccessfulResponseBody =>
+        "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\"><SOAP-ENV:Header/><SOAP-ENV:Body><ns2:ALVSClearanceRequestPostResult xmlns:ns2=\"traceswsns\"><ns2:XMLSchemaVersion>2.0</ns2:XMLSchemaVersion><ns2:OperationCode>0</ns2:OperationCode></ns2:ALVSClearanceRequestPostResult></SOAP-ENV:Body></SOAP-ENV:Envelope>";
+    public static string AlvsIpaffsFinalisationSuccessfulResponseBody =>
+        "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\"><SOAP-ENV:Header/><SOAP-ENV:Body><ns2:FinalisationNotificationRequestPostResult xmlns:ns2=\"traceswsns\"><ns2:XMLSchemaVersion>2.0</ns2:XMLSchemaVersion><ns2:OperationCode>0</ns2:OperationCode></ns2:FinalisationNotificationRequestPostResult></SOAP-ENV:Body></SOAP-ENV:Envelope>";
+    public static string AlvsIpaffsDecisionNotificationSuccessfulResponseBody =>
+        "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\"><SOAP-ENV:Header/><SOAP-ENV:Body><ns2:DecisionNotificationRequestPostResult xmlns:ns2=\"traceswsns\"><ns2:XMLSchemaVersion>2.0</ns2:XMLSchemaVersion><ns2:OperationCode>0</ns2:OperationCode></ns2:DecisionNotificationRequestPostResult></SOAP-ENV:Body></SOAP-ENV:Envelope>";
+
     public static XElement AddSoapEnvelope(
         XElement rootElement,
         SoapType soapType,

@@ -18,7 +18,8 @@ public class MessageRouter(
     IQueueSender queueSender,
     ILogger logger,
     IDecisionSender decisionSender,
-    IErrorNotificationSender errorNotificationSender
+    IErrorNotificationSender errorNotificationSender,
+    IAlvsIpaffsSuccessProvider alvsIpaffsSuccessProvider
 ) : IMessageRouter
 {
     public async Task<RoutingResult> Route(MessageData messageData, IMetrics metrics)
@@ -51,6 +52,7 @@ public class MessageRouter(
                     messageData.Headers,
                     messageData.ContentMap.CorrelationId
                 ),
+                LinkType.AlvsIpaffsSuccess => alvsIpaffsSuccessProvider.SendIpaffsRequest(routingResult),
                 _ => routingResult,
             };
 
@@ -101,6 +103,7 @@ public class MessageRouter(
                     messageData.Headers,
                     messageData.ContentMap.CorrelationId
                 ),
+                LinkType.AlvsIpaffsSuccess => alvsIpaffsSuccessProvider.SendIpaffsRequest(routingResult),
                 _ => routingResult,
             };
 

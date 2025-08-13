@@ -74,6 +74,7 @@ public static class ConfigureServices
         builder.Services.AddSingleton<MetricsHost>();
         builder.Services.AddSingleton<IDecisionSender, DecisionSender>();
         builder.Services.AddSingleton<IErrorNotificationSender, ErrorNotificationSender>();
+        builder.Services.AddSingleton<IAlvsIpaffsSuccessProvider, AlvsIpaffsSuccessProvider>();
 
         builder.Services.AddFeatureManagement(builder.Configuration.GetSection("FeatureFlags"));
 

@@ -27,7 +27,8 @@ public class MessageRouterTests
             mocks.QueueSender,
             mocks.Logger,
             mocks.DecisionSender,
-            mocks.ErrorNotificationSender
+            mocks.ErrorNotificationSender,
+            mocks.AlvsIpaffsSuccessProvider
         );
 
         // Act
@@ -56,7 +57,8 @@ public class MessageRouterTests
             mocks.QueueSender,
             mocks.Logger,
             mocks.DecisionSender,
-            mocks.ErrorNotificationSender
+            mocks.ErrorNotificationSender,
+            mocks.AlvsIpaffsSuccessProvider
         );
 
         // Act
@@ -85,7 +87,8 @@ public class MessageRouterTests
             mocks.QueueSender,
             mocks.Logger,
             mocks.DecisionSender,
-            mocks.ErrorNotificationSender
+            mocks.ErrorNotificationSender,
+            mocks.AlvsIpaffsSuccessProvider
         );
 
         // Act
@@ -114,7 +117,8 @@ public class MessageRouterTests
             mocks.QueueSender,
             mocks.Logger,
             mocks.DecisionSender,
-            mocks.ErrorNotificationSender
+            mocks.ErrorNotificationSender,
+            mocks.AlvsIpaffsSuccessProvider
         );
 
         // Act
@@ -143,7 +147,8 @@ public class MessageRouterTests
             mocks.QueueSender,
             mocks.Logger,
             mocks.DecisionSender,
-            mocks.ErrorNotificationSender
+            mocks.ErrorNotificationSender,
+            mocks.AlvsIpaffsSuccessProvider
         );
 
         // Act
@@ -172,7 +177,8 @@ public class MessageRouterTests
             mocks.QueueSender,
             mocks.Logger,
             mocks.DecisionSender,
-            mocks.ErrorNotificationSender
+            mocks.ErrorNotificationSender,
+            mocks.AlvsIpaffsSuccessProvider
         );
 
         // Act
@@ -204,7 +210,8 @@ public class MessageRouterTests
             mocks.QueueSender,
             mocks.Logger,
             mocks.DecisionSender,
-            mocks.ErrorNotificationSender
+            mocks.ErrorNotificationSender,
+            mocks.AlvsIpaffsSuccessProvider
         );
 
         // Act
@@ -233,7 +240,8 @@ public class MessageRouterTests
             mocks.QueueSender,
             mocks.Logger,
             mocks.DecisionSender,
-            mocks.ErrorNotificationSender
+            mocks.ErrorNotificationSender,
+            mocks.AlvsIpaffsSuccessProvider
         );
 
         // Act
@@ -261,7 +269,8 @@ public class MessageRouterTests
             mocks.QueueSender,
             mocks.Logger,
             mocks.DecisionSender,
-            mocks.ErrorNotificationSender
+            mocks.ErrorNotificationSender,
+            mocks.AlvsIpaffsSuccessProvider
         );
 
         // Act
@@ -290,7 +299,8 @@ public class MessageRouterTests
             mocks.QueueSender,
             mocks.Logger,
             mocks.DecisionSender,
-            mocks.ErrorNotificationSender
+            mocks.ErrorNotificationSender,
+            mocks.AlvsIpaffsSuccessProvider
         );
 
         // Act
@@ -319,7 +329,8 @@ public class MessageRouterTests
             mocks.QueueSender,
             mocks.Logger,
             mocks.DecisionSender,
-            mocks.ErrorNotificationSender
+            mocks.ErrorNotificationSender,
+            mocks.AlvsIpaffsSuccessProvider
         );
 
         // Act
@@ -348,7 +359,8 @@ public class MessageRouterTests
             mocks.QueueSender,
             mocks.Logger,
             mocks.DecisionSender,
-            mocks.ErrorNotificationSender
+            mocks.ErrorNotificationSender,
+            mocks.AlvsIpaffsSuccessProvider
         );
 
         // Act
@@ -377,7 +389,8 @@ public class MessageRouterTests
             mocks.QueueSender,
             mocks.Logger,
             mocks.DecisionSender,
-            mocks.ErrorNotificationSender
+            mocks.ErrorNotificationSender,
+            mocks.AlvsIpaffsSuccessProvider
         );
 
         // Act
@@ -409,7 +422,8 @@ public class MessageRouterTests
             mocks.QueueSender,
             mocks.Logger,
             mocks.DecisionSender,
-            mocks.ErrorNotificationSender
+            mocks.ErrorNotificationSender,
+            mocks.AlvsIpaffsSuccessProvider
         );
 
         // Act
@@ -442,7 +456,8 @@ public class MessageRouterTests
             mocks.QueueSender,
             mocks.Logger,
             mocks.DecisionSender,
-            mocks.ErrorNotificationSender
+            mocks.ErrorNotificationSender,
+            mocks.AlvsIpaffsSuccessProvider
         );
 
         // Act
@@ -474,7 +489,8 @@ public class MessageRouterTests
             mocks.QueueSender,
             mocks.Logger,
             mocks.DecisionSender,
-            mocks.ErrorNotificationSender
+            mocks.ErrorNotificationSender,
+            mocks.AlvsIpaffsSuccessProvider
         );
 
         // Act
@@ -497,7 +513,8 @@ public class MessageRouterTests
         ILogger Logger,
         IMetrics Metrics,
         IDecisionSender DecisionSender,
-        IErrorNotificationSender ErrorNotificationSender
+        IErrorNotificationSender ErrorNotificationSender,
+        IAlvsIpaffsSuccessProvider AlvsIpaffsSuccessProvider
     ) CreateMocks(
         RoutingResult routingResult = null,
         bool apiSuccess = true,
@@ -648,6 +665,17 @@ public class MessageRouterTests
                 .ThrowsAsync<Exception>();
         }
 
-        return (routes, apiSender, queueSender, logger, metrics, decisionSender, errorNotificationSender);
+        var alvsIpaffsSuccessProvider = Substitute.For<IAlvsIpaffsSuccessProvider>();
+
+        return (
+            routes,
+            apiSender,
+            queueSender,
+            logger,
+            metrics,
+            decisionSender,
+            errorNotificationSender,
+            alvsIpaffsSuccessProvider
+        );
     }
 }

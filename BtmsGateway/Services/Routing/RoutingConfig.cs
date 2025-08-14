@@ -111,6 +111,7 @@ public enum LinkType
     Queue,
     DecisionComparer,
     DecisionComparerErrorNotifications,
+    AlvsIpaffsSuccess,
 }
 
 public record RoutedLink

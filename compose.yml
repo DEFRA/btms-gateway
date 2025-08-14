@@ -46,7 +46,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:3091/health" ]
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/health" ]
       interval: 5s
       timeout: 5s
       retries: 10

@@ -54,7 +54,7 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
     )
     {
         _logger.Debug(
-            "{CorrelationId} {MRN} Sending error notification from {MessageSource} to Decision Comparer.",
+            "{MessageCorrelationId} {MRN} Sending error notification from {MessageSource} to Decision Comparer.",
             correlationId,
             mrn,
             messageSource
@@ -116,7 +116,7 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
         if (messageSource == await MessageSourceToSend())
         {
             _logger.Debug(
-                "{CorrelationId} {MRN} Sending {MessageSource} Error Notification to CDS.",
+                "{MessageCorrelationId} {MRN} Sending {MessageSource} Error Notification to CDS.",
                 correlationId,
                 mrn,
                 messageSource
@@ -132,7 +132,7 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
             if (!response.IsSuccessStatusCode)
             {
                 _logger.Error(
-                    "{CorrelationId} {MRN} Failed to send error notification to CDS. CDS Response Status Code: {StatusCode}, Reason: {Reason}, Content: {Content}",
+                    "{MessageCorrelationId} {MRN} Failed to send error notification to CDS. CDS Response Status Code: {StatusCode}, Reason: {Reason}, Content: {Content}",
                     correlationId,
                     mrn,
                     response.StatusCode,
@@ -143,7 +143,7 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
             }
 
             _logger.Information(
-                "{CorrelationId} {MRN} Successfully sent {MessageSource} Error Notification to CDS.",
+                "{MessageCorrelationId} {MRN} Successfully sent {MessageSource} Error Notification to CDS.",
                 correlationId,
                 mrn,
                 messageSource
@@ -153,7 +153,7 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
         }
 
         _logger.Information(
-            "{CorrelationId} {MRN} {MessageSource} Error Notification sent to NOOP.",
+            "{MessageCorrelationId} {MRN} {MessageSource} Error Notification sent to NOOP.",
             correlationId,
             mrn,
             messageSource

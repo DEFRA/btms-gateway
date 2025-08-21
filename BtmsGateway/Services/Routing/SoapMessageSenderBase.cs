@@ -89,7 +89,7 @@ public abstract class SoapMessageSenderBase(
         if (comparerResponse.StatusCode == HttpStatusCode.Conflict)
         {
             logger.Warning(
-                "{CorrelationId} {MRN} Failed to send {MessageType} to Decision Comparer: Status Code: {ComparerResponseStatusCode}, Reason: {ComparerResponseReason}.",
+                "{MessageCorrelationId} {MRN} Failed to send {MessageType} to Decision Comparer: Status Code: {ComparerResponseStatusCode}, Reason: {ComparerResponseReason}.",
                 correlationId,
                 mrn,
                 messageType,
@@ -102,7 +102,7 @@ public abstract class SoapMessageSenderBase(
         if (!comparerResponse.StatusCode.IsSuccessStatusCode())
         {
             logger.Error(
-                "{CorrelationId} {MRN} Failed to send {MessageType} to Decision Comparer: Status Code: {ComparerResponseStatusCode}, Reason: {ComparerResponseReason}.",
+                "{MessageCorrelationId} {MRN} Failed to send {MessageType} to Decision Comparer: Status Code: {ComparerResponseStatusCode}, Reason: {ComparerResponseReason}.",
                 correlationId,
                 mrn,
                 messageType,

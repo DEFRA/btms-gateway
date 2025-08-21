@@ -56,7 +56,7 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
     )
     {
         _logger.Debug(
-            "{CorrelationId} {MRN} Sending decision from {MessageSource} to Decision Comparer.",
+            "{MessageCorrelationId} {MRN} Sending decision from {MessageSource} to Decision Comparer.",
             correlationId,
             mrn,
             messageSource
@@ -117,7 +117,7 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
         if (messageSource == await MessageSourceToSend())
         {
             _logger.Debug(
-                "{CorrelationId} {MRN} Sending Decision received from Decision Comparer to CDS.",
+                "{MessageCorrelationId} {MRN} Sending Decision received from Decision Comparer to CDS.",
                 correlationId,
                 mrn
             );
@@ -127,7 +127,7 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
             if (string.IsNullOrWhiteSpace(comparerDecision))
             {
                 _logger.Error(
-                    "{CorrelationId} {MRN} Decision Comparer returned an invalid decision",
+                    "{MessageCorrelationId} {MRN} Decision Comparer returned an invalid decision",
                     correlationId,
                     mrn
                 );
@@ -147,7 +147,7 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
             if (!response.IsSuccessStatusCode)
             {
                 _logger.Error(
-                    "{CorrelationId} {MRN} Failed to send Decision to CDS. CDS Response Status Code: {StatusCode}, Reason: {Reason}, Content: {Content}",
+                    "{MessageCorrelationId} {MRN} Failed to send Decision to CDS. CDS Response Status Code: {StatusCode}, Reason: {Reason}, Content: {Content}",
                     contentMap.CorrelationId,
                     mrn,
                     response.StatusCode,
@@ -158,7 +158,7 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
             }
 
             _logger.Information(
-                "{CorrelationId} {MRN} Successfully sent Decision to CDS.",
+                "{MessageCorrelationId} {MRN} Successfully sent Decision to CDS.",
                 contentMap.CorrelationId,
                 mrn
             );
@@ -166,7 +166,7 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
             return response;
         }
 
-        _logger.Information("{CorrelationId} {MRN} Successfully sent Decision to NOOP.", correlationId, mrn);
+        _logger.Information("{MessageCorrelationId} {MRN} Successfully sent Decision to NOOP.", correlationId, mrn);
 
         return null;
     }

@@ -7,23 +7,43 @@ namespace BtmsGateway.Utils;
 public class ToStringSerializer : IMessageSerializer, IMessageSerializer<string>, IMessageSerializerProvider
 {
     [ExcludeFromCodeCoverage]
-    public byte[] Serialize(Type t, object message)
+    public byte[] Serialize(
+        Type messageType,
+        IDictionary<string, object> headers,
+        object message,
+        object transportMessage
+    )
     {
-        throw new NotImplementedException();
+        return Encoding.UTF8.GetBytes(message.ToString()!);
     }
 
-    public object Deserialize(Type t, string payload)
+    public object Deserialize(
+        Type messageType,
+        IReadOnlyDictionary<string, object> headers,
+        string payload,
+        object transportMessage
+    )
     {
         return payload;
     }
 
-    public object Deserialize(Type t, byte[] payload)
+    public object Deserialize(
+        Type messageType,
+        IReadOnlyDictionary<string, object> headers,
+        byte[] payload,
+        object transportMessage
+    )
     {
         return Encoding.UTF8.GetString(payload);
     }
 
     [ExcludeFromCodeCoverage]
-    string IMessageSerializer<string>.Serialize(Type t, object message)
+    string IMessageSerializer<string>.Serialize(
+        Type messageType,
+        IDictionary<string, object> headers,
+        object message,
+        object transportMessage
+    )
     {
         return message.ToString()!;
     }

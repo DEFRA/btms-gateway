@@ -10,12 +10,18 @@ public class ToStringSerializerTests
     [Fact]
     public void Deserialize_String_Returns_String()
     {
-        _toStringSerializer.Deserialize(null!, "sosig").Should().Be("sosig");
+        _toStringSerializer
+            .Deserialize(typeof(string), new Dictionary<string, object>(), "sosig", null!)
+            .Should()
+            .Be("sosig");
     }
 
     [Fact]
     public void Deserialize_Byte_Returns_String()
     {
-        _toStringSerializer.Deserialize(null!, "sosig"u8.ToArray()).Should().Be("sosig");
+        _toStringSerializer
+            .Deserialize(typeof(string), new Dictionary<string, object>(), "sosig"u8.ToArray(), null!)
+            .Should()
+            .Be("sosig");
     }
 }

@@ -142,6 +142,19 @@ public class TestWebServer : IDisposable
                         $"TaskCanceledException during dispose of TestWebServer: {taskCanceledException.Message}"
                     );
                 }
+                catch (AggregateException aggregateException)
+                {
+                    if (aggregateException.InnerExceptions.All(x => x is TaskCanceledException))
+                    {
+                        Console.WriteLine(
+                            $"AggregateException of TaskCanceledException during dispose of TestWebServer: {aggregateException.Message}"
+                        );
+                    }
+                    else
+#pragma warning disable CA2219
+                        throw;
+#pragma warning restore CA2219
+                }
             }
         }
 

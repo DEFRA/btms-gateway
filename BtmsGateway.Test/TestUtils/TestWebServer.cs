@@ -114,12 +114,35 @@ public class TestWebServer : IDisposable
 
         if (disposing)
         {
-            var disposeTask = _app.DisposeAsync();
-            if (disposeTask.IsCompleted)
+            try
             {
-                return;
+                HttpServiceClient?.Dispose();
+                RoutedHttpHandler?.Dispose();
+                ForkedHttpHandler?.Dispose();
+                ClientWithRetryHttpHandler?.Dispose();
+                DecisionComparerClientWithRetryHttpHandler?.Dispose();
             }
-            disposeTask.AsTask().GetAwaiter().GetResult();
+            finally
+            {
+                try
+                {
+                    var disposeTask = _app.DisposeAsync();
+                    if (!disposeTask.IsCompleted)
+                    {
+                        var waited = disposeTask.AsTask().Wait(TimeSpan.FromSeconds(10));
+                        if (!waited)
+#pragma warning disable CA2219
+                            throw new TimeoutException("TestWebServer.DisposeAsync() timed out");
+#pragma warning restore CA2219
+                    }
+                }
+                catch (TaskCanceledException taskCanceledException)
+                {
+                    Console.WriteLine(
+                        $"TaskCanceledException during dispose of TestWebServer: {taskCanceledException.Message}"
+                    );
+                }
+            }
         }
 
         _disposed = true;

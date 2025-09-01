@@ -1,16 +1,19 @@
 using Amazon;
 using Amazon.Runtime;
-using Amazon.SQS;
+using Amazon.SimpleNotificationService;
 using SlimMessageBus.Host.AmazonSQS;
 
 namespace BtmsGateway.Config;
 
-public sealed class CdpCredentialsSqsClientProvider : ISqsClientProvider, IDisposable
+public sealed class CdpCredentialsSnsClientProvider : ISnsClientProvider, IDisposable
 {
     private const string DefaultRegion = "eu-west-2";
     private bool _disposedValue;
 
-    public CdpCredentialsSqsClientProvider(AmazonSQSConfig sqsConfig, IConfiguration configuration)
+    public CdpCredentialsSnsClientProvider(
+        AmazonSimpleNotificationServiceConfig sqsConfig,
+        IConfiguration configuration
+    )
     {
         var clientId = configuration.GetValue<string>("AWS_ACCESS_KEY_ID");
         var clientSecret = configuration.GetValue<string>("AWS_SECRET_ACCESS_KEY");
@@ -20,9 +23,9 @@ public sealed class CdpCredentialsSqsClientProvider : ISqsClientProvider, IDispo
             var region = configuration.GetValue<string>("AWS_REGION") ?? DefaultRegion;
             var regionEndpoint = RegionEndpoint.GetBySystemName(region);
 
-            Client = new AmazonSQSClient(
+            Client = new AmazonSimpleNotificationServiceClient(
                 new BasicAWSCredentials(clientId, clientSecret),
-                new AmazonSQSConfig
+                new AmazonSimpleNotificationServiceConfig
                 {
                     AuthenticationRegion = region,
                     RegionEndpoint = regionEndpoint,
@@ -33,12 +36,12 @@ public sealed class CdpCredentialsSqsClientProvider : ISqsClientProvider, IDispo
             return;
         }
 
-        Client = new AmazonSQSClient(sqsConfig);
+        Client = new AmazonSimpleNotificationServiceClient(sqsConfig);
     }
 
     #region ISqsClientProvider
 
-    public IAmazonSQS? Client { get; }
+    public IAmazonSimpleNotificationService? Client { get; }
 
     public Task EnsureClientAuthenticated()
     {

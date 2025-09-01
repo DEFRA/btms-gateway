@@ -21,7 +21,8 @@ public static class AmazonConsumerExtensions
         messageBusBuilder.WithProviderAmazonSQS(cfg =>
         {
             cfg.TopologyProvisioning.Enabled = false;
-            cfg.ClientProviderFactory = _ => new CdpCredentialsSqsClientProvider(cfg.SqsClientConfig, configuration);
+            cfg.SqsClientProviderFactory = _ => new CdpCredentialsSqsClientProvider(cfg.SqsClientConfig, configuration);
+            cfg.SnsClientProviderFactory = _ => new CdpCredentialsSnsClientProvider(cfg.SnsClientConfig, configuration);
         });
 
         messageBusBuilder.RegisterSerializer<ToStringSerializer>(s =>

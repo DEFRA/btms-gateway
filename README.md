@@ -1,19 +1,19 @@
 # BTMS Gateway
 
-The BTMS Gateway is a .NET application which proxies HTTP SOAP requests between CDS and ALVS.  
+The BTMS Gateway is a .NET application which proxies HTTP SOAP requests between CDS and ALVS.
 Proxied requests will be passed to/from CDS and ALVS as well as routing a copy of the request to BTMS, via SNS/SQS, by converting the SOAP payload to a BTMS JSON model.
 
 It also proxies HTTP requests from ALVS to IPAFFS.
 
-The Gateway exposes a health check endpoint, for verifying the health of the Gateway itself, at the endpoint <code>/health</code>.  
+The Gateway exposes a health check endpoint, for verifying the health of the Gateway itself, at the endpoint <code>/health</code>.
 This will return a 200 OK response and an empty response body if the Gateway is healthy.
 
-The Gateway also exposes endpoints for doing various health checks against the Health URLs configured in appsettings.json.  
-This is to verify the health of the target systems where requests are routed to i.e. CDS, ALVS and IPAFFS.  
-These health checks will perform an HTTP call to the endpoint as well as an NSLookup and Dig.  
+The Gateway also exposes endpoints for doing various health checks against the Health URLs configured in appsettings.json.
+This is to verify the health of the target systems where requests are routed to i.e. CDS, ALVS and IPAFFS.
+These health checks will perform an HTTP call to the endpoint as well as an NSLookup and Dig.
 The available health endpoints can be viewed by visiting the swagger endpoint <code>/swagger/index.html</code>.
 
-* [Prerequisites](#prerequisites) 
+* [Prerequisites](#prerequisites)
 * [Setup Process](#setup-process)
 * [How to run in development](#how-to-run-in-development)
 * [How to run Tests](#how-to-run-tests)
@@ -60,7 +60,7 @@ Run the tests with:
 dotnet test BtmsGateway.Test
 ```
 
-Unit tests execute without a running instance of the web server. 
+Unit tests execute without a running instance of the web server.
 End-to-end tests can start the web server using `TestWebServer.BuildAndRun()` taking `ServiceDescriptors` to replace services with mocked or stubbed versions. The `TestWebServer` provides properties:
 - `Services` allows access to injected services.
 - `HttpServiceClient` provide a pre-configured `HttpClient` that can be used to access the web server.
@@ -84,8 +84,15 @@ Example SonarCloud configuration are available in the GitHub Action workflows.
 
 ### Dependabot
 
-We have added an example dependabot configuration file to the repository. You can enable it by renaming
-the [.github/example.dependabot.yml](.github/example.dependabot.yml) to `.github/dependabot.yml`
+We are using dependabot.
+
+Connection to the private Defra nuget packages is provided by a user generated PAT stored in this repo's settings - /settings/secrets/dependabot - see `DEPENDABOT_PAT` secret.
+
+The PAT is a classic token and needs permissions of `read:packages`.
+
+At time of writing, using PAT is the only way to make Dependabot work with private nuget feeds.
+
+Should the user who owns the PAT leave Defra then another user on the team should create a new PAT and update the settings in this repo.
 
 ### Licence Information
 

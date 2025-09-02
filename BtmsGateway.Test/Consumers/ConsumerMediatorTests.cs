@@ -81,7 +81,13 @@ public class ConsumerMediatorTests
                 ResourceId = "mrn",
                 ResourceType = ResourceEventResourceTypes.ProcessingError,
                 Operation = ResourceEventOperations.Created,
-                Resource = new ProcessingErrorResource { ProcessingErrors = [new ProcessingError()] },
+                Resource = new ProcessingErrorResource
+                {
+                    ProcessingErrors =
+                    [
+                        new ProcessingError { Errors = [new ErrorItem { Code = "ALVSVAL01", Message = "ALVS Error" }] },
+                    ],
+                },
             }
         );
 

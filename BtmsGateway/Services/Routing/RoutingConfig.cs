@@ -24,6 +24,7 @@ public record RoutingConfig
                     nr.Value.Legend,
                     nr.Value.RouteTo,
                     nr.Value.IsCds,
+                    nr.Value.NamedProxy,
                 }
         );
         var btms = NamedRoutes.Join(
@@ -42,6 +43,7 @@ public record RoutingConfig
                     nr.Value.Legend,
                     nr.Value.RouteTo,
                     nr.Value.IsCds,
+                    nr.Value.NamedProxy,
                 }
         );
         var output = legacy
@@ -64,6 +66,7 @@ public record RoutingConfig
                         MessageSubXPath = l.MessageSubXPath,
                         RouteTo = b.RouteTo,
                         IsCds = b.IsCds,
+                        NamedProxy = b.NamedProxy,
                     }
             )
             .ToArray();
@@ -85,6 +88,7 @@ public record NamedRoute
     public string? BtmsLinkName { get; init; }
     public required RouteTo RouteTo { get; init; }
     public bool IsCds { get; init; }
+    public string? NamedProxy { get; init; }
 }
 
 public record NamedLink
@@ -128,6 +132,7 @@ public record RoutedLink
     public string? BtmsHostHeader { get; init; }
     public required RouteTo RouteTo { get; init; }
     public required bool IsCds { get; init; }
+    public string? NamedProxy { get; init; }
 }
 
 public enum RouteTo

@@ -34,7 +34,8 @@ public class ApiSender(IHttpClientFactory clientFactory, IServiceProvider servic
 {
     public async Task<RoutingResult> Send(RoutingResult routingResult, MessageData messageData, bool fork)
     {
-        var client = clientFactory.CreateClient(fork ? Proxy.ForkedClientWithRetry : Proxy.RoutedClientWithRetry);
+        var proxyName = routingResult.NamedProxy ?? (fork ? Proxy.ForkedClientWithRetry : Proxy.RoutedClientWithRetry);
+        var client = clientFactory.CreateClient(proxyName);
 
         HttpRequestMessage request;
 

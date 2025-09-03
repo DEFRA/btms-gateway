@@ -24,4 +24,5 @@ public record RoutingResult
     public DateTimeOffset? ResponseDate { get; init; }
     public HttpStatusCode StatusCode { get; init; }
     public string? ErrorMessage { get; init; }
+    public string? NamedProxy { get; init; }
 }

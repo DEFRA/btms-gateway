@@ -1,6 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
-using BtmsGateway.Domain;
 using BtmsGateway.Exceptions;
 using BtmsGateway.Services.Converter;
 using ILogger = Serilog.ILogger;
@@ -105,6 +104,7 @@ public class MessageRoutes : IMessageRoutes
                 ConvertForkedContentToFromJson = true,
                 UrlPath = routePath,
                 StatusCode = route.LegacyLinkType == LinkType.None ? HttpStatusCode.Accepted : default,
+                NamedProxy = route.NamedProxy,
             },
             RouteTo.Btms => new RoutingResult
             {
@@ -121,6 +121,7 @@ public class MessageRoutes : IMessageRoutes
                 ConvertRoutedContentToFromJson = true,
                 UrlPath = routePath,
                 StatusCode = route.BtmsLinkType == LinkType.None ? HttpStatusCode.Accepted : default,
+                NamedProxy = route.NamedProxy,
             },
             _ => throw new ArgumentOutOfRangeException(
                 nameof(route),

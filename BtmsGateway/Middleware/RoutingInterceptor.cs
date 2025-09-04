@@ -181,18 +181,15 @@ public class RoutingInterceptor(
 
     private void LogRouteNotFoundResults(MessageData messageData, RoutingResult routingResult, string action)
     {
-        logger.Warning(
-            "{ContentCorrelationId} {MessageReference} {Action} not {Reason} for [{HttpString}]",
-            messageData.ContentMap.CorrelationId,
-            messageData.ContentMap.MessageReference,
-            action,
-            GetReason(action == RouteAction ? routingResult.RouteLinkType : routingResult.ForkLinkType),
-            messageData.HttpString
-        );
-    }
-
-    private static string GetReason(LinkType linkType)
-    {
-        return linkType == LinkType.None ? "configured" : "supported";
+        if (!routingResult.RouteFound)
+        {
+            logger.Warning(
+                "{ContentCorrelationId} {MessageReference} {Action} not supported for [{HttpString}]",
+                messageData.ContentMap.CorrelationId,
+                messageData.ContentMap.MessageReference,
+                action,
+                messageData.HttpString
+            );
+        }
     }
 }

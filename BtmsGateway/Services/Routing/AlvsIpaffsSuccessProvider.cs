@@ -30,7 +30,7 @@ public class AlvsIpaffsSuccessProvider : IAlvsIpaffsSuccessProvider
             _ => (string.Empty, HttpStatusCode.NoContent),
         };
 
-        return new RoutingResult
+        return routingResult with
         {
             RoutingSuccessful = true,
             ResponseContent = responseContent,

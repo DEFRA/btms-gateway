@@ -25,7 +25,11 @@ public class MetricsInterceptorTests
 
     public MetricsInterceptorTests()
     {
-        var awsSqsOptions = new AwsSqsOptions { OutboundClearanceDecisionsQueueName = "test-queue" };
+        var awsSqsOptions = new AwsSqsOptions
+        {
+            OutboundClearanceDecisionsQueueName = "test-queue",
+            OutboundClearanceDecisionsDeadLetterQueueArn = "test-queue-deadletter",
+        };
         var options = Substitute.For<IOptions<AwsSqsOptions>>();
         options.Value.Returns(awsSqsOptions);
 

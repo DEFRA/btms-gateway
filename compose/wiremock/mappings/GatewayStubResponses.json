@@ -1,0 +1,21 @@
+{
+  "Guid": "582b4d96-7963-475e-a58a-3aef40703677",
+  "Request": {
+    "Path": {
+      "Matchers": [
+        {
+          "Name": "WildcardMatcher",
+          "Pattern": "/stub/health"
+        }
+      ]
+    },
+    "Methods": [
+      "get"
+    ]
+  },
+  "Response": {
+    "StatusCode": 200,
+    "Headers": { "Content-Type": "application/json" },
+    "BodyAsJson": { "body": "Healthy" }
+  }
+}

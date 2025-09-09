@@ -1,6 +1,9 @@
 using System.Diagnostics.CodeAnalysis;
+using Amazon.Runtime;
 using Amazon.SimpleNotificationService;
+using Amazon.SQS;
 using BtmsGateway.Extensions;
+using BtmsGateway.Services.Admin;
 using BtmsGateway.Services.Checking;
 using BtmsGateway.Services.Metrics;
 using BtmsGateway.Services.Routing;
@@ -69,6 +72,7 @@ public static class ConfigureServices
 
         builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
         builder.Services.AddAWSService<IAmazonSimpleNotificationService>();
+        builder.Services.AddAWSService<IAmazonSQS>();
 
         builder.Services.AddConsumers(builder.Configuration);
 
@@ -84,6 +88,7 @@ public static class ConfigureServices
         builder.Services.AddSingleton<IDecisionSender, DecisionSender>();
         builder.Services.AddSingleton<IErrorNotificationSender, ErrorNotificationSender>();
         builder.Services.AddSingleton<IAlvsIpaffsSuccessProvider, AlvsIpaffsSuccessProvider>();
+        builder.Services.AddSingleton<ISqsService, SqsService>();
 
         builder.Services.AddFeatureManagement(builder.Configuration.GetSection("FeatureFlags"));
 

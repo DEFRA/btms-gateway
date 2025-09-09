@@ -29,6 +29,7 @@ RUN dotnet tool restore
 COPY BtmsGateway.sln BtmsGateway.sln
 COPY BtmsGateway BtmsGateway
 COPY BtmsGateway.Test BtmsGateway.Test
+COPY tests/Testing tests/Testing
 COPY tests/BtmsGateway.IntegrationTests tests/BtmsGateway.IntegrationTests
 COPY compose compose
 COPY wait-for-docker-logs.sh wait-for-docker-logs.sh

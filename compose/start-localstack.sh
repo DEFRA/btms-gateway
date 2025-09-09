@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ENDPOINT_URL=http://sqs.eu-west-2.localhost.localstack.cloud:4566
+ENDPOINT_URL=http://localhost:4566
 
 export AWS_ENDPOINT_URL=$ENDPOINT_URL
 export AWS_REGION=eu-west-2

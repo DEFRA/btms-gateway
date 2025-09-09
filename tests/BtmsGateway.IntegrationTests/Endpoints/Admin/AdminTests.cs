@@ -12,7 +12,7 @@ using Xunit.Abstractions;
 namespace BtmsGateway.IntegrationTests.Endpoints.Admin;
 
 [Collection("UsesWireMockClient")]
-public class AdminTests(WireMockClient wireMockClient, ITestOutputHelper output) : SqsTestBase(output)
+public class AdminIntegrationTests(WireMockClient wireMockClient, ITestOutputHelper output) : SqsTestBase(output)
 {
     private readonly IWireMockAdminApi _wireMockAdminApi = wireMockClient.WireMockAdminApi;
 
@@ -105,7 +105,7 @@ public class AdminTests(WireMockClient wireMockClient, ITestOutputHelper output)
         Assert.True(messagesOnDeadLetterQueue, "Messages on dead letter queue was not received");
 
         var httpClient = CreateHttpClient();
-        var response = await httpClient.PostAsync(Testing.Endpoints.Admin.PostRedrive(), null);
+        var response = await httpClient.PostAsync(Testing.Endpoints.AdminIntegration.PostRedrive(), null);
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
         Assert.True(
@@ -118,6 +118,15 @@ public class AdminTests(WireMockClient wireMockClient, ITestOutputHelper output)
                 (await GetQueueAttributes(ResourceEventsDeadLetterQueueUrl)).ApproximateNumberOfMessages == 0
             )
         );
+    }
+
+    [Fact]
+    public async Task When_attempting_redrive_without_authentication_Then_unauthorized_error_returned()
+    {
+        var httpClient = CreateHttpClient(false);
+        var response = await httpClient.PostAsync(Testing.Endpoints.AdminIntegration.PostRedrive(), null);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
     private static Dictionary<string, MessageAttributeValue> WithResourceEventAttributes(

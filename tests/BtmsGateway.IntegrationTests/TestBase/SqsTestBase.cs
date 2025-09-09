@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 
 namespace BtmsGateway.IntegrationTests.TestBase;
 
-public class SqsTestBase(ITestOutputHelper output) : TestBase
+public class SqsTestBase(ITestOutputHelper output) : IntegrationTestBase
 {
     protected const string ResourceEventsQueueUrl =
         "http://sqs.eu-west-2.127.0.0.1:4566/000000000000/trade_imports_data_upserted_btms_gateway";

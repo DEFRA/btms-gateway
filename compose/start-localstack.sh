@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ENDPOINT_URL=http://localhost:4566
+ENDPOINT_URL=http://sqs.eu-west-2.localhost.localstack.cloud:4566
 
 export AWS_ENDPOINT_URL=$ENDPOINT_URL
 export AWS_REGION=eu-west-2
@@ -33,11 +33,11 @@ aws --endpoint-url=$ENDPOINT_URL sns subscribe --topic-arn $SNS_ARN:$ICDR_Topic 
 aws --endpoint-url=$ENDPOINT_URL sqs set-queue-attributes --queue-url $ENDPOINT_URL/000000000000/$OCD_Queue --attributes '{"RedrivePolicy": "{\"deadLetterTargetArn\":\"arn:aws:sqs:eu-west-2:000000000000:trade_imports_data_upserted_btms_gateway-deadletter\",\"maxReceiveCount\":\"1\"}"}'
 
 function is_ready() {
-    aws --endpoint-url=http://localhost:4566 sns list-topics --query "Topics[?ends_with(TopicArn, ':trade_imports_inbound_customs_declarations.fifo')].TopicArn" || return 1
+    aws --endpoint-url=http://sqs.eu-west-2.localhost.localstack.cloud:4566 sns list-topics --query "Topics[?ends_with(TopicArn, ':trade_imports_inbound_customs_declarations.fifo')].TopicArn" || return 1
     
-    aws --endpoint-url=http://localhost:4566 sqs get-queue-url --queue-name trade_imports_inbound_customs_declarations_processor.fifo || return 1
-    aws --endpoint-url=http://localhost:4566 sqs get-queue-url --queue-name trade_imports_data_upserted_btms_gateway || return 1
-    aws --endpoint-url=http://localhost:4566 sqs get-queue-url --queue-name trade_imports_data_upserted_btms_gateway-deadletter || return 1
+    aws --endpoint-url=http://sqs.eu-west-2.localhost.localstack.cloud:4566 sqs get-queue-url --queue-name trade_imports_inbound_customs_declarations_processor.fifo || return 1
+    aws --endpoint-url=http://sqs.eu-west-2.localhost.localstack.cloud:4566 sqs get-queue-url --queue-name trade_imports_data_upserted_btms_gateway || return 1
+    aws --endpoint-url=http://sqs.eu-west-2.localhost.localstack.cloud:4566 sqs get-queue-url --queue-name trade_imports_data_upserted_btms_gateway-deadletter || return 1
     return 0
 }
 

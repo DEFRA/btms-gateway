@@ -31,6 +31,7 @@ COPY BtmsGateway BtmsGateway
 COPY BtmsGateway.Test BtmsGateway.Test
 COPY tests/Testing tests/Testing
 COPY tests/BtmsGateway.IntegrationTests tests/BtmsGateway.IntegrationTests
+COPY tests/Api.Tests tests/Api.Tests
 COPY compose compose
 COPY wait-for-docker-logs.sh wait-for-docker-logs.sh
 
@@ -43,7 +44,7 @@ RUN dotnet csharpier check .
 
 RUN dotnet build BtmsGateway/BtmsGateway.csproj --no-restore -c Release
 
-RUN dotnet test --no-restore BtmsGateway.Test --filter Dependence!=localstack
+RUN dotnet test --no-restore --filter "Category!=IntegrationTest & Dependence!=localstack"
 
 FROM build AS publish
 RUN dotnet publish BtmsGateway -c Release -o /app/publish /p:UseAppHost=false

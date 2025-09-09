@@ -1,4 +1,5 @@
 using System.Net;
+using BtmsGateway.IntegrationTests.TestBase;
 using BtmsGateway.IntegrationTests.TestUtils;
 using BtmsGateway.Utils.Http;
 using FluentAssertions;
@@ -11,7 +12,7 @@ using WireMock.Client.Extensions;
 namespace BtmsGateway.IntegrationTests.Utils.Http;
 
 [Collection("UsesWireMockClient")]
-public class ProxyTests(WireMockClient wireMockClient)
+public class ProxyTests(WireMockClient wireMockClient) : IntegrationTestBase
 {
     private readonly IWireMockAdminApi _wireMockAdminApi = wireMockClient.WireMockAdminApi;
 

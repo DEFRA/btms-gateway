@@ -2,7 +2,7 @@
 
 public static class Endpoints
 {
-    public static class Admin
+    public static class AdminIntegration
     {
         private const string Root = "/admin";
 

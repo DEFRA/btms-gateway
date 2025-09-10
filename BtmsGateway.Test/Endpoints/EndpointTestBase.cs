@@ -1,20 +1,33 @@
 using System.Net.Http.Headers;
-using BtmsGateway;
 using BtmsGateway.Authentication;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Xunit.Abstractions;
 
-namespace Api.Tests.Endpoints;
+namespace BtmsGateway.Test.Endpoints;
 
-public class EndpointTestBase : IClassFixture<TestWebApplicationFactory<Program>>
+public class EndpointTestBase : IClassFixture<ApiWebApplicationFactory>
 {
-    private readonly TestWebApplicationFactory<Program> _factory;
+    private readonly ApiWebApplicationFactory _factory;
 
-    protected EndpointTestBase(TestWebApplicationFactory<Program> factory)
+    protected EndpointTestBase(ApiWebApplicationFactory factory, ITestOutputHelper outputHelper)
     {
         _factory = factory;
+        _factory.OutputHelper = outputHelper;
+        _factory.ConfigureHostConfiguration = ConfigureHostConfiguration;
     }
 
+    /// <summary>
+    /// Use this to inject configuration before Host is created.
+    /// </summary>
+    /// <param name="config"></param>
+    protected virtual void ConfigureHostConfiguration(IConfigurationBuilder config) { }
+
+    /// <summary>
+    /// Use this to override DI services.
+    /// </summary>
+    /// <param name="services"></param>
     protected virtual void ConfigureTestServices(IServiceCollection services) { }
 
     protected HttpClient CreateClient(bool addDefaultAuthorizationHeader = true, TestUser testUser = TestUser.Execute)

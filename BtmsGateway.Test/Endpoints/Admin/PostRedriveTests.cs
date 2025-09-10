@@ -1,14 +1,15 @@
 using System.Net;
-using BtmsGateway;
 using BtmsGateway.Services.Admin;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
+using Xunit.Abstractions;
 
-namespace Api.Tests.Endpoints.Admin;
+namespace BtmsGateway.Test.Endpoints.Admin;
 
-public class PostRedriveTests(TestWebApplicationFactory<Program> factory) : EndpointTestBase(factory)
+public class PostRedriveTests(ApiWebApplicationFactory factory, ITestOutputHelper outputHelper)
+    : EndpointTestBase(factory, outputHelper)
 {
     private readonly ISqsService _sqsService = Substitute.For<ISqsService>();
 

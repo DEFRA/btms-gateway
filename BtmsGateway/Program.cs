@@ -9,7 +9,6 @@ using BtmsGateway.Services.Routing;
 using BtmsGateway.Utils;
 using BtmsGateway.Utils.Logging;
 using Elastic.CommonSchema.Serilog;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration().WriteTo.Console(new EcsTextFormatter()).CreateBootstrapLogger();

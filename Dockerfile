@@ -31,7 +31,6 @@ COPY BtmsGateway BtmsGateway
 COPY BtmsGateway.Test BtmsGateway.Test
 COPY tests/Testing tests/Testing
 COPY tests/BtmsGateway.IntegrationTests tests/BtmsGateway.IntegrationTests
-COPY tests/Api.Tests tests/Api.Tests
 COPY compose compose
 COPY wait-for-docker-logs.sh wait-for-docker-logs.sh
 

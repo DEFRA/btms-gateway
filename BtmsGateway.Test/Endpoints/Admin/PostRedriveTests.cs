@@ -1,6 +1,7 @@
 using System.Net;
 using BtmsGateway.Services.Admin;
 using FluentAssertions;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
@@ -12,6 +13,13 @@ public class PostRedriveTests(ApiWebApplicationFactory factory, ITestOutputHelpe
     : EndpointTestBase(factory, outputHelper)
 {
     private readonly ISqsService _sqsService = Substitute.For<ISqsService>();
+
+    protected override void ConfigureHostConfiguration(IConfigurationBuilder config)
+    {
+        base.ConfigureHostConfiguration(config);
+
+        config.AddInMemoryCollection(new Dictionary<string, string> { ["AwsSqsOptions:AutoStartConsumers"] = "false" });
+    }
 
     protected override void ConfigureTestServices(IServiceCollection services)
     {

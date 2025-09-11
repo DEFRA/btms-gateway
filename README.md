@@ -46,33 +46,59 @@ The available health endpoints can be viewed by visiting the swagger endpoint <c
 
 ### How to run in development
 
-Run the application with the command:
+Run the application and dependent resources using Docker Compose:
+
+```bash
+docker compose -f compose.yml up -d
+```
+This will run the SNS/SQS resources, a Wiremock instance and the Gateway application itself, within Docker containers.
+
+You can run the application locally with the command:
 
 ```bash
 dotnet run --project BtmsGateway --launch-profile BtmsGateway
 ```
 
+Ensure it's not already running in the Docker Compose stack or you may get port clashes.
+
 ### How to run Tests
 
-Run the tests with:
+Run the Unit tests with:
 
 ```bash
-dotnet test BtmsGateway.Test
+dotnet test --filter "Category!=IntegrationTest & Dependence!=localstack"
 ```
 
 Unit tests execute without a running instance of the web server.
+
 End-to-end tests can start the web server using `TestWebServer.BuildAndRun()` taking `ServiceDescriptors` to replace services with mocked or stubbed versions. The `TestWebServer` provides properties:
 - `Services` allows access to injected services.
 - `HttpServiceClient` provide a pre-configured `HttpClient` that can be used to access the web server.
 - `OutboundTestHttpHandler` is a `TestHttpHandler` class that intercepts all `HttpClient` requests to dependant services called by the web server.
+
+The End-to-end tests, contained within the EndToEnd directory of the BtmsGateway.Test project, require the SNS/SQS localstack queues to be running. You can run these using Docker Compose (see above).  
+The tests themselves are decorated with the test trait "Dependence" "localstack".
+End-to-end tests can be run with:
+
+```bash
+dotnet test --filter "Dependence=localstack"
+```
+You can run these along with the Unit tests with:
+
+```bash
+dotnet test --filter "Category!=IntegrationTest"
+```
 
 ### How to run Integration Tests
 
 Run the integration tests with:
 
 ```bash
-dotnet test tests/BtmsGateway.IntegrationTests
+dotnet test --filter "Category=IntegrationTest"
 ```
+
+Integration tests require the Docker Compose stack to be running.  
+The application itself can be running inside the Docker Compose stack or you can run it locally yourself (see above).
 
 ### Deploying
 

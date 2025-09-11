@@ -30,5 +30,5 @@ public class TestWebApplicationFactory<T> : WebApplicationFactory<T>, ITestOutpu
         return base.CreateHost(builder);
     }
 
-    public ITestOutputHelper? OutputHelper { get; set; }
+    public ITestOutputHelper OutputHelper { get; set; }
 }

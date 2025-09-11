@@ -31,6 +31,7 @@ public class AdminIntegrationTests(WireMockClient wireMockClient, ITestOutputHel
         var putStatus = await putMappingBuilder.BuildAndPostAsync();
         Assert.NotNull(putStatus.Guid);
 
+        // Configure failure responses from CDS (including retries) so the message gets moved to DLQ and then successful on redrive
         var failFirstPostMappingBuilder = _wireMockAdminApi.GetMappingBuilder();
         failFirstPostMappingBuilder.Given(m =>
             m.WithRequest(req => req.UsingPost().WithPath("/cds/ws/CDS/defra/alvsclearanceinbound/v1"))

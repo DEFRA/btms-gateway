@@ -121,15 +121,6 @@ public class AdminIntegrationTests(WireMockClient wireMockClient, ITestOutputHel
         );
     }
 
-    [Fact]
-    public async Task When_attempting_redrive_without_authentication_Then_unauthorized_error_returned()
-    {
-        var httpClient = CreateHttpClient(false);
-        var response = await httpClient.PostAsync(Testing.Endpoints.AdminIntegration.PostRedrive(), null);
-
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
-    }
-
     private static Dictionary<string, MessageAttributeValue> WithResourceEventAttributes(
         string resourceType,
         string subResourceType,

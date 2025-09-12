@@ -12,7 +12,7 @@
         "AWS_REGION": "eu-west-2",
         "AWS_SECRET_ACCESS_KEY": "local",
         "AWS_EMF_ENVIRONMENT": "Local",
-        "SQS_ENDPOINT": "http://sqs.eu-west-2.localhost.localstack.cloud:4966"
+        "SQS_ENDPOINT": "http://sqs.eu-west-2.localhost.localstack.cloud:4566"
       }
     }
   }

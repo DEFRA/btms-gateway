@@ -6,8 +6,8 @@ services:
     container_name: "gateway-sns-sqs-emulator"
     image: localstack/localstack:4.3.0
     ports:
-      - "4966:4566"
-      - "4910-4959:4510-4559"
+      - "4566:4566"
+      - "4510-4559:4510-4559"
     env_file:
       - 'compose/aws.env'
     environment:
@@ -28,6 +28,10 @@ services:
     image: sheyenrath/wiremock.net:latest
     ports:
       - "9090:80"
+    volumes:
+      - './compose/wiremock/mappings:/app/__admin/mappings'
+    command:
+      - '--ReadStaticMappings true'
   
   gateway:
     build:
@@ -45,6 +49,26 @@ services:
       - 'compose/aws.env'
     environment:
       ASPNETCORE_ENVIRONMENT: Development
+      AWS__ServiceURL: http://localstack:4566
+      SQS_ENDPOINT: http://localstack:4566
+      Routing__AutomatedHealthCheckDisabled: false
+      Routing__NamedLinks__Stub__Link: "http://wiremock/stub"
+      Routing__NamedLinks__ForkedStub__Link: "http://wiremock/stub/forked"
+      Routing__NamedLinks__CdsAlvs__Link: "http://wiremock/alvs/"
+      Routing__NamedLinks__AlvsCds__Link: "http://wiremock/cds/"
+      Routing__NamedLinks__AlvsIpaffs__Link: "http://wiremock/ipaffs/"
+      Routing__Destinations__BtmsDecisionComparer__Link: "http://wiremock/comparer/"
+      Routing__Destinations__AlvsDecisionComparer__Link: "http://wiremock/comparer/"
+      Routing__Destinations__BtmsOutboundErrors__Link: "http://wiremock/comparer/"
+      Routing__Destinations__AlvsOutboundErrors__Link: "http://wiremock/comparer/"
+      HealthCheck__AutomatedHealthCheckDisabled: false
+      HealthCheck__Urls__Stub__Url: "http://wiremock/stub/health"
+      HealthCheck__Urls__IBM_ALVS__Url: "http://wiremock/alvs/health"
+      HealthCheck__Urls__HMRC_CDS__Url: "http://wiremock/cds/health"
+      HealthCheck__Urls__IPAFFS_Soap_Search__Url: "http://wiremock/ipaffs/health"
+      DecisionComparerApi__BaseAddress: "http://wiremock/comparer/"
+      Acl__Clients__IntegrationTests__Secret: integration-tests-pwd
+      Acl__Clients__IntegrationTests__Scopes__0: execute
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8080/health" ]
       interval: 5s

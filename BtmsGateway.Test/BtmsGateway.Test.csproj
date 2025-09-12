@@ -32,6 +32,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BtmsGateway\BtmsGateway.csproj" />
+    <ProjectReference Include="..\tests\Testing\Testing.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="EndToEnd\Fixtures\**">

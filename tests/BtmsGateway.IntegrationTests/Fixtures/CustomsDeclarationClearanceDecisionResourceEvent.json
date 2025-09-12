@@ -1,0 +1,29 @@
+{
+  "resourceId": "25GB0XX00XXXXX0000",
+  "resourceType": "CustomsDeclaration",
+  "subResourceType": "ClearanceDecision",
+  "operation": "Created",
+  "resource": {
+    "ClearanceDecision": {
+      "correlationId": "111",
+      "created": "2025-09-08T09:00:00.000",
+      "externalVersionNumber": 1,
+      "decisionNumber": 1,
+      "items": [
+        {
+          "itemNumber": 1,
+          "checks": [
+            {
+              "checkCode": "H218",
+              "decisionCode": "C02",
+              "decisionsValidUntil": "2025-09-08T23:59:00.000",
+              "decisionReasons": [
+                "Some test decision reason"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

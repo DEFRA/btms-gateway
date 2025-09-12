@@ -1,4 +1,5 @@
 using System.Net;
+using BtmsGateway.IntegrationTests.TestBase;
 using BtmsGateway.IntegrationTests.TestUtils;
 using BtmsGateway.Utils.Http;
 using FluentAssertions;
@@ -11,7 +12,7 @@ using WireMock.Client.Extensions;
 namespace BtmsGateway.IntegrationTests.Utils.Http;
 
 [Collection("UsesWireMockClient")]
-public class ProxyTests(WireMockClient wireMockClient)
+public class ProxyTests(WireMockClient wireMockClient) : IntegrationTestBase
 {
     private readonly IWireMockAdminApi _wireMockAdminApi = wireMockClient.WireMockAdminApi;
 
@@ -33,7 +34,7 @@ public class ProxyTests(WireMockClient wireMockClient)
 
         var postMappingBuilder = _wireMockAdminApi.GetMappingBuilder();
         postMappingBuilder.Given(m =>
-            m.WithRequest(req => req.UsingPost().WithPath("/ws/CDS/defra/alvsclearanceinbound/v1"))
+            m.WithRequest(req => req.UsingPost().WithPath("/cds/ws/CDS/defra/alvsclearanceinbound/v1"))
                 .WithResponse(rsp =>
                     rsp.WithStatusCode(HttpStatusCode.ServiceUnavailable).WithDelay(TimeSpan.FromSeconds(responseDelay))
                 )
@@ -43,7 +44,7 @@ public class ProxyTests(WireMockClient wireMockClient)
 
         var putMappingBuilder = _wireMockAdminApi.GetMappingBuilder();
         putMappingBuilder.Given(m =>
-            m.WithRequest(req => req.UsingPut().WithPath("/alvs-decisions/25GB1HG99NHUJO3999"))
+            m.WithRequest(req => req.UsingPut().WithPath("/comparer/alvs-decisions/25GB1HG99NHUJO3999"))
                 .WithResponse(rsp =>
                     rsp.WithStatusCode(HttpStatusCode.ServiceUnavailable).WithDelay(TimeSpan.FromSeconds(responseDelay))
                 )
@@ -83,7 +84,7 @@ public class ProxyTests(WireMockClient wireMockClient)
 
         var postMappingBuilder = _wireMockAdminApi.GetMappingBuilder();
         postMappingBuilder.Given(m =>
-            m.WithRequest(req => req.UsingPost().WithPath("/soapsearch/tst/sanco/traces_ws/searchCertificate"))
+            m.WithRequest(req => req.UsingPost().WithPath("/ipaffs/soapsearch/tst/sanco/traces_ws/searchCertificate"))
                 .WithResponse(rsp =>
                     rsp.WithStatusCode(HttpStatusCode.ServiceUnavailable).WithDelay(TimeSpan.FromSeconds(responseDelay))
                 )

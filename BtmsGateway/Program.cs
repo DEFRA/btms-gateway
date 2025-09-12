@@ -63,7 +63,7 @@ static WebApplication BuildWebApplication(WebApplicationBuilder builder)
     // Order of middleware matters!
     app.UseMiddleware<MetricsMiddleware>();
     app.UseWhen(
-        context => !context.Request.Path.StartsWithSegments("/admin"), //expand this exclusion logic when needed
+        context => !context.Request.Path.StartsWithSegments("/admin"),
         builder =>
         {
             builder.UseMiddleware<RoutingInterceptor>();

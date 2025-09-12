@@ -24,7 +24,7 @@ public class SqsServiceTests
             new AwsSqsOptions
             {
                 OutboundClearanceDecisionsQueueName = "outbound_queue",
-                OutboundClearanceDecisionsDeadLetterQueueArn = "deadletter_queue_arn",
+                SqsArnPrefix = "arn:aws:sqs:eu-west-2:000000000000:",
             }
         );
 

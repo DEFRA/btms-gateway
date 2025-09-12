@@ -10,7 +10,7 @@ public class AwsSqsOptions
     public required string OutboundClearanceDecisionsQueueName { get; set; }
 
     [Required]
-    public required string OutboundClearanceDecisionsDeadLetterQueueArn { get; set; }
+    public required string SqsArnPrefix { get; set; }
 
     public int ConsumersPerHost { get; init; } = 20;
 

@@ -1,6 +1,7 @@
 using Amazon.SQS;
 using Amazon.SQS.Model;
 using BtmsGateway.Config;
+using BtmsGateway.Extensions;
 using Microsoft.Extensions.Options;
 
 namespace BtmsGateway.Services.Admin;
@@ -13,14 +14,14 @@ public interface ISqsService
 public class SqsService(IAmazonSQS amazonSqs, IOptions<AwsSqsOptions> awsSqsOptions, ILogger<SqsService> logger)
     : ISqsService
 {
+    private readonly string deadletterArn =
+        $"{awsSqsOptions.Value.SqsArnPrefix}{awsSqsOptions.Value.OutboundClearanceDecisionsQueueName}-deadletter";
+
     public async Task<bool> Redrive(CancellationToken cancellationToken)
     {
         try
         {
-            var startMessageMoveTaskRequest = new StartMessageMoveTaskRequest
-            {
-                SourceArn = awsSqsOptions.Value.OutboundClearanceDecisionsDeadLetterQueueArn,
-            };
+            var startMessageMoveTaskRequest = new StartMessageMoveTaskRequest { SourceArn = deadletterArn };
 
             var startMessageMoveTaskResponse = await amazonSqs.StartMessageMoveTaskAsync(
                 startMessageMoveTaskRequest,
@@ -36,7 +37,10 @@ public class SqsService(IAmazonSQS amazonSqs, IOptions<AwsSqsOptions> awsSqsOpti
                 return true;
             }
 
-            logger.LogError("Redrive failed");
+            logger.LogError(
+                "Redrive failed with response: {TaskResponse}",
+                startMessageMoveTaskResponse.ToStringExtended()
+            );
         }
         catch (Exception ex)
         {

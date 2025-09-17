@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<NS1:Envelope xmlns:NS1="http://schemas.xmlsoap.org/soap/envelope/">
+  <NS1:Header/>
+  <NS1:Body>
+    <NS2:DecisionNotificationRequestPost xmlns:NS2="traceswsns">
+      <NS2:XMLSchemaVersion>2.0</NS2:XMLSchemaVersion>
+      <NS2:UserIdentification>username</NS2:UserIdentification>
+      <NS2:UserPassword>password</NS2:UserPassword>
+      <NS2:SendingDate>2025-03-27 11:07</NS2:SendingDate>
+      <NS2:DecisionNotification xmlns:NS2="traceswsns">
+        <NS2:ServiceHeader>
+          <NS2:SourceSystem>ALVS</NS2:SourceSystem>
+          <NS2:DestinationSystem>CDS</NS2:DestinationSystem>
+          <NS2:CorrelationId>000</NS2:CorrelationId>
+          <NS2:ServiceCallTimestamp>2025-03-27T11:07:34.822837</NS2:ServiceCallTimestamp>
+        </NS2:ServiceHeader>
+        <NS2:Header>
+          <NS2:EntryReference>123-123456A-01/01/2025</NS2:EntryReference>
+          <NS2:EntryVersionNumber>1</NS2:EntryVersionNumber>
+          <NS2:DecisionNumber>1</NS2:DecisionNumber>
+        </NS2:Header>
+        <NS2:Item>
+          <NS2:ItemNumber>1</NS2:ItemNumber>
+          <NS2:Check>
+            <NS2:CheckCode>H222</NS2:CheckCode>
+            <NS2:DecisionCode>C03</NS2:DecisionCode>
+          </NS2:Check>
+        </NS2:Item>
+      </NS2:DecisionNotification>
+    </NS2:DecisionNotificationRequestPost>
+  </NS1:Body>
+</NS1:Envelope>

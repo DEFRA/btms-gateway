@@ -1,0 +1,9 @@
+﻿<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+  <SOAP-ENV:Header />
+  <SOAP-ENV:Body>
+    <ns2:DecisionNotificationRequestPostResult xmlns:ns2="traceswsns">
+      <ns2:XMLSchemaVersion>2.0</ns2:XMLSchemaVersion>
+      <ns2:OperationCode>0</ns2:OperationCode>
+    </ns2:DecisionNotificationRequestPostResult>
+  </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>

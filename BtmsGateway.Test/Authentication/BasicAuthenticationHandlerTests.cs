@@ -17,6 +17,7 @@ public class BasicAuthenticationHandlerTests
     private IOptionsMonitor<AuthenticationSchemeOptions> OptionsMonitor { get; } =
         Substitute.For<IOptionsMonitor<AuthenticationSchemeOptions>>();
     private AclOptions AclOptions { get; set; } = new();
+    private Endpoint Endpoint = new Endpoint(null, null, null);
 
     public BasicAuthenticationHandlerTests()
     {
@@ -33,7 +34,10 @@ public class BasicAuthenticationHandlerTests
     [Fact]
     public async Task WhenNoAuthorizationHeader_ShouldFail()
     {
-        await Subject.InitializeAsync(Scheme(), new DefaultHttpContext());
+        var context = new DefaultHttpContext();
+        context.SetEndpoint(Endpoint);
+
+        await Subject.InitializeAsync(Scheme(), context);
 
         await AuthenticateAndAssertFailure();
     }
@@ -41,10 +45,10 @@ public class BasicAuthenticationHandlerTests
     [Fact]
     public async Task WhenInvalidAuthorizationHeaderScheme_ShouldFail()
     {
-        await Subject.InitializeAsync(
-            Scheme(),
-            new DefaultHttpContext { Request = { Headers = { Authorization = "InvalidScheme Value" } } }
-        );
+        var context = new DefaultHttpContext { Request = { Headers = { Authorization = "InvalidScheme Value" } } };
+        context.SetEndpoint(Endpoint);
+
+        await Subject.InitializeAsync(Scheme(), context);
 
         await AuthenticateAndAssertFailure();
     }
@@ -52,10 +56,10 @@ public class BasicAuthenticationHandlerTests
     [Fact]
     public async Task WhenNoCredentials_ShouldFail()
     {
-        await Subject.InitializeAsync(
-            Scheme(),
-            new DefaultHttpContext { Request = { Headers = { Authorization = "Basic " } } }
-        );
+        var context = new DefaultHttpContext { Request = { Headers = { Authorization = "Basic " } } };
+        context.SetEndpoint(Endpoint);
+
+        await Subject.InitializeAsync(Scheme(), context);
 
         await AuthenticateAndAssertFailure();
     }
@@ -65,19 +69,16 @@ public class BasicAuthenticationHandlerTests
     [InlineData("username:")]
     public async Task WhenInvalidCredentials_ShouldFail(string credentials)
     {
-        await Subject.InitializeAsync(
-            Scheme(),
-            new DefaultHttpContext
+        var context = new DefaultHttpContext
+        {
+            Request =
             {
-                Request =
-                {
-                    Headers =
-                    {
-                        Authorization = $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes(credentials))}",
-                    },
-                },
-            }
-        );
+                Headers = { Authorization = $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes(credentials))}" },
+            },
+        };
+        context.SetEndpoint(Endpoint);
+
+        await Subject.InitializeAsync(Scheme(), context);
 
         await AuthenticateAndAssertFailure();
     }
@@ -85,17 +86,14 @@ public class BasicAuthenticationHandlerTests
     [Fact]
     public async Task WhenNoMatchingClientId_ShouldFail()
     {
+        var context = new DefaultHttpContext
+        {
+            Request = { Headers = { Authorization = $"Basic {Convert.ToBase64String("client:secret"u8.ToArray())}" } },
+        };
+        context.SetEndpoint(Endpoint);
+
         AclOptions.Clients.Add("different-client", new AclOptions.Client { Secret = "secret", Scopes = [] });
-        await Subject.InitializeAsync(
-            Scheme(),
-            new DefaultHttpContext
-            {
-                Request =
-                {
-                    Headers = { Authorization = $"Basic {Convert.ToBase64String("client:secret"u8.ToArray())}" },
-                },
-            }
-        );
+        await Subject.InitializeAsync(Scheme(), context);
 
         await AuthenticateAndAssertFailure();
     }
@@ -103,19 +101,29 @@ public class BasicAuthenticationHandlerTests
     [Fact]
     public async Task WhenNoMatchingClientSecret_ShouldFail()
     {
+        var context = new DefaultHttpContext
+        {
+            Request = { Headers = { Authorization = $"Basic {Convert.ToBase64String("client:secret"u8.ToArray())}" } },
+        };
+        context.SetEndpoint(Endpoint);
+
         AclOptions.Clients.Add("client", new AclOptions.Client { Secret = "different-secret", Scopes = [] });
-        await Subject.InitializeAsync(
-            Scheme(),
-            new DefaultHttpContext
-            {
-                Request =
-                {
-                    Headers = { Authorization = $"Basic {Convert.ToBase64String("client:secret"u8.ToArray())}" },
-                },
-            }
-        );
+        await Subject.InitializeAsync(Scheme(), context);
 
         await AuthenticateAndAssertFailure();
+    }
+
+    [Fact]
+    public async Task WhenNoRequestEndpoint_ShouldHaveNoAuthResult()
+    {
+        var context = new DefaultHttpContext();
+
+        await Subject.InitializeAsync(Scheme(), context);
+
+        var result = await Subject.AuthenticateAsync();
+
+        result.Failure.Should().BeNull();
+        result.None.Should().BeTrue();
     }
 
     private static AuthenticationScheme Scheme()

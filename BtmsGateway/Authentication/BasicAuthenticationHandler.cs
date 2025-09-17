@@ -21,7 +21,7 @@ public class BasicAuthenticationHandler(
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
         var endpoint = Context.GetEndpoint();
-        if (endpoint?.Metadata.GetMetadata<IAllowAnonymous>() != null)
+        if (endpoint == null || endpoint.Metadata.GetMetadata<IAllowAnonymous>() != null)
             return NoResult();
 
         var authorizationHeader = Request.Headers.Authorization.ToString();

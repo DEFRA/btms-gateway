@@ -1,0 +1,21 @@
+{
+  "Guid": "a35fe132-2f75-493d-940a-b083c0f0a8a8",
+  "Request": {
+    "Path": {
+      "Matchers": [
+        {
+          "Name": "WildcardMatcher",
+          "Pattern": "/ipaffs/health"
+        }
+      ]
+    },
+    "Methods": [
+      "get"
+    ]
+  },
+  "Response": {
+    "StatusCode": 200,
+    "Headers": { "Content-Type": "application/json" },
+    "BodyAsJson": { "body": "Healthy" }
+  }
+}

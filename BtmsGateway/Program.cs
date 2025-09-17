@@ -1,4 +1,6 @@
+using BtmsGateway.Authentication;
 using BtmsGateway.Config;
+using BtmsGateway.Endpoints.Admin;
 using BtmsGateway.Middleware;
 using BtmsGateway.Services.Checking;
 using BtmsGateway.Services.Health;
@@ -48,6 +50,8 @@ static void ConfigureWebApplication(WebApplicationBuilder builder)
     var healthCheckConfig = builder.ConfigureToType<HealthCheckConfig>();
     builder.AddCustomHealthChecks(healthCheckConfig, routingConfig);
     builder.ConfigureSwaggerBuilder();
+    builder.Services.AddProblemDetails();
+    builder.Services.AddAuthenticationAuthorization();
 }
 
 static WebApplication BuildWebApplication(WebApplicationBuilder builder)
@@ -58,9 +62,16 @@ static WebApplication BuildWebApplication(WebApplicationBuilder builder)
     app.UseHttpLogging();
     // Order of middleware matters!
     app.UseMiddleware<MetricsMiddleware>();
-    app.UseMiddleware<RoutingInterceptor>();
+    app.UseWhen(
+        context => !context.Request.Path.StartsWithSegments("/admin"),
+        builder =>
+        {
+            builder.UseMiddleware<RoutingInterceptor>();
+        }
+    );
     app.UseCustomHealthChecks();
     app.UseCheckRoutesEndpoints();
+    app.MapAdminEndpoints();
     app.ConfigureSwaggerApp();
 
     return app;

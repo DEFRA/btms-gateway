@@ -1,0 +1,21 @@
+{
+  "Guid": "0fb29aca-13c0-4b6e-b239-78b17cbc21d1",
+  "Request": {
+    "Path": {
+      "Matchers": [
+        {
+          "Name": "WildcardMatcher",
+          "Pattern": "/cds/health"
+        }
+      ]
+    },
+    "Methods": [
+      "get"
+    ]
+  },
+  "Response": {
+    "StatusCode": 405,
+    "Headers": { "Content-Type": "application/json" },
+    "BodyAsJson": { "body": "Forbidden" }
+  }
+}

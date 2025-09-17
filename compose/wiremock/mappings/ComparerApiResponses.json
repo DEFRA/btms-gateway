@@ -1,0 +1,52 @@
+[
+  {
+    "Guid": "1234567A-940e-4b86-a1f4-4f0fc7be8b8b",
+    "Request": {
+      "Path": {
+        "Matchers": [
+          {
+            "Name": "WildcardMatcher",
+            "Pattern": "/comparer/health/authorized"
+          }
+        ]
+      },
+      "Methods": [
+        "get"
+      ]
+    },
+    "Response": {
+      "StatusCode": 200,
+      "Headers": {
+        "Content-Type": "application/json"
+      },
+      "BodyAsJson": {
+        "body": "Healthy"
+      }
+    }
+  },
+  {
+    "Guid": "3a4fe301-656f-4437-8585-f4af11478bfc",
+    "Request": {
+      "Path": {
+        "Matchers": [
+          {
+            "Name": "WildcardMatcher",
+            "Pattern": "/comparer/health"
+          }
+        ]
+      },
+      "Methods": [
+        "get"
+      ]
+    },
+    "Response": {
+      "StatusCode": 200,
+      "Headers": {
+        "Content-Type": "application/json"
+      },
+      "BodyAsJson": {
+        "body": "Healthy"
+      }
+    }
+  }
+]

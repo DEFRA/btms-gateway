@@ -101,7 +101,7 @@ public static class ConfigureHealthChecks
             builder.AddTypeActivatedCheck<ApiHealthCheck<DecisionComparerApiOptions>>(
                 "TradeImportsDecisionComparerApi",
                 failureStatus: HealthStatus.Unhealthy,
-                args: ["DecisionComparerApi", "/health/authorized", decisionComparerApiOptions]
+                args: ["DecisionComparerApi", "health/authorized", decisionComparerApiOptions]
             );
         }
 

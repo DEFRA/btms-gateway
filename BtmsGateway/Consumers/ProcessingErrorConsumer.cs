@@ -4,6 +4,7 @@ using BtmsGateway.Exceptions;
 using BtmsGateway.Services.Converter;
 using BtmsGateway.Services.Routing;
 using BtmsGateway.Utils;
+using Defra.TradeImportsDataApi.Domain.Errors;
 using Defra.TradeImportsDataApi.Domain.Events;
 using Microsoft.Extensions.Options;
 using SlimMessageBus;
@@ -39,6 +40,14 @@ public class ProcessingErrorConsumer(
             if (latestProcessingError is null)
             {
                 logger.LogWarning("{MRN} Processing Errors contained no processing errors.", mrn);
+                return;
+            }
+
+            latestProcessingError.Errors = [.. latestProcessingError.Errors.Where(e => e.Code.StartsWith("ALVSVAL"))];
+
+            if (latestProcessingError.Errors.Length == 0)
+            {
+                logger.LogDebug("{MRN} Processing Errors only contained non-ALVSVAL errors", mrn);
                 return;
             }
 

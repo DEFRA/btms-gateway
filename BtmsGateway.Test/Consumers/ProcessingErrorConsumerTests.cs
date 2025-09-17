@@ -25,6 +25,14 @@ public class ProcessingErrorConsumerTests
     private const string Mrn = "24GB123456789AB012";
     private const string CorrelationId = "external-correlation-id";
 
+    private readonly Func<ProcessingError> _alvsProcessingError = () =>
+        new()
+        {
+            Created = DateTime.UtcNow,
+            CorrelationId = CorrelationId,
+            Errors = [new ErrorItem { Code = "ALVSVAL01", Message = "ALVS Error" }],
+        };
+
     public ProcessingErrorConsumerTests()
     {
         _consumer = new ProcessingErrorConsumer(
@@ -47,7 +55,7 @@ public class ProcessingErrorConsumerTests
                 ProcessingErrors =
                 [
                     new ProcessingError { Created = DateTime.UtcNow.AddSeconds(-10) },
-                    new ProcessingError { Created = DateTime.UtcNow, CorrelationId = CorrelationId },
+                    _alvsProcessingError(),
                 ],
             },
         };
@@ -73,13 +81,122 @@ public class ProcessingErrorConsumerTests
             .SendErrorNotificationAsync(
                 Mrn,
                 errorNotification: Arg.Is<string>(soap =>
-                    soap.Contains(Mrn) && soap.Contains("test-username") && soap.Contains("test-password")
+                    soap.Contains(Mrn)
+                    && soap.Contains("test-username")
+                    && soap.Contains("test-password")
+                    && soap.Contains("ALVSVAL01")
                 ),
                 MessagingConstants.MessageSource.Btms,
                 RoutingResult.Empty,
                 headers: null,
                 CorrelationId,
                 CancellationToken.None
+            );
+    }
+
+    [Fact]
+    public async Task WhenValidProcessingErrorsSentItOnlyForwardsALVSVALErrors()
+    {
+        var message = new ResourceEvent<ProcessingErrorResource>
+        {
+            ResourceId = Mrn,
+            ResourceType = "ProcessingError",
+            Operation = "Created",
+            Resource = new ProcessingErrorResource
+            {
+                ProcessingErrors =
+                [
+                    new ProcessingError { Created = DateTime.UtcNow.AddSeconds(-10) },
+                    new ProcessingError
+                    {
+                        Created = DateTime.UtcNow,
+                        CorrelationId = CorrelationId,
+                        Errors =
+                        [
+                            new ErrorItem { Code = "ALVSVAL01", Message = "ALVS Error" },
+                            new ErrorItem { Code = "ERR01", Message = "Schema Error" },
+                            new ErrorItem { Code = "ALVSVAL02", Message = "ALVS Error 2" },
+                        ],
+                    },
+                ],
+            },
+        };
+
+        var sendErrorNotificationResult = new RoutingResult { StatusCode = HttpStatusCode.OK };
+
+        _errorNotificationSender
+            .SendErrorNotificationAsync(
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<MessagingConstants.MessageSource>(),
+                Arg.Any<RoutingResult>(),
+                Arg.Any<IHeaderDictionary>(),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>()
+            )
+            .Returns(sendErrorNotificationResult);
+
+        await _consumer.OnHandle(message, CancellationToken.None);
+
+        await _errorNotificationSender
+            .Received(1)
+            .SendErrorNotificationAsync(
+                Mrn,
+                errorNotification: Arg.Is<string>(soap =>
+                    soap.Contains(Mrn)
+                    && soap.Contains("test-username")
+                    && soap.Contains("test-password")
+                    && soap.Contains("ALVSVAL01")
+                    && soap.Contains("ALVSVAL02")
+                    && !soap.Contains("ERR01")
+                ),
+                MessagingConstants.MessageSource.Btms,
+                RoutingResult.Empty,
+                headers: null,
+                CorrelationId,
+                CancellationToken.None
+            );
+    }
+
+    [Fact]
+    public async Task WhenValidProcessingErrorsOnlyContainsNonALVSVALErrorsItIsSkipped()
+    {
+        var message = new ResourceEvent<ProcessingErrorResource>
+        {
+            ResourceId = Mrn,
+            ResourceType = "ProcessingError",
+            Operation = "Created",
+            Resource = new ProcessingErrorResource
+            {
+                ProcessingErrors =
+                [
+                    new ProcessingError { Created = DateTime.UtcNow.AddSeconds(-10) },
+                    new ProcessingError
+                    {
+                        Created = DateTime.UtcNow,
+                        CorrelationId = CorrelationId,
+                        Errors =
+                        [
+                            new ErrorItem { Code = "ERR01", Message = "Schema Error" },
+                            new ErrorItem { Code = "ERR02", Message = "Another Schema Error" },
+                        ],
+                    },
+                ],
+            },
+        };
+
+        await _consumer.OnHandle(message, CancellationToken.None);
+
+        await _errorNotificationSender
+            .DidNotReceiveWithAnyArgs()
+            .SendErrorNotificationAsync(
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<MessagingConstants.MessageSource>(),
+                Arg.Any<RoutingResult>(),
+                Arg.Any<IHeaderDictionary>(),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>()
             );
     }
 
@@ -168,7 +285,7 @@ public class ProcessingErrorConsumerTests
             ResourceId = "24GB123456789AB012",
             ResourceType = "ProcessingError",
             Operation = "Created",
-            Resource = new ProcessingErrorResource { ProcessingErrors = [new ProcessingError()] },
+            Resource = new ProcessingErrorResource { ProcessingErrors = [_alvsProcessingError()] },
         };
 
         var sendErrorNotificationResult = new RoutingResult { StatusCode = HttpStatusCode.BadRequest };
@@ -203,7 +320,7 @@ public class ProcessingErrorConsumerTests
             ResourceId = "24GB123456789AB012",
             ResourceType = "ProcessingError",
             Operation = "Created",
-            Resource = new ProcessingErrorResource { ProcessingErrors = [new ProcessingError()] },
+            Resource = new ProcessingErrorResource { ProcessingErrors = [_alvsProcessingError()] },
         };
 
         _errorNotificationSender

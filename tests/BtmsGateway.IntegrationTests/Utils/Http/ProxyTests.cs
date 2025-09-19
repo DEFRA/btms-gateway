@@ -19,6 +19,8 @@ public class ProxyTests(WireMockClient wireMockClient) : IntegrationTestBase
     [Fact]
     public async Task When_post_to_cds_takes_longer_than_http_client_timeout_Then_service_unavailable_returned()
     {
+        await wireMockClient.ResetWiremock();
+
         var fixtureContent = FixtureTest.UsingContent("DecisionNotification.xml");
 
         await using var application = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
@@ -65,6 +67,8 @@ public class ProxyTests(WireMockClient wireMockClient) : IntegrationTestBase
     [Fact]
     public async Task When_post_to_ipaffs_takes_longer_than_http_client_timeout_Then_service_unavailable_returned()
     {
+        await wireMockClient.ResetWiremock();
+
         var fixtureContent = FixtureTest.UsingContent("SearchCertificate.xml");
 
         await using var application = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>

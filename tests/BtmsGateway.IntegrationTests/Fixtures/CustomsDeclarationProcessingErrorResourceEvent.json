@@ -1,0 +1,21 @@
+{
+  "resourceId": "25GB0XX00XXXXX0000",
+  "resourceType": "ProcessingError",
+  "operation": "Created",
+  "resource": {
+    "ProcessingErrors": [
+      {
+        "correlationId": "111",
+        "created": "2025-09-08T09:00:00.000",
+        "sourceExternalCorrelationId": "222",
+        "externalVersion": 1,
+        "errors": [
+          {
+            "code": "ALVSVAL312",
+            "message": "The DocumentControl field (Ex-Heading flag) must be Y or N. Value supplied was null. Your service request with Correlation ID 341735 has been terminated."
+          }
+        ]
+      }
+    ]
+  }
+}

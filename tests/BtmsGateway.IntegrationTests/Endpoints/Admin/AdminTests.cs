@@ -1,6 +1,4 @@
 using System.Net;
-using Amazon.SQS.Model;
-using BtmsGateway.Extensions;
 using BtmsGateway.IntegrationTests.Helpers;
 using BtmsGateway.IntegrationTests.TestBase;
 using BtmsGateway.IntegrationTests.TestUtils;
@@ -119,28 +117,5 @@ public class AdminIntegrationTests(WireMockClient wireMockClient, ITestOutputHel
                 (await GetQueueAttributes(ResourceEventsDeadLetterQueueUrl)).ApproximateNumberOfMessages == 0
             )
         );
-    }
-
-    private static Dictionary<string, MessageAttributeValue> WithResourceEventAttributes(
-        string resourceType,
-        string subResourceType,
-        string resourceId
-    )
-    {
-        return new Dictionary<string, MessageAttributeValue>
-        {
-            {
-                MessageBusHeaders.ResourceType,
-                new MessageAttributeValue { DataType = "String", StringValue = resourceType }
-            },
-            {
-                MessageBusHeaders.SubResourceType,
-                new MessageAttributeValue { DataType = "String", StringValue = subResourceType }
-            },
-            {
-                MessageBusHeaders.ResourceId,
-                new MessageAttributeValue { DataType = "String", StringValue = resourceId }
-            },
-        };
     }
 }

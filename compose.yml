@@ -50,6 +50,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       AWS__ServiceURL: http://localstack:4566
+      AWS__AuthenticationRegion: eu-west-2
       SQS_ENDPOINT: http://localstack:4566
       Routing__AutomatedHealthCheckDisabled: false
       Routing__NamedLinks__Stub__Link: "http://wiremock/stub"
@@ -57,10 +58,11 @@ services:
       Routing__NamedLinks__CdsAlvs__Link: "http://wiremock/alvs/"
       Routing__NamedLinks__AlvsCds__Link: "http://wiremock/cds/"
       Routing__NamedLinks__AlvsIpaffs__Link: "http://wiremock/ipaffs/"
-      Routing__Destinations__BtmsDecisionComparer__Link: "http://wiremock/comparer/"
-      Routing__Destinations__AlvsDecisionComparer__Link: "http://wiremock/comparer/"
-      Routing__Destinations__BtmsOutboundErrors__Link: "http://wiremock/comparer/"
-      Routing__Destinations__AlvsOutboundErrors__Link: "http://wiremock/comparer/"
+      Routing__Destinations__BtmsCds__Link: "http://wiremock/cds"
+      Routing__Destinations__BtmsDecisionComparer__Link: "http://wiremock/comparer"
+      Routing__Destinations__AlvsDecisionComparer__Link: "http://wiremock/comparer"
+      Routing__Destinations__BtmsOutboundErrors__Link: "http://wiremock/comparer"
+      Routing__Destinations__AlvsOutboundErrors__Link: "http://wiremock/comparer"
       HealthCheck__AutomatedHealthCheckDisabled: false
       HealthCheck__Urls__Stub__Url: "http://wiremock/stub/health"
       HealthCheck__Urls__IBM_ALVS__Url: "http://wiremock/alvs/health"
@@ -71,7 +73,7 @@ services:
       Acl__Clients__IntegrationTests__Scopes__0: execute
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8080/health" ]
-      interval: 5s
+      interval: 300s
       timeout: 5s
       retries: 10
       start_period: 5s

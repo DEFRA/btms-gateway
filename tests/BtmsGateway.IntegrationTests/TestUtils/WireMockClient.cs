@@ -13,6 +13,13 @@ public class WireMockClient
     }
 
     public IWireMockAdminApi WireMockAdminApi { get; } = RestClient.For<IWireMockAdminApi>("http://localhost:9090");
+
+    public async Task ResetWiremock()
+    {
+        await WireMockAdminApi.ResetMappingsAsync();
+        await WireMockAdminApi.ResetRequestsAsync();
+        await WireMockAdminApi.ReloadStaticMappingsAsync();
+    }
 }
 
 [CollectionDefinition("UsesWireMockClient")]

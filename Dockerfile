@@ -28,7 +28,7 @@ RUN dotnet tool restore
 
 COPY BtmsGateway.sln BtmsGateway.sln
 COPY BtmsGateway BtmsGateway
-COPY BtmsGateway.Test BtmsGateway.Test
+COPY tests/BtmsGateway.Test tests/BtmsGateway.Test
 COPY tests/Testing tests/Testing
 COPY tests/BtmsGateway.IntegrationTests tests/BtmsGateway.IntegrationTests
 COPY compose compose
@@ -43,7 +43,7 @@ RUN dotnet csharpier check .
 
 RUN dotnet build BtmsGateway/BtmsGateway.csproj --no-restore -c Release
 
-RUN dotnet test --no-restore --filter "Category!=IntegrationTest & Dependence!=localstack"
+RUN dotnet test --no-restore --filter "Category!=IntegrationTest"
 
 FROM build AS publish
 RUN dotnet publish BtmsGateway -c Release -o /app/publish /p:UseAppHost=false

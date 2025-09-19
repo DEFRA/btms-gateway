@@ -31,16 +31,10 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BtmsGateway\BtmsGateway.csproj" />
-    <ProjectReference Include="..\tests\Testing\Testing.csproj" />
+    <ProjectReference Include="..\..\BtmsGateway\BtmsGateway.csproj" />
+    <ProjectReference Include="..\Testing\Testing.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="EndToEnd\Fixtures\**">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="EndToEnd\Settings\**">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Update="Services\Converter\Fixtures\**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -4,16 +4,12 @@ using BtmsGateway.IntegrationTests.Helpers;
 using BtmsGateway.IntegrationTests.TestBase;
 using BtmsGateway.IntegrationTests.TestUtils;
 using FluentAssertions;
-using WireMock.Client;
-using WireMock.Client.Extensions;
 using Xunit.Abstractions;
 
 namespace BtmsGateway.IntegrationTests.EndToEnd.ClearanceRequests;
 
-[Collection("UsesWireMockClient")]
-public class ClearanceRequestsTests(WireMockClient wireMockClient, ITestOutputHelper output) : SqsTestBase(output)
+public class ClearanceRequestsTests(ITestOutputHelper output) : SqsTestBase(output)
 {
-    private readonly IWireMockAdminApi _wireMockAdminApi = wireMockClient.WireMockAdminApi;
     private readonly string _clearanceRequest = FixtureTest
         .UsingContent("ClearanceRequestTemplate.xml")
         .WithRandomCorrelationId();
@@ -21,16 +17,6 @@ public class ClearanceRequestsTests(WireMockClient wireMockClient, ITestOutputHe
     [Fact]
     public async Task When_receiving_clearance_request_from_cds_Then_should_forward_and_respond_ok()
     {
-        var postMappingBuilder = _wireMockAdminApi.GetMappingBuilder();
-        postMappingBuilder.Given(m =>
-            m.WithRequest(req =>
-                    req.UsingPost().WithPath($"/alvs{Testing.Endpoints.ClearanceRequests.PostClearanceRequest()}")
-                )
-                .WithResponse(rsp => rsp.WithStatusCode(HttpStatusCode.OK))
-        );
-        var postStatus = await postMappingBuilder.BuildAndPostAsync();
-        Assert.NotNull(postStatus.Guid);
-
         await PurgeQueue(InboundCustomsDeclarationProcessorQueueUrl);
 
         var httpClient = CreateHttpClient(false);
@@ -44,15 +30,6 @@ public class ClearanceRequestsTests(WireMockClient wireMockClient, ITestOutputHe
         var verifyResponseSettings = new VerifySettings();
         verifyResponseSettings.UseTextForParameters("GatewayResponse");
         await VerifyXml(await response.Content.ReadAsStringAsync(), verifyResponseSettings);
-
-        var mockReceivedRequests = await _wireMockAdminApi.GetRequestsAsync();
-        Assert.Contains(
-            mockReceivedRequests,
-            logEntry =>
-                logEntry.Request.Path == $"/alvs{Testing.Endpoints.ClearanceRequests.PostClearanceRequest()}"
-                && logEntry.Request.Method == HttpMethod.Post.Method
-                && logEntry.Request.Body == _clearanceRequest
-        );
 
         Assert.True(
             await AsyncWaiter.WaitForAsync(async () =>

@@ -51,7 +51,7 @@ public class DecisionComparerApiOptionsTests
     [Fact]
     public void When_configure_http_client_Then_client_should_be_configured_correctly()
     {
-        var dataApiOptions = new DataApiOptions
+        var decisionComparerApiOptions = new DecisionComparerApiOptions
         {
             BaseAddress = "https://some-uri",
             Username = "user",
@@ -59,12 +59,12 @@ public class DecisionComparerApiOptionsTests
         };
         var httpClient = new HttpClient();
 
-        dataApiOptions.Configure(httpClient);
+        decisionComparerApiOptions.Configure(httpClient);
 
         httpClient.BaseAddress.Should().Be($"https://some-uri");
         httpClient
             .DefaultRequestHeaders.Authorization.Should()
-            .BeEquivalentTo(new AuthenticationHeaderValue("Basic", dataApiOptions.BasicAuthCredential));
+            .BeEquivalentTo(new AuthenticationHeaderValue("Basic", decisionComparerApiOptions.BasicAuthCredential));
         httpClient.DefaultRequestVersion.Should().BeEquivalentTo(new Version(2, 0));
     }
 }

@@ -1,5 +1,4 @@
 using System.Diagnostics.CodeAnalysis;
-using Amazon.Runtime;
 using Amazon.SimpleNotificationService;
 using Amazon.SQS;
 using BtmsGateway.Extensions;
@@ -68,7 +67,6 @@ public static class ConfigureServices
         );
 
         builder.Services.AddHttpProxyClientWithoutRetry();
-        builder.Services.AddDataApiHttpClient();
 
         builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
         builder.Services.AddAWSService<IAmazonSimpleNotificationService>();

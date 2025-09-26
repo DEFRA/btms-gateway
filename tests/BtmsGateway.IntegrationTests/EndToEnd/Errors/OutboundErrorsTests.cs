@@ -97,8 +97,14 @@ public class OutboundErrorsTests(WireMockClient wireMockClient, ITestOutputHelpe
                 )
             )
         );
-
-        var errorNotifications = await errorNotificationsCollection.FindAsync(FilterDefinition<Notification>.Empty);
-        errorNotifications.ToList().Count.Should().Be(1);
+        Assert.True(
+            await AsyncWaiter.WaitForAsync(async () =>
+            {
+                var errorNotifications = await errorNotificationsCollection.FindAsync(
+                    FilterDefinition<Notification>.Empty
+                );
+                return errorNotifications.ToList().Count == 1;
+            })
+        );
     }
 }

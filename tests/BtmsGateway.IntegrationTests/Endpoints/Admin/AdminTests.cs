@@ -18,23 +18,14 @@ public class AdminIntegrationTests(WireMockClient wireMockClient, ITestOutputHel
     public async Task When_message_processing_fails_and_moved_to_dlq_Then_message_can_be_redriven()
     {
         var resourceEvent = FixtureTest.UsingContent("CustomsDeclarationClearanceDecisionResourceEvent.json");
-        var decisionNotification = FixtureTest.UsingContent("DecisionNotification.xml");
         var mrn = "25GB0XX00XXXXX0000";
 
-        var putMappingBuilder = _wireMockAdminApi.GetMappingBuilder();
-        putMappingBuilder.Given(m =>
-            m.WithRequest(req => req.UsingPut().WithPath("/comparer/btms-decisions/" + mrn))
-                .WithResponse(rsp => rsp.WithStatusCode(HttpStatusCode.OK).WithBody(decisionNotification))
-        );
-        var putStatus = await putMappingBuilder.BuildAndPostAsync();
-        Assert.NotNull(putStatus.Guid);
-
-        // Configure failure responses from CDS (including retries) so the message gets moved to DLQ and then successful on redrive
+        // Configure failure responses from Comparer (including retries) so the message gets moved to DLQ and then successful on redrive
         var failFirstPostMappingBuilder = _wireMockAdminApi.GetMappingBuilder();
         failFirstPostMappingBuilder.Given(m =>
-            m.WithRequest(req => req.UsingPost().WithPath("/cds/ws/CDS/defra/alvsclearanceinbound/v1"))
+            m.WithRequest(req => req.UsingPut().WithPath("/comparer/btms-decisions/" + mrn))
                 .WithScenario("DLQ Redrive")
-                .WithSetStateTo("CDS First Failure")
+                .WithSetStateTo("Comparer First Failure")
                 .WithResponse(rsp => rsp.WithStatusCode(HttpStatusCode.ServiceUnavailable))
         );
         var postFailStatus = await failFirstPostMappingBuilder.BuildAndPostAsync();
@@ -42,10 +33,10 @@ public class AdminIntegrationTests(WireMockClient wireMockClient, ITestOutputHel
 
         var failRetry1PostMappingBuilder = _wireMockAdminApi.GetMappingBuilder();
         failRetry1PostMappingBuilder.Given(m =>
-            m.WithRequest(req => req.UsingPost().WithPath("/cds/ws/CDS/defra/alvsclearanceinbound/v1"))
+            m.WithRequest(req => req.UsingPut().WithPath("/comparer/btms-decisions/" + mrn))
                 .WithScenario("DLQ Redrive")
-                .WithWhenStateIs("CDS First Failure")
-                .WithSetStateTo("CDS Retry 1 Failure")
+                .WithWhenStateIs("Comparer First Failure")
+                .WithSetStateTo("Comparer Retry 1 Failure")
                 .WithResponse(rsp => rsp.WithStatusCode(HttpStatusCode.ServiceUnavailable))
         );
         var postFailRetry1Status = await failRetry1PostMappingBuilder.BuildAndPostAsync();
@@ -53,10 +44,10 @@ public class AdminIntegrationTests(WireMockClient wireMockClient, ITestOutputHel
 
         var failRetry2PostMappingBuilder = _wireMockAdminApi.GetMappingBuilder();
         failRetry2PostMappingBuilder.Given(m =>
-            m.WithRequest(req => req.UsingPost().WithPath("/cds/ws/CDS/defra/alvsclearanceinbound/v1"))
+            m.WithRequest(req => req.UsingPut().WithPath("/comparer/btms-decisions/" + mrn))
                 .WithScenario("DLQ Redrive")
-                .WithWhenStateIs("CDS Retry 1 Failure")
-                .WithSetStateTo("CDS Retry 2 Failure")
+                .WithWhenStateIs("Comparer Retry 1 Failure")
+                .WithSetStateTo("Comparer Retry 2 Failure")
                 .WithResponse(rsp => rsp.WithStatusCode(HttpStatusCode.ServiceUnavailable))
         );
         var postFailRetry2Status = await failRetry2PostMappingBuilder.BuildAndPostAsync();
@@ -64,10 +55,10 @@ public class AdminIntegrationTests(WireMockClient wireMockClient, ITestOutputHel
 
         var failRetry3PostMappingBuilder = _wireMockAdminApi.GetMappingBuilder();
         failRetry3PostMappingBuilder.Given(m =>
-            m.WithRequest(req => req.UsingPost().WithPath("/cds/ws/CDS/defra/alvsclearanceinbound/v1"))
+            m.WithRequest(req => req.UsingPut().WithPath("/comparer/btms-decisions/" + mrn))
                 .WithScenario("DLQ Redrive")
-                .WithWhenStateIs("CDS Retry 2 Failure")
-                .WithSetStateTo("CDS Retry 3 Failure")
+                .WithWhenStateIs("Comparer Retry 2 Failure")
+                .WithSetStateTo("Comparer Retry 3 Failure")
                 .WithResponse(rsp => rsp.WithStatusCode(HttpStatusCode.ServiceUnavailable))
         );
         var postFailRetry3Status = await failRetry3PostMappingBuilder.BuildAndPostAsync();
@@ -75,10 +66,10 @@ public class AdminIntegrationTests(WireMockClient wireMockClient, ITestOutputHel
 
         var successfulPostMappingBuilder = _wireMockAdminApi.GetMappingBuilder();
         successfulPostMappingBuilder.Given(m =>
-            m.WithRequest(req => req.UsingPost().WithPath("/cds/ws/CDS/defra/alvsclearanceinbound/v1"))
+            m.WithRequest(req => req.UsingPut().WithPath("/comparer/btms-decisions/" + mrn))
                 .WithScenario("DLQ Redrive")
-                .WithWhenStateIs("CDS Retry 3 Failure")
-                .WithSetStateTo("CDS Back Online")
+                .WithWhenStateIs("Comparer Retry 3 Failure")
+                .WithSetStateTo("Comparer Back Online")
                 .WithResponse(rsp => rsp.WithStatusCode(HttpStatusCode.NoContent))
         );
         var postSuccessStatus = await successfulPostMappingBuilder.BuildAndPostAsync();

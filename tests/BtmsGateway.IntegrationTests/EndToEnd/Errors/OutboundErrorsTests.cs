@@ -1,9 +1,11 @@
 using System.Net;
 using System.Net.Http.Headers;
+using BtmsGateway.IntegrationTests.Data.Entities;
 using BtmsGateway.IntegrationTests.Helpers;
 using BtmsGateway.IntegrationTests.TestBase;
 using BtmsGateway.IntegrationTests.TestUtils;
 using FluentAssertions;
+using MongoDB.Driver;
 using WireMock.Client;
 using WireMock.Client.Extensions;
 using Xunit.Abstractions;
@@ -66,16 +68,11 @@ public class OutboundErrorsTests(WireMockClient wireMockClient, ITestOutputHelpe
         var putStatus = await putMappingBuilder.BuildAndPostAsync();
         Assert.NotNull(putStatus.Guid);
 
-        var postMappingBuilder = _wireMockAdminApi.GetMappingBuilder();
-        postMappingBuilder.Given(m =>
-            m.WithRequest(req => req.UsingPost().WithPath($"/cds{Testing.Endpoints.Cds.PostNotification()}"))
-                .WithResponse(rsp => rsp.WithStatusCode(HttpStatusCode.NoContent))
-        );
-        var postStatus = await postMappingBuilder.BuildAndPostAsync();
-        Assert.NotNull(postStatus.Guid);
-
         await DrainAllMessages(ResourceEventsQueueUrl);
         await DrainAllMessages(ResourceEventsDeadLetterQueueUrl);
+
+        var errorNotificationsCollection = GetErrorNotificationsCollection();
+        await errorNotificationsCollection.DeleteManyAsync(FilterDefinition<Notification>.Empty);
 
         await SendMessage(
             _mrn,
@@ -100,14 +97,8 @@ public class OutboundErrorsTests(WireMockClient wireMockClient, ITestOutputHelpe
                 )
             )
         );
-        Assert.True(
-            await AsyncWaiter.WaitForAsync(async () =>
-                (await _wireMockAdminApi.GetRequestsAsync()).Any(logEntry =>
-                    logEntry.Request.Path == $"/cds{Testing.Endpoints.Cds.PostNotification()}"
-                    && logEntry.Request.Method == HttpMethod.Post.Method
-                    && logEntry.Request.Body == _errorNotification
-                )
-            )
-        );
+
+        var errorNotifications = await errorNotificationsCollection.FindAsync(FilterDefinition<Notification>.Empty);
+        errorNotifications.ToList().Count.Should().Be(1);
     }
 }

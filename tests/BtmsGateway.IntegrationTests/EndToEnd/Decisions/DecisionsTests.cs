@@ -97,10 +97,14 @@ public class DecisionsTests(WireMockClient wireMockClient, ITestOutputHelper out
                 )
             )
         );
-
-        var decisionNotifications = await decisionNotificationsCollection.FindAsync(
-            FilterDefinition<Notification>.Empty
+        Assert.True(
+            await AsyncWaiter.WaitForAsync(async () =>
+            {
+                var decisionNotifications = await decisionNotificationsCollection.FindAsync(
+                    FilterDefinition<Notification>.Empty
+                );
+                return decisionNotifications.ToList().Count == 1;
+            })
         );
-        decisionNotifications.ToList().Count.Should().Be(1);
     }
 }

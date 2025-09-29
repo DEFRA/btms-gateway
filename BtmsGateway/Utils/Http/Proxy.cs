@@ -17,14 +17,12 @@ public static class Proxy
 {
     public static readonly int DefaultHttpClientTimeoutSeconds = 10;
     public static readonly int DefaultCdsHttpClientRetries = 3;
-    public static readonly int DefaultAlvsIpaffsHttpClientTimeoutSeconds = 100;
 
     public const string ProxyClientWithoutRetry = "proxy";
     public const string CdsProxyClientWithRetry = "proxy-with-retry";
     public const string RoutedClientWithRetry = "routed-with-retry";
     public const string ForkedClientWithRetry = "forked-with-retry";
     public const string DecisionComparerProxyClientWithRetry = "decision-comparer-proxy-with-retry";
-    public const string AlvsIpaffsProxyClientWithRetry = "alvs-ipaffs-proxy-with-retry";
 
     [ExcludeFromCodeCoverage]
     public static IHttpClientBuilder AddHttpProxyClientWithoutRetry(this IServiceCollection services)
@@ -43,8 +41,7 @@ public static class Proxy
     [ExcludeFromCodeCoverage]
     public static IHttpClientBuilder AddHttpProxyRoutedClientWithRetry(
         this IServiceCollection services,
-        int httpClientTimeoutInSeconds,
-        string namedProxy = RoutedClientWithRetry
+        int httpClientTimeoutInSeconds
     )
     {
         var strategy = Policy.WrapAsync(
@@ -53,7 +50,7 @@ public static class Proxy
         );
 
         return services
-            .AddHttpClient(namedProxy)
+            .AddHttpClient(RoutedClientWithRetry)
             .ConfigurePrimaryHttpMessageHandler(ConfigurePrimaryHttpMessageHandler)
             .AddPolicyHandler(strategy);
     }

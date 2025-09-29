@@ -17,8 +17,6 @@ public class MessageRouter(
     IApiSender apiSender,
     IQueueSender queueSender,
     ILogger logger,
-    IDecisionSender decisionSender,
-    IErrorNotificationSender errorNotificationSender,
     IAlvsIpaffsSuccessProvider alvsIpaffsSuccessProvider
 ) : IMessageRouter
 {
@@ -36,22 +34,6 @@ public class MessageRouter(
             {
                 LinkType.Queue => await queueSender.Send(routingResult, messageData, routingResult.FullRouteLink),
                 LinkType.Url => await apiSender.Send(routingResult, messageData, fork: false),
-                LinkType.DecisionComparer => await decisionSender.SendDecisionAsync(
-                    messageData.ContentMap.EntryReference,
-                    messageData.OriginalSoapContent.RawSoapString,
-                    MessagingConstants.MessageSource.Alvs,
-                    routingResult,
-                    messageData.Headers,
-                    messageData.ContentMap.CorrelationId
-                ),
-                LinkType.DecisionComparerErrorNotifications => await errorNotificationSender.SendErrorNotificationAsync(
-                    messageData.ContentMap.EntryReference,
-                    messageData.OriginalSoapContent.RawSoapString,
-                    MessagingConstants.MessageSource.Alvs,
-                    routingResult,
-                    messageData.Headers,
-                    messageData.ContentMap.CorrelationId
-                ),
                 LinkType.AlvsIpaffsSuccess => alvsIpaffsSuccessProvider.SendIpaffsRequest(routingResult),
                 _ => routingResult,
             };
@@ -87,22 +69,6 @@ public class MessageRouter(
             {
                 LinkType.Queue => await queueSender.Send(routingResult, messageData, routingResult.FullForkLink),
                 LinkType.Url => await apiSender.Send(routingResult, messageData, fork: true),
-                LinkType.DecisionComparer => await decisionSender.SendDecisionAsync(
-                    messageData.ContentMap.EntryReference,
-                    messageData.OriginalSoapContent.RawSoapString,
-                    MessagingConstants.MessageSource.Alvs,
-                    routingResult,
-                    messageData.Headers,
-                    messageData.ContentMap.CorrelationId
-                ),
-                LinkType.DecisionComparerErrorNotifications => await errorNotificationSender.SendErrorNotificationAsync(
-                    messageData.ContentMap.EntryReference,
-                    messageData.OriginalSoapContent.RawSoapString,
-                    MessagingConstants.MessageSource.Alvs,
-                    routingResult,
-                    messageData.Headers,
-                    messageData.ContentMap.CorrelationId
-                ),
                 LinkType.AlvsIpaffsSuccess => alvsIpaffsSuccessProvider.SendIpaffsRequest(routingResult),
                 _ => routingResult,
             };

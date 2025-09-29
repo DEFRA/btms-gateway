@@ -129,47 +129,6 @@ public class CheckRoutesTests
     }
 
     [Fact]
-    public async Task When_checking_ipaffs_routes_Then_should_perform_http_nslookup_and_dig_checks()
-    {
-        _httpHandler.SetNextResponse("route-content", () => HttpStatusCode.OK);
-        _processRunner.RunProcess(Arg.Any<string>(), Arg.Any<String>()).Returns("OK");
-
-        var result = await _checkRoutes.CheckIpaffs();
-
-        result.Count().Should().Be(3);
-        result
-            .Should()
-            .ContainEquivalentOf(
-                new
-                {
-                    CheckType = "HTTP",
-                    RouteUrl = "GET http://test-ipaffs",
-                    ResponseResult = "OK (200)",
-                }
-            );
-        result
-            .Should()
-            .ContainEquivalentOf(
-                new
-                {
-                    CheckType = "nslookup",
-                    RouteUrl = "test-ipaffs",
-                    ResponseResult = "OK",
-                }
-            );
-        result
-            .Should()
-            .ContainEquivalentOf(
-                new
-                {
-                    CheckType = "dig",
-                    RouteUrl = "test-ipaffs",
-                    ResponseResult = "OK",
-                }
-            );
-    }
-
-    [Fact]
     public async Task When_checking_routes_and_exceptions_occur_Then_results_should_contain_exception_message()
     {
         _httpHandler.SetNextResponse(exceptionToThrow: new Exception("Test Http exception message"));

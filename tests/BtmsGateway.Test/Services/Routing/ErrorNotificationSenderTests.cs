@@ -37,16 +37,6 @@ public class ErrorNotificationSenderTests
                     }
                 },
                 {
-                    MessagingConstants.Destinations.AlvsOutboundErrors,
-                    new Destination
-                    {
-                        LinkType = LinkType.Url,
-                        Link = "http://decision-comparer-url",
-                        RoutePath = "/alvs-outbound-errors/",
-                        ContentType = "application/soap+xml",
-                    }
-                },
-                {
                     MessagingConstants.Destinations.BtmsCds,
                     new Destination
                     {
@@ -84,13 +74,9 @@ public class ErrorNotificationSenderTests
     }
 
     [Theory]
-    [InlineData(true, false, MessagingConstants.MessageSource.Alvs, 1, "alvs-outbound-errors")]
     [InlineData(true, false, MessagingConstants.MessageSource.Btms, 0, "btms-outbound-errors")]
-    [InlineData(true, true, MessagingConstants.MessageSource.Alvs, 0, "alvs-outbound-errors")]
     [InlineData(true, true, MessagingConstants.MessageSource.Btms, 1, "btms-outbound-errors")]
-    [InlineData(false, true, MessagingConstants.MessageSource.Alvs, 0, "alvs-outbound-errors")]
     [InlineData(false, true, MessagingConstants.MessageSource.Btms, 1, "btms-outbound-errors")]
-    [InlineData(false, false, MessagingConstants.MessageSource.Alvs, 0, "alvs-outbound-errors")]
     [InlineData(false, false, MessagingConstants.MessageSource.Btms, 0, "btms-outbound-errors")]
     public async Task When_sending_error_notification_Then_message_is_sent_to_decision_comparer_and_optionally_cds(
         bool trialCutover,
@@ -160,16 +146,6 @@ public class ErrorNotificationSenderTests
             Destinations = new Dictionary<string, Destination>
             {
                 {
-                    MessagingConstants.Destinations.AlvsOutboundErrors,
-                    new Destination
-                    {
-                        LinkType = LinkType.Url,
-                        Link = "http://decision-comparer-url",
-                        RoutePath = "/alvs-outbound-errors/",
-                        ContentType = "application/soap+xml",
-                    }
-                },
-                {
                     MessagingConstants.Destinations.BtmsCds,
                     new Destination
                     {
@@ -189,44 +165,6 @@ public class ErrorNotificationSenderTests
     }
 
     [Fact]
-    public void When_alvs_to_decision_comparer_config_has_not_been_set_Then_exception_is_thrown()
-    {
-        _routingConfig = new RoutingConfig
-        {
-            NamedRoutes = new Dictionary<string, NamedRoute>(),
-            NamedLinks = new Dictionary<string, NamedLink>(),
-            Destinations = new Dictionary<string, Destination>
-            {
-                {
-                    MessagingConstants.Destinations.BtmsOutboundErrors,
-                    new Destination
-                    {
-                        LinkType = LinkType.Url,
-                        Link = "http://decision-comparer-url",
-                        RoutePath = "/btms-outbound-errors/",
-                        ContentType = "application/soap+xml",
-                    }
-                },
-                {
-                    MessagingConstants.Destinations.BtmsCds,
-                    new Destination
-                    {
-                        LinkType = LinkType.Url,
-                        Link = "http://cds-url",
-                        RoutePath = "/ws/CDS/defra/alvsclearanceinbound/v1",
-                        ContentType = "application/soap+xml",
-                    }
-                },
-            },
-        };
-
-        var thrownException = Assert.Throws<ArgumentException>(() =>
-            new ErrorNotificationSender(_routingConfig, _apiSender, _featureManager, _logger)
-        );
-        thrownException.Message.Should().Be("Destination configuration could not be found for AlvsOutboundErrors.");
-    }
-
-    [Fact]
     public void When_btms_to_cds_config_has_not_been_set_Then_exception_is_thrown()
     {
         _routingConfig = new RoutingConfig
@@ -242,16 +180,6 @@ public class ErrorNotificationSenderTests
                         LinkType = LinkType.Url,
                         Link = "http://decision-comparer-url",
                         RoutePath = "/btms-outbound-errors/",
-                        ContentType = "application/soap+xml",
-                    }
-                },
-                {
-                    MessagingConstants.Destinations.AlvsOutboundErrors,
-                    new Destination
-                    {
-                        LinkType = LinkType.Url,
-                        Link = "http://decision-comparer-url",
-                        RoutePath = "/alvs-outbound-errors/",
                         ContentType = "application/soap+xml",
                     }
                 },
@@ -381,7 +309,7 @@ public class ErrorNotificationSenderTests
     [Fact]
     public async Task When_sending_error_notification_to_cds_fails_Then_exception_is_thrown()
     {
-        _featureManager.IsEnabledAsync(Features.TrialCutover).Returns(true);
+        _featureManager.IsEnabledAsync(Features.Cutover).Returns(true);
 
         var cdsResponse = new HttpResponseMessage(HttpStatusCode.BadRequest);
 
@@ -401,7 +329,7 @@ public class ErrorNotificationSenderTests
             _errorNotificationSender.SendErrorNotificationAsync(
                 "mrn-123",
                 "<HMRCErrorNotification />",
-                MessagingConstants.MessageSource.Alvs,
+                MessagingConstants.MessageSource.Btms,
                 new RoutingResult(),
                 cancellationToken: CancellationToken.None
             )

@@ -19,7 +19,6 @@ public static class ConfigureServices
     public static IHttpClientBuilder? HttpForkedClientWithRetryBuilder { get; private set; }
     public static IHttpClientBuilder? HttpClientWithRetryBuilder { get; private set; }
     public static IHttpClientBuilder? DecisionComparerHttpClientWithRetryBuilder { get; private set; }
-    public static IHttpClientBuilder? AlvsIpaffsHttpClientWithRetryBuilder { get; private set; }
 
     [ExcludeFromCodeCoverage]
     public static void AddServices(this WebApplicationBuilder builder, ILogger? logger = null)
@@ -43,10 +42,6 @@ public static class ConfigureServices
             "HttpClientTimeoutSeconds",
             Proxy.DefaultHttpClientTimeoutSeconds
         );
-        var alvsIpaffsHttpClientTimeoutSeconds = builder.Configuration.GetValue(
-            "AlvsIpaffsHttpClientTimeoutSeconds",
-            Proxy.DefaultAlvsIpaffsHttpClientTimeoutSeconds
-        );
         var cdsHttpClientRetries = builder.Configuration.GetValue(
             "CdsHttpClientRetries",
             Proxy.DefaultCdsHttpClientRetries
@@ -60,10 +55,6 @@ public static class ConfigureServices
         );
         DecisionComparerHttpClientWithRetryBuilder = builder.Services.AddDecisionComparerHttpProxyClientWithRetry(
             httpClientTimeoutSeconds
-        );
-        AlvsIpaffsHttpClientWithRetryBuilder = builder.Services.AddHttpProxyRoutedClientWithRetry(
-            alvsIpaffsHttpClientTimeoutSeconds,
-            Proxy.AlvsIpaffsProxyClientWithRetry
         );
 
         builder.Services.AddHttpProxyClientWithoutRetry();

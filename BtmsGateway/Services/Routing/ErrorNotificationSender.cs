@@ -22,7 +22,6 @@ public interface IErrorNotificationSender
 public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotificationSender
 {
     private readonly Destination _btmsOutboundErrorsDestination;
-    private readonly Destination _alvsOutboundErrorsDestination;
     private readonly Destination _btmsToCdsDestination;
     private readonly IApiSender _apiSender;
     private readonly ILogger _logger;
@@ -39,7 +38,6 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
         _logger = logger;
 
         _btmsOutboundErrorsDestination = GetDestination(MessagingConstants.Destinations.BtmsOutboundErrors);
-        _alvsOutboundErrorsDestination = GetDestination(MessagingConstants.Destinations.AlvsOutboundErrors);
         _btmsToCdsDestination = GetDestination(MessagingConstants.Destinations.BtmsCds);
     }
 
@@ -68,7 +66,6 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
         var destinationConfig = messageSource switch
         {
             MessagingConstants.MessageSource.Btms => GetDestinationConfiguration(mrn, _btmsOutboundErrorsDestination),
-            MessagingConstants.MessageSource.Alvs => GetDestinationConfiguration(mrn, _alvsOutboundErrorsDestination),
             _ => throw new ArgumentException(
                 $"{mrn} Received error notification from unexpected source {messageSource}."
             ),

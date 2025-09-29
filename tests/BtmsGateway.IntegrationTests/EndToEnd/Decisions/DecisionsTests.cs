@@ -1,10 +1,8 @@
 using System.Net;
-using System.Net.Http.Headers;
 using BtmsGateway.IntegrationTests.Data.Entities;
 using BtmsGateway.IntegrationTests.Helpers;
 using BtmsGateway.IntegrationTests.TestBase;
 using BtmsGateway.IntegrationTests.TestUtils;
-using FluentAssertions;
 using MongoDB.Driver;
 using WireMock.Client;
 using WireMock.Client.Extensions;
@@ -22,39 +20,6 @@ public class DecisionsTests(WireMockClient wireMockClient, ITestOutputHelper out
     );
     private readonly string _decisionNotification = FixtureTest.UsingContent("DecisionNotification.xml");
     private readonly string _mrn = "25GB0XX00XXXXX0000";
-
-    [Fact]
-    public async Task When_decision_notification_received_from_alvs_Then_should_forward_to_decision_comparer_and_respond_no_content()
-    {
-        var comparerRequestPath = $"/comparer/alvs-decisions/{_mrn}";
-        var putMappingBuilder = _wireMockAdminApi.GetMappingBuilder();
-        putMappingBuilder.Given(m =>
-            m.WithRequest(req => req.UsingPut().WithPath(comparerRequestPath))
-                .WithResponse(rsp => rsp.WithStatusCode(HttpStatusCode.OK))
-        );
-        var putStatus = await putMappingBuilder.BuildAndPostAsync();
-        Assert.NotNull(putStatus.Guid);
-
-        var httpClient = CreateHttpClient(false);
-        var response = await httpClient.PostAsync(
-            Testing.Endpoints.Cds.PostNotification(),
-            new StringContent(_decisionNotification, new MediaTypeHeaderValue("application/soap+xml"))
-        );
-
-        response.StatusCode.Should().Be(HttpStatusCode.NoContent);
-        response.Content.Headers.ContentType.Should().Be(new MediaTypeHeaderValue("application/soap+xml"));
-        var responseBody = await response.Content.ReadAsStringAsync();
-        responseBody.Should().Be("");
-
-        var mockReceivedRequests = await _wireMockAdminApi.GetRequestsAsync();
-        Assert.Contains(
-            mockReceivedRequests,
-            logEntry =>
-                logEntry.Request.Path == comparerRequestPath
-                && logEntry.Request.Method == HttpMethod.Put.Method
-                && logEntry.Request.Body == _decisionNotification
-        );
-    }
 
     [Fact]
     public async Task When_decision_notification_event_consumed_from_btms_Then_should_forward_to_decision_comparer_and_cds()

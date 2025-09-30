@@ -46,7 +46,7 @@ public class ProxyTests(WireMockClient wireMockClient) : IntegrationTestBase
 
         var putMappingBuilder = _wireMockAdminApi.GetMappingBuilder();
         putMappingBuilder.Given(m =>
-            m.WithRequest(req => req.UsingPut().WithPath("/comparer/alvs-decisions/25GB1HG99NHUJO3999"))
+            m.WithRequest(req => req.UsingPut().WithPath("/comparer/alvs-decisions/25GB0XX00XXXXX0000"))
                 .WithResponse(rsp =>
                     rsp.WithStatusCode(HttpStatusCode.ServiceUnavailable).WithDelay(TimeSpan.FromSeconds(responseDelay))
                 )

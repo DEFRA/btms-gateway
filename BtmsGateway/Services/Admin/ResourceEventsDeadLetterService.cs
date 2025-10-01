@@ -17,33 +17,26 @@ public class ResourceEventsDeadLetterService(
     ILogger<ResourceEventsDeadLetterService> logger
 ) : IResourceEventsDeadLetterService
 {
-    private readonly string _deadLetterArn =
-        $"{awsSqsOptions.Value.SqsArnPrefix}{awsSqsOptions.Value.ResourceEventsQueueName}-deadletter";
-
     public async Task<bool> Redrive(CancellationToken cancellationToken)
     {
         try
         {
-            var startMessageMoveTaskRequest = new StartMessageMoveTaskRequest { SourceArn = _deadLetterArn };
+            var request = new StartMessageMoveTaskRequest
+            {
+                SourceArn = awsSqsOptions.Value.ResourceEventsDeadLetterQueueArn,
+            };
 
-            var startMessageMoveTaskResponse = await amazonSqs.StartMessageMoveTaskAsync(
-                startMessageMoveTaskRequest,
-                cancellationToken
-            );
-
-            if (startMessageMoveTaskResponse.HttpStatusCode == System.Net.HttpStatusCode.OK)
+            var response = await amazonSqs.StartMessageMoveTaskAsync(request, cancellationToken);
+            if (response.HttpStatusCode == System.Net.HttpStatusCode.OK)
             {
                 logger.LogInformation(
                     "Redrive message move task started with TaskHandle: {TaskHandle}",
-                    startMessageMoveTaskResponse.TaskHandle
+                    response.TaskHandle
                 );
                 return true;
             }
 
-            logger.LogError(
-                "Redrive failed with response: {TaskResponse}",
-                startMessageMoveTaskResponse.ToStringExtended()
-            );
+            logger.LogError("Redrive failed with response: {TaskResponse}", response.ToStringExtended());
         }
         catch (Exception ex)
         {

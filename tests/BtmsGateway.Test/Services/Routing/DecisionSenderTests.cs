@@ -4,7 +4,6 @@ using BtmsGateway.Exceptions;
 using BtmsGateway.Services.Routing;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
-using Microsoft.FeatureManagement;
 using NSubstitute;
 using Serilog;
 
@@ -14,7 +13,6 @@ public class DecisionSenderTests
 {
     private RoutingConfig _routingConfig;
     private readonly IApiSender _apiSender = Substitute.For<IApiSender>();
-    private readonly IFeatureManager _featureManager = Substitute.For<IFeatureManager>();
     private readonly ILogger _logger = Substitute.For<ILogger>();
     private readonly DecisionSender _decisionSender;
 
@@ -72,25 +70,12 @@ public class DecisionSenderTests
             )
             .Returns(new HttpResponseMessage(HttpStatusCode.NoContent));
 
-        _decisionSender = new DecisionSender(_routingConfig, _apiSender, _featureManager, _logger);
+        _decisionSender = new DecisionSender(_routingConfig, _apiSender, _logger);
     }
 
-    [Theory]
-    [InlineData(true, false, MessagingConstants.MessageSource.Btms, 0, "btms-decisions")]
-    [InlineData(true, true, MessagingConstants.MessageSource.Btms, 1, "btms-decisions")]
-    [InlineData(false, true, MessagingConstants.MessageSource.Btms, 1, "btms-decisions")]
-    [InlineData(false, false, MessagingConstants.MessageSource.Btms, 0, "btms-decisions")]
-    public async Task When_sending_decision_Then_message_is_sent_to_comparer_and_comparer_response_optionally_sent_onto_cds(
-        bool trialCutover,
-        bool cutover,
-        MessagingConstants.MessageSource messageSource,
-        int expectedCallsToCds,
-        string expectedCallToComparerDecisions
-    )
+    [Fact]
+    public async Task When_sending_decision_Then_message_is_sent_to_comparer_and_comparer_response_sent_onto_cds()
     {
-        _featureManager.IsEnabledAsync(Features.TrialCutover).Returns(trialCutover);
-        _featureManager.IsEnabledAsync(Features.Cutover).Returns(cutover);
-
         var comparerResponse = new HttpResponseMessage(HttpStatusCode.OK);
         comparerResponse.Content = new StringContent("<ComparerDecisionNotification />");
 
@@ -107,7 +92,7 @@ public class DecisionSenderTests
         var result = await _decisionSender.SendDecisionAsync(
             "mrn-123",
             "<DecisionNotification />",
-            messageSource,
+            MessagingConstants.MessageSource.Btms,
             new RoutingResult(),
             new HeaderDictionary(),
             "external-correlation-id",
@@ -125,7 +110,7 @@ public class DecisionSenderTests
             );
 
         await _apiSender
-            .Received(expectedCallsToCds)
+            .Received(1)
             .SendSoapMessageAsync(
                 Arg.Any<string>(),
                 Arg.Any<string>(),
@@ -146,8 +131,8 @@ public class DecisionSenderTests
                     RouteLinkType = LinkType.DecisionComparer,
                     ForkLinkType = LinkType.DecisionComparer,
                     RoutingSuccessful = true,
-                    FullRouteLink = $"http://decision-comparer-url/{expectedCallToComparerDecisions}/mrn-123",
-                    FullForkLink = $"http://decision-comparer-url/{expectedCallToComparerDecisions}/mrn-123",
+                    FullRouteLink = "http://decision-comparer-url/btms-decisions/mrn-123",
+                    FullForkLink = "http://decision-comparer-url/btms-decisions/mrn-123",
                     StatusCode = HttpStatusCode.NoContent,
                     ResponseContent = string.Empty,
                 }
@@ -179,7 +164,7 @@ public class DecisionSenderTests
         };
 
         var thrownException = Assert.Throws<ArgumentException>(() =>
-            new DecisionSender(_routingConfig, _apiSender, _featureManager, _logger)
+            new DecisionSender(_routingConfig, _apiSender, _logger)
         );
         thrownException.Message.Should().Be("Destination configuration could not be found for BtmsDecisionComparer.");
     }
@@ -207,7 +192,7 @@ public class DecisionSenderTests
         };
 
         var thrownException = Assert.Throws<ArgumentException>(() =>
-            new DecisionSender(_routingConfig, _apiSender, _featureManager, _logger)
+            new DecisionSender(_routingConfig, _apiSender, _logger)
         );
         thrownException.Message.Should().Be("Destination configuration could not be found for BtmsCds.");
     }
@@ -331,8 +316,6 @@ public class DecisionSenderTests
     [Fact]
     public async Task When_sending_decision_and_comparer_returns_invalid_decision_Then_exception_is_thrown()
     {
-        _featureManager.IsEnabledAsync(Features.Cutover).Returns(true);
-
         var comparerResponse = new HttpResponseMessage(HttpStatusCode.OK);
         comparerResponse.Content = new StringContent(string.Empty);
 
@@ -363,8 +346,6 @@ public class DecisionSenderTests
     [Fact]
     public async Task When_sending_decision_and_comparer_returns_no_content_Then_exception_is_thrown()
     {
-        _featureManager.IsEnabledAsync(Features.Cutover).Returns(true);
-
         var comparerResponse = new HttpResponseMessage(HttpStatusCode.NoContent);
 
         _apiSender
@@ -394,8 +375,6 @@ public class DecisionSenderTests
     [Fact]
     public async Task When_sending_decision_and_cds_returns_unsuccessful_response_Then_exception_is_thrown()
     {
-        _featureManager.IsEnabledAsync(Features.Cutover).Returns(true);
-
         var comparerResponse = new HttpResponseMessage(HttpStatusCode.OK);
         comparerResponse.Content = new StringContent("<ComparerDecisionNotification />");
 
@@ -450,6 +429,6 @@ public class DecisionSenderTests
             )
         );
 
-        thrownException.Message.Should().Be($"mrn-123 Received decision from unexpected source None.");
+        thrownException.Message.Should().Be("mrn-123 Received decision from unexpected source None.");
     }
 }

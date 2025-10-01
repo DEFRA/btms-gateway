@@ -6,7 +6,7 @@ namespace BtmsGateway.Test.Services.Converter;
 
 public class ClearanceDecisionToSoapConverterTests
 {
-    private static readonly string TestDataPath = Path.Combine(
+    private static readonly string s_testDataPath = Path.Combine(
         AppDomain.CurrentDomain.BaseDirectory,
         "Services",
         "Converter",
@@ -16,7 +16,7 @@ public class ClearanceDecisionToSoapConverterTests
     [Fact]
     public void When_receiving_clearance_decision_Then_should_convert_to_soap()
     {
-        var expectedSoap = File.ReadAllText(Path.Combine(TestDataPath, "DecisionNotificationWithHtmlEncoding.xml"));
+        var expectedSoap = File.ReadAllText(Path.Combine(s_testDataPath, "DecisionNotificationWithHtmlEncoding.xml"));
 
         var clearanceDecision = new ClearanceDecision
         {

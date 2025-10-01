@@ -9,10 +9,10 @@ public static class EndpointRouteBuilderExtensions
     public static void MapAdminEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapPost("admin/redrive", PostRedrive)
-            .WithName("PostRedrive")
+            .WithName(nameof(PostRedrive))
             .WithTags("Admin")
-            .WithSummary("Initiates redrive of messages in the dead letter queue")
-            .WithDescription("Redrives all messages in the resource events dead leter queue")
+            .WithSummary("Initiates redrive of messages from the dead letter queue")
+            .WithDescription("Redrives all messages on the resource events dead letter queue")
             .Produces(StatusCodes.Status202Accepted)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden)

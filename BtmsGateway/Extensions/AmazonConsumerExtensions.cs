@@ -35,7 +35,7 @@ public static class AmazonConsumerExtensions
             .AutoStartConsumersEnabled(options.AutoStartConsumers)
             .Consume<string>(x =>
                 x.WithConsumer<ConsumerMediator>()
-                    .Queue(options.OutboundClearanceDecisionsQueueName)
+                    .Queue(options.ResourceEventsQueueName)
                     .Instances(options.ConsumersPerHost)
             );
     }

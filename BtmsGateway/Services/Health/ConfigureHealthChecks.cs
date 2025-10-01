@@ -79,13 +79,13 @@ public static class ConfigureHealthChecks
         IConfiguration configuration
     )
     {
-        if (awsSqsOptions is null || string.IsNullOrEmpty(awsSqsOptions.OutboundClearanceDecisionsQueueName))
+        if (awsSqsOptions is null || string.IsNullOrEmpty(awsSqsOptions.ResourceEventsQueueName))
             return builder;
 
         builder.AddTypeActivatedCheck<QueueHealthCheck>(
-            "OutboundClearanceDecisionsQueue",
+            "ResourceEventsQueue",
             failureStatus: HealthStatus.Unhealthy,
-            args: ["OutboundClearanceDecisionsQueue", awsSqsOptions.OutboundClearanceDecisionsQueueName, configuration]
+            args: ["ResourceEventsQueue", awsSqsOptions.ResourceEventsQueueName, configuration]
         );
 
         return builder;

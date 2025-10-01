@@ -7,7 +7,7 @@ public class AwsSqsOptions
     public const string SectionName = nameof(AwsSqsOptions);
 
     [Required]
-    public required string OutboundClearanceDecisionsQueueName { get; set; }
+    public required string ResourceEventsQueueName { get; set; }
 
     [Required]
     public required string SqsArnPrefix { get; set; }

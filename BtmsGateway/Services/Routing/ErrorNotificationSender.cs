@@ -1,7 +1,6 @@
 using System.Net;
 using BtmsGateway.Domain;
 using BtmsGateway.Exceptions;
-using Microsoft.FeatureManagement;
 using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Services.Routing;
@@ -26,13 +25,8 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
     private readonly IApiSender _apiSender;
     private readonly ILogger _logger;
 
-    public ErrorNotificationSender(
-        RoutingConfig? routingConfig,
-        IApiSender apiSender,
-        IFeatureManager featureManager,
-        ILogger logger
-    )
-        : base(apiSender, routingConfig, logger, featureManager)
+    public ErrorNotificationSender(RoutingConfig? routingConfig, IApiSender apiSender, ILogger logger)
+        : base(apiSender, routingConfig, logger)
     {
         _apiSender = apiSender;
         _logger = logger;
@@ -110,7 +104,7 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
         CancellationToken cancellationToken
     )
     {
-        if (messageSource == await MessageSourceToSend())
+        if (messageSource == MessagingConstants.MessageSource.Btms)
         {
             _logger.Debug(
                 "{MessageCorrelationId} {MRN} Sending {MessageSource} Error Notification to CDS.",

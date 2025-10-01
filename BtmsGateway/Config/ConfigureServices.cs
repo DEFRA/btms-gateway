@@ -8,7 +8,6 @@ using BtmsGateway.Services.Metrics;
 using BtmsGateway.Services.Routing;
 using BtmsGateway.Utils.Http;
 using FluentValidation;
-using Microsoft.FeatureManagement;
 using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Config;
@@ -78,8 +77,6 @@ public static class ConfigureServices
         builder.Services.AddSingleton<IErrorNotificationSender, ErrorNotificationSender>();
         builder.Services.AddSingleton<IAlvsIpaffsSuccessProvider, AlvsIpaffsSuccessProvider>();
         builder.Services.AddSingleton<ISqsService, SqsService>();
-
-        builder.Services.AddFeatureManagement(builder.Configuration.GetSection("FeatureFlags"));
 
         builder.Services.AddOptions<CdsOptions>().BindConfiguration(CdsOptions.SectionName).ValidateDataAnnotations();
     }

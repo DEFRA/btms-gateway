@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Text;
 using BtmsGateway.Config;
@@ -8,12 +7,10 @@ using BtmsGateway.Services.Converter;
 using BtmsGateway.Services.Metrics;
 using BtmsGateway.Services.Routing;
 using Microsoft.Extensions.Options;
-using Microsoft.FeatureManagement;
 using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Middleware;
 
-[SuppressMessage("SonarLint", "S107", Justification = "Parameters will be reduced once the feature flag is removed")]
 public class RoutingInterceptor(
     RequestDelegate next,
     IMessageRouter messageRouter,
@@ -21,8 +18,7 @@ public class RoutingInterceptor(
     IRequestMetrics requestMetrics,
     ILogger logger,
     IOptions<MessageLoggingOptions> messageLoggingOptions,
-    IMessageRoutes messageRoutes,
-    IFeatureManager featureManager
+    IMessageRoutes messageRoutes
 )
 {
     private const string RouteAction = "Routing";
@@ -66,7 +62,7 @@ public class RoutingInterceptor(
         }
         catch (InvalidSoapException ex)
         {
-            if (await featureManager.IsEnabledAsync(Features.Cutover) && messageRoutes.IsCdsRoute(context.Request.Path))
+            if (messageRoutes.IsCdsRoute(context.Request.Path))
             {
                 // Log as Warning as we won't do anything with it at this point, and we don't want additional errors causing potential alerts.
                 // The upstream system needs to sort out the invalid request

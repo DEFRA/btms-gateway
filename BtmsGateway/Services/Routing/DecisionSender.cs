@@ -3,7 +3,6 @@ using BtmsGateway.Domain;
 using BtmsGateway.Exceptions;
 using BtmsGateway.Middleware;
 using BtmsGateway.Services.Converter;
-using Microsoft.FeatureManagement;
 using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Services.Routing;
@@ -28,13 +27,8 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
     private readonly Destination _btmsDecisionsComparerDestination;
     private readonly Destination _btmsToCdsDestination;
 
-    public DecisionSender(
-        RoutingConfig? routingConfig,
-        IApiSender apiSender,
-        IFeatureManager featureManager,
-        ILogger logger
-    )
-        : base(apiSender, routingConfig, logger, featureManager)
+    public DecisionSender(RoutingConfig? routingConfig, IApiSender apiSender, ILogger logger)
+        : base(apiSender, routingConfig, logger)
     {
         _apiSender = apiSender;
         _logger = logger;
@@ -111,7 +105,7 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
         CancellationToken cancellationToken
     )
     {
-        if (messageSource == await MessageSourceToSend())
+        if (messageSource == MessagingConstants.MessageSource.Btms)
         {
             _logger.Debug(
                 "{MessageCorrelationId} {MRN} Sending Decision received from Decision Comparer to CDS.",

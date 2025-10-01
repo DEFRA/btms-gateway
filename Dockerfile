@@ -21,29 +21,29 @@ COPY .config/dotnet-tools.json .config/dotnet-tools.json
 COPY .csharpierrc .csharpierrc
 COPY .csharpierignore .csharpierignore
 
-COPY NuGet.config NuGet.config
-ARG DEFRA_NUGET_PAT
-
 RUN dotnet tool restore
 
+COPY BtmsGateway/BtmsGateway.csproj BtmsGateway/BtmsGateway.csproj
+COPY tests/BtmsGateway.Test/BtmsGateway.Test.csproj tests/BtmsGateway.Test/BtmsGateway.Test.csproj
+COPY tests/Testing/Testing.csproj tests/Testing/Testing.csproj
+COPY tests/BtmsGateway.IntegrationTests/BtmsGateway.IntegrationTests.csproj tests/BtmsGateway.IntegrationTests/BtmsGateway.IntegrationTests.csproj
 COPY BtmsGateway.sln BtmsGateway.sln
-COPY BtmsGateway BtmsGateway
-COPY tests/BtmsGateway.Test tests/BtmsGateway.Test
-COPY tests/Testing tests/Testing
-COPY tests/BtmsGateway.IntegrationTests tests/BtmsGateway.IntegrationTests
-COPY compose compose
-COPY wait-for-docker-logs.sh wait-for-docker-logs.sh
 
 COPY NuGet.config NuGet.config
 ARG DEFRA_NUGET_PAT
 
 RUN dotnet restore
 
+COPY BtmsGateway BtmsGateway
+COPY tests/BtmsGateway.Test tests/BtmsGateway.Test
+COPY tests/Testing tests/Testing
+COPY tests/BtmsGateway.IntegrationTests tests/BtmsGateway.IntegrationTests
+
 RUN dotnet csharpier check .
 
 RUN dotnet build BtmsGateway/BtmsGateway.csproj --no-restore -c Release
 
-RUN dotnet test --no-restore --filter "Category!=IntegrationTest"
+RUN dotnet test --no-restore --filter "Category!=IntegrationTest" --verbosity normal
 
 FROM build AS publish
 RUN dotnet publish BtmsGateway -c Release -o /app/publish /p:UseAppHost=false

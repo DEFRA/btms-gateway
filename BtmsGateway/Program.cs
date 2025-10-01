@@ -48,7 +48,7 @@ static void ConfigureWebApplication(WebApplicationBuilder builder)
 
     var routingConfig = builder.ConfigureToType<RoutingConfig>();
     var healthCheckConfig = builder.ConfigureToType<HealthCheckConfig>();
-    builder.AddCustomHealthChecks(healthCheckConfig, routingConfig);
+    //builder.AddCustomHealthChecks(healthCheckConfig, routingConfig);
     builder.ConfigureSwaggerBuilder();
     builder.Services.AddProblemDetails();
     builder.Services.AddAuthenticationAuthorization();
@@ -69,7 +69,7 @@ static WebApplication BuildWebApplication(WebApplicationBuilder builder)
             builder.UseMiddleware<RoutingInterceptor>();
         }
     );
-    app.UseCustomHealthChecks();
+    //app.UseCustomHealthChecks();
     app.UseCheckRoutesEndpoints();
     app.MapAdminEndpoints();
     app.ConfigureSwaggerApp();

@@ -15,4 +15,7 @@ public class AwsSqsOptions
     public int ConsumersPerHost { get; init; } = 20;
 
     public bool AutoStartConsumers { get; init; } = true;
+
+    public string ResourceEventsDeadLetterQueueName => $"{ResourceEventsQueueName}-deadletter";
+    public string ResourceEventsDeadLetterQueueArn => $"{SqsArnPrefix}{ResourceEventsDeadLetterQueueName}";
 }

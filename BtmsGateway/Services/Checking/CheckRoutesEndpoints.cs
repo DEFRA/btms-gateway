@@ -11,8 +11,6 @@ public static class CheckRoutesEndpoints
     {
         app.MapGet(Path, CheckRoutes).AllowAnonymous();
         app.MapGet($"/{Path}/json", CheckRoutesAsJson).AllowAnonymous();
-        app.MapGet($"/{Path}/ipaffs", CheckIpaffsRoutes).AllowAnonymous();
-        app.MapGet($"/{Path}/ipaffs/json", CheckIpaffsRoutesAsJson).AllowAnonymous();
     }
 
     private static async Task<IResult> CheckRoutes(CheckRoutes checkRoutes)
@@ -24,18 +22,6 @@ public static class CheckRoutesEndpoints
     private static async Task<IResult> CheckRoutesAsJson(CheckRoutes checkRoutes)
     {
         var results = await checkRoutes.CheckAll();
-        return TypedResults.Json(results);
-    }
-
-    private static async Task<IResult> CheckIpaffsRoutes(CheckRoutes checkRoutes)
-    {
-        var results = await checkRoutes.CheckIpaffs();
-        return TypedResults.Text(FormatTextResponse(results));
-    }
-
-    private static async Task<IResult> CheckIpaffsRoutesAsJson(CheckRoutes checkRoutes)
-    {
-        var results = await checkRoutes.CheckIpaffs();
         return TypedResults.Json(results);
     }
 

@@ -48,16 +48,6 @@ public class DecisionSenderTests
                         ContentType = "application/soap+xml",
                     }
                 },
-                {
-                    MessagingConstants.Destinations.AlvsDecisionComparer,
-                    new Destination
-                    {
-                        LinkType = LinkType.Url,
-                        Link = "http://decision-comparer-url",
-                        RoutePath = "/alvs-decisions/",
-                        ContentType = "application/soap+xml",
-                    }
-                },
             },
         };
 
@@ -86,13 +76,9 @@ public class DecisionSenderTests
     }
 
     [Theory]
-    [InlineData(true, false, MessagingConstants.MessageSource.Alvs, 1, "alvs-decisions")]
     [InlineData(true, false, MessagingConstants.MessageSource.Btms, 0, "btms-decisions")]
-    [InlineData(true, true, MessagingConstants.MessageSource.Alvs, 0, "alvs-decisions")]
     [InlineData(true, true, MessagingConstants.MessageSource.Btms, 1, "btms-decisions")]
-    [InlineData(false, true, MessagingConstants.MessageSource.Alvs, 0, "alvs-decisions")]
     [InlineData(false, true, MessagingConstants.MessageSource.Btms, 1, "btms-decisions")]
-    [InlineData(false, false, MessagingConstants.MessageSource.Alvs, 0, "alvs-decisions")]
     [InlineData(false, false, MessagingConstants.MessageSource.Btms, 0, "btms-decisions")]
     public async Task When_sending_decision_Then_message_is_sent_to_comparer_and_comparer_response_optionally_sent_onto_cds(
         bool trialCutover,
@@ -189,16 +175,6 @@ public class DecisionSenderTests
                         Method = "POST",
                     }
                 },
-                {
-                    MessagingConstants.Destinations.AlvsDecisionComparer,
-                    new Destination
-                    {
-                        LinkType = LinkType.Url,
-                        Link = "http://decision-comparer-url",
-                        RoutePath = "/alvs-decisions/",
-                        ContentType = "application/soap+xml",
-                    }
-                },
             },
         };
 
@@ -206,46 +182,6 @@ public class DecisionSenderTests
             new DecisionSender(_routingConfig, _apiSender, _featureManager, _logger)
         );
         thrownException.Message.Should().Be("Destination configuration could not be found for BtmsDecisionComparer.");
-    }
-
-    [Fact]
-    public void When_alvs_to_decision_comparer_destination_config_has_not_been_set_Then_exception_is_thrown()
-    {
-        _routingConfig = new RoutingConfig
-        {
-            NamedRoutes = new Dictionary<string, NamedRoute>(),
-            NamedLinks = new Dictionary<string, NamedLink>(),
-            Destinations = new Dictionary<string, Destination>
-            {
-                {
-                    MessagingConstants.Destinations.BtmsCds,
-                    new Destination
-                    {
-                        LinkType = LinkType.Url,
-                        Link = "http://btms-to-cds-url",
-                        RoutePath = "/route/path-1",
-                        ContentType = "application/soap+xml",
-                        HostHeader = "syst32.hmrc.gov.uk",
-                        Method = "POST",
-                    }
-                },
-                {
-                    MessagingConstants.Destinations.BtmsDecisionComparer,
-                    new Destination
-                    {
-                        LinkType = LinkType.Url,
-                        Link = "http://decision-comparer-url",
-                        RoutePath = "/btms-decisions/",
-                        ContentType = "application/soap+xml",
-                    }
-                },
-            },
-        };
-
-        var thrownException = Assert.Throws<ArgumentException>(() =>
-            new DecisionSender(_routingConfig, _apiSender, _featureManager, _logger)
-        );
-        thrownException.Message.Should().Be("Destination configuration could not be found for AlvsDecisionComparer.");
     }
 
     [Fact]
@@ -264,16 +200,6 @@ public class DecisionSenderTests
                         LinkType = LinkType.Url,
                         Link = "http://decision-comparer-url",
                         RoutePath = "/btms-decisions/",
-                        ContentType = "application/soap+xml",
-                    }
-                },
-                {
-                    MessagingConstants.Destinations.AlvsDecisionComparer,
-                    new Destination
-                    {
-                        LinkType = LinkType.Url,
-                        Link = "http://decision-comparer-url",
-                        RoutePath = "/alvs-decisions/",
                         ContentType = "application/soap+xml",
                     }
                 },
@@ -320,8 +246,8 @@ public class DecisionSenderTests
         var thrownException = await Assert.ThrowsAsync<DecisionComparisonException>(() =>
             _decisionSender.SendDecisionAsync(
                 "mrn-123",
-                "<AlvsDecisionNotification />",
-                MessagingConstants.MessageSource.Alvs,
+                "<BtmsDecisionNotification />",
+                MessagingConstants.MessageSource.Btms,
                 new RoutingResult(),
                 new HeaderDictionary(),
                 "external-correlation-id",
@@ -370,8 +296,8 @@ public class DecisionSenderTests
         var thrownException = await Assert.ThrowsAsync<ConflictException>(() =>
             _decisionSender.SendDecisionAsync(
                 "mrn-123",
-                "<AlvsDecisionNotification />",
-                MessagingConstants.MessageSource.Alvs,
+                "<BtmsDecisionNotification />",
+                MessagingConstants.MessageSource.Btms,
                 new RoutingResult(),
                 new HeaderDictionary(),
                 "external-correlation-id",

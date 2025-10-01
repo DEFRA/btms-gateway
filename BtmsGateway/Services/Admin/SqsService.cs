@@ -15,7 +15,7 @@ public class SqsService(IAmazonSQS amazonSqs, IOptions<AwsSqsOptions> awsSqsOpti
     : ISqsService
 {
     private readonly string deadletterArn =
-        $"{awsSqsOptions.Value.SqsArnPrefix}{awsSqsOptions.Value.OutboundClearanceDecisionsQueueName}-deadletter";
+        $"{awsSqsOptions.Value.SqsArnPrefix}{awsSqsOptions.Value.ResourceEventsQueueName}-deadletter";
 
     public async Task<bool> Redrive(CancellationToken cancellationToken)
     {

@@ -23,13 +23,13 @@ public static class EndpointRouteBuilderExtensions
 
     [HttpPost]
     private static async Task<IResult> PostRedrive(
-        [FromServices] ISqsService sqsService,
+        [FromServices] IResourceEventsDeadLetterService resourceEventsDeadLetterService,
         CancellationToken cancellationToken
     )
     {
         try
         {
-            if (!await sqsService.Redrive(cancellationToken))
+            if (!await resourceEventsDeadLetterService.Redrive(cancellationToken))
             {
                 return Results.InternalServerError();
             }

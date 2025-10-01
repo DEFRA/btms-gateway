@@ -6,22 +6,25 @@ using Microsoft.Extensions.Options;
 
 namespace BtmsGateway.Services.Admin;
 
-public interface ISqsService
+public interface IResourceEventsDeadLetterService
 {
     Task<bool> Redrive(CancellationToken cancellationToken);
 }
 
-public class SqsService(IAmazonSQS amazonSqs, IOptions<AwsSqsOptions> awsSqsOptions, ILogger<SqsService> logger)
-    : ISqsService
+public class ResourceEventsDeadLetterService(
+    IAmazonSQS amazonSqs,
+    IOptions<AwsSqsOptions> awsSqsOptions,
+    ILogger<ResourceEventsDeadLetterService> logger
+) : IResourceEventsDeadLetterService
 {
-    private readonly string deadletterArn =
+    private readonly string _deadLetterArn =
         $"{awsSqsOptions.Value.SqsArnPrefix}{awsSqsOptions.Value.ResourceEventsQueueName}-deadletter";
 
     public async Task<bool> Redrive(CancellationToken cancellationToken)
     {
         try
         {
-            var startMessageMoveTaskRequest = new StartMessageMoveTaskRequest { SourceArn = deadletterArn };
+            var startMessageMoveTaskRequest = new StartMessageMoveTaskRequest { SourceArn = _deadLetterArn };
 
             var startMessageMoveTaskResponse = await amazonSqs.StartMessageMoveTaskAsync(
                 startMessageMoveTaskRequest,

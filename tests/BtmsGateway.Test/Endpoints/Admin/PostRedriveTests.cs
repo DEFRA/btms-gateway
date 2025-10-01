@@ -12,7 +12,8 @@ namespace BtmsGateway.Test.Endpoints.Admin;
 public class PostRedriveTests(ApiWebApplicationFactory factory, ITestOutputHelper outputHelper)
     : EndpointTestBase(factory, outputHelper)
 {
-    private readonly ISqsService _sqsService = Substitute.For<ISqsService>();
+    private readonly IResourceEventsDeadLetterService _resourceEventsDeadLetterService =
+        Substitute.For<IResourceEventsDeadLetterService>();
 
     protected override void ConfigureHostConfiguration(IConfigurationBuilder config)
     {
@@ -25,7 +26,7 @@ public class PostRedriveTests(ApiWebApplicationFactory factory, ITestOutputHelpe
     {
         base.ConfigureTestServices(services);
 
-        services.AddSingleton(_sqsService);
+        services.AddSingleton(_resourceEventsDeadLetterService);
     }
 
     [Fact]
@@ -52,7 +53,7 @@ public class PostRedriveTests(ApiWebApplicationFactory factory, ITestOutputHelpe
     public async Task PostRedrive_When_authorized_redrive_fails_Then_InternalServerError()
     {
         var client = CreateClient();
-        _sqsService.Redrive(Arg.Any<CancellationToken>()).Returns(false);
+        _resourceEventsDeadLetterService.Redrive(Arg.Any<CancellationToken>()).Returns(false);
 
         var response = await client.PostAsync(Testing.Endpoints.AdminIntegration.PostRedrive(), null);
 
@@ -63,7 +64,7 @@ public class PostRedriveTests(ApiWebApplicationFactory factory, ITestOutputHelpe
     public async Task PostRedrive_When_authorized_redrive_throws_exception_Then_InternalServerError()
     {
         var client = CreateClient();
-        _sqsService.Redrive(Arg.Any<CancellationToken>()).ThrowsAsync(new Exception("Test"));
+        _resourceEventsDeadLetterService.Redrive(Arg.Any<CancellationToken>()).ThrowsAsync(new Exception("Test"));
 
         var response = await client.PostAsync(Testing.Endpoints.AdminIntegration.PostRedrive(), null);
 
@@ -74,7 +75,7 @@ public class PostRedriveTests(ApiWebApplicationFactory factory, ITestOutputHelpe
     public async Task PostRedrive_When_authorized_Then_Accepted()
     {
         var client = CreateClient();
-        _sqsService.Redrive(Arg.Any<CancellationToken>()).Returns(true);
+        _resourceEventsDeadLetterService.Redrive(Arg.Any<CancellationToken>()).Returns(true);
 
         var response = await client.PostAsync(Testing.Endpoints.AdminIntegration.PostRedrive(), null);
 

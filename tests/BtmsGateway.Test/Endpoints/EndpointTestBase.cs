@@ -1,8 +1,10 @@
 using System.Net.Http.Headers;
 using BtmsGateway.Authentication;
+using BtmsGateway.Services.Routing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using NSubstitute;
 using Xunit.Abstractions;
 
 namespace BtmsGateway.Test.Endpoints;
@@ -28,7 +30,12 @@ public class EndpointTestBase : IClassFixture<ApiWebApplicationFactory>
     /// Use this to override DI services.
     /// </summary>
     /// <param name="services"></param>
-    protected virtual void ConfigureTestServices(IServiceCollection services) { }
+    protected virtual void ConfigureTestServices(IServiceCollection services)
+    {
+        // RoutingInterceptor in request pipeline depends on IMessageRouter, which
+        // in turn tries to connect to AWS, so we need to mock it out
+        services.AddSingleton(_ => Substitute.For<IMessageRouter>());
+    }
 
     protected HttpClient CreateClient(bool addDefaultAuthorizationHeader = true, TestUser testUser = TestUser.Execute)
     {

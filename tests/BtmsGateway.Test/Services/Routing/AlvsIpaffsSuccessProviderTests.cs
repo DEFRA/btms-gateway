@@ -60,7 +60,7 @@ public class AlvsIpaffsSuccessProviderTests
     {
         var routingResult = new RoutingResult
         {
-            MessageSubXPath = MessagingConstants.SoapMessageTypes.ALVSIPAFFSSearchCertificateRequest,
+            MessageSubXPath = MessagingConstants.SoapMessageTypes.ALVSClearanceRequest,
         };
 
         var result = _alvsIpaffsSuccessProvider.SendIpaffsRequest(routingResult);

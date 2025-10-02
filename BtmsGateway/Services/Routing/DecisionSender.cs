@@ -26,7 +26,6 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
     private readonly IApiSender _apiSender;
     private readonly ILogger _logger;
     private readonly Destination _btmsDecisionsComparerDestination;
-    private readonly Destination _alvsDecisionComparerDestination;
     private readonly Destination _btmsToCdsDestination;
 
     public DecisionSender(
@@ -41,7 +40,6 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
         _logger = logger;
 
         _btmsDecisionsComparerDestination = GetDestination(MessagingConstants.Destinations.BtmsDecisionComparer);
-        _alvsDecisionComparerDestination = GetDestination(MessagingConstants.Destinations.AlvsDecisionComparer);
         _btmsToCdsDestination = GetDestination(MessagingConstants.Destinations.BtmsCds);
     }
 
@@ -71,7 +69,6 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
                 mrn,
                 _btmsDecisionsComparerDestination
             ),
-            MessagingConstants.MessageSource.Alvs => GetDestinationConfiguration(mrn, _alvsDecisionComparerDestination),
             _ => throw new ArgumentException($"{mrn} Received decision from unexpected source {messageSource}."),
         };
 

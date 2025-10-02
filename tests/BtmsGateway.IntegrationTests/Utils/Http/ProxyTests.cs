@@ -1,108 +1,67 @@
 using System.Net;
+using BtmsGateway.IntegrationTests.Helpers;
 using BtmsGateway.IntegrationTests.TestBase;
 using BtmsGateway.IntegrationTests.TestUtils;
 using BtmsGateway.Utils.Http;
-using FluentAssertions;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.Configuration;
 using WireMock.Client;
 using WireMock.Client.Extensions;
+using Xunit.Abstractions;
 
 namespace BtmsGateway.IntegrationTests.Utils.Http;
 
 [Collection("UsesWireMockClient")]
-public class ProxyTests(WireMockClient wireMockClient) : IntegrationTestBase
+public class ProxyTests(WireMockClient wireMockClient, ITestOutputHelper output) : SqsTestBase(output)
 {
     private readonly IWireMockAdminApi _wireMockAdminApi = wireMockClient.WireMockAdminApi;
 
+    private readonly string _decisionResourceEvent = FixtureTest.UsingContent(
+        "CustomsDeclarationClearanceDecisionResourceEvent.json"
+    );
+    private readonly string _decisionNotification = FixtureTest.UsingContent("DecisionNotification.xml");
+    private readonly string _mrn = "25GB0XX00XXXXX0000";
+
     [Fact]
-    public async Task When_post_to_cds_takes_longer_than_http_client_timeout_Then_service_unavailable_returned()
+    public async Task When_event_processed_and_post_to_cds_takes_longer_than_http_client_timeout_Then_message_is_moved_to_dlq()
     {
         await wireMockClient.ResetWiremock();
 
-        var fixtureContent = FixtureTest.UsingContent("DecisionNotification.xml");
-
-        await using var application = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
-        {
-            builder.UseEnvironment("IntegrationTests");
-        });
-
-        var configuration = application.Services.GetService(typeof(IConfiguration));
-        var httpClientTimeoutSeconds = ((ConfigurationManager)configuration!).GetValue<int>("HttpClientTimeoutSeconds");
-
-        var responseDelay =
-            httpClientTimeoutSeconds > 0 ? httpClientTimeoutSeconds + 1 : Proxy.DefaultHttpClientTimeoutSeconds + 1;
+        var putMappingBuilder = _wireMockAdminApi.GetMappingBuilder();
+        putMappingBuilder.Given(m =>
+            m.WithRequest(req => req.UsingPut().WithPath($"/comparer/btms-decisions/{_mrn}"))
+                .WithResponse(rsp => rsp.WithStatusCode(HttpStatusCode.OK).WithBody(_decisionNotification))
+        );
+        var putStatus = await putMappingBuilder.BuildAndPostAsync();
+        Assert.NotNull(putStatus.Guid);
 
         var postMappingBuilder = _wireMockAdminApi.GetMappingBuilder();
         postMappingBuilder.Given(m =>
             m.WithRequest(req => req.UsingPost().WithPath("/cds/ws/CDS/defra/alvsclearanceinbound/v1"))
                 .WithResponse(rsp =>
-                    rsp.WithStatusCode(HttpStatusCode.ServiceUnavailable).WithDelay(TimeSpan.FromSeconds(responseDelay))
+                    rsp.WithStatusCode(HttpStatusCode.ServiceUnavailable)
+                        .WithDelay(TimeSpan.FromSeconds(Proxy.DefaultHttpClientTimeoutSeconds + 1))
                 )
         );
         var postStatus = await postMappingBuilder.BuildAndPostAsync();
         Assert.NotNull(postStatus.Guid);
 
-        var putMappingBuilder = _wireMockAdminApi.GetMappingBuilder();
-        putMappingBuilder.Given(m =>
-            m.WithRequest(req => req.UsingPut().WithPath("/comparer/alvs-decisions/25GB0XX00XXXXX0000"))
-                .WithResponse(rsp =>
-                    rsp.WithStatusCode(HttpStatusCode.ServiceUnavailable).WithDelay(TimeSpan.FromSeconds(responseDelay))
-                )
-        );
-        var putStatus = await putMappingBuilder.BuildAndPostAsync();
-        Assert.NotNull(putStatus.Guid);
+        await DrainAllMessages(ResourceEventsQueueUrl);
+        await DrainAllMessages(ResourceEventsDeadLetterQueueUrl);
 
-        using var client = application.CreateClient();
-
-        var response = await client.PostAsync(
-            "/ws/CDS/defra/alvsclearanceinbound/v1",
-            new StringContent(fixtureContent)
+        await SendMessage(
+            _mrn,
+            _decisionResourceEvent,
+            ResourceEventsQueueUrl,
+            WithResourceEventAttributes("CustomsDeclaration", "ClearanceDecision", _mrn),
+            false
         );
 
-        response.StatusCode.Should().Be(HttpStatusCode.ServiceUnavailable);
-    }
-
-    [Fact]
-    public async Task When_post_to_ipaffs_takes_longer_than_http_client_timeout_Then_service_unavailable_returned()
-    {
-        await wireMockClient.ResetWiremock();
-
-        var fixtureContent = FixtureTest.UsingContent("SearchCertificate.xml");
-
-        await using var application = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
-        {
-            builder.UseEnvironment("IntegrationTests");
-        });
-
-        var configuration = application.Services.GetService(typeof(IConfiguration));
-        var httpClientTimeoutSeconds = ((ConfigurationManager)configuration!).GetValue<int>(
-            "AlvsIpaffsHttpClientTimeoutSeconds"
+        Assert.True(
+            await AsyncWaiter.WaitForAsync(
+                async () =>
+                    (await GetQueueAttributes(ResourceEventsDeadLetterQueueUrl)).ApproximateNumberOfMessages == 1,
+                TimeSpan.FromSeconds(35) // Wait a bit longer than message visibility timeout so the message gets moved to DLQ
+            ),
+            "ProxyTest message was not moved to DLQ"
         );
-
-        var responseDelay =
-            httpClientTimeoutSeconds > 0
-                ? httpClientTimeoutSeconds + 1
-                : Proxy.DefaultAlvsIpaffsHttpClientTimeoutSeconds + 1;
-
-        var postMappingBuilder = _wireMockAdminApi.GetMappingBuilder();
-        postMappingBuilder.Given(m =>
-            m.WithRequest(req => req.UsingPost().WithPath("/ipaffs/soapsearch/tst/sanco/traces_ws/searchCertificate"))
-                .WithResponse(rsp =>
-                    rsp.WithStatusCode(HttpStatusCode.ServiceUnavailable).WithDelay(TimeSpan.FromSeconds(responseDelay))
-                )
-        );
-        var postStatus = await postMappingBuilder.BuildAndPostAsync();
-        Assert.NotNull(postStatus.Guid);
-
-        using var client = application.CreateClient();
-
-        var response = await client.PostAsync(
-            "/soapsearch/tst/sanco/traces_ws/searchCertificate",
-            new StringContent(fixtureContent)
-        );
-
-        response.StatusCode.Should().Be(HttpStatusCode.ServiceUnavailable);
     }
 }

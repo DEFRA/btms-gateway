@@ -18,7 +18,7 @@ public class RemoveMessageTests(WireMockClient wireMockClient, ITestOutputHelper
     public async Task When_message_processing_fails_and_moved_to_dlq_Then_message_can_be_removed()
     {
         var resourceEvent = FixtureTest.UsingContent("CustomsDeclarationClearanceDecisionResourceEvent.json");
-        var mrn = "25GB0XX00XXXXX0001";
+        var mrn = "25GB0XX00XXXXX0000";
 
         // Configure failure responses from Comparer (including retries) so the message gets moved to DLQ and can then be removed
         var failFirstPostMappingBuilder = _wireMockAdminApi.GetMappingBuilder();
@@ -88,9 +88,8 @@ public class RemoveMessageTests(WireMockClient wireMockClient, ITestOutputHelper
             false
         );
 
-        var messagesOnDeadLetterQueue = await AsyncWaiter.WaitForAsync(
-            async () => (await GetQueueAttributes(ResourceEventsDeadLetterQueueUrl)).ApproximateNumberOfMessages == 1,
-            LocalSettings.WaitAfterVisibilityTimeout
+        var messagesOnDeadLetterQueue = await AsyncWaiter.WaitForAsync(async () =>
+            (await GetQueueAttributes(ResourceEventsDeadLetterQueueUrl)).ApproximateNumberOfMessages == 1
         );
         Assert.True(messagesOnDeadLetterQueue, "Messages on dead letter queue was not received");
 

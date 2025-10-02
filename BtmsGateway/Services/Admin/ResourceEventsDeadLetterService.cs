@@ -98,7 +98,7 @@ public class ResourceEventsDeadLetterService(
         {
             logger.LogError(ex, "Failed to remove message from dead letter queue");
 
-            return ex.ToString();
+            return "Exception, check logs";
         }
     }
 

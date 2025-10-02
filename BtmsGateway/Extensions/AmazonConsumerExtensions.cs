@@ -37,6 +37,7 @@ public static class AmazonConsumerExtensions
                 x.WithConsumer<ConsumerMediator>()
                     .Queue(options.ResourceEventsQueueName)
                     .Instances(options.ConsumersPerHost)
+                    .VisibilityTimeout(options.VisibilityTimeout)
             );
     }
 }

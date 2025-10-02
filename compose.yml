@@ -111,6 +111,7 @@ services:
       DecisionComparerApi__BaseAddress: "http://wiremock/comparer/"
       Acl__Clients__IntegrationTests__Secret: integration-tests-pwd
       Acl__Clients__IntegrationTests__Scopes__0: execute
+      AwsSqsOptions__VisibilityTimeout: 5
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8080/health" ]
       interval: 300s

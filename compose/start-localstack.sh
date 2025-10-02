@@ -20,8 +20,8 @@ aws --endpoint-url=$ENDPOINT_URL sns create-topic --attributes FifoTopic=true --
 
 # Create Queues
 aws --endpoint-url=$ENDPOINT_URL sqs create-queue --attributes FifoQueue=true --queue-name $ICDR_Queue
-aws --endpoint-url=$ENDPOINT_URL sqs create-queue --queue-name $OCD_Queue
-aws --endpoint-url=$ENDPOINT_URL sqs create-queue --queue-name $OCD_DeadLetterQueue
+aws --endpoint-url=$ENDPOINT_URL sqs create-queue --queue-name $OCD_Queue --attributes '{"VisibilityTimeout": "5"}'
+aws --endpoint-url=$ENDPOINT_URL sqs create-queue --queue-name $OCD_DeadLetterQueue --attributes '{"VisibilityTimeout": "5"}'
 
 SNS_ARN=arn:aws:sns:eu-west-2:000000000000
 SQS_ARN=arn:aws:sqs:eu-west-2:000000000000
@@ -34,7 +34,6 @@ aws --endpoint-url=$ENDPOINT_URL sqs set-queue-attributes --queue-url $ENDPOINT_
 
 function is_ready() {
     aws --endpoint-url=http://sqs.eu-west-2.localhost.localstack.cloud:4566 sns list-topics --query "Topics[?ends_with(TopicArn, ':trade_imports_inbound_customs_declarations.fifo')].TopicArn" || return 1
-    
     aws --endpoint-url=http://sqs.eu-west-2.localhost.localstack.cloud:4566 sqs get-queue-url --queue-name trade_imports_inbound_customs_declarations_processor.fifo || return 1
     aws --endpoint-url=http://sqs.eu-west-2.localhost.localstack.cloud:4566 sqs get-queue-url --queue-name trade_imports_data_upserted_btms_gateway || return 1
     aws --endpoint-url=http://sqs.eu-west-2.localhost.localstack.cloud:4566 sqs get-queue-url --queue-name trade_imports_data_upserted_btms_gateway-deadletter || return 1

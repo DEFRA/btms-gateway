@@ -10,7 +10,7 @@ using Xunit.Abstractions;
 namespace BtmsGateway.IntegrationTests.Endpoints.Admin;
 
 [Collection("UsesWireMockClient")]
-public class AdminIntegrationTests(WireMockClient wireMockClient, ITestOutputHelper output) : SqsTestBase(output)
+public class RedriveTests(WireMockClient wireMockClient, ITestOutputHelper output) : SqsTestBase(output)
 {
     private readonly IWireMockAdminApi _wireMockAdminApi = wireMockClient.WireMockAdminApi;
 
@@ -90,12 +90,12 @@ public class AdminIntegrationTests(WireMockClient wireMockClient, ITestOutputHel
 
         var messagesOnDeadLetterQueue = await AsyncWaiter.WaitForAsync(
             async () => (await GetQueueAttributes(ResourceEventsDeadLetterQueueUrl)).ApproximateNumberOfMessages == 1,
-            TimeSpan.FromSeconds(35) // Wait a bit longer than message visibility timeout so the message gets moved to DLQ
+            LocalSettings.WaitAfterVisibilityTimeout
         );
         Assert.True(messagesOnDeadLetterQueue, "Messages on dead letter queue was not received");
 
         var httpClient = CreateHttpClient();
-        var response = await httpClient.PostAsync(Testing.Endpoints.AdminIntegration.PostRedrive(), null);
+        var response = await httpClient.PostAsync(Testing.Endpoints.Redrive.DeadLetterQueue.Redrive(), null);
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
         Assert.True(

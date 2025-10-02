@@ -16,9 +16,12 @@ public class AwsSqsOptions
 
     public int ConsumersPerHost { get; init; } = 20;
 
+    // This default matches Slim Message Bus default of 30
+    public int VisibilityTimeout { get; init; } = 30;
+
     public bool AutoStartConsumers { get; init; } = true;
 
-    private string ResourceEventsDeadLetterQueueName => $"{ResourceEventsQueueName}-deadletter";
+    public string ResourceEventsDeadLetterQueueName => $"{ResourceEventsQueueName}-deadletter";
 
     public string ResourceEventsDeadLetterQueueArn => $"{SqsArnPrefix}{ResourceEventsDeadLetterQueueName}";
 }

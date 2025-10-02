@@ -79,14 +79,19 @@ public class ResourceEventsDeadLetterService(
 
                 if (message is not null)
                 {
-                    await amazonSqs.DeleteMessageAsync(
+                    var result = await amazonSqs.DeleteMessageAsync(
                         new DeleteMessageRequest { QueueUrl = queueUrl, ReceiptHandle = message.ReceiptHandle },
                         cancellationToken
                     );
 
-                    logger.LogInformation("Removed message {MessageId} from dead letter queue", messageId);
+                    if (result.HttpStatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        logger.LogInformation("Removed message {MessageId} from dead letter queue", messageId);
 
-                    return $"Found message {messageId} and removed";
+                        return $"Found message {messageId} and removed";
+                    }
+
+                    return $"Found message {messageId} but delete was not successful ({result.HttpStatusCode})";
                 }
 
                 await Task.Delay(TimeSpan.FromMilliseconds(200), cancellationToken);

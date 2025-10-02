@@ -56,10 +56,8 @@ public class ProxyTests(WireMockClient wireMockClient, ITestOutputHelper output)
         );
 
         Assert.True(
-            await AsyncWaiter.WaitForAsync(
-                async () =>
-                    (await GetQueueAttributes(ResourceEventsDeadLetterQueueUrl)).ApproximateNumberOfMessages == 1,
-                LocalSettings.WaitAfterVisibilityTimeout
+            await AsyncWaiter.WaitForAsync(async () =>
+                (await GetQueueAttributes(ResourceEventsDeadLetterQueueUrl)).ApproximateNumberOfMessages == 1
             ),
             "ProxyTest message was not moved to DLQ"
         );

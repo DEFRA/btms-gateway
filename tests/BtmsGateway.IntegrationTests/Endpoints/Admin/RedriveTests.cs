@@ -88,9 +88,8 @@ public class RedriveTests(WireMockClient wireMockClient, ITestOutputHelper outpu
             false
         );
 
-        var messagesOnDeadLetterQueue = await AsyncWaiter.WaitForAsync(
-            async () => (await GetQueueAttributes(ResourceEventsDeadLetterQueueUrl)).ApproximateNumberOfMessages == 1,
-            LocalSettings.WaitAfterVisibilityTimeout
+        var messagesOnDeadLetterQueue = await AsyncWaiter.WaitForAsync(async () =>
+            (await GetQueueAttributes(ResourceEventsDeadLetterQueueUrl)).ApproximateNumberOfMessages == 1
         );
         Assert.True(messagesOnDeadLetterQueue, "Messages on dead letter queue was not received");
 

@@ -8,21 +8,22 @@ using Xunit.Abstractions;
 namespace BtmsGateway.IntegrationTests.Endpoints.Admin;
 
 [Collection("UsesWireMockClient")]
-public class RedriveTests(WireMockClient wireMockClient, ITestOutputHelper output) : AdminTestBase(output)
+public class DrainTests(WireMockClient wireMockClient, ITestOutputHelper output) : AdminTestBase(output)
 {
     private readonly IWireMockAdminApi _wireMockAdminApi = wireMockClient.WireMockAdminApi;
 
     [Fact]
-    public async Task When_message_processing_fails_and_moved_to_dlq_Then_message_can_be_redriven()
+    public async Task When_message_processing_fails_and_moved_to_dlq_Then_dlq_can_be_drained()
     {
         var resourceEvent = FixtureTest.UsingContent("CustomsDeclarationClearanceDecisionResourceEvent.json");
-        const string mrn = "25GB0XX00XXXXX0000";
+        const string mrn = "25GB0XX00XXXXX0002";
+        resourceEvent = resourceEvent.Replace("25GB0XX00XXXXX0000", mrn);
 
-        await SetUpConsumptionFailure(_wireMockAdminApi, "DLQ Redrive", mrn);
+        await SetUpConsumptionFailure(_wireMockAdminApi, "DLQ Drain", mrn);
         await DrainAllMessages(ResourceEventsQueueUrl);
         await DrainAllMessages(ResourceEventsDeadLetterQueueUrl);
 
-        await SendMessage(
+        var messageId = await SendMessage(
             mrn,
             resourceEvent,
             ResourceEventsQueueUrl,
@@ -36,26 +37,16 @@ public class RedriveTests(WireMockClient wireMockClient, ITestOutputHelper outpu
         Assert.True(messagesOnDeadLetterQueue, "Messages on dead letter queue was not received");
 
         var httpClient = CreateHttpClient();
-        var response = await httpClient.PostAsync(Testing.Endpoints.Redrive.DeadLetterQueue.Redrive(), null);
+        var response = await httpClient.PostAsync(Testing.Endpoints.Redrive.DeadLetterQueue.Drain(), null);
 
-        response.StatusCode.Should().Be(HttpStatusCode.Accepted);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        // First, we expect nothing on the DLQ
+        // We expect no messages on either queue following a drain
         Assert.True(
             await AsyncWaiter.WaitForAsync(async () =>
-                (await GetQueueAttributes(ResourceEventsDeadLetterQueueUrl)).ApproximateNumberOfMessages == 0
+                (await GetQueueAttributes(ResourceEventsQueueUrl)).ApproximateNumberOfMessages == 0
             )
         );
-
-        // The same message will error again, so we have 1 message on the DLQ
-        Assert.True(
-            await AsyncWaiter.WaitForAsync(async () =>
-                (await GetQueueAttributes(ResourceEventsDeadLetterQueueUrl)).ApproximateNumberOfMessages == 1
-            )
-        );
-
-        // Drain again and await nothing
-        await DrainAllMessages(ResourceEventsDeadLetterQueueUrl);
         Assert.True(
             await AsyncWaiter.WaitForAsync(async () =>
                 (await GetQueueAttributes(ResourceEventsDeadLetterQueueUrl)).ApproximateNumberOfMessages == 0

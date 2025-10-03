@@ -33,6 +33,18 @@ public static class EndpointRouteBuilderExtensions
             .ProducesProblem(StatusCodes.Status405MethodNotAllowed)
             .ProducesProblem(StatusCodes.Status500InternalServerError)
             .RequireAuthorization(PolicyNames.Execute);
+
+        app.MapPost("admin/dlq/drain", Drain)
+            .WithName(nameof(Drain))
+            .WithTags("Admin")
+            .WithSummary("Initiates drain of all messages from the dead letter queue")
+            .WithDescription("Drains all messages on the resource events dead letter queue")
+            .Produces(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .ProducesProblem(StatusCodes.Status405MethodNotAllowed)
+            .ProducesProblem(StatusCodes.Status500InternalServerError)
+            .RequireAuthorization(PolicyNames.Execute);
     }
 
     [HttpPost]
@@ -73,5 +85,26 @@ public static class EndpointRouteBuilderExtensions
         {
             return Results.InternalServerError();
         }
+    }
+
+    [HttpPost]
+    private static async Task<IResult> Drain(
+        [FromServices] IResourceEventsDeadLetterService resourceEventsDeadLetterService,
+        CancellationToken cancellationToken
+    )
+    {
+        try
+        {
+            if (!await resourceEventsDeadLetterService.Drain(cancellationToken))
+            {
+                return Results.InternalServerError();
+            }
+        }
+        catch (Exception)
+        {
+            return Results.InternalServerError();
+        }
+
+        return Results.Ok();
     }
 }

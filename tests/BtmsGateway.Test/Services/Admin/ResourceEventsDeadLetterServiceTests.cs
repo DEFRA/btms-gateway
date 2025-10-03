@@ -186,4 +186,101 @@ public class ResourceEventsDeadLetterServiceTests
 
         result.Should().Be("Exception, check logs");
     }
+
+    [Fact]
+    public async Task When_drain_successful_Then_return_as_expected()
+    {
+        const string messageId = "messageId";
+        const string queueUrl = "queueUrl";
+        const string receiptHandle = "receiptHandle";
+        _amazonSqs
+            .GetQueueUrlAsync(Arg.Is<GetQueueUrlRequest>(x => x.QueueName == QueueNameDeadLetter))
+            .Returns(Task.FromResult(new GetQueueUrlResponse { QueueUrl = queueUrl }));
+        _amazonSqs
+            .ReceiveMessageAsync(Arg.Is<ReceiveMessageRequest>(x => x.QueueUrl == queueUrl))
+            .Returns(
+                Task.FromResult(
+                    new ReceiveMessageResponse
+                    {
+                        Messages = [new Message { MessageId = messageId, ReceiptHandle = receiptHandle }],
+                    }
+                ),
+                Task.FromResult(new ReceiveMessageResponse { Messages = [] })
+            );
+        _amazonSqs
+            .DeleteMessageBatchAsync(
+                Arg.Is<DeleteMessageBatchRequest>(x =>
+                    x.QueueUrl == queueUrl
+                    && x.Entries.Count == 1
+                    && x.Entries.First().Id == "0"
+                    && x.Entries.First().ReceiptHandle == receiptHandle
+                )
+            )
+            .Returns(Task.FromResult(new DeleteMessageBatchResponse { HttpStatusCode = HttpStatusCode.OK }));
+
+        var result = await _resourceEventsDeadLetterService.Drain(CancellationToken.None);
+
+        result.Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task When_drain_unsuccessful_Then_return_as_expected(bool statusCode)
+    {
+        const string messageId = "messageId";
+        const string queueUrl = "queueUrl";
+        const string receiptHandle = "receiptHandle";
+        _amazonSqs
+            .GetQueueUrlAsync(Arg.Is<GetQueueUrlRequest>(x => x.QueueName == QueueNameDeadLetter))
+            .Returns(Task.FromResult(new GetQueueUrlResponse { QueueUrl = queueUrl }));
+        _amazonSqs
+            .ReceiveMessageAsync(Arg.Is<ReceiveMessageRequest>(x => x.QueueUrl == queueUrl))
+            .Returns(
+                Task.FromResult(
+                    new ReceiveMessageResponse
+                    {
+                        Messages = [new Message { MessageId = messageId, ReceiptHandle = receiptHandle }],
+                    }
+                ),
+                Task.FromResult(new ReceiveMessageResponse { Messages = [] })
+            );
+        _amazonSqs
+            .DeleteMessageBatchAsync(
+                Arg.Is<DeleteMessageBatchRequest>(x =>
+                    x.QueueUrl == queueUrl
+                    && x.Entries.Count == 1
+                    && x.Entries.First().Id == "0"
+                    && x.Entries.First().ReceiptHandle == receiptHandle
+                )
+            )
+            .Returns(
+                Task.FromResult(
+                    statusCode
+                        ? new DeleteMessageBatchResponse { HttpStatusCode = HttpStatusCode.InternalServerError }
+                        : new DeleteMessageBatchResponse
+                        {
+                            HttpStatusCode = HttpStatusCode.OK,
+                            Failed = [new BatchResultErrorEntry()],
+                        }
+                )
+            );
+
+        var result = await _resourceEventsDeadLetterService.Drain(CancellationToken.None);
+
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task When_drain_and_exception_Then_return_as_expected()
+    {
+        const string messageId = "messageId";
+        _amazonSqs
+            .GetQueueUrlAsync(Arg.Is<GetQueueUrlRequest>(x => x.QueueName == QueueNameDeadLetter))
+            .Throws(new Exception());
+
+        var result = await _resourceEventsDeadLetterService.Drain(CancellationToken.None);
+
+        result.Should().BeFalse();
+    }
 }

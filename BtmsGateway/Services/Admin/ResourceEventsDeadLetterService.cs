@@ -1,3 +1,4 @@
+using System.Net;
 using Amazon.SQS;
 using Amazon.SQS.Model;
 using BtmsGateway.Config;
@@ -11,6 +12,8 @@ public interface IResourceEventsDeadLetterService
     Task<bool> Redrive(CancellationToken cancellationToken);
 
     Task<string> Remove(string messageId, CancellationToken cancellationToken);
+
+    Task<bool> Drain(CancellationToken cancellationToken);
 }
 
 public class ResourceEventsDeadLetterService(
@@ -38,6 +41,7 @@ public class ResourceEventsDeadLetterService(
                     "Redrive message move task started with TaskHandle: {TaskHandle}",
                     response.TaskHandle
                 );
+
                 return true;
             }
 
@@ -84,7 +88,7 @@ public class ResourceEventsDeadLetterService(
                         cancellationToken
                     );
 
-                    if (result.HttpStatusCode == System.Net.HttpStatusCode.OK)
+                    if (result.HttpStatusCode == HttpStatusCode.OK)
                     {
                         logger.LogInformation("Removed message {MessageId} from dead letter queue", messageId);
 
@@ -104,6 +108,77 @@ public class ResourceEventsDeadLetterService(
             logger.LogError(ex, "Failed to remove message from dead letter queue");
 
             return "Exception, check logs";
+        }
+    }
+
+    public async Task<bool> Drain(CancellationToken cancellationToken)
+    {
+        try
+        {
+            var queueUrl = await GetQueueUrl(cancellationToken);
+            var removed = 0;
+
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                var request = new ReceiveMessageRequest
+                {
+                    QueueUrl = queueUrl,
+                    MaxNumberOfMessages = 10,
+                    WaitTimeSeconds = 0,
+                    VisibilityTimeout = 60,
+                };
+
+                var response = await amazonSqs.ReceiveMessageAsync(request, cancellationToken);
+                if (response.Messages.Count == 0)
+                {
+                    logger.LogInformation("Dead letter queue is empty, {Removed} message(s) removed", removed);
+
+                    return true;
+                }
+
+                var deleteRequest = new DeleteMessageBatchRequest
+                {
+                    QueueUrl = queueUrl,
+                    Entries = response
+                        .Messages.Select(
+                            (message, index) =>
+                                new DeleteMessageBatchRequestEntry
+                                {
+                                    Id = index.ToString(),
+                                    ReceiptHandle = message.ReceiptHandle,
+                                }
+                        )
+                        .ToList(),
+                };
+
+                var deleteResponse = await amazonSqs.DeleteMessageBatchAsync(deleteRequest, cancellationToken);
+                if (deleteResponse.HttpStatusCode != HttpStatusCode.OK || deleteResponse.Failed.Count > 0)
+                {
+                    logger.LogWarning("Failed to remove a batch of message(s), stopping");
+
+                    return false;
+                }
+
+                removed += deleteResponse.Successful.Count;
+
+                logger.LogInformation(
+                    "Removed batch of {Total} message(s), total so far {Removed}",
+                    deleteResponse.Successful.Count,
+                    removed
+                );
+
+                await Task.Delay(TimeSpan.FromMilliseconds(200), cancellationToken);
+            }
+
+            logger.LogInformation("Drain operation cancelled, total messages removed so far {Removed}", removed);
+
+            return false;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to drain dead letter queue");
+
+            return false;
         }
     }
 

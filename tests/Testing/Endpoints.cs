@@ -15,6 +15,8 @@ public static class Endpoints
 
             public static string RemoveMessage(string? messageId = null) =>
                 $"{SubRoot}/remove-message?messageId={messageId}";
+
+            public static string Drain() => $"{SubRoot}/drain";
         }
     }
 

@@ -274,7 +274,6 @@ public class ResourceEventsDeadLetterServiceTests
     [Fact]
     public async Task When_drain_and_exception_Then_return_as_expected()
     {
-        const string messageId = "messageId";
         _amazonSqs
             .GetQueueUrlAsync(Arg.Is<GetQueueUrlRequest>(x => x.QueueName == QueueNameDeadLetter))
             .Throws(new Exception());

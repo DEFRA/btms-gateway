@@ -8,7 +8,7 @@ namespace BtmsGateway.IntegrationTests.Endpoints.Admin;
 
 public class AdminTestBase(ITestOutputHelper output) : SqsTestBase(output)
 {
-    protected async Task SetUpConsumptionFailure(IWireMockAdminApi wireMockAdminApi, string name, string mrn)
+    protected static async Task SetUpConsumptionFailure(IWireMockAdminApi wireMockAdminApi, string name, string mrn)
     {
         // Configure failure responses from Comparer (including retries) so the message gets moved to DLQ and then successful on redrive
         var failFirstPostMappingBuilder = wireMockAdminApi.GetMappingBuilder();

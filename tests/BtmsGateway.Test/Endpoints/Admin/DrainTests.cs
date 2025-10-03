@@ -53,6 +53,17 @@ public class DrainTests(ApiWebApplicationFactory factory, ITestOutputHelper outp
     }
 
     [Fact]
+    public async Task When_authorized_and_drain_returns_false_Then_InternalServerError()
+    {
+        var client = CreateClient();
+        _resourceEventsDeadLetterService.Drain(Arg.Any<CancellationToken>()).Returns(false);
+
+        var response = await client.PostAsync(Testing.Endpoints.Redrive.DeadLetterQueue.Drain(), null);
+
+        response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+    }
+
+    [Fact]
     public async Task When_authorized_and_drain_throws_exception_Then_InternalServerError()
     {
         var client = CreateClient();

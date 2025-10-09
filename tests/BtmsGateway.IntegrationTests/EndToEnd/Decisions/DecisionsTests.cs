@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 namespace BtmsGateway.IntegrationTests.EndToEnd.Decisions;
 
 [Collection("UsesWireMockClient")]
-public class DecisionsTests(WireMockClient wireMockClient, ITestOutputHelper output) : SqsTestBase(output)
+public class DecisionsTests(ITestOutputHelper output) : SqsTestBase(output)
 {
     private readonly string _decisionResourceEvent = FixtureTest.UsingContent(
         "CustomsDeclarationClearanceDecisionResourceEvent.json"

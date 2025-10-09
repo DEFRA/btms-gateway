@@ -11,7 +11,7 @@ public interface IDecisionSender
 {
     Task<RoutingResult> SendDecisionAsync(
         string? mrn,
-        string? decision,
+        string decision,
         MessagingConstants.MessageSource messageSource,
         RoutingResult routingResult,
         IHeaderDictionary? headers = null,
@@ -35,7 +35,7 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
 
     public async Task<RoutingResult> SendDecisionAsync(
         string? mrn,
-        string? decision,
+        string decision,
         MessagingConstants.MessageSource messageSource,
         RoutingResult routingResult,
         IHeaderDictionary? headers = null,

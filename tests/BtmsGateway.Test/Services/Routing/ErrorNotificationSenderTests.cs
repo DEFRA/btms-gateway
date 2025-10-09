@@ -4,7 +4,6 @@ using BtmsGateway.Exceptions;
 using BtmsGateway.Services.Routing;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
-using Microsoft.FeatureManagement;
 using NSubstitute;
 using Serilog;
 
@@ -15,7 +14,6 @@ public class ErrorNotificationSenderTests
     private RoutingConfig _routingConfig;
     private readonly IApiSender _apiSender = Substitute.For<IApiSender>();
     private readonly ILogger _logger = Substitute.For<ILogger>();
-    private readonly IFeatureManager _featureManager = Substitute.For<IFeatureManager>();
     private readonly ErrorNotificationSender _errorNotificationSender;
 
     public ErrorNotificationSenderTests()
@@ -70,29 +68,16 @@ public class ErrorNotificationSenderTests
             )
             .Returns(new HttpResponseMessage(HttpStatusCode.NoContent));
 
-        _errorNotificationSender = new ErrorNotificationSender(_routingConfig, _apiSender, _featureManager, _logger);
+        _errorNotificationSender = new ErrorNotificationSender(_routingConfig, _apiSender, _logger);
     }
 
-    [Theory]
-    [InlineData(true, false, MessagingConstants.MessageSource.Btms, 0, "btms-outbound-errors")]
-    [InlineData(true, true, MessagingConstants.MessageSource.Btms, 1, "btms-outbound-errors")]
-    [InlineData(false, true, MessagingConstants.MessageSource.Btms, 1, "btms-outbound-errors")]
-    [InlineData(false, false, MessagingConstants.MessageSource.Btms, 0, "btms-outbound-errors")]
-    public async Task When_sending_error_notification_Then_message_is_sent_to_decision_comparer_and_optionally_cds(
-        bool trialCutover,
-        bool cutover,
-        MessagingConstants.MessageSource messageSource,
-        int expectedCallsToCds,
-        string expectedCallToOutboundErrors
-    )
+    [Fact]
+    public async Task When_sending_error_notification_Then_message_is_sent_to_decision_comparer_and_cds()
     {
-        _featureManager.IsEnabledAsync(Features.TrialCutover).Returns(trialCutover);
-        _featureManager.IsEnabledAsync(Features.Cutover).Returns(cutover);
-
         var result = await _errorNotificationSender.SendErrorNotificationAsync(
             "mrn-123",
             "<HMRCErrorNotification />",
-            messageSource,
+            MessagingConstants.MessageSource.Btms,
             new RoutingResult(),
             cancellationToken: CancellationToken.None
         );
@@ -107,7 +92,7 @@ public class ErrorNotificationSenderTests
             );
 
         await _apiSender
-            .Received(expectedCallsToCds)
+            .Received(1)
             .SendSoapMessageAsync(
                 Arg.Any<string>(),
                 Arg.Any<string>(),
@@ -128,8 +113,8 @@ public class ErrorNotificationSenderTests
                     RouteLinkType = LinkType.DecisionComparerErrorNotifications,
                     ForkLinkType = LinkType.DecisionComparerErrorNotifications,
                     RoutingSuccessful = true,
-                    FullRouteLink = $"http://decision-comparer-url/{expectedCallToOutboundErrors}/mrn-123",
-                    FullForkLink = $"http://decision-comparer-url/{expectedCallToOutboundErrors}/mrn-123",
+                    FullRouteLink = "http://decision-comparer-url/btms-outbound-errors/mrn-123",
+                    FullForkLink = "http://decision-comparer-url/btms-outbound-errors/mrn-123",
                     StatusCode = HttpStatusCode.NoContent,
                     ResponseContent = string.Empty,
                 }
@@ -159,7 +144,7 @@ public class ErrorNotificationSenderTests
         };
 
         var thrownException = Assert.Throws<ArgumentException>(() =>
-            new ErrorNotificationSender(_routingConfig, _apiSender, _featureManager, _logger)
+            new ErrorNotificationSender(_routingConfig, _apiSender, _logger)
         );
         thrownException.Message.Should().Be("Destination configuration could not be found for BtmsOutboundErrors.");
     }
@@ -187,7 +172,7 @@ public class ErrorNotificationSenderTests
         };
 
         var thrownException = Assert.Throws<ArgumentException>(() =>
-            new ErrorNotificationSender(_routingConfig, _apiSender, _featureManager, _logger)
+            new ErrorNotificationSender(_routingConfig, _apiSender, _logger)
         );
         thrownException.Message.Should().Be("Destination configuration could not be found for BtmsCds.");
     }
@@ -309,8 +294,6 @@ public class ErrorNotificationSenderTests
     [Fact]
     public async Task When_sending_error_notification_to_cds_fails_Then_exception_is_thrown()
     {
-        _featureManager.IsEnabledAsync(Features.Cutover).Returns(true);
-
         var cdsResponse = new HttpResponseMessage(HttpStatusCode.BadRequest);
 
         _apiSender

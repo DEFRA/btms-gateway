@@ -2,7 +2,6 @@ using System.Diagnostics.Metrics;
 using System.Net;
 using System.Text;
 using BtmsGateway.Config;
-using BtmsGateway.Domain;
 using BtmsGateway.Exceptions;
 using BtmsGateway.Middleware;
 using BtmsGateway.Services.Metrics;
@@ -11,7 +10,6 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
-using Microsoft.FeatureManagement;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using Serilog;
@@ -70,8 +68,7 @@ public class RoutingInterceptorTests
             Substitute.For<IRequestMetrics>(),
             Substitute.For<ILogger>(),
             _messageLoggingOptions,
-            Substitute.For<IMessageRoutes>(),
-            Substitute.For<IFeatureManager>()
+            Substitute.For<IMessageRoutes>()
         );
 
         var ex = await Assert.ThrowsAsync<RoutingException>(() => sut.InvokeAsync(_httpContext));
@@ -143,8 +140,7 @@ public class RoutingInterceptorTests
             requestMetric,
             Substitute.For<ILogger>(),
             _messageLoggingOptions,
-            Substitute.For<IMessageRoutes>(),
-            Substitute.For<IFeatureManager>()
+            Substitute.For<IMessageRoutes>()
         );
 
         await sut.InvokeAsync(_httpContext);
@@ -239,8 +235,7 @@ public class RoutingInterceptorTests
             requestMetric,
             Substitute.For<ILogger>(),
             _messageLoggingOptions,
-            Substitute.For<IMessageRoutes>(),
-            Substitute.For<IFeatureManager>()
+            Substitute.For<IMessageRoutes>()
         );
 
         await sut.InvokeAsync(_httpContext);
@@ -273,13 +268,10 @@ public class RoutingInterceptorTests
     }
 
     [Theory]
-    [InlineData(true, true, HttpStatusCode.BadRequest)]
-    [InlineData(true, false, HttpStatusCode.InternalServerError)]
-    [InlineData(false, true, HttpStatusCode.InternalServerError)]
-    [InlineData(false, false, HttpStatusCode.InternalServerError)]
+    [InlineData(true, HttpStatusCode.BadRequest)]
+    [InlineData(false, HttpStatusCode.InternalServerError)]
     public async Task When_invoking_and_invalid_soap_exception_is_thrown_Then_routing_exception_is_thrown(
         bool isCdsRoute,
-        bool isCutover,
         HttpStatusCode expectedStatusCode
     )
     {
@@ -311,9 +303,6 @@ public class RoutingInterceptorTests
         var messageRoutes = Substitute.For<IMessageRoutes>();
         messageRoutes.IsCdsRoute("/some-route-path").Returns(isCdsRoute);
 
-        var featureManager = Substitute.For<IFeatureManager>();
-        featureManager.IsEnabledAsync(Features.Cutover).Returns(isCutover);
-
         var sut = new RoutingInterceptor(
             Substitute.For<RequestDelegate>(),
             Substitute.For<IMessageRouter>(),
@@ -321,8 +310,7 @@ public class RoutingInterceptorTests
             Substitute.For<IRequestMetrics>(),
             Substitute.For<ILogger>(),
             _messageLoggingOptions,
-            messageRoutes,
-            featureManager
+            messageRoutes
         );
 
         await Assert.ThrowsAsync<RoutingException>(() => sut.InvokeAsync(unparsableContext));

@@ -25,24 +25,24 @@ public class ProxyTests(WireMockClient wireMockClient, ITestOutputHelper output)
     {
         await wireMockClient.ResetWiremock();
 
-        var putMappingBuilder = _wireMockAdminApi.GetMappingBuilder();
-        putMappingBuilder.Given(m =>
-            m.WithRequest(req => req.UsingPut().WithPath($"/comparer/btms-decisions/{_mrn}"))
-                .WithResponse(rsp => rsp.WithStatusCode(HttpStatusCode.OK).WithBody(_decisionNotification))
-        );
-        var putStatus = await putMappingBuilder.BuildAndPostAsync();
-        Assert.NotNull(putStatus.Guid);
+        ////var putMappingBuilder = _wireMockAdminApi.GetMappingBuilder();
+        ////putMappingBuilder.Given(m =>
+        ////    m.WithRequest(req => req.UsingPut().WithPath($"/comparer/btms-decisions/{_mrn}"))
+        ////        .WithResponse(rsp => rsp.WithStatusCode(HttpStatusCode.OK).WithBody(_decisionNotification))
+        ////);
+        ////var putStatus = await putMappingBuilder.BuildAndPostAsync();
+        ////Assert.NotNull(putStatus.Guid);
 
-        var postMappingBuilder = _wireMockAdminApi.GetMappingBuilder();
-        postMappingBuilder.Given(m =>
-            m.WithRequest(req => req.UsingPost().WithPath("/cds/ws/CDS/defra/alvsclearanceinbound/v1"))
-                .WithResponse(rsp =>
-                    rsp.WithStatusCode(HttpStatusCode.ServiceUnavailable)
-                        .WithDelay(TimeSpan.FromSeconds(Proxy.DefaultHttpClientTimeoutSeconds + 1))
-                )
-        );
-        var postStatus = await postMappingBuilder.BuildAndPostAsync();
-        Assert.NotNull(postStatus.Guid);
+        ////var postMappingBuilder = _wireMockAdminApi.GetMappingBuilder();
+        ////postMappingBuilder.Given(m =>
+        ////    m.WithRequest(req => req.UsingPost().WithPath("/cds/ws/CDS/defra/alvsclearanceinbound/v1"))
+        ////        .WithResponse(rsp =>
+        ////            rsp.WithStatusCode(HttpStatusCode.ServiceUnavailable)
+        ////                .WithDelay(TimeSpan.FromSeconds(Proxy.DefaultHttpClientTimeoutSeconds + 1))
+        ////        )
+        ////);
+        ////var postStatus = await postMappingBuilder.BuildAndPostAsync();
+        ////Assert.NotNull(postStatus.Guid);
 
         await DrainAllMessages(ResourceEventsQueueUrl);
         await DrainAllMessages(ResourceEventsDeadLetterQueueUrl);

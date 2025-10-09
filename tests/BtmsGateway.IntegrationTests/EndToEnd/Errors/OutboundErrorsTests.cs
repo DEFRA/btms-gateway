@@ -10,7 +10,6 @@ namespace BtmsGateway.IntegrationTests.EndToEnd.Errors;
 [Collection("UsesWireMockClient")]
 public class OutboundErrorsTests(WireMockClient wireMockClient, ITestOutputHelper output) : SqsTestBase(output)
 {
-
     private readonly string _errorResourceEvent = FixtureTest.UsingContent(
         "CustomsDeclarationProcessingErrorResourceEvent.json"
     );

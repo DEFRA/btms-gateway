@@ -7,9 +7,7 @@ public class WireMockClient
 {
     public WireMockClient()
     {
-        WireMockAdminApi.ResetMappingsAsync().GetAwaiter().GetResult();
-        WireMockAdminApi.ResetRequestsAsync().GetAwaiter().GetResult();
-        WireMockAdminApi.ReloadStaticMappingsAsync().GetAwaiter().GetResult();
+        ResetWiremock().GetAwaiter().GetResult();
     }
 
     public IWireMockAdminApi WireMockAdminApi { get; } = RestClient.For<IWireMockAdminApi>("http://localhost:9090");

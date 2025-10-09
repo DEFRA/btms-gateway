@@ -1,12 +1,23 @@
-﻿namespace Testing;
+﻿// ReSharper disable MemberHidesStaticFromOuterClass
+namespace Testing;
 
 public static class Endpoints
 {
-    public static class AdminIntegration
+    public static class Redrive
     {
         private const string Root = "/admin";
 
-        public static string PostRedrive() => $"{Root}/redrive";
+        public static class DeadLetterQueue
+        {
+            private const string SubRoot = $"{Root}/dlq";
+
+            public static string Redrive() => $"{SubRoot}/redrive";
+
+            public static string RemoveMessage(string? messageId = null) =>
+                $"{SubRoot}/remove-message?messageId={messageId}";
+
+            public static string Drain() => $"{SubRoot}/drain";
+        }
     }
 
     public static class ClearanceRequests

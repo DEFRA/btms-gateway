@@ -20,18 +20,14 @@ public interface IErrorNotificationSender
 
 public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotificationSender
 {
-    private readonly Destination _btmsOutboundErrorsDestination;
     private readonly Destination _btmsToCdsDestination;
-    private readonly IApiSender _apiSender;
     private readonly ILogger _logger;
 
     public ErrorNotificationSender(RoutingConfig? routingConfig, IApiSender apiSender, ILogger logger)
         : base(apiSender, routingConfig, logger)
     {
-        _apiSender = apiSender;
         _logger = logger;
 
-        _btmsOutboundErrorsDestination = GetDestination(MessagingConstants.Destinations.BtmsOutboundErrors);
         _btmsToCdsDestination = GetDestination(MessagingConstants.Destinations.BtmsCds);
     }
 
@@ -46,7 +42,7 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
     )
     {
         _logger.Debug(
-            "{MessageCorrelationId} {MRN} Sending error notification from {MessageSource} to Decision Comparer.",
+            "{MessageCorrelationId} {MRN} Sending error notification from {MessageSource} to CDS.",
             correlationId,
             mrn,
             messageSource
@@ -54,26 +50,8 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
 
         if (string.IsNullOrWhiteSpace(errorNotification))
             throw new ArgumentException(
-                $"{mrn} Request to send an invalid error notification to Decision Comparer: {errorNotification}"
+                $"{mrn} Request to send an invalid error notification to CDS: {errorNotification}"
             );
-
-        var destinationConfig = messageSource switch
-        {
-            MessagingConstants.MessageSource.Btms => GetDestinationConfiguration(mrn, _btmsOutboundErrorsDestination),
-            _ => throw new ArgumentException(
-                $"{mrn} Received error notification from unexpected source {messageSource}."
-            ),
-        };
-
-        var comparerResponse = await _apiSender.SendToDecisionComparerAsync(
-            errorNotification,
-            destinationConfig.DestinationUrl,
-            destinationConfig.ContentType,
-            cancellationToken,
-            headers
-        );
-
-        CheckComparerResponse(comparerResponse, correlationId, mrn, "Error Notification");
 
         var cdsResponse = await ForwardErrorNotificationAsync(
             mrn,
@@ -83,14 +61,15 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
             cancellationToken
         );
 
+        var destination = string.Concat(_btmsToCdsDestination.Link, _btmsToCdsDestination.RoutePath);
         return routingResult with
         {
             RouteFound = true,
-            RouteLinkType = LinkType.DecisionComparerErrorNotifications,
-            ForkLinkType = LinkType.DecisionComparerErrorNotifications,
+            RouteLinkType = _btmsToCdsDestination.LinkType,
+            ForkLinkType = _btmsToCdsDestination.LinkType,
             RoutingSuccessful = true,
-            FullRouteLink = destinationConfig.DestinationUrl,
-            FullForkLink = destinationConfig.DestinationUrl,
+            FullRouteLink = destination,
+            FullForkLink = destination,
             StatusCode = cdsResponse?.StatusCode ?? HttpStatusCode.NoContent,
             ResponseContent = await GetResponseContentAsync(cdsResponse, cancellationToken),
         };
@@ -130,7 +109,7 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
                     response.ReasonPhrase,
                     await GetResponseContentAsync(response, cancellationToken)
                 );
-                throw new DecisionComparisonException($"{mrn} Failed to send error notification to CDS.");
+                throw new DecisionException($"{mrn} Failed to send error notification to CDS.");
             }
 
             _logger.Information(

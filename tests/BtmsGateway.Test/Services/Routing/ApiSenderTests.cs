@@ -113,23 +113,6 @@ public class ApiSenderTests
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
-    [Fact]
-    public async Task When_send_message_to_decision_comparer_Then_should_return_response()
-    {
-        var mocks = CreateMocks();
-        var sut = new ApiSender(mocks.Factory, mocks.ServiceProvider, mocks.Configuration);
-
-        var response = await sut.SendToDecisionComparerAsync(
-            "<decision />",
-            "http://trade-imports-decision-comparer-host",
-            "application/soap+xml",
-            cancellationToken: CancellationToken.None,
-            new HeaderDictionary { new KeyValuePair<string, StringValues>("x-cdp-request-id", "some-request-id") }
-        );
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-    }
-
     private static (
         HttpClientHandler Handler,
         IHttpClientFactory Factory,

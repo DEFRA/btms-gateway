@@ -99,11 +99,16 @@ services:
       Routing__NamedLinks__AlvsCds__Link: "http://wiremock/cds/"
       Routing__NamedLinks__AlvsIpaffs__Link: "http://wiremock/ipaffs/"
       Routing__Destinations__BtmsCds__Link: "http://cds-simulator:8080"
+      Routing__Destinations__BtmsDecisionComparer__Link: "http://wiremock/comparer"
+      Routing__Destinations__AlvsDecisionComparer__Link: "http://wiremock/comparer"
+      Routing__Destinations__BtmsOutboundErrors__Link: "http://wiremock/comparer"
+      Routing__Destinations__AlvsOutboundErrors__Link: "http://wiremock/comparer"
       HealthCheck__AutomatedHealthCheckDisabled: false
       HealthCheck__Urls__Stub__Url: "http://wiremock/stub/health"
       HealthCheck__Urls__IBM_ALVS__Url: "http://wiremock/alvs/health"
       HealthCheck__Urls__HMRC_CDS__Url: "http://cds-simulator:8080/health"
       HealthCheck__Urls__IPAFFS_Soap_Search__Url: "http://wiremock/ipaffs/health"
+      DecisionComparerApi__BaseAddress: "http://wiremock/comparer/"
       Acl__Clients__IntegrationTests__Secret: integration-tests-pwd
       Acl__Clients__IntegrationTests__Scopes__0: execute
       AwsSqsOptions__VisibilityTimeout: 5

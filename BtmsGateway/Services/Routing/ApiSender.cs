@@ -19,8 +19,7 @@ public interface IApiSender
     );
 }
 
-public class ApiSender(IHttpClientFactory clientFactory)
-    : IApiSender
+public class ApiSender(IHttpClientFactory clientFactory) : IApiSender
 {
     public async Task<RoutingResult> Send(RoutingResult routingResult, MessageData messageData, bool fork)
     {

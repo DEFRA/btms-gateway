@@ -104,7 +104,6 @@ services:
       HealthCheck__Urls__IBM_ALVS__Url: "http://wiremock/alvs/health"
       HealthCheck__Urls__HMRC_CDS__Url: "http://cds-simulator:8080/health"
       HealthCheck__Urls__IPAFFS_Soap_Search__Url: "http://wiremock/ipaffs/health"
-      DecisionComparerApi__BaseAddress: "http://wiremock/comparer/"
       Acl__Clients__IntegrationTests__Secret: integration-tests-pwd
       Acl__Clients__IntegrationTests__Scopes__0: execute
       AwsSqsOptions__VisibilityTimeout: 5

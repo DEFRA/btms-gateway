@@ -20,7 +20,7 @@ public class ApiSenderTests
         // Arrange
         var mocks = CreateMocks(HttpStatusCode.BadRequest);
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
-        var sut = new ApiSender(mocks.Factory, mocks.ServiceProvider, mocks.Configuration);
+        var sut = new ApiSender(mocks.Factory);
 
         // Act
         var response = await sut.Send(msgData.Routing, msgData.MessageData, fork: true);
@@ -36,7 +36,7 @@ public class ApiSenderTests
         // Arrange
         var mocks = CreateMocks();
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
-        var sut = new ApiSender(mocks.Factory, mocks.ServiceProvider, mocks.Configuration);
+        var sut = new ApiSender(mocks.Factory);
 
         // Act
         var response = await sut.Send(msgData.Routing, msgData.MessageData, fork: true);
@@ -52,7 +52,7 @@ public class ApiSenderTests
         // Arrange
         var mocks = CreateMocks(HttpStatusCode.BadRequest);
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
-        var sut = new ApiSender(mocks.Factory, mocks.ServiceProvider, mocks.Configuration);
+        var sut = new ApiSender(mocks.Factory);
 
         // Act
         var response = await sut.Send(msgData.Routing, msgData.MessageData, fork: false);
@@ -68,7 +68,7 @@ public class ApiSenderTests
         // Arrange
         var mocks = CreateMocks();
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
-        var sut = new ApiSender(mocks.Factory, mocks.ServiceProvider, mocks.Configuration);
+        var sut = new ApiSender(mocks.Factory);
 
         // Act
         var response = await sut.Send(msgData.Routing, msgData.MessageData, fork: false);
@@ -84,7 +84,7 @@ public class ApiSenderTests
         // Arrange
         var mocks = CreateMocks();
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
-        var sut = new ApiSender(mocks.Factory, mocks.ServiceProvider, mocks.Configuration);
+        var sut = new ApiSender(mocks.Factory);
 
         // Act
         var response = await sut.Send(msgData.Routing, msgData.MessageData, fork: false);
@@ -98,7 +98,7 @@ public class ApiSenderTests
     public async Task SendSoapMessageAsync_SendCorrectly_ReturnsOKResult()
     {
         var mocks = CreateMocks();
-        var sut = new ApiSender(mocks.Factory, mocks.ServiceProvider, mocks.Configuration);
+        var sut = new ApiSender(mocks.Factory);
 
         var response = await sut.SendSoapMessageAsync(
             "POST",

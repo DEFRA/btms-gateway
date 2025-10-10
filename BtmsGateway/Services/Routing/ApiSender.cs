@@ -19,14 +19,6 @@ public interface IApiSender
         string soapMessage,
         CancellationToken cancellationToken
     );
-
-    Task<HttpResponseMessage> SendToDecisionComparerAsync(
-        string messageContent,
-        string destinationUrl,
-        string contentType,
-        CancellationToken cancellationToken,
-        IHeaderDictionary? headers = null
-    );
 }
 
 public class ApiSender(IHttpClientFactory clientFactory, IServiceProvider serviceProvider, IConfiguration configuration)
@@ -96,24 +88,6 @@ public class ApiSender(IHttpClientFactory clientFactory, IServiceProvider servic
             request.Headers.TryAddWithoutValidation("host", hostHeader);
 
         request.Content = new StringContent(soapMessage, Encoding.UTF8, contentType);
-
-        return await client.SendAsync(request, cancellationToken);
-    }
-
-    public async Task<HttpResponseMessage> SendToDecisionComparerAsync(
-        string messageContent,
-        string destinationUrl,
-        string contentType,
-        CancellationToken cancellationToken,
-        IHeaderDictionary? headers = null
-    )
-    {
-        InitializeHeaderPropagationValues(headers);
-
-        var client = clientFactory.CreateClient(Proxy.DecisionComparerProxyClientWithRetry);
-
-        var request = new HttpRequestMessage(HttpMethod.Put, destinationUrl);
-        request.Content = new StringContent(messageContent, Encoding.UTF8, contentType);
 
         return await client.SendAsync(request, cancellationToken);
     }

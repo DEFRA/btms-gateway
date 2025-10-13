@@ -6,9 +6,9 @@ using BtmsGateway.Services.Converter;
 using BtmsGateway.Services.Routing;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
-using Serilog;
 
 namespace BtmsGateway.Test.Services.Routing;
 
@@ -111,7 +111,7 @@ public class QueueSenderTests
         mockSnsService
             .PublishAsync(Arg.Any<PublishRequest>())
             .ThrowsAsync(new InvalidSoapException("Test", new Exception("Inner Exception")));
-        var mockLogger = Substitute.For<ILogger>();
+        var mockLogger = NullLogger<QueueSender>.Instance;
         var msgData = await TestHelpers.CreateMessageData(mockLogger);
         var sut = new QueueSender(mockSnsService, config, mockLogger);
 
@@ -130,7 +130,7 @@ public class QueueSenderTests
         // Arrange
         var mockSnsService = Substitute.For<IAmazonSimpleNotificationService>();
         mockSnsService.PublishAsync(Arg.Any<PublishRequest>()).ThrowsAsync(new Exception("Test"));
-        var mockLogger = Substitute.For<ILogger>();
+        var mockLogger = NullLogger<QueueSender>.Instance;
         var msgData = await TestHelpers.CreateMessageData(mockLogger);
         var sut = new QueueSender(mockSnsService, config, mockLogger);
 
@@ -143,14 +143,15 @@ public class QueueSenderTests
         response.ResponseContent.Should().Contain(SoapUtils.FailedSoapRequestResponseBody);
     }
 
-    private static (IAmazonSimpleNotificationService SnsService, ILogger Logger) CreateMocks(
-        HttpStatusCode statusCode = HttpStatusCode.OK
-    )
+    private static (
+        IAmazonSimpleNotificationService SnsService,
+        Microsoft.Extensions.Logging.ILogger<QueueSender> Logger
+    ) CreateMocks(HttpStatusCode statusCode = HttpStatusCode.OK)
     {
         var snsService = Substitute.For<IAmazonSimpleNotificationService>();
         snsService.PublishAsync(Arg.Any<PublishRequest>()).Returns(new PublishResponse { HttpStatusCode = statusCode });
 
-        var logger = Substitute.For<ILogger>();
+        var logger = NullLogger<QueueSender>.Instance;
 
         return (snsService, logger);
     }

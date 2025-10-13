@@ -4,7 +4,6 @@ using BtmsGateway.Exceptions;
 using BtmsGateway.Middleware;
 using BtmsGateway.Services.Converter;
 using BtmsGateway.Utils;
-using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Services.Routing;
 
@@ -13,8 +12,11 @@ public interface IQueueSender
     Task<RoutingResult> Send(RoutingResult routingResult, MessageData messageData, string? route);
 }
 
-public class QueueSender(IAmazonSimpleNotificationService snsService, IConfiguration configuration, ILogger logger)
-    : IQueueSender
+public class QueueSender(
+    IAmazonSimpleNotificationService snsService,
+    IConfiguration configuration,
+    ILogger<QueueSender> logger
+) : IQueueSender
 {
     public async Task<RoutingResult> Send(RoutingResult routingResult, MessageData messageData, string? route)
     {
@@ -28,7 +30,7 @@ public class QueueSender(IAmazonSimpleNotificationService snsService, IConfigura
 
             if (response.HttpStatusCode.IsSuccessStatusCode())
             {
-                logger.Information(
+                logger.LogInformation(
                     "{ContentCorrelationId} {MessageReference} Successfully published MessageId: {MessageId}",
                     messageData.ContentMap.CorrelationId,
                     messageData.ContentMap.MessageReference,
@@ -43,7 +45,7 @@ public class QueueSender(IAmazonSimpleNotificationService snsService, IConfigura
                 };
             }
 
-            logger.Error(
+            logger.LogError(
                 "{ContentCorrelationId} {MessageReference} Failed to publish message to inbound topic",
                 messageData.ContentMap.CorrelationId,
                 messageData.ContentMap.MessageReference
@@ -53,7 +55,7 @@ public class QueueSender(IAmazonSimpleNotificationService snsService, IConfigura
         }
         catch (InvalidSoapException ex)
         {
-            logger.Warning(
+            logger.LogWarning(
                 ex,
                 "{ContentCorrelationId} {MessageReference} Invalid SOAP message",
                 messageData.ContentMap.CorrelationId,
@@ -63,7 +65,7 @@ public class QueueSender(IAmazonSimpleNotificationService snsService, IConfigura
         }
         catch (Exception ex)
         {
-            logger.Error(
+            logger.LogError(
                 ex,
                 "{ContentCorrelationId} {MessageReference} Failed to publish message to inbound topic",
                 messageData.ContentMap.CorrelationId,

@@ -2,7 +2,6 @@ using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using Amazon.CloudWatch.EMF.Model;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Services.Metrics;
 
@@ -16,7 +15,7 @@ public class HealthMetrics : IHealthMetrics
     private readonly ILogger _logger;
     private readonly Gauge<int> health;
 
-    public HealthMetrics(IMeterFactory meterFactory, ILogger logger)
+    public HealthMetrics(IMeterFactory meterFactory, ILogger<HealthMetrics> logger)
     {
         var meter = meterFactory.Create(MetricsConstants.MetricNames.MeterName);
 
@@ -34,11 +33,11 @@ public class HealthMetrics : IHealthMetrics
         try
         {
             health.Record((int)report.Status, BuildOverallTags());
-            _logger.Debug("Health Report for BTMS Gateway with Status {Status} recorded", (int)report.Status);
+            _logger.LogDebug("Health Report for BTMS Gateway with Status {Status} recorded", (int)report.Status);
         }
         catch (Exception ex)
         {
-            _logger.Error(ex, "Error attempting to record health for BTMS Gateway");
+            _logger.LogError(ex, "Error attempting to record health for BTMS Gateway");
         }
 
         foreach (var healthReportEntry in report.Entries)
@@ -46,7 +45,7 @@ public class HealthMetrics : IHealthMetrics
             try
             {
                 health.Record((int)healthReportEntry.Value.Status, BuildComponentTags(healthReportEntry));
-                _logger.Debug(
+                _logger.LogDebug(
                     "Health Report for {Component} with Status {Status} recorded",
                     healthReportEntry.Key,
                     (int)healthReportEntry.Value.Status
@@ -54,7 +53,7 @@ public class HealthMetrics : IHealthMetrics
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "Error attempting to record health for {Component}", healthReportEntry.Key);
+                _logger.LogError(ex, "Error attempting to record health for {Component}", healthReportEntry.Key);
             }
         }
     }

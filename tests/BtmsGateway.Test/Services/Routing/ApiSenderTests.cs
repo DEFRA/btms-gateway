@@ -3,12 +3,11 @@ using System.Reflection;
 using BtmsGateway.Services.Routing;
 using FluentAssertions;
 using Microsoft.AspNetCore.HeaderPropagation;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Primitives;
+using Microsoft.Extensions.Logging.Testing;
 using NSubstitute;
-using Serilog;
+using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace BtmsGateway.Test.Services.Routing;
 
@@ -20,7 +19,7 @@ public class ApiSenderTests
         // Arrange
         var mocks = CreateMocks(HttpStatusCode.BadRequest);
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
-        var sut = new ApiSender(mocks.Factory, mocks.ServiceProvider, mocks.Configuration);
+        var sut = new ApiSender(mocks.Factory);
 
         // Act
         var response = await sut.Send(msgData.Routing, msgData.MessageData, fork: true);
@@ -36,7 +35,7 @@ public class ApiSenderTests
         // Arrange
         var mocks = CreateMocks();
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
-        var sut = new ApiSender(mocks.Factory, mocks.ServiceProvider, mocks.Configuration);
+        var sut = new ApiSender(mocks.Factory);
 
         // Act
         var response = await sut.Send(msgData.Routing, msgData.MessageData, fork: true);
@@ -52,7 +51,7 @@ public class ApiSenderTests
         // Arrange
         var mocks = CreateMocks(HttpStatusCode.BadRequest);
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
-        var sut = new ApiSender(mocks.Factory, mocks.ServiceProvider, mocks.Configuration);
+        var sut = new ApiSender(mocks.Factory);
 
         // Act
         var response = await sut.Send(msgData.Routing, msgData.MessageData, fork: false);
@@ -68,7 +67,7 @@ public class ApiSenderTests
         // Arrange
         var mocks = CreateMocks();
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
-        var sut = new ApiSender(mocks.Factory, mocks.ServiceProvider, mocks.Configuration);
+        var sut = new ApiSender(mocks.Factory);
 
         // Act
         var response = await sut.Send(msgData.Routing, msgData.MessageData, fork: false);
@@ -84,7 +83,7 @@ public class ApiSenderTests
         // Arrange
         var mocks = CreateMocks();
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
-        var sut = new ApiSender(mocks.Factory, mocks.ServiceProvider, mocks.Configuration);
+        var sut = new ApiSender(mocks.Factory);
 
         // Act
         var response = await sut.Send(msgData.Routing, msgData.MessageData, fork: false);
@@ -98,7 +97,7 @@ public class ApiSenderTests
     public async Task SendSoapMessageAsync_SendCorrectly_ReturnsOKResult()
     {
         var mocks = CreateMocks();
-        var sut = new ApiSender(mocks.Factory, mocks.ServiceProvider, mocks.Configuration);
+        var sut = new ApiSender(mocks.Factory);
 
         var response = await sut.SendSoapMessageAsync(
             "POST",
@@ -108,23 +107,6 @@ public class ApiSenderTests
             new Dictionary<string, string> { { "foo", "bar" } },
             "soap message",
             CancellationToken.None
-        );
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-    }
-
-    [Fact]
-    public async Task When_send_message_to_decision_comparer_Then_should_return_response()
-    {
-        var mocks = CreateMocks();
-        var sut = new ApiSender(mocks.Factory, mocks.ServiceProvider, mocks.Configuration);
-
-        var response = await sut.SendToDecisionComparerAsync(
-            "<decision />",
-            "http://trade-imports-decision-comparer-host",
-            "application/soap+xml",
-            cancellationToken: CancellationToken.None,
-            new HeaderDictionary { new KeyValuePair<string, StringValues>("x-cdp-request-id", "some-request-id") }
         );
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -152,7 +134,7 @@ public class ApiSenderTests
         var mockFactory = Substitute.For<IHttpClientFactory>();
         mockFactory.CreateClient(Arg.Any<string>()).Returns(mockClient);
 
-        var logger = Substitute.For<ILogger>();
+        var logger = new FakeLogger();
 
         var headerPropagationValues = new HeaderPropagationValues();
 

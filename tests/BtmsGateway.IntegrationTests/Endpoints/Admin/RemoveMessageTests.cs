@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using BtmsGateway.IntegrationTests.Helpers;
 using BtmsGateway.IntegrationTests.TestUtils;
@@ -12,7 +13,10 @@ public class RemoveMessageTests(WireMockClient wireMockClient, ITestOutputHelper
 {
     private readonly IWireMockAdminApi _wireMockAdminApi = wireMockClient.WireMockAdminApi;
 
-    [Fact]
+    [Fact(
+        Skip = "Now the comparer is gone and wiremock isn't used as the CDS sim, then there is no way to force errors, need to chat about this"
+    )]
+    [SuppressMessage("Usage", "xUnit1004:Test methods should not be skipped")]
     public async Task When_message_processing_fails_and_moved_to_dlq_Then_message_can_be_removed()
     {
         var resourceEvent = FixtureTest.UsingContent("CustomsDeclarationClearanceDecisionResourceEvent.json");

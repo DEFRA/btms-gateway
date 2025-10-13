@@ -4,6 +4,7 @@ using Amazon.SimpleNotificationService.Model;
 using BtmsGateway.Services.Health;
 using FluentAssertions;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using Serilog;
@@ -21,7 +22,7 @@ public class TopicHealthCheckTests
     {
         _snsClient = Substitute.For<IAmazonSimpleNotificationService>();
 
-        _topicHealthCheck = new TopicHealthCheck("test", "test-arn", _snsClient, Substitute.For<ILogger>());
+        _topicHealthCheck = new TopicHealthCheck("test", "test-arn", _snsClient, NullLogger<TopicHealthCheck>.Instance);
     }
 
     [Theory]

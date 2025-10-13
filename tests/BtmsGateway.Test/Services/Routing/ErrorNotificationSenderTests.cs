@@ -4,8 +4,9 @@ using BtmsGateway.Exceptions;
 using BtmsGateway.Services.Routing;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
-using Serilog;
 
 namespace BtmsGateway.Test.Services.Routing;
 
@@ -13,7 +14,7 @@ public class ErrorNotificationSenderTests
 {
     private RoutingConfig _routingConfig;
     private readonly IApiSender _apiSender = Substitute.For<IApiSender>();
-    private readonly ILogger _logger = Substitute.For<ILogger>();
+    private readonly ILogger<ErrorNotificationSender> _logger = NullLogger<ErrorNotificationSender>.Instance;
     private readonly ErrorNotificationSender _errorNotificationSender;
 
     public ErrorNotificationSenderTests()
@@ -24,16 +25,6 @@ public class ErrorNotificationSenderTests
             NamedLinks = new Dictionary<string, NamedLink>(),
             Destinations = new Dictionary<string, Destination>
             {
-                {
-                    MessagingConstants.Destinations.BtmsOutboundErrors,
-                    new Destination
-                    {
-                        LinkType = LinkType.Url,
-                        Link = "http://decision-comparer-url",
-                        RoutePath = "/btms-outbound-errors/",
-                        ContentType = "application/soap+xml",
-                    }
-                },
                 {
                     MessagingConstants.Destinations.BtmsCds,
                     new Destination
@@ -46,15 +37,6 @@ public class ErrorNotificationSenderTests
                 },
             },
         };
-
-        _apiSender
-            .SendToDecisionComparerAsync(
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<CancellationToken>()
-            )
-            .Returns(new HttpResponseMessage(HttpStatusCode.OK));
 
         _apiSender
             .SendSoapMessageAsync(
@@ -84,15 +66,6 @@ public class ErrorNotificationSenderTests
 
         await _apiSender
             .Received(1)
-            .SendToDecisionComparerAsync(
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<CancellationToken>()
-            );
-
-        await _apiSender
-            .Received(1)
             .SendSoapMessageAsync(
                 Arg.Any<string>(),
                 Arg.Any<string>(),
@@ -110,43 +83,15 @@ public class ErrorNotificationSenderTests
                 new RoutingResult
                 {
                     RouteFound = true,
-                    RouteLinkType = LinkType.DecisionComparerErrorNotifications,
-                    ForkLinkType = LinkType.DecisionComparerErrorNotifications,
+                    RouteLinkType = LinkType.Url,
+                    ForkLinkType = LinkType.Url,
                     RoutingSuccessful = true,
-                    FullRouteLink = "http://decision-comparer-url/btms-outbound-errors/mrn-123",
-                    FullForkLink = "http://decision-comparer-url/btms-outbound-errors/mrn-123",
+                    FullRouteLink = "http://cds-url/ws/CDS/defra/alvsclearanceinbound/v1",
+                    FullForkLink = "http://cds-url/ws/CDS/defra/alvsclearanceinbound/v1",
                     StatusCode = HttpStatusCode.NoContent,
                     ResponseContent = string.Empty,
                 }
             );
-    }
-
-    [Fact]
-    public void When_btms_to_decision_comparer_config_has_not_been_set_Then_exception_is_thrown()
-    {
-        _routingConfig = new RoutingConfig
-        {
-            NamedRoutes = new Dictionary<string, NamedRoute>(),
-            NamedLinks = new Dictionary<string, NamedLink>(),
-            Destinations = new Dictionary<string, Destination>
-            {
-                {
-                    MessagingConstants.Destinations.BtmsCds,
-                    new Destination
-                    {
-                        LinkType = LinkType.Url,
-                        Link = "http://cds-url",
-                        RoutePath = "/ws/CDS/defra/alvsclearanceinbound/v1",
-                        ContentType = "application/soap+xml",
-                    }
-                },
-            },
-        };
-
-        var thrownException = Assert.Throws<ArgumentException>(() =>
-            new ErrorNotificationSender(_routingConfig, _apiSender, _logger)
-        );
-        thrownException.Message.Should().Be("Destination configuration could not be found for BtmsOutboundErrors.");
     }
 
     [Fact]
@@ -156,19 +101,7 @@ public class ErrorNotificationSenderTests
         {
             NamedRoutes = new Dictionary<string, NamedRoute>(),
             NamedLinks = new Dictionary<string, NamedLink>(),
-            Destinations = new Dictionary<string, Destination>
-            {
-                {
-                    MessagingConstants.Destinations.BtmsOutboundErrors,
-                    new Destination
-                    {
-                        LinkType = LinkType.Url,
-                        Link = "http://decision-comparer-url",
-                        RoutePath = "/btms-outbound-errors/",
-                        ContentType = "application/soap+xml",
-                    }
-                },
-            },
+            Destinations = new Dictionary<string, Destination>(),
         };
 
         var thrownException = Assert.Throws<ArgumentException>(() =>
@@ -190,105 +123,7 @@ public class ErrorNotificationSenderTests
             )
         );
 
-        thrownException
-            .Message.Should()
-            .Be("mrn-123 Request to send an invalid error notification to Decision Comparer: ");
-    }
-
-    [Fact]
-    public async Task When_sending_error_notification_and_comparer_returns_unsuccessful_status_response_Then_exception_is_thrown()
-    {
-        var comparerResponse = new HttpResponseMessage(HttpStatusCode.BadRequest);
-
-        _apiSender
-            .SendToDecisionComparerAsync(
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<CancellationToken>(),
-                Arg.Any<IHeaderDictionary>()
-            )
-            .Returns(comparerResponse);
-
-        var thrownException = await Assert.ThrowsAsync<DecisionComparisonException>(() =>
-            _errorNotificationSender.SendErrorNotificationAsync(
-                "mrn-123",
-                "<HMRCErrorNotification />",
-                MessagingConstants.MessageSource.Btms,
-                new RoutingResult(),
-                cancellationToken: CancellationToken.None
-            )
-        );
-        thrownException.Message.Should().Be("mrn-123 Failed to send Error Notification to Decision Comparer.");
-
-        _logger
-            .Received(1)
-            .Error(
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<HttpStatusCode>(),
-                Arg.Any<string>()
-            );
-        _logger
-            .DidNotReceiveWithAnyArgs()
-            .Warning(
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<HttpStatusCode>(),
-                Arg.Any<string>()
-            );
-    }
-
-    [Fact]
-    public async Task When_sending_error_notification_and_comparer_returns_conflict_status_response_Then_exception_is_thrown()
-    {
-        var comparerResponse = new HttpResponseMessage(HttpStatusCode.Conflict);
-
-        _apiSender
-            .SendToDecisionComparerAsync(
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<CancellationToken>(),
-                Arg.Any<IHeaderDictionary>()
-            )
-            .Returns(comparerResponse);
-
-        var thrownException = await Assert.ThrowsAsync<ConflictException>(() =>
-            _errorNotificationSender.SendErrorNotificationAsync(
-                "mrn-123",
-                "<HMRCErrorNotification />",
-                MessagingConstants.MessageSource.Btms,
-                new RoutingResult(),
-                cancellationToken: CancellationToken.None
-            )
-        );
-        thrownException.Message.Should().Be("mrn-123 Failed to send Error Notification to Decision Comparer.");
-
-        _logger
-            .Received(1)
-            .Warning(
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<HttpStatusCode>(),
-                Arg.Any<string>()
-            );
-        _logger
-            .DidNotReceiveWithAnyArgs()
-            .Error(
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<HttpStatusCode>(),
-                Arg.Any<string>()
-            );
+        thrownException.Message.Should().Be("mrn-123 Request to send an invalid error notification to CDS: ");
     }
 
     [Fact]
@@ -308,7 +143,7 @@ public class ErrorNotificationSenderTests
             )
             .Returns(cdsResponse);
 
-        var thrownException = await Assert.ThrowsAsync<DecisionComparisonException>(() =>
+        var thrownException = await Assert.ThrowsAsync<DecisionException>(() =>
             _errorNotificationSender.SendErrorNotificationAsync(
                 "mrn-123",
                 "<HMRCErrorNotification />",

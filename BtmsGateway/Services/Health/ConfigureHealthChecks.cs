@@ -20,14 +20,12 @@ public static class ConfigureHealthChecks
     )
     {
         var awsSqsOptions = builder.Services.GetOptions<AwsSqsOptions>();
-        var decisionComparerApiOptions = builder.Services.GetOptions<DecisionComparerApiOptions>();
 
         builder
             .Services.AddHealthChecks()
             .AddNetworkChecks(healthCheckConfig)
             .AddTopicChecks(routingConfig)
-            .AddQueueChecks(awsSqsOptions, builder.Configuration)
-            .AddApiChecks(decisionComparerApiOptions);
+            .AddQueueChecks(awsSqsOptions, builder.Configuration);
         builder.Services.Configure<HealthCheckPublisherOptions>(options =>
         {
             options.Delay = TimeSpan.FromSeconds(30);
@@ -90,23 +88,6 @@ public static class ConfigureHealthChecks
             failureStatus: HealthStatus.Unhealthy,
             args: [name, awsSqsOptions.ResourceEventsQueueName, configuration]
         );
-
-        return builder;
-    }
-
-    private static IHealthChecksBuilder AddApiChecks(
-        this IHealthChecksBuilder builder,
-        DecisionComparerApiOptions? decisionComparerApiOptions
-    )
-    {
-        if (decisionComparerApiOptions is not null && !string.IsNullOrEmpty(decisionComparerApiOptions.BaseAddress))
-        {
-            builder.AddTypeActivatedCheck<ApiHealthCheck<DecisionComparerApiOptions>>(
-                "TradeImportsDecisionComparerApi",
-                failureStatus: HealthStatus.Unhealthy,
-                args: ["DecisionComparerApi", "health/authorized", decisionComparerApiOptions]
-            );
-        }
 
         return builder;
     }

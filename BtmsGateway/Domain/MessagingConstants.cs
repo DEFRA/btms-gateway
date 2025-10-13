@@ -48,7 +48,5 @@ public static class MessagingConstants
     public static class Destinations
     {
         public const string BtmsCds = "BtmsCds";
-        public const string BtmsDecisionComparer = "BtmsDecisionComparer";
-        public const string BtmsOutboundErrors = "BtmsOutboundErrors";
     }
 }

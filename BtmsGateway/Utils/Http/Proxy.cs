@@ -96,34 +96,6 @@ public static class Proxy
     }
 
     [ExcludeFromCodeCoverage]
-    public static IHttpClientBuilder AddDecisionComparerHttpProxyClientWithRetry(
-        this IServiceCollection services,
-        int httpClientTimeoutInSeconds
-    )
-    {
-        services
-            .AddOptions<DecisionComparerApiOptions>()
-            .BindConfiguration(DecisionComparerApiOptions.SectionName)
-            .ValidateDataAnnotations();
-
-        var clientBuilder = services
-            .AddHttpClient(DecisionComparerProxyClientWithRetry)
-            .ConfigurePrimaryHttpMessageHandler(ConfigurePrimaryHttpMessageHandler)
-            .ConfigureHttpClient(
-                (sp, c) => sp.GetRequiredService<IOptions<DecisionComparerApiOptions>>().Value.Configure(c)
-            )
-            .AddHeaderPropagation();
-
-        clientBuilder.AddStandardResilienceHandler(o =>
-        {
-            o.Retry.DisableFor(HttpMethod.Delete, HttpMethod.Post, HttpMethod.Connect, HttpMethod.Patch);
-            o.AttemptTimeout.Timeout = TimeSpan.FromSeconds(httpClientTimeoutInSeconds);
-        });
-
-        return clientBuilder;
-    }
-
-    [ExcludeFromCodeCoverage]
     private static HttpClientHandler ConfigurePrimaryHttpMessageHandler()
     {
         var proxyUri = Environment.GetEnvironmentVariable("CDP_HTTPS_PROXY");

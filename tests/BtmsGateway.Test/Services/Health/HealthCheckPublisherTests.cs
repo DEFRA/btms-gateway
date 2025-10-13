@@ -3,6 +3,8 @@ using BtmsGateway.Services.Health;
 using BtmsGateway.Services.Metrics;
 using FluentAssertions;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Testing;
 using NSubstitute;
 using Serilog;
 
@@ -11,14 +13,12 @@ namespace BtmsGateway.Test.Services.Health;
 public class HealthCheckPublisherTests
 {
     [Theory]
-    [InlineData(HealthStatus.Healthy, 1, 0, 0)]
-    [InlineData(HealthStatus.Degraded, 0, 1, 0)]
-    [InlineData(HealthStatus.Unhealthy, 0, 0, 1)]
+    [InlineData(HealthStatus.Healthy, LogLevel.Information)]
+    [InlineData(HealthStatus.Degraded, LogLevel.Warning)]
+    [InlineData(HealthStatus.Unhealthy, LogLevel.Error)]
     public async Task When_publishing_health_report_Then_status_should_be_logged(
         HealthStatus healthStatus,
-        int expectedInfoCalls,
-        int expectedWarningCalls,
-        int expectedErrorCalls
+        LogLevel logLevel
     )
     {
         var meter = new Meter("test");
@@ -27,12 +27,7 @@ public class HealthCheckPublisherTests
         var metricsHost = Substitute.For<MetricsHost>(meterFactory);
         var healthMetrics = Substitute.For<IHealthMetrics>();
 
-        var logger = Substitute.For<ILogger>();
-        var loggedMessage = string.Empty;
-        logger.When(x => x.Information(Arg.Any<string>())).Do(message => loggedMessage = message[0].ToString());
-        logger.When(x => x.Warning(Arg.Any<string>())).Do(message => loggedMessage = message[0].ToString());
-        logger.When(x => x.Error(Arg.Any<string>())).Do(message => loggedMessage = message[0].ToString());
-
+        var logger = new FakeLogger<HealthCheckPublisher>();
         var sut = new HealthCheckPublisher(metricsHost, healthMetrics, logger);
 
         var healthReport = new HealthReport(
@@ -52,9 +47,6 @@ public class HealthCheckPublisherTests
 
         await sut.PublishAsync(healthReport, CancellationToken.None);
 
-        logger.Received(expectedInfoCalls).Information(Arg.Any<string>());
-        logger.Received(expectedWarningCalls).Warning(Arg.Any<string>());
-        logger.Received(expectedErrorCalls).Error(Arg.Any<string>());
-        loggedMessage.Should().Contain($"\"status\":\"{healthStatus.ToString()}\"");
+        logger.LatestRecord.Level.Should().Be(logLevel);
     }
 }

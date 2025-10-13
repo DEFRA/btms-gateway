@@ -8,6 +8,7 @@ using BtmsGateway.Services.Metrics;
 using BtmsGateway.Services.Routing;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using NSubstitute;
@@ -66,7 +67,7 @@ public class RoutingInterceptorTests
             messageRouter,
             metricsHost,
             Substitute.For<IRequestMetrics>(),
-            Substitute.For<ILogger>(),
+            NullLogger<RoutingInterceptor>.Instance,
             _messageLoggingOptions,
             Substitute.For<IMessageRoutes>()
         );
@@ -138,7 +139,7 @@ public class RoutingInterceptorTests
             messageRouter,
             metricsHost,
             requestMetric,
-            Substitute.For<ILogger>(),
+            NullLogger<RoutingInterceptor>.Instance,
             _messageLoggingOptions,
             Substitute.For<IMessageRoutes>()
         );
@@ -233,7 +234,7 @@ public class RoutingInterceptorTests
             messageRouter,
             metricsHost,
             requestMetric,
-            Substitute.For<ILogger>(),
+            NullLogger<RoutingInterceptor>.Instance,
             _messageLoggingOptions,
             Substitute.For<IMessageRoutes>()
         );
@@ -308,7 +309,7 @@ public class RoutingInterceptorTests
             Substitute.For<IMessageRouter>(),
             metricsHost,
             Substitute.For<IRequestMetrics>(),
-            Substitute.For<ILogger>(),
+            NullLogger<RoutingInterceptor>.Instance,
             _messageLoggingOptions,
             messageRoutes
         );

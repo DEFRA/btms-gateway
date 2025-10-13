@@ -3,7 +3,6 @@ using BtmsGateway.Domain;
 using BtmsGateway.Exceptions;
 using BtmsGateway.Middleware;
 using BtmsGateway.Services.Converter;
-using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Services.Routing;
 
@@ -11,7 +10,7 @@ public interface IDecisionSender
 {
     Task<RoutingResult> SendDecisionAsync(
         string? mrn,
-        string? decision,
+        string decision,
         MessagingConstants.MessageSource messageSource,
         RoutingResult routingResult,
         IHeaderDictionary? headers = null,
@@ -22,24 +21,20 @@ public interface IDecisionSender
 
 public class DecisionSender : SoapMessageSenderBase, IDecisionSender
 {
-    private readonly IApiSender _apiSender;
     private readonly ILogger _logger;
-    private readonly Destination _btmsDecisionsComparerDestination;
     private readonly Destination _btmsToCdsDestination;
 
-    public DecisionSender(RoutingConfig? routingConfig, IApiSender apiSender, ILogger logger)
+    public DecisionSender(RoutingConfig? routingConfig, IApiSender apiSender, ILogger<DecisionSender> logger)
         : base(apiSender, routingConfig, logger)
     {
-        _apiSender = apiSender;
         _logger = logger;
 
-        _btmsDecisionsComparerDestination = GetDestination(MessagingConstants.Destinations.BtmsDecisionComparer);
         _btmsToCdsDestination = GetDestination(MessagingConstants.Destinations.BtmsCds);
     }
 
     public async Task<RoutingResult> SendDecisionAsync(
         string? mrn,
-        string? decision,
+        string decision,
         MessagingConstants.MessageSource messageSource,
         RoutingResult routingResult,
         IHeaderDictionary? headers = null,
@@ -47,51 +42,18 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
         CancellationToken cancellationToken = default
     )
     {
-        _logger.Debug(
-            "{MessageCorrelationId} {MRN} Sending decision from {MessageSource} to Decision Comparer.",
-            correlationId,
-            mrn,
-            messageSource
-        );
+        var cdsResponse = await ForwardDecisionAsync(mrn, messageSource, decision, correlationId, cancellationToken);
 
-        if (string.IsNullOrWhiteSpace(decision))
-            throw new ArgumentException($"{mrn} Request to send an invalid decision to Decision Comparer: {decision}");
-
-        var destinationConfig = messageSource switch
-        {
-            MessagingConstants.MessageSource.Btms => GetDestinationConfiguration(
-                mrn,
-                _btmsDecisionsComparerDestination
-            ),
-            _ => throw new ArgumentException($"{mrn} Received decision from unexpected source {messageSource}."),
-        };
-
-        var comparerResponse = await _apiSender.SendToDecisionComparerAsync(
-            decision,
-            destinationConfig.DestinationUrl,
-            destinationConfig.ContentType,
-            cancellationToken,
-            headers
-        );
-
-        CheckComparerResponse(comparerResponse, correlationId, mrn, "Decision");
-
-        var cdsResponse = await ForwardDecisionAsync(
-            mrn,
-            messageSource,
-            comparerResponse,
-            correlationId,
-            cancellationToken
-        );
+        var destination = string.Concat(_btmsToCdsDestination.Link, _btmsToCdsDestination.RoutePath);
 
         return routingResult with
         {
             RouteFound = true,
-            RouteLinkType = LinkType.DecisionComparer,
-            ForkLinkType = LinkType.DecisionComparer,
+            RouteLinkType = _btmsToCdsDestination.LinkType,
+            ForkLinkType = _btmsToCdsDestination.LinkType,
             RoutingSuccessful = true,
-            FullRouteLink = destinationConfig.DestinationUrl,
-            FullForkLink = destinationConfig.DestinationUrl,
+            FullRouteLink = destination,
+            FullForkLink = destination,
             StatusCode = cdsResponse?.StatusCode ?? HttpStatusCode.NoContent,
             ResponseContent = await GetResponseContentAsync(cdsResponse, cancellationToken),
         };
@@ -100,44 +62,34 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
     private async Task<HttpResponseMessage?> ForwardDecisionAsync(
         string? mrn,
         MessagingConstants.MessageSource messageSource,
-        HttpResponseMessage? comparerResponse,
+        string decision,
         string? correlationId,
         CancellationToken cancellationToken
     )
     {
         if (messageSource == MessagingConstants.MessageSource.Btms)
         {
-            _logger.Debug(
-                "{MessageCorrelationId} {MRN} Sending Decision received from Decision Comparer to CDS.",
-                correlationId,
-                mrn
-            );
+            _logger.LogDebug("{MessageCorrelationId} {MRN} Sending Decision to CDS.", correlationId, mrn);
 
-            var comparerDecision = await GetResponseContentAsync(comparerResponse, cancellationToken);
-
-            if (string.IsNullOrWhiteSpace(comparerDecision))
+            if (string.IsNullOrWhiteSpace(decision))
             {
-                _logger.Error(
-                    "{MessageCorrelationId} {MRN} Decision Comparer returned an invalid decision",
-                    correlationId,
-                    mrn
-                );
-                throw new DecisionComparisonException($"{mrn} Decision Comparer returned an invalid decision.");
+                _logger.LogError("{MessageCorrelationId} {MRN} Decision invalid", correlationId, mrn);
+                throw new DecisionException($"{mrn} Decision invalid.");
             }
 
             var response = await SendCdsFormattedSoapMessageAsync(
-                comparerDecision,
+                decision,
                 correlationId,
                 _btmsToCdsDestination,
                 cancellationToken
             );
 
-            var soapContent = new SoapContent(comparerDecision);
+            var soapContent = new SoapContent(decision);
             var contentMap = new ContentMap(soapContent);
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.Error(
+                _logger.LogError(
                     "{MessageCorrelationId} {MRN} Failed to send Decision to CDS. CDS Response Status Code: {StatusCode}, Reason: {Reason}, Content: {Content}",
                     contentMap.CorrelationId,
                     mrn,
@@ -145,10 +97,10 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
                     response.ReasonPhrase,
                     await GetResponseContentAsync(response, cancellationToken)
                 );
-                throw new DecisionComparisonException($"{mrn} Failed to send Decision to CDS.");
+                throw new DecisionException($"{mrn} Failed to send Decision to CDS.");
             }
 
-            _logger.Information(
+            _logger.LogInformation(
                 "{MessageCorrelationId} {MRN} Successfully sent Decision to CDS.",
                 contentMap.CorrelationId,
                 mrn
@@ -156,9 +108,15 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
 
             return response;
         }
+        else
+        {
+            _logger.LogInformation(
+                "{MessageCorrelationId} {MRN} Successfully sent Decision to NOOP.",
+                correlationId,
+                mrn
+            );
 
-        _logger.Information("{MessageCorrelationId} {MRN} Successfully sent Decision to NOOP.", correlationId, mrn);
-
-        return null;
+            throw new DecisionException($"{mrn} Received decision from unexpected source None.");
+        }
     }
 }

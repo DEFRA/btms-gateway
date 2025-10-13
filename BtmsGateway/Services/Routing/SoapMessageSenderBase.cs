@@ -1,7 +1,4 @@
 using System.Net;
-using BtmsGateway.Exceptions;
-using BtmsGateway.Utils;
-using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Services.Routing;
 
@@ -16,7 +13,7 @@ public abstract class SoapMessageSenderBase(IApiSender apiSender, RoutingConfig?
 
         if ((!routingConfig?.Destinations.TryGetValue(destinationKey, out destination) ?? false) || destination is null)
         {
-            logger.Error(
+            logger.LogError(
                 "Destination configuration could not be found for {DestinationKey}. Please confirm application configuration contains the Destination configuration.",
                 destinationKey
             );
@@ -70,39 +67,5 @@ public abstract class SoapMessageSenderBase(IApiSender apiSender, RoutingConfig?
             return await response.Content.ReadAsStringAsync(cancellationToken);
 
         return string.Empty;
-    }
-
-    protected void CheckComparerResponse(
-        HttpResponseMessage comparerResponse,
-        string? correlationId,
-        string? mrn,
-        string messageType
-    )
-    {
-        if (comparerResponse.StatusCode == HttpStatusCode.Conflict)
-        {
-            logger.Warning(
-                "{MessageCorrelationId} {MRN} Failed to send {MessageType} to Decision Comparer: Status Code: {ComparerResponseStatusCode}, Reason: {ComparerResponseReason}.",
-                correlationId,
-                mrn,
-                messageType,
-                comparerResponse.StatusCode,
-                comparerResponse.ReasonPhrase
-            );
-            throw new ConflictException($"{mrn} Failed to send {messageType} to Decision Comparer.");
-        }
-
-        if (!comparerResponse.StatusCode.IsSuccessStatusCode())
-        {
-            logger.Error(
-                "{MessageCorrelationId} {MRN} Failed to send {MessageType} to Decision Comparer: Status Code: {ComparerResponseStatusCode}, Reason: {ComparerResponseReason}.",
-                correlationId,
-                mrn,
-                messageType,
-                comparerResponse.StatusCode,
-                comparerResponse.ReasonPhrase
-            );
-            throw new DecisionComparisonException($"{mrn} Failed to send {messageType} to Decision Comparer.");
-        }
     }
 }

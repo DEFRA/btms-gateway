@@ -113,8 +113,6 @@ public enum LinkType
     None,
     Url,
     Queue,
-    DecisionComparer,
-    DecisionComparerErrorNotifications,
     AlvsIpaffsSuccess,
 }
 

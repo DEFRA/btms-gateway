@@ -35,11 +35,6 @@ public class HealthCheckPublisher(
             case HealthStatus.Unhealthy:
                 logger.LogError(healthStatusAsJson);
                 break;
-            default:
-                logger.LogError(
-                    $"{{\"status\":\"Invalid\",\"description\":\"Invalid health status '{report.Status}'\"}}"
-                );
-                break;
         }
 
         if (report.Status != HealthStatus.Healthy)

@@ -2,6 +2,7 @@ using BtmsGateway.Exceptions;
 using BtmsGateway.Services.Converter;
 using BtmsGateway.Services.Routing;
 using FluentAssertions;
+using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using Serilog;
 
@@ -15,7 +16,7 @@ public class MessageRoutesTests
     [Fact]
     public void When_routing_route_1_Then_should_route_correctly()
     {
-        var messageRoutes = new MessageRoutes(TestRoutes.RoutingConfig, Substitute.For<ILogger>());
+        var messageRoutes = new MessageRoutes(TestRoutes.RoutingConfig, NullLogger<MessageRoutes>.Instance);
 
         var route = messageRoutes.GetRoute(
             "/route/path-1/sub/path/",
@@ -42,7 +43,7 @@ public class MessageRoutesTests
     [Fact]
     public void When_routing_route_2_Then_should_route_correctly()
     {
-        var messageRoutes = new MessageRoutes(TestRoutes.RoutingConfig, Substitute.For<ILogger>());
+        var messageRoutes = new MessageRoutes(TestRoutes.RoutingConfig, NullLogger<MessageRoutes>.Instance);
 
         var route = messageRoutes.GetRoute(
             "/route/path-2/sub/path/",
@@ -68,7 +69,7 @@ public class MessageRoutesTests
     [Fact]
     public void When_routing_route_3_Then_should_route_correctly()
     {
-        var messageRoutes = new MessageRoutes(TestRoutes.RoutingConfig, Substitute.For<ILogger>());
+        var messageRoutes = new MessageRoutes(TestRoutes.RoutingConfig, NullLogger<MessageRoutes>.Instance);
 
         var route = messageRoutes.GetRoute(
             "/route/path-3/sub/path/",
@@ -94,7 +95,7 @@ public class MessageRoutesTests
     [Fact]
     public void When_routing_route_4_Then_should_route_correctly()
     {
-        var messageRoutes = new MessageRoutes(TestRoutes.RoutingConfig, Substitute.For<ILogger>());
+        var messageRoutes = new MessageRoutes(TestRoutes.RoutingConfig, NullLogger<MessageRoutes>.Instance);
 
         var route = messageRoutes.GetRoute(
             "/route/path-4/sub/path/",
@@ -120,7 +121,7 @@ public class MessageRoutesTests
     [Fact]
     public void When_routing_unrecognised_route_Then_should_fail()
     {
-        var messageRoutes = new MessageRoutes(TestRoutes.RoutingConfig, Substitute.For<ILogger>());
+        var messageRoutes = new MessageRoutes(TestRoutes.RoutingConfig, NullLogger<MessageRoutes>.Instance);
 
         var route = messageRoutes.GetRoute(
             "/route-99/sub/path/",
@@ -141,7 +142,7 @@ public class MessageRoutesTests
     [Fact]
     public void When_routing_with_invalid_url_Then_should_fail()
     {
-        var act = () => new MessageRoutes(TestRoutes.InvalidUrlConfig, Substitute.For<ILogger>());
+        var act = () => new MessageRoutes(TestRoutes.InvalidUrlConfig, NullLogger<MessageRoutes>.Instance);
 
         act.Should()
             .Throw<RoutingException>()
@@ -153,7 +154,7 @@ public class MessageRoutesTests
     [Fact]
     public void When_routing_with_invalid_route_to_Then_should_fail()
     {
-        var act = () => new MessageRoutes(TestRoutes.InvalidRouteToConfig, Substitute.For<ILogger>());
+        var act = () => new MessageRoutes(TestRoutes.InvalidRouteToConfig, NullLogger<MessageRoutes>.Instance);
 
         act.Should()
             .Throw<RoutingException>()
@@ -165,7 +166,7 @@ public class MessageRoutesTests
     [Fact]
     public void When_routing_with_invalid_link_type_Then_should_fail()
     {
-        var act = () => new MessageRoutes(TestRoutes.InvalidLinkTypeConfig, Substitute.For<ILogger>());
+        var act = () => new MessageRoutes(TestRoutes.InvalidLinkTypeConfig, NullLogger<MessageRoutes>.Instance);
 
         var thrownException = act.Should()
             .Throw<RoutingException>()
@@ -181,7 +182,7 @@ public class MessageRoutesTests
     [InlineData("/foo/", false)]
     public void When_checking_for_cds_route_Then_should_return_expected(string routePath, bool expectedResult)
     {
-        var messageRoutes = new MessageRoutes(TestRoutes.CdsDefinedRoutes, Substitute.For<ILogger>());
+        var messageRoutes = new MessageRoutes(TestRoutes.CdsDefinedRoutes, NullLogger<MessageRoutes>.Instance);
 
         messageRoutes.IsCdsRoute(routePath).Should().Be(expectedResult);
     }

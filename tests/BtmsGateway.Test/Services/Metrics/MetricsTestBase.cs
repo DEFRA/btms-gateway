@@ -22,10 +22,10 @@ public abstract class MetricsTestBase
     {
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddMetrics();
+        serviceCollection.AddLogging();
         serviceCollection.AddSingleton<IRequestMetrics, RequestMetrics>();
         serviceCollection.AddSingleton<IConsumerMetrics, ConsumerMetrics>();
         serviceCollection.AddSingleton<IHealthMetrics, HealthMetrics>();
-        serviceCollection.AddSingleton(Substitute.For<ILogger>());
         return serviceCollection.BuildServiceProvider();
     }
 

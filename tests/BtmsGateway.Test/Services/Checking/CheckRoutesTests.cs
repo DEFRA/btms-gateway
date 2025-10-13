@@ -2,9 +2,10 @@ using System.Net;
 using BtmsGateway.Services.Checking;
 using BtmsGateway.Test.TestUtils;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
-using Serilog;
 
 namespace BtmsGateway.Test.Services.Checking;
 
@@ -12,7 +13,7 @@ public class CheckRoutesTests
 {
     private readonly TestHttpHandler _httpHandler = new TestHttpHandler();
     private readonly IHttpClientFactory _httpClientFactory = Substitute.For<IHttpClientFactory>();
-    private readonly ILogger _logger = Substitute.For<ILogger>();
+    private readonly ILogger<CheckRoutes> _logger = NullLogger<CheckRoutes>.Instance;
     private readonly IProcessRunner _processRunner = Substitute.For<IProcessRunner>();
 
     private readonly CheckRoutes _checkRoutes;

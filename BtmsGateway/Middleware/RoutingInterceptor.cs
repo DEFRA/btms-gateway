@@ -7,7 +7,6 @@ using BtmsGateway.Services.Converter;
 using BtmsGateway.Services.Metrics;
 using BtmsGateway.Services.Routing;
 using Microsoft.Extensions.Options;
-using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Middleware;
 
@@ -16,7 +15,7 @@ public class RoutingInterceptor(
     IMessageRouter messageRouter,
     MetricsHost metricsHost,
     IRequestMetrics requestMetrics,
-    ILogger logger,
+    ILogger<RoutingInterceptor> logger,
     IOptions<MessageLoggingOptions> messageLoggingOptions,
     IMessageRoutes messageRoutes
 )
@@ -38,7 +37,7 @@ public class RoutingInterceptor(
 
             if (messageData.ShouldProcessRequest)
             {
-                logger.Information(
+                logger.LogInformation(
                     "{ContentCorrelationId} {MessageReference} Received routing instruction {HttpString}",
                     messageData.ContentMap.CorrelationId,
                     messageData.ContentMap.MessageReference,
@@ -52,7 +51,7 @@ public class RoutingInterceptor(
                 return;
             }
 
-            logger.Information(
+            logger.LogInformation(
                 "{ContentCorrelationId} Pass through request {HttpString}",
                 messageData.ContentMap.CorrelationId,
                 messageData.HttpString
@@ -66,7 +65,7 @@ public class RoutingInterceptor(
             {
                 // Log as Warning as we won't do anything with it at this point, and we don't want additional errors causing potential alerts.
                 // The upstream system needs to sort out the invalid request
-                logger.Warning(ex, "Invalid SOAP Message");
+                logger.LogWarning(ex, "Invalid SOAP Message");
                 await PopulateInvalidSoapResponse(context);
                 throw new RoutingException("Invalid SOAP Message", ex);
             }
@@ -81,7 +80,7 @@ public class RoutingInterceptor(
 
     private void ReturnRoutingError(Exception ex, HttpContext context)
     {
-        logger.Error(ex, "There was a routing error");
+        logger.LogError(ex, "There was a routing error");
         context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
         throw new RoutingException($"There was a routing error: {ex.Message}", ex);
     }
@@ -142,7 +141,7 @@ public class RoutingInterceptor(
     {
         if (routingResult.RoutingSuccessful)
         {
-            logger.Information(
+            logger.LogInformation(
                 "{ContentCorrelationId} {MessageReference} {Action} {Success} for route {RouteUrl}, message type {MessageType} with response {StatusCode}",
                 messageData.ContentMap.CorrelationId,
                 messageData.ContentMap.MessageReference,
@@ -163,7 +162,7 @@ public class RoutingInterceptor(
             return;
         }
 
-        logger.Error(
+        logger.LogError(
             "{ContentCorrelationId} {MessageReference} {Action} {Success} for route {RouteUrl}, message type {MessageType} with response {StatusCode}",
             messageData.ContentMap.CorrelationId,
             messageData.ContentMap.MessageReference,
@@ -179,7 +178,7 @@ public class RoutingInterceptor(
     {
         if (!routingResult.RouteFound)
         {
-            logger.Warning(
+            logger.LogWarning(
                 "{ContentCorrelationId} {MessageReference} {Action} not supported for [{HttpString}]",
                 messageData.ContentMap.CorrelationId,
                 messageData.ContentMap.MessageReference,

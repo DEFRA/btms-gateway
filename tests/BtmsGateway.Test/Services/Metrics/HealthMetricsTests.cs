@@ -2,9 +2,6 @@ using BtmsGateway.Services.Metrics;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using NSubstitute;
-using NSubstitute.Core;
-using Serilog;
 
 namespace BtmsGateway.Test.Services.Metrics;
 
@@ -91,14 +88,6 @@ public class HealthMetricsTests : MetricsTestBase
     [Fact]
     public void When_health_report_published_and_error_occurs_Then_remaining_health_metrics_are_still_reported()
     {
-        var logger = ServiceProvider.GetRequiredService<ILogger>();
-        logger
-            .When(x => x.Information(Arg.Any<string>(), Arg.Any<int>()))
-            .Do(Callback.FirstThrow(new Exception()).Then(_ => { }));
-        logger
-            .When(x => x.Information(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<int>()))
-            .Do(Callback.FirstThrow(new Exception()).Then(_ => { }));
-
         var metrics = ServiceProvider.GetRequiredService<IHealthMetrics>();
         var reportHealthCollector = GetCollector<int>(MetricsConstants.InstrumentNames.Health);
 

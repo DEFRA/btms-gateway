@@ -3,8 +3,8 @@ using BtmsGateway.Middleware;
 using BtmsGateway.Services.Routing;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
-using Serilog;
 
 namespace BtmsGateway.Test.Services.Routing;
 

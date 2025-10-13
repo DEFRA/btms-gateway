@@ -6,12 +6,12 @@ using Amazon.SQS;
 using Amazon.SQS.Model;
 using BtmsGateway.Utils;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Services.Health;
 
 [ExcludeFromCodeCoverage]
-public class QueueHealthCheck(string name, string queue, IConfiguration configuration, ILogger logger) : IHealthCheck
+public class QueueHealthCheck(string name, string queue, IConfiguration configuration, ILogger<QueueHealthCheck> logger)
+    : IHealthCheck
 {
     public async Task<HealthCheckResult> CheckHealthAsync(
         HealthCheckContext context,
@@ -31,14 +31,14 @@ public class QueueHealthCheck(string name, string queue, IConfiguration configur
         }
         catch (TaskCanceledException ex)
         {
-            logger.Warning(ex, "HEALTH - Retrieving queue URL timed out for queue {Queue}", queue);
+            logger.LogWarning(ex, "HEALTH - Retrieving queue URL timed out for queue {Queue}", queue);
             checkException = new TimeoutException(
                 $"The queue check was cancelled, probably because it timed out after {ConfigureHealthChecks.Timeout.TotalSeconds} seconds"
             );
         }
         catch (Exception ex)
         {
-            logger.Warning(ex, "HEALTH - Retrieving queue URL failed for queue {Queue}", queue);
+            logger.LogWarning(ex, "HEALTH - Retrieving queue URL failed for queue {Queue}", queue);
             checkException = ex;
         }
 

@@ -1,14 +1,16 @@
 using System.Diagnostics.CodeAnalysis;
 using BtmsGateway.Services.Metrics;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using ILogger = Serilog.ILogger;
 
 // ReSharper disable TemplateIsNotCompileTimeConstantProblem
 
 namespace BtmsGateway.Services.Health;
 
-public class HealthCheckPublisher(MetricsHost metricsHost, IHealthMetrics healthMetrics, ILogger logger)
-    : IHealthCheckPublisher
+public class HealthCheckPublisher(
+    MetricsHost metricsHost,
+    IHealthMetrics healthMetrics,
+    ILogger<HealthCheckPublisher> logger
+) : IHealthCheckPublisher
 {
     private readonly IMetrics _metrics = metricsHost.GetMetrics();
 
@@ -25,16 +27,18 @@ public class HealthCheckPublisher(MetricsHost metricsHost, IHealthMetrics health
         switch (report.Status)
         {
             case HealthStatus.Healthy:
-                logger.Information(healthStatusAsJson);
+                logger.LogInformation(healthStatusAsJson);
                 break;
             case HealthStatus.Degraded:
-                logger.Warning(healthStatusAsJson);
+                logger.LogWarning(healthStatusAsJson);
                 break;
             case HealthStatus.Unhealthy:
-                logger.Error(healthStatusAsJson);
+                logger.LogError(healthStatusAsJson);
                 break;
             default:
-                logger.Error($"{{\"status\":\"Invalid\",\"description\":\"Invalid health status '{report.Status}'\"}}");
+                logger.LogError(
+                    $"{{\"status\":\"Invalid\",\"description\":\"Invalid health status '{report.Status}'\"}}"
+                );
                 break;
         }
 

@@ -1,6 +1,7 @@
 using BtmsGateway.Services.Converter;
 using BtmsGateway.Services.Routing;
 using FluentAssertions;
+using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using Serilog;
 
@@ -18,7 +19,7 @@ public class DifferentMessageTypesOnSameRouteTests
     {
         var messageRoutes = new MessageRoutes(
             TestRoutes.DifferentMessageTypesOnSameRoutingConfig,
-            Substitute.For<ILogger>()
+            NullLogger<MessageRoutes>.Instance
         );
 
         var route = messageRoutes.GetRoute(
@@ -39,7 +40,7 @@ public class DifferentMessageTypesOnSameRouteTests
     {
         var messageRoutes = new MessageRoutes(
             TestRoutes.DifferentMessageTypesOnSameRoutingConfig,
-            Substitute.For<ILogger>()
+            NullLogger<MessageRoutes>.Instance
         );
 
         var route = messageRoutes.GetRoute(

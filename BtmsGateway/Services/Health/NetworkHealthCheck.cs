@@ -1,7 +1,6 @@
 using BtmsGateway.Services.Checking;
 using BtmsGateway.Utils.Http;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Services.Health;
 
@@ -9,7 +8,7 @@ public class NetworkHealthCheck(
     string name,
     HealthCheckUrl healthCheckUrl,
     IHttpClientFactory httpClientFactory,
-    ILogger logger
+    ILogger<NetworkHealthCheck> logger
 ) : IHealthCheck
 {
     public async Task<HealthCheckResult> CheckHealthAsync(
@@ -35,7 +34,7 @@ public class NetworkHealthCheck(
         }
         catch (TaskCanceledException ex)
         {
-            logger.Warning(
+            logger.LogWarning(
                 ex,
                 "HEALTH - Checking network connection timed out for queue {QueueUrl}",
                 healthCheckUrl.Url
@@ -47,7 +46,11 @@ public class NetworkHealthCheck(
         }
         catch (Exception ex)
         {
-            logger.Warning(ex, "HEALTH - Checking network connection failed for queue {QueueUrl}", healthCheckUrl.Url);
+            logger.LogWarning(
+                ex,
+                "HEALTH - Checking network connection failed for queue {QueueUrl}",
+                healthCheckUrl.Url
+            );
             exception = ex;
         }
 

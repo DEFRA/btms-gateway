@@ -41,6 +41,16 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
         CancellationToken cancellationToken = default
     )
     {
+        if (messageSource != MessagingConstants.MessageSource.Btms)
+        {
+            throw new CdsCommunicationException($"{mrn} Received decision from unexpected source None.");
+        }
+
+        if (string.IsNullOrWhiteSpace(errorNotification))
+            throw new CdsCommunicationException(
+                $"{mrn} Request to send an invalid error notification to CDS: {errorNotification}"
+            );
+
         _logger.Debug(
             "{MessageCorrelationId} {MRN} Sending error notification from {MessageSource} to CDS.",
             correlationId,
@@ -48,17 +58,31 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
             messageSource
         );
 
-        if (string.IsNullOrWhiteSpace(errorNotification))
-            throw new ArgumentException(
-                $"{mrn} Request to send an invalid error notification to CDS: {errorNotification}"
-            );
-
-        var cdsResponse = await ForwardErrorNotificationAsync(
-            mrn,
-            messageSource,
+        var cdsResponse = await SendCdsFormattedSoapMessageAsync(
             errorNotification,
             correlationId,
+            _btmsToCdsDestination,
             cancellationToken
+        );
+
+        if (!cdsResponse.IsSuccessStatusCode)
+        {
+            _logger.Error(
+                "{MessageCorrelationId} {MRN} Failed to send error notification to CDS. CDS Response Status Code: {StatusCode}, Reason: {Reason}, Content: {Content}",
+                correlationId,
+                mrn,
+                cdsResponse.StatusCode,
+                cdsResponse.ReasonPhrase,
+                await GetResponseContentAsync(cdsResponse, cancellationToken)
+            );
+            throw new CdsCommunicationException($"{mrn} Failed to send error notification to CDS.");
+        }
+
+        _logger.Information(
+            "{MessageCorrelationId} {MRN} Successfully sent {MessageSource} Error Notification to CDS.",
+            correlationId,
+            mrn,
+            messageSource
         );
 
         var destination = string.Concat(_btmsToCdsDestination.Link, _btmsToCdsDestination.RoutePath);
@@ -73,62 +97,5 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
             StatusCode = cdsResponse?.StatusCode ?? HttpStatusCode.NoContent,
             ResponseContent = await GetResponseContentAsync(cdsResponse, cancellationToken),
         };
-    }
-
-    private async Task<HttpResponseMessage?> ForwardErrorNotificationAsync(
-        string? mrn,
-        MessagingConstants.MessageSource messageSource,
-        string errorNotification,
-        string? correlationId,
-        CancellationToken cancellationToken
-    )
-    {
-        if (messageSource == MessagingConstants.MessageSource.Btms)
-        {
-            _logger.Debug(
-                "{MessageCorrelationId} {MRN} Sending {MessageSource} Error Notification to CDS.",
-                correlationId,
-                mrn,
-                messageSource
-            );
-
-            var response = await SendCdsFormattedSoapMessageAsync(
-                errorNotification,
-                correlationId,
-                _btmsToCdsDestination,
-                cancellationToken
-            );
-
-            if (!response.IsSuccessStatusCode)
-            {
-                _logger.Error(
-                    "{MessageCorrelationId} {MRN} Failed to send error notification to CDS. CDS Response Status Code: {StatusCode}, Reason: {Reason}, Content: {Content}",
-                    correlationId,
-                    mrn,
-                    response.StatusCode,
-                    response.ReasonPhrase,
-                    await GetResponseContentAsync(response, cancellationToken)
-                );
-                throw new DecisionException($"{mrn} Failed to send error notification to CDS.");
-            }
-
-            _logger.Information(
-                "{MessageCorrelationId} {MRN} Successfully sent {MessageSource} Error Notification to CDS.",
-                correlationId,
-                mrn,
-                messageSource
-            );
-
-            return response;
-        }
-
-        _logger.Information(
-            "{MessageCorrelationId} {MRN} {MessageSource} Error Notification sent to NOOP.",
-            correlationId,
-            mrn,
-            messageSource
-        );
-
-        return null;
     }
 }

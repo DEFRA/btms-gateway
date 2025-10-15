@@ -94,7 +94,7 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
             RoutingSuccessful = true,
             FullRouteLink = destination,
             FullForkLink = destination,
-            StatusCode = cdsResponse?.StatusCode ?? HttpStatusCode.NoContent,
+            StatusCode = cdsResponse.StatusCode,
             ResponseContent = await GetResponseContentAsync(cdsResponse, cancellationToken),
         };
     }

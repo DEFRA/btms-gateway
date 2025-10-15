@@ -116,7 +116,7 @@ public class DecisionSenderTests
     [Fact]
     public async Task When_sending_an_invalid_decision_Then_exception_is_thrown()
     {
-        var thrownException = await Assert.ThrowsAsync<DecisionException>(() =>
+        var thrownException = await Assert.ThrowsAsync<CdsCommunicationException>(() =>
             _decisionSender.SendDecisionAsync(
                 "mrn-123",
                 null,
@@ -144,7 +144,7 @@ public class DecisionSenderTests
             )
             .Returns(new HttpResponseMessage(HttpStatusCode.BadRequest));
 
-        var thrownException = await Assert.ThrowsAsync<DecisionException>(() =>
+        var thrownException = await Assert.ThrowsAsync<CdsCommunicationException>(() =>
             _decisionSender.SendDecisionAsync(
                 "mrn-123",
                 "<DecisionNotification />",
@@ -161,7 +161,7 @@ public class DecisionSenderTests
     [Fact]
     public async Task When_sending_decision_from_unexpected_source_Then_exception_is_thrown()
     {
-        var thrownException = await Assert.ThrowsAsync<DecisionException>(() =>
+        var thrownException = await Assert.ThrowsAsync<CdsCommunicationException>(() =>
             _decisionSender.SendDecisionAsync(
                 "mrn-123",
                 "<DecisionNotification />",

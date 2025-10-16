@@ -194,7 +194,7 @@ public class ClearanceDecisionConsumerTests
         thrownException.InnerException.Should().BeAssignableTo<ClearanceDecisionProcessingException>();
         thrownException
             .InnerException?.Message.Should()
-            .Be("24GB123456789AB012 Failed to send clearance decision to Decision Comparer.");
+            .Be("24GB123456789AB012 Failed to send clearance decision.");
     }
 
     [Fact]

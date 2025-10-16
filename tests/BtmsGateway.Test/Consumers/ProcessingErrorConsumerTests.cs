@@ -309,7 +309,7 @@ public class ProcessingErrorConsumerTests
         thrownException.InnerException.Should().BeAssignableTo<ProcessingErrorProcessingException>();
         thrownException
             .InnerException?.Message.Should()
-            .Be("24GB123456789AB012 Failed to send error notification to Decision Comparer.");
+            .Be("24GB123456789AB012 Failed to send error notification.");
     }
 
     [Fact]

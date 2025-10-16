@@ -1,9 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
-using BtmsGateway.Config;
 using BtmsGateway.Services.Health;
-using Microsoft.Extensions.Http.Resilience;
-using Microsoft.Extensions.Options;
 using Polly;
 using Polly.Extensions.Http;
 using Polly.Retry;

@@ -75,9 +75,7 @@ public class ClearanceDecisionConsumer(
                     result.ErrorMessage,
                     result.ResponseContent
                 );
-                throw new ClearanceDecisionProcessingException(
-                    $"{mrn} Failed to send clearance decision."
-                );
+                throw new ClearanceDecisionProcessingException($"{mrn} Failed to send clearance decision.");
             }
 
             logger.LogInformation(

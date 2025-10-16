@@ -1,4 +1,3 @@
-using System.Net;
 using BtmsGateway.Domain;
 using BtmsGateway.Exceptions;
 using ILogger = Serilog.ILogger;

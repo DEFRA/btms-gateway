@@ -8,7 +8,6 @@ using BtmsGateway.Services.Metrics;
 using BtmsGateway.Services.Routing;
 using BtmsGateway.Utils.Http;
 using FluentValidation;
-using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Config;
 

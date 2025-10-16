@@ -4,7 +4,6 @@ using BtmsGateway.Exceptions;
 using BtmsGateway.Services.Converter;
 using BtmsGateway.Services.Routing;
 using BtmsGateway.Utils;
-using Defra.TradeImportsDataApi.Domain.Errors;
 using Defra.TradeImportsDataApi.Domain.Events;
 using Microsoft.Extensions.Options;
 using SlimMessageBus;
@@ -76,9 +75,7 @@ public class ProcessingErrorConsumer(
                     result.ErrorMessage,
                     result.ResponseContent
                 );
-                throw new ProcessingErrorProcessingException(
-                    $"{mrn} Failed to send error notification."
-                );
+                throw new ProcessingErrorProcessingException($"{mrn} Failed to send error notification.");
             }
 
             logger.LogInformation(

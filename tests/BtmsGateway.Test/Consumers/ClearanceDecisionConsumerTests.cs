@@ -192,9 +192,7 @@ public class ClearanceDecisionConsumerTests
         );
         thrownException.Message.Should().Be("24GB123456789AB012 Failed to process clearance decision resource event.");
         thrownException.InnerException.Should().BeAssignableTo<ClearanceDecisionProcessingException>();
-        thrownException
-            .InnerException?.Message.Should()
-            .Be("24GB123456789AB012 Failed to send clearance decision.");
+        thrownException.InnerException?.Message.Should().Be("24GB123456789AB012 Failed to send clearance decision.");
     }
 
     [Fact]

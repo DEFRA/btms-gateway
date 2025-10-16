@@ -70,14 +70,14 @@ public class ProcessingErrorConsumer(
             if (!result.StatusCode.IsSuccessStatusCode())
             {
                 logger.LogError(
-                    "{MRN} Failed to send error notification to Decision Comparer. Decision Comparer Response Status Code: {StatusCode}, Reason: {Reason}, Content: {Content}",
+                    "{MRN} Failed to send error notification. Response Status Code: {StatusCode}, Reason: {Reason}, Content: {Content}",
                     mrn,
                     result.StatusCode,
                     result.ErrorMessage,
                     result.ResponseContent
                 );
                 throw new ProcessingErrorProcessingException(
-                    $"{mrn} Failed to send error notification to Decision Comparer."
+                    $"{mrn} Failed to send error notification."
                 );
             }
 

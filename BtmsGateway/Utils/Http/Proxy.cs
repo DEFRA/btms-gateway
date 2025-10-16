@@ -22,7 +22,6 @@ public static class Proxy
     public const string CdsProxyClientWithRetry = "proxy-with-retry";
     public const string RoutedClientWithRetry = "routed-with-retry";
     public const string ForkedClientWithRetry = "forked-with-retry";
-    public const string DecisionComparerProxyClientWithRetry = "decision-comparer-proxy-with-retry";
 
     [ExcludeFromCodeCoverage]
     public static IHttpClientBuilder AddHttpProxyClientWithoutRetry(this IServiceCollection services)

@@ -1,4 +1,3 @@
-using System.Net;
 using BtmsGateway.Domain;
 using BtmsGateway.Exceptions;
 using ILogger = Serilog.ILogger;
@@ -20,18 +19,14 @@ public interface IErrorNotificationSender
 
 public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotificationSender
 {
-    private readonly Destination _btmsOutboundErrorsDestination;
     private readonly Destination _btmsToCdsDestination;
-    private readonly IApiSender _apiSender;
     private readonly ILogger _logger;
 
     public ErrorNotificationSender(RoutingConfig? routingConfig, IApiSender apiSender, ILogger logger)
         : base(apiSender, routingConfig, logger)
     {
-        _apiSender = apiSender;
         _logger = logger;
 
-        _btmsOutboundErrorsDestination = GetDestination(MessagingConstants.Destinations.BtmsOutboundErrors);
         _btmsToCdsDestination = GetDestination(MessagingConstants.Destinations.BtmsCds);
     }
 
@@ -45,111 +40,61 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
         CancellationToken cancellationToken = default
     )
     {
+        if (messageSource != MessagingConstants.MessageSource.Btms)
+        {
+            throw new CdsCommunicationException($"{mrn} Received error notification from unexpected source None.");
+        }
+
+        if (string.IsNullOrWhiteSpace(errorNotification))
+            throw new CdsCommunicationException(
+                $"{mrn} Request to send an invalid error notification to CDS: {errorNotification}"
+            );
+
         _logger.Debug(
-            "{MessageCorrelationId} {MRN} Sending error notification from {MessageSource} to Decision Comparer.",
+            "{MessageCorrelationId} {MRN} Sending error notification from {MessageSource} to CDS.",
             correlationId,
             mrn,
             messageSource
         );
 
-        if (string.IsNullOrWhiteSpace(errorNotification))
-            throw new ArgumentException(
-                $"{mrn} Request to send an invalid error notification to Decision Comparer: {errorNotification}"
-            );
-
-        var destinationConfig = messageSource switch
-        {
-            MessagingConstants.MessageSource.Btms => GetDestinationConfiguration(mrn, _btmsOutboundErrorsDestination),
-            _ => throw new ArgumentException(
-                $"{mrn} Received error notification from unexpected source {messageSource}."
-            ),
-        };
-
-        var comparerResponse = await _apiSender.SendToDecisionComparerAsync(
-            errorNotification,
-            destinationConfig.DestinationUrl,
-            destinationConfig.ContentType,
-            cancellationToken,
-            headers
-        );
-
-        CheckComparerResponse(comparerResponse, correlationId, mrn, "Error Notification");
-
-        var cdsResponse = await ForwardErrorNotificationAsync(
-            mrn,
-            messageSource,
+        var cdsResponse = await SendCdsFormattedSoapMessageAsync(
             errorNotification,
             correlationId,
+            _btmsToCdsDestination,
             cancellationToken
         );
 
-        return routingResult with
+        if (!cdsResponse.IsSuccessStatusCode)
         {
-            RouteFound = true,
-            RouteLinkType = LinkType.DecisionComparerErrorNotifications,
-            ForkLinkType = LinkType.DecisionComparerErrorNotifications,
-            RoutingSuccessful = true,
-            FullRouteLink = destinationConfig.DestinationUrl,
-            FullForkLink = destinationConfig.DestinationUrl,
-            StatusCode = cdsResponse?.StatusCode ?? HttpStatusCode.NoContent,
-            ResponseContent = await GetResponseContentAsync(cdsResponse, cancellationToken),
-        };
-    }
-
-    private async Task<HttpResponseMessage?> ForwardErrorNotificationAsync(
-        string? mrn,
-        MessagingConstants.MessageSource messageSource,
-        string errorNotification,
-        string? correlationId,
-        CancellationToken cancellationToken
-    )
-    {
-        if (messageSource == MessagingConstants.MessageSource.Btms)
-        {
-            _logger.Debug(
-                "{MessageCorrelationId} {MRN} Sending {MessageSource} Error Notification to CDS.",
+            _logger.Error(
+                "{MessageCorrelationId} {MRN} Failed to send error notification to CDS. CDS Response Status Code: {StatusCode}, Reason: {Reason}, Content: {Content}",
                 correlationId,
                 mrn,
-                messageSource
+                cdsResponse.StatusCode,
+                cdsResponse.ReasonPhrase,
+                await GetResponseContentAsync(cdsResponse, cancellationToken)
             );
-
-            var response = await SendCdsFormattedSoapMessageAsync(
-                errorNotification,
-                correlationId,
-                _btmsToCdsDestination,
-                cancellationToken
-            );
-
-            if (!response.IsSuccessStatusCode)
-            {
-                _logger.Error(
-                    "{MessageCorrelationId} {MRN} Failed to send error notification to CDS. CDS Response Status Code: {StatusCode}, Reason: {Reason}, Content: {Content}",
-                    correlationId,
-                    mrn,
-                    response.StatusCode,
-                    response.ReasonPhrase,
-                    await GetResponseContentAsync(response, cancellationToken)
-                );
-                throw new DecisionComparisonException($"{mrn} Failed to send error notification to CDS.");
-            }
-
-            _logger.Information(
-                "{MessageCorrelationId} {MRN} Successfully sent {MessageSource} Error Notification to CDS.",
-                correlationId,
-                mrn,
-                messageSource
-            );
-
-            return response;
+            throw new CdsCommunicationException($"{mrn} Failed to send error notification to CDS.");
         }
 
         _logger.Information(
-            "{MessageCorrelationId} {MRN} {MessageSource} Error Notification sent to NOOP.",
+            "{MessageCorrelationId} {MRN} Successfully sent {MessageSource} Error Notification to CDS.",
             correlationId,
             mrn,
             messageSource
         );
 
-        return null;
+        var destination = string.Concat(_btmsToCdsDestination.Link, _btmsToCdsDestination.RoutePath);
+        return routingResult with
+        {
+            RouteFound = true,
+            RouteLinkType = _btmsToCdsDestination.LinkType,
+            ForkLinkType = _btmsToCdsDestination.LinkType,
+            RoutingSuccessful = true,
+            FullRouteLink = destination,
+            FullForkLink = destination,
+            StatusCode = cdsResponse.StatusCode,
+            ResponseContent = await GetResponseContentAsync(cdsResponse, cancellationToken),
+        };
     }
 }

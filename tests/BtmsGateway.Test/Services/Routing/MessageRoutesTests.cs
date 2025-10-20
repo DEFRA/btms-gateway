@@ -138,6 +138,22 @@ public class MessageRoutesTests
     }
 
     [Fact]
+    public void When_routing_null_route_Then_should_fail()
+    {
+        var messageRoutes = new MessageRoutes(TestRoutes.RoutingConfig, NullLogger<MessageRoutes>.Instance);
+
+        var route = messageRoutes.GetRoute(null, GetSoap("Message1"), "test-correlation-id", "test-mrn");
+
+        route.RouteFound.Should().BeFalse();
+        route.RouteName.Should().BeNull();
+        route.FullRouteLink.Should().BeNull();
+        route.RouteHostHeader.Should().BeNull();
+        route.FullForkLink.Should().BeNull();
+        route.ForkHostHeader.Should().BeNull();
+        route.UrlPath.Should().BeNull();
+    }
+
+    [Fact]
     public void When_routing_with_invalid_url_Then_should_fail()
     {
         var act = () => new MessageRoutes(TestRoutes.InvalidUrlConfig, NullLogger<MessageRoutes>.Instance);

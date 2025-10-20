@@ -10,9 +10,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Primitives;
-using NSubstitute;
-using Serilog;
-using Serilog.Core;
 
 namespace BtmsGateway.Test.Middleware;
 

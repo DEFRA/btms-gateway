@@ -6,7 +6,6 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using NSubstitute;
-using Serilog;
 
 namespace BtmsGateway.Test.Services.Health;
 

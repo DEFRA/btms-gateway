@@ -1,14 +1,10 @@
 using BtmsGateway.Utils.Http;
 using FluentAssertions;
-using Serilog;
-using Serilog.Core;
 
 namespace BtmsGateway.Test.Http;
 
 public class ProxyTest
 {
-    private readonly Logger _logger = new LoggerConfiguration().CreateLogger();
-
     private const string ProxyUri = "http://user:password@localhost:8080";
     private const string LocalProxy = "http://localhost:8080/";
     private const string Localhost = "http://localhost/";

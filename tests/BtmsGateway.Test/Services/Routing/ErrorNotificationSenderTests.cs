@@ -113,7 +113,7 @@ public class ErrorNotificationSenderTests
     [Fact]
     public async Task When_sending_an_invalid_error_notification_Then_exception_is_thrown()
     {
-        var thrownException = await Assert.ThrowsAsync<ArgumentException>(() =>
+        var thrownException = await Assert.ThrowsAsync<CdsCommunicationException>(() =>
             _errorNotificationSender.SendErrorNotificationAsync(
                 "mrn-123",
                 null,
@@ -143,7 +143,7 @@ public class ErrorNotificationSenderTests
             )
             .Returns(cdsResponse);
 
-        var thrownException = await Assert.ThrowsAsync<DecisionException>(() =>
+        var thrownException = await Assert.ThrowsAsync<CdsCommunicationException>(() =>
             _errorNotificationSender.SendErrorNotificationAsync(
                 "mrn-123",
                 "<HMRCErrorNotification />",

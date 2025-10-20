@@ -2,8 +2,6 @@ using BtmsGateway.Services.Converter;
 using BtmsGateway.Services.Routing;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
-using NSubstitute;
-using Serilog;
 
 namespace BtmsGateway.Test.Services.Routing;
 

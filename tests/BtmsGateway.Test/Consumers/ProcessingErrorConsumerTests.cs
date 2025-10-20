@@ -307,9 +307,7 @@ public class ProcessingErrorConsumerTests
         );
         thrownException.Message.Should().Be("24GB123456789AB012 Failed to process processing error resource event.");
         thrownException.InnerException.Should().BeAssignableTo<ProcessingErrorProcessingException>();
-        thrownException
-            .InnerException?.Message.Should()
-            .Be("24GB123456789AB012 Failed to send error notification to Decision Comparer.");
+        thrownException.InnerException?.Message.Should().Be("24GB123456789AB012 Failed to send error notification.");
     }
 
     [Fact]

@@ -4,7 +4,6 @@ using BtmsGateway.Exceptions;
 using BtmsGateway.Services.Converter;
 using BtmsGateway.Services.Routing;
 using BtmsGateway.Utils;
-using Defra.TradeImportsDataApi.Domain.Errors;
 using Defra.TradeImportsDataApi.Domain.Events;
 using Microsoft.Extensions.Options;
 using SlimMessageBus;
@@ -70,15 +69,13 @@ public class ProcessingErrorConsumer(
             if (!result.StatusCode.IsSuccessStatusCode())
             {
                 logger.LogError(
-                    "{MRN} Failed to send error notification to Decision Comparer. Decision Comparer Response Status Code: {StatusCode}, Reason: {Reason}, Content: {Content}",
+                    "{MRN} Failed to send error notification. Response Status Code: {StatusCode}, Reason: {Reason}, Content: {Content}",
                     mrn,
                     result.StatusCode,
                     result.ErrorMessage,
                     result.ResponseContent
                 );
-                throw new ProcessingErrorProcessingException(
-                    $"{mrn} Failed to send error notification to Decision Comparer."
-                );
+                throw new ProcessingErrorProcessingException($"{mrn} Failed to send error notification.");
             }
 
             logger.LogInformation(

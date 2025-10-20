@@ -1,4 +1,3 @@
-using System.Net;
 using BtmsGateway.Domain;
 using BtmsGateway.Exceptions;
 using BtmsGateway.Middleware;
@@ -42,7 +41,47 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
         CancellationToken cancellationToken = default
     )
     {
-        var cdsResponse = await ForwardDecisionAsync(mrn, messageSource, decision, correlationId, cancellationToken);
+        if (messageSource != MessagingConstants.MessageSource.Btms)
+        {
+            throw new CdsCommunicationException($"{mrn} Received decision from unexpected source None.");
+        }
+
+        if (string.IsNullOrWhiteSpace(decision))
+        {
+            _logger.LogError("{MessageCorrelationId} {MRN} Decision invalid", correlationId, mrn);
+            throw new CdsCommunicationException($"{mrn} Decision invalid.");
+        }
+
+        _logger.LogDebug("{MessageCorrelationId} {MRN} Sending Decision to CDS.", correlationId, mrn);
+
+        var cdsResponse = await SendCdsFormattedSoapMessageAsync(
+            decision,
+            correlationId,
+            _btmsToCdsDestination,
+            cancellationToken
+        );
+
+        var soapContent = new SoapContent(decision);
+        var contentMap = new ContentMap(soapContent);
+
+        if (!cdsResponse.IsSuccessStatusCode)
+        {
+            _logger.LogError(
+                "{MessageCorrelationId} {MRN} Failed to send Decision to CDS. CDS Response Status Code: {StatusCode}, Reason: {Reason}, Content: {Content}",
+                contentMap.CorrelationId,
+                mrn,
+                cdsResponse.StatusCode,
+                cdsResponse.ReasonPhrase,
+                await GetResponseContentAsync(cdsResponse, cancellationToken)
+            );
+            throw new CdsCommunicationException($"{mrn} Failed to send Decision to CDS.");
+        }
+
+        _logger.LogInformation(
+            "{MessageCorrelationId} {MRN} Successfully sent Decision to CDS.",
+            contentMap.CorrelationId,
+            mrn
+        );
 
         var destination = string.Concat(_btmsToCdsDestination.Link, _btmsToCdsDestination.RoutePath);
 
@@ -54,69 +93,8 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
             RoutingSuccessful = true,
             FullRouteLink = destination,
             FullForkLink = destination,
-            StatusCode = cdsResponse?.StatusCode ?? HttpStatusCode.NoContent,
+            StatusCode = cdsResponse.StatusCode,
             ResponseContent = await GetResponseContentAsync(cdsResponse, cancellationToken),
         };
-    }
-
-    private async Task<HttpResponseMessage?> ForwardDecisionAsync(
-        string? mrn,
-        MessagingConstants.MessageSource messageSource,
-        string decision,
-        string? correlationId,
-        CancellationToken cancellationToken
-    )
-    {
-        if (messageSource == MessagingConstants.MessageSource.Btms)
-        {
-            _logger.LogDebug("{MessageCorrelationId} {MRN} Sending Decision to CDS.", correlationId, mrn);
-
-            if (string.IsNullOrWhiteSpace(decision))
-            {
-                _logger.LogError("{MessageCorrelationId} {MRN} Decision invalid", correlationId, mrn);
-                throw new DecisionException($"{mrn} Decision invalid.");
-            }
-
-            var response = await SendCdsFormattedSoapMessageAsync(
-                decision,
-                correlationId,
-                _btmsToCdsDestination,
-                cancellationToken
-            );
-
-            var soapContent = new SoapContent(decision);
-            var contentMap = new ContentMap(soapContent);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                _logger.LogError(
-                    "{MessageCorrelationId} {MRN} Failed to send Decision to CDS. CDS Response Status Code: {StatusCode}, Reason: {Reason}, Content: {Content}",
-                    contentMap.CorrelationId,
-                    mrn,
-                    response.StatusCode,
-                    response.ReasonPhrase,
-                    await GetResponseContentAsync(response, cancellationToken)
-                );
-                throw new DecisionException($"{mrn} Failed to send Decision to CDS.");
-            }
-
-            _logger.LogInformation(
-                "{MessageCorrelationId} {MRN} Successfully sent Decision to CDS.",
-                contentMap.CorrelationId,
-                mrn
-            );
-
-            return response;
-        }
-        else
-        {
-            _logger.LogInformation(
-                "{MessageCorrelationId} {MRN} Successfully sent Decision to NOOP.",
-                correlationId,
-                mrn
-            );
-
-            throw new DecisionException($"{mrn} Received decision from unexpected source None.");
-        }
     }
 }

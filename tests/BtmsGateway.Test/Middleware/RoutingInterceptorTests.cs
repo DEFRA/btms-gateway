@@ -13,7 +13,6 @@ using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
-using Serilog;
 
 namespace BtmsGateway.Test.Middleware;
 

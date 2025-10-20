@@ -5,7 +5,7 @@ using BtmsGateway.Services.Routing;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Logging.Testing;
 using NSubstitute;
 
 namespace BtmsGateway.Test.Services.Routing;
@@ -14,7 +14,7 @@ public class DecisionSenderTests
 {
     private RoutingConfig _routingConfig;
     private readonly IApiSender _apiSender = Substitute.For<IApiSender>();
-    private readonly ILogger<DecisionSender> _logger = NullLogger<DecisionSender>.Instance;
+    private readonly ILogger<DecisionSender> _logger = new FakeLogger<DecisionSender>();
     private readonly DecisionSender _decisionSender;
 
     public DecisionSenderTests()
@@ -117,7 +117,7 @@ public class DecisionSenderTests
     [Fact]
     public async Task When_sending_an_invalid_decision_Then_exception_is_thrown()
     {
-        var thrownException = await Assert.ThrowsAsync<DecisionException>(() =>
+        var thrownException = await Assert.ThrowsAsync<CdsCommunicationException>(() =>
             _decisionSender.SendDecisionAsync(
                 "mrn-123",
                 null,
@@ -145,7 +145,7 @@ public class DecisionSenderTests
             )
             .Returns(new HttpResponseMessage(HttpStatusCode.BadRequest));
 
-        var thrownException = await Assert.ThrowsAsync<DecisionException>(() =>
+        var thrownException = await Assert.ThrowsAsync<CdsCommunicationException>(() =>
             _decisionSender.SendDecisionAsync(
                 "mrn-123",
                 "<DecisionNotification />",
@@ -162,7 +162,7 @@ public class DecisionSenderTests
     [Fact]
     public async Task When_sending_decision_from_unexpected_source_Then_exception_is_thrown()
     {
-        var thrownException = await Assert.ThrowsAsync<DecisionException>(() =>
+        var thrownException = await Assert.ThrowsAsync<CdsCommunicationException>(() =>
             _decisionSender.SendDecisionAsync(
                 "mrn-123",
                 "<DecisionNotification />",

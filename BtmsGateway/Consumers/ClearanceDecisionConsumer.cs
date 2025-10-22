@@ -69,15 +69,13 @@ public class ClearanceDecisionConsumer(
             if (!result.StatusCode.IsSuccessStatusCode())
             {
                 logger.LogError(
-                    "{MRN} Failed to send clearance decision to Decision Comparer. Decision Comparer Response Status Code: {StatusCode}, Reason: {Reason}, Content: {Content}",
+                    "{MRN} Failed to send clearance decision. Status Code: {StatusCode}, Reason: {Reason}, Content: {Content}",
                     mrn,
                     result.StatusCode,
                     result.ErrorMessage,
                     result.ResponseContent
                 );
-                throw new ClearanceDecisionProcessingException(
-                    $"{mrn} Failed to send clearance decision to Decision Comparer."
-                );
+                throw new ClearanceDecisionProcessingException($"{mrn} Failed to send clearance decision.");
             }
 
             logger.LogInformation(

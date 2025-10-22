@@ -66,28 +66,10 @@ Ensure it's not already running in the Docker Compose stack or you may get port 
 Run the Unit tests with:
 
 ```bash
-dotnet test --filter "Category!=IntegrationTest & Dependence!=localstack"
+dotnet test --filter "Category!=IntegrationTest"
 ```
 
 Unit tests execute without a running instance of the web server.
-
-End-to-end tests can start the web server using `TestWebServer.BuildAndRun()` taking `ServiceDescriptors` to replace services with mocked or stubbed versions. The `TestWebServer` provides properties:
-- `Services` allows access to injected services.
-- `HttpServiceClient` provide a pre-configured `HttpClient` that can be used to access the web server.
-- `OutboundTestHttpHandler` is a `TestHttpHandler` class that intercepts all `HttpClient` requests to dependant services called by the web server.
-
-The End-to-end tests, contained within the EndToEnd directory of the BtmsGateway.Test project, require the SNS/SQS localstack queues to be running. You can run these using Docker Compose (see above).  
-The tests themselves are decorated with the test trait "Dependence" "localstack".
-End-to-end tests can be run with:
-
-```bash
-dotnet test --filter "Dependence=localstack"
-```
-You can run these along with the Unit tests with:
-
-```bash
-dotnet test --filter "Category!=IntegrationTest"
-```
 
 ### How to run Integration Tests
 

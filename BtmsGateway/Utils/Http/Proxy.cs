@@ -1,9 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
-using BtmsGateway.Config;
 using BtmsGateway.Services.Health;
-using Microsoft.Extensions.Http.Resilience;
-using Microsoft.Extensions.Options;
 using Polly;
 using Polly.Extensions.Http;
 using Polly.Retry;
@@ -17,14 +14,11 @@ public static class Proxy
 {
     public static readonly int DefaultHttpClientTimeoutSeconds = 10;
     public static readonly int DefaultCdsHttpClientRetries = 3;
-    public static readonly int DefaultAlvsIpaffsHttpClientTimeoutSeconds = 100;
 
     public const string ProxyClientWithoutRetry = "proxy";
     public const string CdsProxyClientWithRetry = "proxy-with-retry";
     public const string RoutedClientWithRetry = "routed-with-retry";
     public const string ForkedClientWithRetry = "forked-with-retry";
-    public const string DecisionComparerProxyClientWithRetry = "decision-comparer-proxy-with-retry";
-    public const string AlvsIpaffsProxyClientWithRetry = "alvs-ipaffs-proxy-with-retry";
 
     [ExcludeFromCodeCoverage]
     public static IHttpClientBuilder AddHttpProxyClientWithoutRetry(this IServiceCollection services)
@@ -43,8 +37,7 @@ public static class Proxy
     [ExcludeFromCodeCoverage]
     public static IHttpClientBuilder AddHttpProxyRoutedClientWithRetry(
         this IServiceCollection services,
-        int httpClientTimeoutInSeconds,
-        string namedProxy = RoutedClientWithRetry
+        int httpClientTimeoutInSeconds
     )
     {
         var strategy = Policy.WrapAsync(
@@ -53,7 +46,7 @@ public static class Proxy
         );
 
         return services
-            .AddHttpClient(namedProxy)
+            .AddHttpClient(RoutedClientWithRetry)
             .ConfigurePrimaryHttpMessageHandler(ConfigurePrimaryHttpMessageHandler)
             .AddPolicyHandler(strategy);
     }
@@ -96,34 +89,6 @@ public static class Proxy
             .AddHttpClient(CdsProxyClientWithRetry)
             .ConfigurePrimaryHttpMessageHandler(ConfigurePrimaryHttpMessageHandler)
             .AddPolicyHandler(strategy);
-    }
-
-    [ExcludeFromCodeCoverage]
-    public static IHttpClientBuilder AddDecisionComparerHttpProxyClientWithRetry(
-        this IServiceCollection services,
-        int httpClientTimeoutInSeconds
-    )
-    {
-        services
-            .AddOptions<DecisionComparerApiOptions>()
-            .BindConfiguration(DecisionComparerApiOptions.SectionName)
-            .ValidateDataAnnotations();
-
-        var clientBuilder = services
-            .AddHttpClient(DecisionComparerProxyClientWithRetry)
-            .ConfigurePrimaryHttpMessageHandler(ConfigurePrimaryHttpMessageHandler)
-            .ConfigureHttpClient(
-                (sp, c) => sp.GetRequiredService<IOptions<DecisionComparerApiOptions>>().Value.Configure(c)
-            )
-            .AddHeaderPropagation();
-
-        clientBuilder.AddStandardResilienceHandler(o =>
-        {
-            o.Retry.DisableFor(HttpMethod.Delete, HttpMethod.Post, HttpMethod.Connect, HttpMethod.Patch);
-            o.AttemptTimeout.Timeout = TimeSpan.FromSeconds(httpClientTimeoutInSeconds);
-        });
-
-        return clientBuilder;
     }
 
     [ExcludeFromCodeCoverage]

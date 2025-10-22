@@ -1,5 +1,4 @@
 using System.Diagnostics.CodeAnalysis;
-using Amazon.Runtime;
 using Amazon.SimpleNotificationService;
 using Amazon.SQS;
 using BtmsGateway.Extensions;
@@ -9,8 +8,6 @@ using BtmsGateway.Services.Metrics;
 using BtmsGateway.Services.Routing;
 using BtmsGateway.Utils.Http;
 using FluentValidation;
-using Microsoft.FeatureManagement;
-using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Config;
 
@@ -19,21 +16,10 @@ public static class ConfigureServices
     public static IHttpClientBuilder? HttpRoutedClientWithRetryBuilder { get; private set; }
     public static IHttpClientBuilder? HttpForkedClientWithRetryBuilder { get; private set; }
     public static IHttpClientBuilder? HttpClientWithRetryBuilder { get; private set; }
-    public static IHttpClientBuilder? DecisionComparerHttpClientWithRetryBuilder { get; private set; }
-    public static IHttpClientBuilder? AlvsIpaffsHttpClientWithRetryBuilder { get; private set; }
 
     [ExcludeFromCodeCoverage]
-    public static void AddServices(this WebApplicationBuilder builder, ILogger? logger = null)
+    public static void AddServices(this WebApplicationBuilder builder)
     {
-        if (logger != null)
-        {
-            // This is added to support end to end tests that boostrap their own configuration
-            // making use of common methods such as this to add the application services. The
-            // end to end tests need to be reworked so they use an actual BTMS gateway host
-            // running in Docker.
-            builder.Services.AddSingleton(_ => logger);
-        }
-
         builder.Services.AddHttpLogging(o =>
         {
             o.RequestHeaders.Add("X-cdp-request-id");
@@ -43,10 +29,6 @@ public static class ConfigureServices
         var httpClientTimeoutSeconds = builder.Configuration.GetValue(
             "HttpClientTimeoutSeconds",
             Proxy.DefaultHttpClientTimeoutSeconds
-        );
-        var alvsIpaffsHttpClientTimeoutSeconds = builder.Configuration.GetValue(
-            "AlvsIpaffsHttpClientTimeoutSeconds",
-            Proxy.DefaultAlvsIpaffsHttpClientTimeoutSeconds
         );
         var cdsHttpClientRetries = builder.Configuration.GetValue(
             "CdsHttpClientRetries",
@@ -59,16 +41,8 @@ public static class ConfigureServices
             httpClientTimeoutSeconds,
             cdsHttpClientRetries
         );
-        DecisionComparerHttpClientWithRetryBuilder = builder.Services.AddDecisionComparerHttpProxyClientWithRetry(
-            httpClientTimeoutSeconds
-        );
-        AlvsIpaffsHttpClientWithRetryBuilder = builder.Services.AddHttpProxyRoutedClientWithRetry(
-            alvsIpaffsHttpClientTimeoutSeconds,
-            Proxy.AlvsIpaffsProxyClientWithRetry
-        );
 
         builder.Services.AddHttpProxyClientWithoutRetry();
-        builder.Services.AddDataApiHttpClient();
 
         builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
         builder.Services.AddAWSService<IAmazonSimpleNotificationService>();
@@ -88,9 +62,7 @@ public static class ConfigureServices
         builder.Services.AddSingleton<IDecisionSender, DecisionSender>();
         builder.Services.AddSingleton<IErrorNotificationSender, ErrorNotificationSender>();
         builder.Services.AddSingleton<IAlvsIpaffsSuccessProvider, AlvsIpaffsSuccessProvider>();
-        builder.Services.AddSingleton<ISqsService, SqsService>();
-
-        builder.Services.AddFeatureManagement(builder.Configuration.GetSection("FeatureFlags"));
+        builder.Services.AddSingleton<IResourceEventsDeadLetterService, ResourceEventsDeadLetterService>();
 
         builder.Services.AddOptions<CdsOptions>().BindConfiguration(CdsOptions.SectionName).ValidateDataAnnotations();
     }

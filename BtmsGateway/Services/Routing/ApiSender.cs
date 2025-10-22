@@ -2,8 +2,6 @@ using System.Net;
 using System.Text;
 using BtmsGateway.Middleware;
 using BtmsGateway.Utils.Http;
-using Microsoft.AspNetCore.HeaderPropagation;
-using Microsoft.Extensions.Primitives;
 
 namespace BtmsGateway.Services.Routing;
 
@@ -19,18 +17,9 @@ public interface IApiSender
         string soapMessage,
         CancellationToken cancellationToken
     );
-
-    Task<HttpResponseMessage> SendToDecisionComparerAsync(
-        string messageContent,
-        string destinationUrl,
-        string contentType,
-        CancellationToken cancellationToken,
-        IHeaderDictionary? headers = null
-    );
 }
 
-public class ApiSender(IHttpClientFactory clientFactory, IServiceProvider serviceProvider, IConfiguration configuration)
-    : IApiSender
+public class ApiSender(IHttpClientFactory clientFactory) : IApiSender
 {
     public async Task<RoutingResult> Send(RoutingResult routingResult, MessageData messageData, bool fork)
     {
@@ -98,44 +87,5 @@ public class ApiSender(IHttpClientFactory clientFactory, IServiceProvider servic
         request.Content = new StringContent(soapMessage, Encoding.UTF8, contentType);
 
         return await client.SendAsync(request, cancellationToken);
-    }
-
-    public async Task<HttpResponseMessage> SendToDecisionComparerAsync(
-        string messageContent,
-        string destinationUrl,
-        string contentType,
-        CancellationToken cancellationToken,
-        IHeaderDictionary? headers = null
-    )
-    {
-        InitializeHeaderPropagationValues(headers);
-
-        var client = clientFactory.CreateClient(Proxy.DecisionComparerProxyClientWithRetry);
-
-        var request = new HttpRequestMessage(HttpMethod.Put, destinationUrl);
-        request.Content = new StringContent(messageContent, Encoding.UTF8, contentType);
-
-        return await client.SendAsync(request, cancellationToken);
-    }
-
-    private void InitializeHeaderPropagationValues(IHeaderDictionary? headers)
-    {
-        var traceIdHeaderKey = configuration.GetValue<string>("TraceHeader");
-        using var scope = serviceProvider.CreateScope();
-        var headerPropagationValues = scope.ServiceProvider.GetRequiredService<HeaderPropagationValues>();
-
-        var propagationHeaders = headerPropagationValues.Headers ??= new Dictionary<string, StringValues>(
-            StringComparer.OrdinalIgnoreCase
-        );
-
-        if (!string.IsNullOrEmpty(traceIdHeaderKey) && !propagationHeaders.ContainsKey(traceIdHeaderKey))
-        {
-            var traceHeaderValue = headers is not null ? headers[traceIdHeaderKey] : StringValues.Empty;
-
-            if (!string.IsNullOrEmpty(traceHeaderValue))
-            {
-                headerPropagationValues.Headers.Add(traceIdHeaderKey, traceHeaderValue);
-            }
-        }
     }
 }

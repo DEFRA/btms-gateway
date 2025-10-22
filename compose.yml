@@ -32,6 +32,44 @@ services:
       - './compose/wiremock/mappings:/app/__admin/mappings'
     command:
       - '--ReadStaticMappings true'
+
+  mongodb:
+    image: mongo:6.0.13
+    command: [ "--replSet", "rs0", "--bind_ip_all", "--port", "27017" ]
+    ports:
+      - "27017:27017"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'host.docker.internal:27017'}]}) }" | mongosh --port 27017 --quiet
+      interval: 5s
+      timeout: 30s
+      start_period: 0s
+      start_interval: 1s
+      retries: 30
+    volumes:
+      - mongodb-data:/data
+    restart: always
+    
+  cds-simulator:
+    image: defradigital/trade-imports-cds-simulator-api:${TRADE_IMPORTS_CDS_SIMULATOR_API:-latest}
+    pull_policy: always
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    env_file:
+      - 'compose/dotnet-service.env'
+    environment:
+      Mongo__DatabaseUri: mongodb://mongodb:27017/?directConnection=true
+      Acl__Clients__Developer__Secret: developer-pwd
+    ports:
+      - "5003:8080"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/health/all" ]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 5s
   
   gateway:
     build:
@@ -43,6 +81,8 @@ services:
         condition: service_healthy
       wiremock:
         condition: service_started
+      cds-simulator:
+        condition: service_healthy
     ports:
       - "3091:8080"
     env_file:
@@ -50,6 +90,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       AWS__ServiceURL: http://localstack:4566
+      AWS__AuthenticationRegion: eu-west-2
       SQS_ENDPOINT: http://localstack:4566
       Routing__AutomatedHealthCheckDisabled: false
       Routing__NamedLinks__Stub__Link: "http://wiremock/stub"
@@ -57,21 +98,21 @@ services:
       Routing__NamedLinks__CdsAlvs__Link: "http://wiremock/alvs/"
       Routing__NamedLinks__AlvsCds__Link: "http://wiremock/cds/"
       Routing__NamedLinks__AlvsIpaffs__Link: "http://wiremock/ipaffs/"
-      Routing__Destinations__BtmsDecisionComparer__Link: "http://wiremock/comparer/"
-      Routing__Destinations__AlvsDecisionComparer__Link: "http://wiremock/comparer/"
-      Routing__Destinations__BtmsOutboundErrors__Link: "http://wiremock/comparer/"
-      Routing__Destinations__AlvsOutboundErrors__Link: "http://wiremock/comparer/"
+      Routing__Destinations__BtmsCds__Link: "http://cds-simulator:8080"
       HealthCheck__AutomatedHealthCheckDisabled: false
       HealthCheck__Urls__Stub__Url: "http://wiremock/stub/health"
       HealthCheck__Urls__IBM_ALVS__Url: "http://wiremock/alvs/health"
-      HealthCheck__Urls__HMRC_CDS__Url: "http://wiremock/cds/health"
+      HealthCheck__Urls__HMRC_CDS__Url: "http://cds-simulator:8080/health"
       HealthCheck__Urls__IPAFFS_Soap_Search__Url: "http://wiremock/ipaffs/health"
-      DecisionComparerApi__BaseAddress: "http://wiremock/comparer/"
       Acl__Clients__IntegrationTests__Secret: integration-tests-pwd
       Acl__Clients__IntegrationTests__Scopes__0: execute
+      AwsSqsOptions__VisibilityTimeout: 5
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8080/health" ]
-      interval: 5s
+      interval: 300s
       timeout: 5s
       retries: 10
       start_period: 5s
+      
+volumes:
+  mongodb-data:

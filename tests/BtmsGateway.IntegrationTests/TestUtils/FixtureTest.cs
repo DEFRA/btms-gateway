@@ -8,4 +8,9 @@ public static class FixtureTest
     {
         return File.ReadAllText(Path.Combine(s_fixturesPath, fixtureFile));
     }
+
+    public static string WithRandomCorrelationId(this string contentTemplate)
+    {
+        return contentTemplate.Replace("{CORRELATION_ID}", new Random().Next(1000000, 9999999).ToString());
+    }
 }

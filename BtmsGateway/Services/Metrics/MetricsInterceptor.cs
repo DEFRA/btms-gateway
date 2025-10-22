@@ -33,7 +33,7 @@ public class MetricsInterceptor<TMessage>(
             {
                 requestMetrics.MessageReceived(
                     subResourceType,
-                    awsSqsOptions.Value.OutboundClearanceDecisionsQueueName,
+                    awsSqsOptions.Value.ResourceEventsQueueName,
                     "BTMS Decision",
                     "Consumer"
                 );

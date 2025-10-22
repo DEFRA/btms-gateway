@@ -1,18 +1,9 @@
 using System.Net;
-using BtmsGateway.Domain;
-using BtmsGateway.Exceptions;
-using BtmsGateway.Utils;
-using Microsoft.FeatureManagement;
 using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Services.Routing;
 
-public abstract class SoapMessageSenderBase(
-    IApiSender apiSender,
-    RoutingConfig? routingConfig,
-    ILogger logger,
-    IFeatureManager featureManager
-)
+public abstract class SoapMessageSenderBase(IApiSender apiSender, RoutingConfig? routingConfig, ILogger logger)
 {
     private const string CorrelationIdHeaderName = "CorrelationId";
     private const string AcceptHeaderName = "Accept";
@@ -77,53 +68,5 @@ public abstract class SoapMessageSenderBase(
             return await response.Content.ReadAsStringAsync(cancellationToken);
 
         return string.Empty;
-    }
-
-    protected void CheckComparerResponse(
-        HttpResponseMessage comparerResponse,
-        string? correlationId,
-        string? mrn,
-        string messageType
-    )
-    {
-        if (comparerResponse.StatusCode == HttpStatusCode.Conflict)
-        {
-            logger.Warning(
-                "{MessageCorrelationId} {MRN} Failed to send {MessageType} to Decision Comparer: Status Code: {ComparerResponseStatusCode}, Reason: {ComparerResponseReason}.",
-                correlationId,
-                mrn,
-                messageType,
-                comparerResponse.StatusCode,
-                comparerResponse.ReasonPhrase
-            );
-            throw new ConflictException($"{mrn} Failed to send {messageType} to Decision Comparer.");
-        }
-
-        if (!comparerResponse.StatusCode.IsSuccessStatusCode())
-        {
-            logger.Error(
-                "{MessageCorrelationId} {MRN} Failed to send {MessageType} to Decision Comparer: Status Code: {ComparerResponseStatusCode}, Reason: {ComparerResponseReason}.",
-                correlationId,
-                mrn,
-                messageType,
-                comparerResponse.StatusCode,
-                comparerResponse.ReasonPhrase
-            );
-            throw new DecisionComparisonException($"{mrn} Failed to send {messageType} to Decision Comparer.");
-        }
-    }
-
-    protected async Task<MessagingConstants.MessageSource> MessageSourceToSend()
-    {
-        if (
-            await featureManager.IsEnabledAsync(Features.TrialCutover)
-            && !await featureManager.IsEnabledAsync(Features.Cutover)
-        )
-            return MessagingConstants.MessageSource.Alvs; // Only send Decision/Error Notification if it was triggered by an ALVS request during Trial Cutover
-
-        if (await featureManager.IsEnabledAsync(Features.Cutover))
-            return MessagingConstants.MessageSource.Btms; // Only send Decision/Error Notification if it was triggered by a BTMS Decision event during Cutover
-
-        return MessagingConstants.MessageSource.None; // Don't send any Decision/Error Notification during Connected Silent Running
     }
 }

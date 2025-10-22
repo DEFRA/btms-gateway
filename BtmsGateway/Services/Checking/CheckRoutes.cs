@@ -26,19 +26,6 @@ public class CheckRoutes(
         return checkRouteResults.SelectMany(routeResults => routeResults);
     }
 
-    public async Task<IEnumerable<CheckRouteResult>> CheckIpaffs()
-    {
-        logger.Debug("Start route checking");
-        var cts = new CancellationTokenSource(TimeSpan.FromSeconds(OverallTimeoutSecs));
-        return (
-            await Task.WhenAll(
-                healthCheckConfig
-                    .Urls.Where(x => !x.Value.Disabled && x.Key.StartsWith("IPAFFS"))
-                    .Select(x => CheckAll(GetCheckRouteUrl(x), cts))
-            )
-        ).SelectMany(routeResults => routeResults);
-    }
-
     private static CheckRouteUrl GetCheckRouteUrl(KeyValuePair<string, HealthCheckUrl> x)
     {
         return new CheckRouteUrl

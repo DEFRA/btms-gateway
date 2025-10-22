@@ -10,6 +10,7 @@
     <PackageReference Include="FluentAssertions" Version="7.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.8" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="MongoDB.Driver" Version="3.5.0" />
     <PackageReference Include="WireMock.Net.RestClient" Version="1.11.0" />
     <PackageReference Include="xunit" Version="2.9.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4">
@@ -28,10 +29,22 @@
     <None Update="Fixtures\DecisionNotification.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Fixtures\SearchCertificate.xml">
+    <None Update="Fixtures\CustomsDeclarationClearanceDecisionResourceEvent.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Fixtures\CustomsDeclarationClearanceDecisionResourceEvent.json">
+    <None Update="Fixtures\ClearanceRequestTemplate.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Fixtures\FinalisationTemplate.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Fixtures\InboundErrorTemplate.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Fixtures\CustomsDeclarationProcessingErrorResourceEvent.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Fixtures\ErrorNotification.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

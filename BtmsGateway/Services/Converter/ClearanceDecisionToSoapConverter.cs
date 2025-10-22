@@ -74,9 +74,17 @@ public static class ClearanceDecisionToSoapConverter
         foreach (var checkDecisionReason in check.DecisionReasons)
         {
             if (!string.IsNullOrEmpty(checkDecisionReason))
-                checkElement.Add(new XElement("DecisionReason", checkDecisionReason));
+                checkElement.Add(new XElement("DecisionReason", EnsureMaxLength(checkDecisionReason, 512)));
         }
 
         return checkElement;
+    }
+
+    private static string EnsureMaxLength(string value, int maxLength)
+    {
+        if (value.Length <= maxLength)
+            return value;
+
+        return value[..509] + "...";
     }
 }

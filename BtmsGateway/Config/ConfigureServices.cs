@@ -8,7 +8,6 @@ using BtmsGateway.Services.Metrics;
 using BtmsGateway.Services.Routing;
 using BtmsGateway.Utils.Http;
 using FluentValidation;
-using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Config;
 
@@ -17,7 +16,6 @@ public static class ConfigureServices
     public static IHttpClientBuilder? HttpRoutedClientWithRetryBuilder { get; private set; }
     public static IHttpClientBuilder? HttpForkedClientWithRetryBuilder { get; private set; }
     public static IHttpClientBuilder? HttpClientWithRetryBuilder { get; private set; }
-    public static IHttpClientBuilder? DecisionComparerHttpClientWithRetryBuilder { get; private set; }
 
     [ExcludeFromCodeCoverage]
     public static void AddServices(this WebApplicationBuilder builder)
@@ -42,9 +40,6 @@ public static class ConfigureServices
         HttpClientWithRetryBuilder = builder.Services.AddHttpProxyClientWithRetry(
             httpClientTimeoutSeconds,
             cdsHttpClientRetries
-        );
-        DecisionComparerHttpClientWithRetryBuilder = builder.Services.AddDecisionComparerHttpProxyClientWithRetry(
-            httpClientTimeoutSeconds
         );
 
         builder.Services.AddHttpProxyClientWithoutRetry();

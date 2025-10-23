@@ -3,12 +3,11 @@ using System.Reflection;
 using BtmsGateway.Services.Routing;
 using FluentAssertions;
 using Microsoft.AspNetCore.HeaderPropagation;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Primitives;
+using Microsoft.Extensions.Logging.Testing;
 using NSubstitute;
-using Serilog;
+using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace BtmsGateway.Test.Services.Routing;
 
@@ -135,7 +134,7 @@ public class ApiSenderTests
         var mockFactory = Substitute.For<IHttpClientFactory>();
         mockFactory.CreateClient(Arg.Any<string>()).Returns(mockClient);
 
-        var logger = Substitute.For<ILogger>();
+        var logger = new FakeLogger();
 
         var headerPropagationValues = new HeaderPropagationValues();
 

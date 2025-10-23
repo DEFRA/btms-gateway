@@ -2,7 +2,6 @@ using System.Net;
 using BtmsGateway.Domain;
 using BtmsGateway.Middleware;
 using BtmsGateway.Services.Metrics;
-using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Services.Routing;
 
@@ -16,7 +15,7 @@ public class MessageRouter(
     IMessageRoutes messageRoutes,
     IApiSender apiSender,
     IQueueSender queueSender,
-    ILogger logger,
+    ILogger<MessageRouter> logger,
     IAlvsIpaffsSuccessProvider alvsIpaffsSuccessProvider
 ) : IMessageRouter
 {
@@ -102,7 +101,7 @@ public class MessageRouter(
 
     private void LogError(Exception? ex, MessageData messageData, string action, RoutingResult routingResult)
     {
-        logger.Error(
+        logger.LogError(
             ex,
             "{ContentCorrelationId} {MessageReference} Error {Action} message type {MessageType}",
             messageData.ContentMap.CorrelationId,

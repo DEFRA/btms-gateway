@@ -1,13 +1,12 @@
 using System.Diagnostics;
 using BtmsGateway.Utils.Http;
-using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Services.Checking;
 
 public class CheckRoutes(
     HealthCheckConfig healthCheckConfig,
     IHttpClientFactory clientFactory,
-    ILogger logger,
+    ILogger<CheckRoutes> logger,
     IProcessRunner processRunner
 )
 {
@@ -18,7 +17,7 @@ public class CheckRoutes(
         if (healthCheckConfig.Disabled)
             return [];
 
-        logger.Debug("Start route checking");
+        logger.LogDebug("Start route checking");
         var cts = new CancellationTokenSource(TimeSpan.FromSeconds(OverallTimeoutSecs));
         var checkRouteResults = await Task.WhenAll(
             healthCheckConfig.Urls.Select(GetCheckRouteUrl).Where(x => !x.Disabled).Select(x => CheckAll(x, cts))
@@ -84,7 +83,7 @@ public class CheckRoutes(
 
         try
         {
-            logger.Debug("Start checking HTTP request for {Url}", checkRouteUrl.Url);
+            logger.LogDebug("Start checking HTTP request for {Url}", checkRouteUrl.Url);
             var client = clientFactory.CreateClient(Proxy.ProxyClientWithoutRetry);
             var request = new HttpRequestMessage(new HttpMethod(checkRouteUrl.Method), checkRouteUrl.Url);
             if (checkRouteUrl.HostHeader != null)
@@ -104,7 +103,7 @@ public class CheckRoutes(
         }
 
         stopwatch.Stop();
-        logger.Debug(
+        logger.LogDebug(
             checkRouteResult.Exception,
             "Completed checking HTTP request for {Url} with result {Result}",
             checkRouteUrl.Url,
@@ -140,7 +139,7 @@ public class CheckRoutes(
 
         try
         {
-            logger.Debug("Start checking {ProcessName} for {Url}", processName, arguments);
+            logger.LogDebug("Start checking {ProcessName} for {Url}", processName, arguments);
 
             var processTask = processRunner.RunProcess(processName, arguments);
             var waitedTask = await Task.WhenAny(processTask, GetCancellationTask(token));
@@ -158,7 +157,7 @@ public class CheckRoutes(
         }
 
         stopwatch.Stop();
-        logger.Debug(
+        logger.LogDebug(
             checkRouteResult.Exception,
             "Completed checking {ProcessName} for {Url} with result {Result}",
             processName,

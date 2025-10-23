@@ -3,12 +3,15 @@ using Amazon.SimpleNotificationService;
 using Amazon.SimpleNotificationService.Model;
 using BtmsGateway.Utils;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Services.Health;
 
-public class TopicHealthCheck(string name, string topicArn, IAmazonSimpleNotificationService snsClient, ILogger logger)
-    : IHealthCheck
+public class TopicHealthCheck(
+    string name,
+    string topicArn,
+    IAmazonSimpleNotificationService snsClient,
+    ILogger<TopicHealthCheck> logger
+) : IHealthCheck
 {
     public async Task<HealthCheckResult> CheckHealthAsync(
         HealthCheckContext context,
@@ -26,14 +29,14 @@ public class TopicHealthCheck(string name, string topicArn, IAmazonSimpleNotific
         }
         catch (TaskCanceledException ex)
         {
-            logger.Warning(ex, "HEALTH - Retrieving attributes timed out for topic {Arn}", topicArn);
+            logger.LogWarning(ex, "HEALTH - Retrieving attributes timed out for topic {Arn}", topicArn);
             exception = new TimeoutException(
                 $"The topic check was cancelled, probably because it timed out after {ConfigureHealthChecks.Timeout.TotalSeconds} seconds"
             );
         }
         catch (Exception ex)
         {
-            logger.Warning(ex, "HEALTH - Retrieving attributes failed for topic {Arn}", topicArn);
+            logger.LogWarning(ex, "HEALTH - Retrieving attributes failed for topic {Arn}", topicArn);
             exception = ex;
         }
 

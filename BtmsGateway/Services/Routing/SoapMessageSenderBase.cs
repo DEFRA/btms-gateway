@@ -1,5 +1,4 @@
 using System.Net;
-using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Services.Routing;
 
@@ -14,7 +13,7 @@ public abstract class SoapMessageSenderBase(IApiSender apiSender, RoutingConfig?
 
         if ((!routingConfig?.Destinations.TryGetValue(destinationKey, out destination) ?? false) || destination is null)
         {
-            logger.Error(
+            logger.LogError(
                 "Destination configuration could not be found for {DestinationKey}. Please confirm application configuration contains the Destination configuration.",
                 destinationKey
             );

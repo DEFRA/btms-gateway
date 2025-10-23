@@ -6,7 +6,7 @@ using BtmsGateway.Utils.Http;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Serilog.Core;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace BtmsGateway.Test.Services.Health;
 
@@ -103,6 +103,37 @@ public class NetworkHealthCheckTests
     }
 
     [Fact]
+    public async Task When_health_checking_a_route_that_throws_timeout_Then_should_set_correct_status_and_populate_other_information()
+    {
+        var testHttpHandler = new TestHttpHandler();
+        var exceptionToThrow = new TaskCanceledException("Error message", new TimeoutException("Inner error message"));
+        testHttpHandler.SetNextResponse(exceptionToThrow: exceptionToThrow);
+        var healthCheckUrl = new HealthCheckUrl
+        {
+            Method = "GET",
+            Url = "http://1.2.3.4/path",
+            HostHeader = "localhost",
+            IncludeInAutomatedHealthCheck = true,
+            Disabled = false,
+        };
+        var routeHealthCheck = GetRouteHealthCheck(healthCheckUrl, testHttpHandler);
+
+        var result = await routeHealthCheck.CheckHealthAsync(new HealthCheckContext());
+
+        result.Status.Should().Be(HealthStatus.Degraded);
+        result.Description.Should().Be("Network route: Health Check Name");
+        result.Data["route"].Should().Be(healthCheckUrl.Url);
+        result.Data["host"].Should().Be(healthCheckUrl.HostHeader);
+        result.Data["method"].Should().Be(healthCheckUrl.Method);
+        result.Data["status"].Should().Be("");
+        result.Data["content"].Should().Be("");
+        result
+            .Data["error"]
+            .Should()
+            .Be("The network check has cancelled, probably because it timed out after 15 seconds - Error message");
+    }
+
+    [Fact]
     public async Task When_health_checking_a_route_that_should_consider_additional_status_as_successful_Then_should_set_correct_status()
     {
         var testHttpHandler = new TestHttpHandler();
@@ -135,7 +166,7 @@ public class NetworkHealthCheckTests
             "Health_Check_Name",
             healthCheckUrl,
             s.GetRequiredService<IHttpClientFactory>(),
-            Logger.None
+            NullLogger<NetworkHealthCheck>.Instance
         ));
         var services = serviceCollection.BuildServiceProvider();
         return services.GetRequiredService<NetworkHealthCheck>();

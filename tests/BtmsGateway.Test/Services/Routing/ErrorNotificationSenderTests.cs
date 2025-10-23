@@ -4,8 +4,9 @@ using BtmsGateway.Exceptions;
 using BtmsGateway.Services.Routing;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
-using Serilog;
 
 namespace BtmsGateway.Test.Services.Routing;
 
@@ -13,7 +14,7 @@ public class ErrorNotificationSenderTests
 {
     private RoutingConfig _routingConfig;
     private readonly IApiSender _apiSender = Substitute.For<IApiSender>();
-    private readonly ILogger _logger = Substitute.For<ILogger>();
+    private readonly ILogger<ErrorNotificationSender> _logger = NullLogger<ErrorNotificationSender>.Instance;
     private readonly ErrorNotificationSender _errorNotificationSender;
 
     public ErrorNotificationSenderTests()

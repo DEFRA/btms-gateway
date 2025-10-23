@@ -4,9 +4,9 @@ using BtmsGateway.Services.Converter;
 using BtmsGateway.Services.Metrics;
 using BtmsGateway.Services.Routing;
 using FluentAssertions;
+using Microsoft.Extensions.Logging.Testing;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
-using Serilog;
 
 namespace BtmsGateway.Test.Services.Routing;
 
@@ -354,7 +354,7 @@ public class MessageRouterTests
         IMessageRoutes Routes,
         IApiSender ApiSender,
         IQueueSender QueueSender,
-        ILogger Logger,
+        Microsoft.Extensions.Logging.ILogger<MessageRouter> Logger,
         IMetrics Metrics,
         IAlvsIpaffsSuccessProvider AlvsIpaffsSuccessProvider
     ) CreateMocks(
@@ -427,7 +427,7 @@ public class MessageRouterTests
                 .ThrowsAsync<Exception>();
         }
 
-        var logger = Substitute.For<ILogger>();
+        var logger = new FakeLogger<MessageRouter>();
         var metrics = Substitute.For<IMetrics>();
 
         var alvsIpaffsSuccessProvider = Substitute.For<IAlvsIpaffsSuccessProvider>();

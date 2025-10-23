@@ -1,6 +1,5 @@
 using BtmsGateway.Domain;
 using BtmsGateway.Exceptions;
-using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Services.Routing;
 
@@ -22,7 +21,11 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
     private readonly Destination _btmsToCdsDestination;
     private readonly ILogger _logger;
 
-    public ErrorNotificationSender(RoutingConfig? routingConfig, IApiSender apiSender, ILogger logger)
+    public ErrorNotificationSender(
+        RoutingConfig? routingConfig,
+        IApiSender apiSender,
+        ILogger<ErrorNotificationSender> logger
+    )
         : base(apiSender, routingConfig, logger)
     {
         _logger = logger;
@@ -50,7 +53,7 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
                 $"{mrn} Request to send an invalid error notification to CDS: {errorNotification}"
             );
 
-        _logger.Debug(
+        _logger.LogDebug(
             "{MessageCorrelationId} {MRN} Sending error notification from {MessageSource} to CDS.",
             correlationId,
             mrn,
@@ -66,7 +69,7 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
 
         if (!cdsResponse.IsSuccessStatusCode)
         {
-            _logger.Error(
+            _logger.LogError(
                 "{MessageCorrelationId} {MRN} Failed to send error notification to CDS. CDS Response Status Code: {StatusCode}, Reason: {Reason}, Content: {Content}",
                 correlationId,
                 mrn,
@@ -77,7 +80,7 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
             throw new CdsCommunicationException($"{mrn} Failed to send error notification to CDS.");
         }
 
-        _logger.Information(
+        _logger.LogInformation(
             "{MessageCorrelationId} {MRN} Successfully sent {MessageSource} Error Notification to CDS.",
             correlationId,
             mrn,

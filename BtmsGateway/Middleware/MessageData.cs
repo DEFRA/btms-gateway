@@ -7,7 +7,6 @@ using BtmsGateway.Domain;
 using BtmsGateway.Services.Checking;
 using BtmsGateway.Services.Converter;
 using BtmsGateway.Services.Routing;
-using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Middleware;
 
@@ -32,7 +31,7 @@ public class MessageData
         var content = await RetrieveContent(request);
 
         if (logRawMessage)
-            logger.Information("Request Content: {Content}", content);
+            logger.LogInformation("Request Content: {Content}", content);
 
         return new MessageData(request, content, logger);
     }
@@ -108,7 +107,7 @@ public class MessageData
     {
         var content = SoapToJsonConverter.Convert(OriginalSoapContent, messageSubXPath);
 
-        _logger.Debug(
+        _logger.LogDebug(
             "{ContentCorrelationId} {MessageReference} Publish JSON content",
             ContentMap.CorrelationId,
             ContentMap.MessageReference
@@ -132,7 +131,7 @@ public class MessageData
                     traceHeaderKey,
                     new MessageAttributeValue { StringValue = traceHeaderValue, DataType = "String" }
                 );
-                _logger.Debug(
+                _logger.LogDebug(
                     "{ContentCorrelationId} {MessageReference} TraceHeaderKey found and set to {TraceValue}",
                     ContentMap.CorrelationId,
                     ContentMap.MessageReference,
@@ -141,7 +140,7 @@ public class MessageData
             }
             else
             {
-                _logger.Debug(
+                _logger.LogDebug(
                     "{ContentCorrelationId} {MessageReference} TraceHeaderKey not found {TraceHeaderKey}",
                     ContentMap.CorrelationId,
                     ContentMap.MessageReference,
@@ -206,7 +205,7 @@ public class MessageData
                 MessagingConstants.MessageAttributeKeys.InboundHmrcMessageType,
                 new MessageAttributeValue { DataType = "String", StringValue = attributeValue }
             );
-            _logger.Debug(
+            _logger.LogDebug(
                 "{ContentCorrelationId} {MessageReference} Message Type Attribute Value {AttributeValue} added for SOAP message type {SOAPMessageType}",
                 ContentMap.CorrelationId,
                 ContentMap.MessageReference,
@@ -216,7 +215,7 @@ public class MessageData
         }
         else
         {
-            _logger.Debug(
+            _logger.LogDebug(
                 "{ContentCorrelationId} {MessageReference} Message Type Attribute Value not added for SOAP message type {SOAPMessageType}",
                 ContentMap.CorrelationId,
                 ContentMap.MessageReference,

@@ -2,7 +2,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using BtmsGateway.Exceptions;
 using BtmsGateway.Services.Converter;
-using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Services.Routing;
 
@@ -17,7 +16,7 @@ public class MessageRoutes : IMessageRoutes
     private readonly ILogger _logger;
     private readonly RoutedLink[] _routes;
 
-    public MessageRoutes(RoutingConfig routingConfig, ILogger logger)
+    public MessageRoutes(RoutingConfig routingConfig, ILogger<MessageRoutes> logger)
     {
         _logger = logger;
         try
@@ -36,7 +35,7 @@ public class MessageRoutes : IMessageRoutes
         }
         catch (Exception ex)
         {
-            _logger.Error(ex, "Error creating routing table");
+            _logger.LogError(ex, "Error creating routing table");
             throw new RoutingException($"Error creating routing table: {ex.Message}", ex);
         }
     }
@@ -66,7 +65,7 @@ public class MessageRoutes : IMessageRoutes
         }
         catch (Exception ex)
         {
-            _logger.Error(ex, "{ContentCorrelationId} {MRN} Error getting route", correlationId, mrn);
+            _logger.LogError(ex, "{ContentCorrelationId} {MRN} Error getting route", correlationId, mrn);
             return new RoutingResult
             {
                 RouteFound = false,

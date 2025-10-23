@@ -2,12 +2,12 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 using BtmsGateway.Config;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using ILogger = Serilog.ILogger;
 
 namespace BtmsGateway.Services.Health;
 
 [ExcludeFromCodeCoverage]
-public class ApiHealthCheck<T>(string name, string checkEndpoint, T options, ILogger logger) : IHealthCheck
+public class ApiHealthCheck<T>(string name, string checkEndpoint, T options, ILogger<ApiHealthCheck<T>> logger)
+    : IHealthCheck
     where T : HttpClientConfigurableOptions
 {
     public async Task<HealthCheckResult> CheckHealthAsync(
@@ -30,14 +30,14 @@ public class ApiHealthCheck<T>(string name, string checkEndpoint, T options, ILo
         }
         catch (TaskCanceledException ex)
         {
-            logger.Warning(ex, "HEALTH - Retrieving API URL timed out for API {API}", name);
+            logger.LogWarning(ex, "HEALTH - Retrieving API URL timed out for API {API}", name);
             exception = new TimeoutException(
                 $"The API check was cancelled, probably because it timed out after {ConfigureHealthChecks.Timeout.TotalSeconds} seconds"
             );
         }
         catch (Exception ex)
         {
-            logger.Warning(ex, "HEALTH - Retrieving API URL failed for API {API}", name);
+            logger.LogWarning(ex, "HEALTH - Retrieving API URL failed for API {API}", name);
             exception = ex;
         }
 

@@ -24,7 +24,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Set up .NET 9.0
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: |
             9.0
@@ -59,7 +59,7 @@ jobs:
           mkdir -p ./.sonar/coverage
           dotnet tool update dotnet-coverage --tool-path ./.sonar/coverage
       - name: Run docker-compose # Runs the existing Docker compose and scripts for now until the tests can be rewritten
-        uses: hoverkraft-tech/compose-action@v2.3.0
+        uses: hoverkraft-tech/compose-action@v2.4.1
         with:
           compose-file: "./compose.yml"
         env:

@@ -261,6 +261,7 @@ public class MessageData
 public class ContentMap(SoapContent soapContent)
 {
     public string? EntryReference => soapContent.GetProperty("EntryReference");
+    public string? EntryVersionNumber => soapContent.GetProperty("EntryVersionNumber") ?? "NO ENTRY VERSION NUMBER";
     public string? CountryCode => soapContent.GetProperty("DispatchCountryCode");
     public string? CorrelationId => soapContent.GetProperty("CorrelationId");
     public string? RequestIdentifier => soapContent.GetProperty("RequestIdentifier");

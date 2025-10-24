@@ -19,7 +19,7 @@ namespace BtmsGateway.Test.Middleware;
 public class RoutingInterceptorTests
 {
     private const string RequestBody =
-        "<Envelope><Body><Root><Data>abc</Data><CorrelationId>correlation-id</CorrelationId></Root></Body></Envelope>";
+        "<Envelope><Body><Root><Data>abc</Data><CorrelationId>correlation-id</CorrelationId><EntryVersionNumber>2</EntryVersionNumber></Root></Body></Envelope>";
 
     private readonly DefaultHttpContext _httpContext = new()
     {

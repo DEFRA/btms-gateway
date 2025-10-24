@@ -38,9 +38,10 @@ public class RoutingInterceptor(
             if (messageData.ShouldProcessRequest)
             {
                 logger.LogInformation(
-                    "{ContentCorrelationId} {MessageReference} Received routing instruction {HttpString}",
+                    "{ContentCorrelationId} {MessageReference} version {Version} Received routing instruction {HttpString}",
                     messageData.ContentMap.CorrelationId,
                     messageData.ContentMap.MessageReference,
+                    messageData.ContentMap.EntryVersionNumber,
                     messageData.HttpString
                 );
 
@@ -142,9 +143,10 @@ public class RoutingInterceptor(
         if (routingResult.RoutingSuccessful)
         {
             logger.LogInformation(
-                "{ContentCorrelationId} {MessageReference} {Action} {Success} for route {RouteUrl}, message type {MessageType} with response {StatusCode}",
+                "{ContentCorrelationId} {MessageReference} {Version} {Action} {Success} for route {RouteUrl}, message type {MessageType} with response {StatusCode}",
                 messageData.ContentMap.CorrelationId,
                 messageData.ContentMap.MessageReference,
+                messageData.ContentMap.EntryVersionNumber,
                 action,
                 "successful",
                 action == RouteAction ? routingResult.FullRouteLink : routingResult.FullForkLink,
@@ -163,9 +165,10 @@ public class RoutingInterceptor(
         }
 
         logger.LogError(
-            "{ContentCorrelationId} {MessageReference} {Action} {Success} for route {RouteUrl}, message type {MessageType} with response {StatusCode}",
+            "{ContentCorrelationId} {MessageReference} {Version} {Action} {Success} for route {RouteUrl}, message type {MessageType} with response {StatusCode}",
             messageData.ContentMap.CorrelationId,
             messageData.ContentMap.MessageReference,
+            messageData.ContentMap.EntryVersionNumber,
             action,
             "failed",
             action == RouteAction ? routingResult.FullRouteLink : routingResult.FullForkLink,
@@ -179,9 +182,10 @@ public class RoutingInterceptor(
         if (!routingResult.RouteFound)
         {
             logger.LogWarning(
-                "{ContentCorrelationId} {MessageReference} {Action} not supported for [{HttpString}]",
+                "{ContentCorrelationId} {MessageReference} {Version} {Action} not supported for [{HttpString}]",
                 messageData.ContentMap.CorrelationId,
                 messageData.ContentMap.MessageReference,
+                messageData.ContentMap.EntryVersionNumber,
                 action,
                 messageData.HttpString
             );

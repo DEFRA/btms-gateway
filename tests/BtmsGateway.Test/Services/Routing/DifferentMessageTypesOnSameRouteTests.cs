@@ -30,7 +30,6 @@ public class DifferentMessageTypesOnSameRouteTests
         route.RouteFound.Should().BeTrue();
         route.RouteName.Should().Be("route-1");
         route.FullRouteLink.Should().Be("http://legacy-link-1-url/route/path-A/sub/path");
-        route.FullForkLink.Should().Be("btms-link-1-queue");
     }
 
     [Fact]
@@ -51,6 +50,5 @@ public class DifferentMessageTypesOnSameRouteTests
         route.RouteFound.Should().BeTrue();
         route.RouteName.Should().Be("route-2");
         route.FullRouteLink.Should().Be("http://legacy-link-2-url/route/path-A/sub/path");
-        route.FullForkLink.Should().Be("btms-link-2-queue");
     }
 }

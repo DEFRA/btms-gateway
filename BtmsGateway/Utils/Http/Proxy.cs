@@ -18,7 +18,6 @@ public static class Proxy
     public const string ProxyClientWithoutRetry = "proxy";
     public const string CdsProxyClientWithRetry = "proxy-with-retry";
     public const string RoutedClientWithRetry = "routed-with-retry";
-    public const string ForkedClientWithRetry = "forked-with-retry";
 
     [ExcludeFromCodeCoverage]
     public static IHttpClientBuilder AddHttpProxyClientWithoutRetry(this IServiceCollection services)
@@ -47,23 +46,6 @@ public static class Proxy
 
         return services
             .AddHttpClient(RoutedClientWithRetry)
-            .ConfigurePrimaryHttpMessageHandler(ConfigurePrimaryHttpMessageHandler)
-            .AddPolicyHandler(strategy);
-    }
-
-    [ExcludeFromCodeCoverage]
-    public static IHttpClientBuilder AddHttpProxyForkedClientWithRetry(
-        this IServiceCollection services,
-        int httpClientTimeoutInSeconds
-    )
-    {
-        var strategy = Policy.WrapAsync(
-            WaitAndRetryAsync,
-            Policy.TimeoutAsync<HttpResponseMessage>(TimeSpan.FromSeconds(httpClientTimeoutInSeconds))
-        );
-
-        return services
-            .AddHttpClient(ForkedClientWithRetry)
             .ConfigurePrimaryHttpMessageHandler(ConfigurePrimaryHttpMessageHandler)
             .AddPolicyHandler(strategy);
     }

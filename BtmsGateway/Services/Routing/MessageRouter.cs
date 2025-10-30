@@ -40,7 +40,13 @@ public class MessageRouter(
         }
         catch (Exception ex)
         {
-            LogRoutingError(ex, messageData, routingResult);
+            logger.LogError(
+                ex,
+                "{ContentCorrelationId} {MessageReference} Error routing message type {MessageType}",
+                messageData.ContentMap.CorrelationId,
+                messageData.ContentMap.MessageReference,
+                MessagingConstants.MessageTypes.FromSoapMessageType(routingResult.MessageSubXPath)
+            );
             return routingResult with
             {
                 StatusCode = HttpStatusCode.ServiceUnavailable,
@@ -51,23 +57,6 @@ public class MessageRouter(
         {
             metrics.RecordRoutedRequest(routingResult);
         }
-    }
-
-    private void LogRoutingError(Exception? ex, MessageData messageData, RoutingResult routingResult)
-    {
-        LogError(ex, messageData, "routing", routingResult);
-    }
-
-    private void LogError(Exception? ex, MessageData messageData, string action, RoutingResult routingResult)
-    {
-        logger.LogError(
-            ex,
-            "{ContentCorrelationId} {MessageReference} Error {Action} message type {MessageType}",
-            messageData.ContentMap.CorrelationId,
-            messageData.ContentMap.MessageReference,
-            action,
-            MessagingConstants.MessageTypes.FromSoapMessageType(routingResult.MessageSubXPath)
-        );
     }
 
     private RoutingResult GetRoutingResult(MessageData messageData)

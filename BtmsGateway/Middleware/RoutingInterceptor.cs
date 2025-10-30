@@ -22,8 +22,6 @@ public class RoutingInterceptor(
 {
     private const string RouteAction = "Routing";
 
-    ////private const string ForkAction = "Forking";
-
     public async Task InvokeAsync(HttpContext context)
     {
         try

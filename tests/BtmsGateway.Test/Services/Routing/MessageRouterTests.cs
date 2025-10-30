@@ -13,146 +13,6 @@ namespace BtmsGateway.Test.Services.Routing;
 public class MessageRouterTests
 {
     [Fact]
-    public async Task Fork_NoRouteFound_ShouldReturnRouteError()
-    {
-        // Arrange
-        var mocks = CreateMocks();
-        var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
-
-        var sut = new MessageRouter(
-            mocks.Routes,
-            mocks.ApiSender,
-            mocks.QueueSender,
-            mocks.Logger,
-            mocks.AlvsIpaffsSuccessProvider
-        );
-
-        // Act
-        var response = await sut.Fork(msgData.MessageData, mocks.Metrics);
-
-        // Assert
-        response.RouteFound.Should().BeFalse();
-        response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
-        response.ErrorMessage.Should().Be("Route not found");
-        mocks.Metrics.DidNotReceive().StartRoutedRequest();
-        mocks.Metrics.DidNotReceive().RecordRoutedRequest(Arg.Any<RoutingResult>());
-        mocks.Metrics.DidNotReceive().StartForkedRequest();
-        mocks.Metrics.DidNotReceive().RecordForkedRequest(Arg.Any<RoutingResult>());
-    }
-
-    [Fact]
-    public async Task Fork_QueueLinkType_SuccessfullyRouted_ReturnsSuccess()
-    {
-        // Arrange
-        var mocks = CreateMocks(new RoutingResult { ForkLinkType = LinkType.Queue }, false);
-        var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
-
-        var sut = new MessageRouter(
-            mocks.Routes,
-            mocks.ApiSender,
-            mocks.QueueSender,
-            mocks.Logger,
-            mocks.AlvsIpaffsSuccessProvider
-        );
-
-        // Act
-        var response = await sut.Fork(msgData.MessageData, mocks.Metrics);
-
-        // Assert
-        response.RouteFound.Should().BeTrue();
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        response.ErrorMessage.Should().BeNull();
-        mocks.Metrics.DidNotReceive().StartRoutedRequest();
-        mocks.Metrics.DidNotReceive().RecordRoutedRequest(Arg.Any<RoutingResult>());
-        mocks.Metrics.Received().StartForkedRequest();
-        mocks.Metrics.Received().RecordForkedRequest(Arg.Any<RoutingResult>());
-    }
-
-    [Fact]
-    public async Task Fork_QueueLinkType_ThrowsException_ReturnsError()
-    {
-        // Arrange
-        var mocks = CreateMocks(new RoutingResult { ForkLinkType = LinkType.Queue }, true, false);
-        var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
-
-        var sut = new MessageRouter(
-            mocks.Routes,
-            mocks.ApiSender,
-            mocks.QueueSender,
-            mocks.Logger,
-            mocks.AlvsIpaffsSuccessProvider
-        );
-
-        // Act
-        var response = await sut.Fork(msgData.MessageData, mocks.Metrics);
-
-        // Assert
-        response.RouteFound.Should().BeTrue();
-        response.StatusCode.Should().Be(HttpStatusCode.ServiceUnavailable);
-        response.ErrorMessage.Should().StartWith("Error fork");
-        mocks.Metrics.DidNotReceive().StartRoutedRequest();
-        mocks.Metrics.DidNotReceive().RecordRoutedRequest(Arg.Any<RoutingResult>());
-        mocks.Metrics.Received().StartForkedRequest();
-        mocks.Metrics.Received().RecordForkedRequest(Arg.Any<RoutingResult>());
-    }
-
-    [Fact]
-    public async Task Fork_UrlLinkType_SuccessfullyRouted_ReturnsSuccess()
-    {
-        // Arrange
-        var mocks = CreateMocks(new RoutingResult { ForkLinkType = LinkType.Url }, true, false);
-        var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
-
-        var sut = new MessageRouter(
-            mocks.Routes,
-            mocks.ApiSender,
-            mocks.QueueSender,
-            mocks.Logger,
-            mocks.AlvsIpaffsSuccessProvider
-        );
-
-        // Act
-        var response = await sut.Fork(msgData.MessageData, mocks.Metrics);
-
-        // Assert
-        response.RouteFound.Should().BeTrue();
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        response.ErrorMessage.Should().BeNull();
-        mocks.Metrics.DidNotReceive().StartRoutedRequest();
-        mocks.Metrics.DidNotReceive().RecordRoutedRequest(Arg.Any<RoutingResult>());
-        mocks.Metrics.Received().StartForkedRequest();
-        mocks.Metrics.Received().RecordForkedRequest(Arg.Any<RoutingResult>());
-    }
-
-    [Fact]
-    public async Task Fork_UrlLinkType_ThrowsException_ReturnsError()
-    {
-        // Arrange
-        var mocks = CreateMocks(new RoutingResult { ForkLinkType = LinkType.Url }, false);
-        var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
-
-        var sut = new MessageRouter(
-            mocks.Routes,
-            mocks.ApiSender,
-            mocks.QueueSender,
-            mocks.Logger,
-            mocks.AlvsIpaffsSuccessProvider
-        );
-
-        // Act
-        var response = await sut.Fork(msgData.MessageData, mocks.Metrics);
-
-        // Assert
-        response.RouteFound.Should().BeTrue();
-        response.StatusCode.Should().Be(HttpStatusCode.ServiceUnavailable);
-        response.ErrorMessage.Should().StartWith("Error fork");
-        mocks.Metrics.DidNotReceive().StartRoutedRequest();
-        mocks.Metrics.DidNotReceive().RecordRoutedRequest(Arg.Any<RoutingResult>());
-        mocks.Metrics.Received().StartForkedRequest();
-        mocks.Metrics.Received().RecordForkedRequest(Arg.Any<RoutingResult>());
-    }
-
-    [Fact]
     public async Task Route_NoRouteFound_ReturnsInternalServerError()
     {
         // Arrange
@@ -173,10 +33,8 @@ public class MessageRouterTests
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
         response.ErrorMessage.Should().Be("Route not found");
-        mocks.Metrics.DidNotReceive().StartForkedRequest();
         mocks.Metrics.DidNotReceive().RecordRoutedRequest(Arg.Any<RoutingResult>());
         mocks.Metrics.DidNotReceive().StartRoutedRequest();
-        mocks.Metrics.DidNotReceive().RecordForkedRequest(Arg.Any<RoutingResult>());
     }
 
     [Fact]
@@ -203,8 +61,6 @@ public class MessageRouterTests
         response.ErrorMessage.Should().BeNull();
         mocks.Metrics.Received().StartRoutedRequest();
         mocks.Metrics.Received().RecordRoutedRequest(Arg.Any<RoutingResult>());
-        mocks.Metrics.DidNotReceive().StartForkedRequest();
-        mocks.Metrics.DidNotReceive().RecordForkedRequest(Arg.Any<RoutingResult>());
     }
 
     [Fact]
@@ -231,8 +87,6 @@ public class MessageRouterTests
         response.ErrorMessage.Should().StartWith("Error routing");
         mocks.Metrics.Received().StartRoutedRequest();
         mocks.Metrics.Received().RecordRoutedRequest(Arg.Any<RoutingResult>());
-        mocks.Metrics.DidNotReceive().StartForkedRequest();
-        mocks.Metrics.DidNotReceive().RecordForkedRequest(Arg.Any<RoutingResult>());
     }
 
     [Fact]
@@ -259,8 +113,6 @@ public class MessageRouterTests
         response.ErrorMessage.Should().BeNull();
         mocks.Metrics.Received().StartRoutedRequest();
         mocks.Metrics.Received().RecordRoutedRequest(Arg.Any<RoutingResult>());
-        mocks.Metrics.DidNotReceive().StartForkedRequest();
-        mocks.Metrics.DidNotReceive().RecordForkedRequest(Arg.Any<RoutingResult>());
     }
 
     [Fact]
@@ -287,8 +139,6 @@ public class MessageRouterTests
         response.ErrorMessage.Should().StartWith("Error routing");
         mocks.Metrics.Received().StartRoutedRequest();
         mocks.Metrics.Received().RecordRoutedRequest(Arg.Any<RoutingResult>());
-        mocks.Metrics.DidNotReceive().StartForkedRequest();
-        mocks.Metrics.DidNotReceive().RecordForkedRequest(Arg.Any<RoutingResult>());
     }
 
     [Fact]
@@ -315,8 +165,6 @@ public class MessageRouterTests
         response.ErrorMessage.Should().BeNull();
         mocks.Metrics.Received().StartRoutedRequest();
         mocks.Metrics.Received().RecordRoutedRequest(Arg.Any<RoutingResult>());
-        mocks.Metrics.DidNotReceive().StartForkedRequest();
-        mocks.Metrics.DidNotReceive().RecordForkedRequest(Arg.Any<RoutingResult>());
     }
 
     [Fact]
@@ -346,8 +194,6 @@ public class MessageRouterTests
         response.ErrorMessage.Should().StartWith("Error routing");
         mocks.Metrics.Received().StartRoutedRequest();
         mocks.Metrics.Received().RecordRoutedRequest(Arg.Any<RoutingResult>());
-        mocks.Metrics.DidNotReceive().StartForkedRequest();
-        mocks.Metrics.DidNotReceive().RecordForkedRequest(Arg.Any<RoutingResult>());
     }
 
     private static (
@@ -377,7 +223,6 @@ public class MessageRouterTests
                 : routingResult with
                 {
                     RouteFound = true,
-                    FullForkLink = "full-fork-link",
                     FullRouteLink = "full-route-link",
                 };
 
@@ -390,7 +235,7 @@ public class MessageRouterTests
         if (apiSuccess)
         {
             apiSender
-                .Send(Arg.Any<RoutingResult>(), Arg.Any<MessageData>(), Arg.Any<bool>())
+                .Send(Arg.Any<RoutingResult>(), Arg.Any<MessageData>())
                 .Returns(
                     routingResult with
                     {
@@ -402,7 +247,7 @@ public class MessageRouterTests
         }
         else
         {
-            apiSender.Send(Arg.Any<RoutingResult>(), Arg.Any<MessageData>(), Arg.Any<bool>()).ThrowsAsync<Exception>();
+            apiSender.Send(Arg.Any<RoutingResult>(), Arg.Any<MessageData>()).ThrowsAsync<Exception>();
         }
 
         var queueSender = Substitute.For<IQueueSender>();

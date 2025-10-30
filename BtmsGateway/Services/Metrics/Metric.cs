@@ -8,9 +8,6 @@ public interface IMetrics
     public void StartRoutedRequest();
     public void RecordRoutedRequest(RoutingResult routingResult);
 
-    public void StartForkedRequest();
-    public void RecordForkedRequest(RoutingResult routingResult);
-
     public void RecordRoutingError(string routeLink);
 }
 
@@ -42,23 +39,10 @@ public class Metric(MetricsHost metricsHost) : IMetrics
             RecordRoutingError(routingResult.FullRouteLink ?? "Unknown");
     }
 
-    public void StartForkedRequest() => _forkedRequestDuration.Start();
-
-    public void RecordForkedRequest(RoutingResult routingResult)
-    {
-        metricsHost.ForkedRequestDuration.Record(
-            _forkedRequestDuration.ElapsedMilliseconds,
-            RequestDurationArgs(routingResult)
-        );
-        if (!routingResult.RoutingSuccessful)
-            RecordRoutingError(routingResult.FullForkLink ?? "Unknown");
-    }
-
     public void RecordRoutingError(string routeLink)
     {
         metricsHost.RoutingError.Add(1, RoutingErrorArgs(routeLink));
     }
 
     private readonly Stopwatch _routedRequestDuration = new();
-    private readonly Stopwatch _forkedRequestDuration = new();
 }

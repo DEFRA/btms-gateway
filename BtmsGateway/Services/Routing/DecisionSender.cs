@@ -89,10 +89,8 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
         {
             RouteFound = true,
             RouteLinkType = _btmsToCdsDestination.LinkType,
-            ForkLinkType = _btmsToCdsDestination.LinkType,
             RoutingSuccessful = true,
             FullRouteLink = destination,
-            FullForkLink = destination,
             StatusCode = cdsResponse.StatusCode,
             ResponseContent = await GetResponseContentAsync(cdsResponse, cancellationToken),
         };

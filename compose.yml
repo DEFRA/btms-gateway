@@ -94,7 +94,6 @@ services:
       SQS_ENDPOINT: http://localstack:4566
       Routing__AutomatedHealthCheckDisabled: false
       Routing__NamedLinks__Stub__Link: "http://wiremock/stub"
-      Routing__NamedLinks__ForkedStub__Link: "http://wiremock/stub/forked"
       Routing__NamedLinks__CdsAlvs__Link: "http://wiremock/alvs/"
       Routing__NamedLinks__AlvsCds__Link: "http://wiremock/cds/"
       Routing__NamedLinks__AlvsIpaffs__Link: "http://wiremock/ipaffs/"

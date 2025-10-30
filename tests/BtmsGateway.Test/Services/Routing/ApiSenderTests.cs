@@ -14,38 +14,6 @@ namespace BtmsGateway.Test.Services.Routing;
 public class ApiSenderTests
 {
     [Fact]
-    public async Task SendAsync_WithFork_EncountersError_ReturnsErrorResult()
-    {
-        // Arrange
-        var mocks = CreateMocks(HttpStatusCode.BadRequest);
-        var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
-        var sut = new ApiSender(mocks.Factory);
-
-        // Act
-        var response = await sut.Send(msgData.Routing, msgData.MessageData, fork: true);
-
-        // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        response.RoutingSuccessful.Should().BeFalse();
-    }
-
-    [Fact]
-    public async Task SendAsync_WithFork_SendsCorrectly_ReturnsOKResult()
-    {
-        // Arrange
-        var mocks = CreateMocks();
-        var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
-        var sut = new ApiSender(mocks.Factory);
-
-        // Act
-        var response = await sut.Send(msgData.Routing, msgData.MessageData, fork: true);
-
-        // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        response.RoutingSuccessful.Should().BeTrue();
-    }
-
-    [Fact]
     public async Task SendAsync_WithoutFork_EncountersError_ReturnsErrorResult()
     {
         // Arrange
@@ -54,7 +22,7 @@ public class ApiSenderTests
         var sut = new ApiSender(mocks.Factory);
 
         // Act
-        var response = await sut.Send(msgData.Routing, msgData.MessageData, fork: false);
+        var response = await sut.Send(msgData.Routing, msgData.MessageData);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -70,7 +38,7 @@ public class ApiSenderTests
         var sut = new ApiSender(mocks.Factory);
 
         // Act
-        var response = await sut.Send(msgData.Routing, msgData.MessageData, fork: false);
+        var response = await sut.Send(msgData.Routing, msgData.MessageData);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -86,7 +54,7 @@ public class ApiSenderTests
         var sut = new ApiSender(mocks.Factory);
 
         // Act
-        var response = await sut.Send(msgData.Routing, msgData.MessageData, fork: false);
+        var response = await sut.Send(msgData.Routing, msgData.MessageData);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);

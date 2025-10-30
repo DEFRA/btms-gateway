@@ -14,7 +14,6 @@ namespace BtmsGateway.Config;
 public static class ConfigureServices
 {
     public static IHttpClientBuilder? HttpRoutedClientWithRetryBuilder { get; private set; }
-    public static IHttpClientBuilder? HttpForkedClientWithRetryBuilder { get; private set; }
     public static IHttpClientBuilder? HttpClientWithRetryBuilder { get; private set; }
 
     [ExcludeFromCodeCoverage]
@@ -36,7 +35,6 @@ public static class ConfigureServices
         );
 
         HttpRoutedClientWithRetryBuilder = builder.Services.AddHttpProxyRoutedClientWithRetry(httpClientTimeoutSeconds);
-        HttpForkedClientWithRetryBuilder = builder.Services.AddHttpProxyForkedClientWithRetry(httpClientTimeoutSeconds);
         HttpClientWithRetryBuilder = builder.Services.AddHttpProxyClientWithRetry(
             httpClientTimeoutSeconds,
             cdsHttpClientRetries

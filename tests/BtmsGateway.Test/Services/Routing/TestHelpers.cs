@@ -38,7 +38,6 @@ public static class TestHelpers
         var routing = new RoutingResult
         {
             MessageSubXPath = "ALVSClearanceRequest",
-            FullForkLink = Path,
             FullRouteLink = Path,
             ConvertRoutedContentToFromJson = true,
         };

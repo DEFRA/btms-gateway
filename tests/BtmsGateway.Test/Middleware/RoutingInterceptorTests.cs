@@ -109,22 +109,6 @@ public class RoutingInterceptorTests
                     ResponseContent = RequestBody,
                 }
             );
-        messageRouter
-            .Fork(Arg.Any<MessageData>(), Arg.Any<IMetrics>())
-            .Returns(
-                new RoutingResult
-                {
-                    RouteFound = true,
-                    MessageSubXPath = "KnownMessageType",
-                    UrlPath = "/some-known-route-path",
-                    Legend = "Known Message Type",
-                    RouteLinkType = LinkType.Queue,
-                    RoutingSuccessful = true,
-                    FullForkLink = "some-topic",
-                    StatusCode = HttpStatusCode.OK,
-                    ResponseContent = RequestBody,
-                }
-            );
 
         var meter = new Meter("test");
         var meterFactory = Substitute.For<IMeterFactory>();
@@ -162,14 +146,6 @@ public class RoutingInterceptorTests
                 Arg.Is("Known Message Type"),
                 Arg.Is("Routing")
             );
-        requestMetric
-            .Received(2)
-            .MessageReceived(
-                Arg.Is("KnownMessageType"),
-                Arg.Is("/some-known-route-path"),
-                Arg.Is("Known Message Type"),
-                Arg.Is("Forking")
-            );
     }
 
     [Fact]
@@ -201,22 +177,6 @@ public class RoutingInterceptorTests
                     RoutingSuccessful = false,
                     FullRouteLink = "http://localhost/some-broken-route-path",
                     StatusCode = HttpStatusCode.ServiceUnavailable,
-                    ResponseContent = RequestBody,
-                }
-            );
-        messageRouter
-            .Fork(Arg.Any<MessageData>(), Arg.Any<IMetrics>())
-            .Returns(
-                new RoutingResult
-                {
-                    RouteFound = true,
-                    MessageSubXPath = "KnownMessageType",
-                    UrlPath = "/some-known-route-path",
-                    Legend = "Known Message Type",
-                    ForkLinkType = LinkType.Queue,
-                    RoutingSuccessful = true,
-                    FullForkLink = "some-topic",
-                    StatusCode = HttpStatusCode.OK,
                     ResponseContent = RequestBody,
                 }
             );
@@ -256,14 +216,6 @@ public class RoutingInterceptorTests
                 Arg.Is("/some-broken-route-path"),
                 Arg.Is("Known Message Type"),
                 Arg.Is("Routing")
-            );
-        requestMetric
-            .Received(2)
-            .MessageSuccessfullySent(
-                Arg.Is("KnownMessageType"),
-                Arg.Is("/some-known-route-path"),
-                Arg.Is("Known Message Type"),
-                Arg.Is("Forking")
             );
     }
 

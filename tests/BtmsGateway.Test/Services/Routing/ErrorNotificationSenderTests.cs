@@ -3,7 +3,6 @@ using BtmsGateway.Domain;
 using BtmsGateway.Exceptions;
 using BtmsGateway.Services.Routing;
 using FluentAssertions;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
@@ -84,10 +83,8 @@ public class ErrorNotificationSenderTests
                 {
                     RouteFound = true,
                     RouteLinkType = LinkType.Url,
-                    ForkLinkType = LinkType.Url,
                     RoutingSuccessful = true,
                     FullRouteLink = "http://cds-url/ws/CDS/defra/alvsclearanceinbound/v1",
-                    FullForkLink = "http://cds-url/ws/CDS/defra/alvsclearanceinbound/v1",
                     StatusCode = HttpStatusCode.NoContent,
                     ResponseContent = string.Empty,
                 }

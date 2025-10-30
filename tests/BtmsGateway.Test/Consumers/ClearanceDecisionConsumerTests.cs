@@ -20,7 +20,7 @@ public class ClearanceDecisionConsumerTests
 {
     private readonly IDecisionSender _decisionSender = Substitute.For<IDecisionSender>();
     private readonly ILogger<ClearanceDecisionConsumer> _logger = NullLogger<ClearanceDecisionConsumer>.Instance;
-    private readonly ResourceEvent<CustomsDeclaration> _message;
+    private readonly ResourceEvent<CustomsDeclarationEvent> _message;
     private readonly ClearanceDecisionConsumer _consumer;
 
     private const string Mrn = "24GB123456789AB012";
@@ -53,13 +53,13 @@ public class ClearanceDecisionConsumerTests
             ],
         };
 
-        _message = new ResourceEvent<CustomsDeclaration>
+        _message = new ResourceEvent<CustomsDeclarationEvent>
         {
             ResourceId = Mrn,
             ResourceType = "CustomsDeclaration",
             SubResourceType = "ClearanceDecision",
             Operation = "Updated",
-            Resource = new CustomsDeclaration { ClearanceDecision = clearanceDecision },
+            Resource = new CustomsDeclarationEvent { Id = "test", ClearanceDecision = clearanceDecision },
         };
 
         _consumer = new ClearanceDecisionConsumer(
@@ -106,7 +106,7 @@ public class ClearanceDecisionConsumerTests
     [Fact]
     public async Task When_resource_is_null_Then_message_exception_is_thrown()
     {
-        var message = new ResourceEvent<CustomsDeclaration>
+        var message = new ResourceEvent<CustomsDeclarationEvent>
         {
             ResourceId = "24GB123456789AB012",
             ResourceType = "CustomsDeclaration",
@@ -128,13 +128,13 @@ public class ClearanceDecisionConsumerTests
     [Fact]
     public async Task When_customs_declaration_does_not_contain_clearance_decision_Then_exception_is_thrown()
     {
-        var message = new ResourceEvent<CustomsDeclaration>
+        var message = new ResourceEvent<CustomsDeclarationEvent>
         {
             ResourceId = "24GB123456789AB012",
             ResourceType = "CustomsDeclaration",
             SubResourceType = "ClearanceDecision",
             Operation = "Updated",
-            Resource = new CustomsDeclaration(),
+            Resource = new CustomsDeclarationEvent() { Id = "test" },
         };
 
         var thrownException = await Assert.ThrowsAsync<ClearanceDecisionProcessingException>(() =>
@@ -198,7 +198,7 @@ public class ClearanceDecisionConsumerTests
     [Fact]
     public async Task When_processing_inbound_error_Then_discarded()
     {
-        var message = new ResourceEvent<CustomsDeclaration>
+        var message = new ResourceEvent<CustomsDeclarationEvent>
         {
             ResourceId = "24GB123456789AB012",
             ResourceType = "CustomsDeclaration",

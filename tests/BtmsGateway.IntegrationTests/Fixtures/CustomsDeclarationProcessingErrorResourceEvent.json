@@ -3,7 +3,8 @@
   "resourceType": "ProcessingError",
   "operation": "Created",
   "resource": {
-    "ProcessingErrors": [
+    "id": "test",
+    "processingErrors": [
       {
         "correlationId": "111",
         "created": "2025-09-08T09:00:00.000",

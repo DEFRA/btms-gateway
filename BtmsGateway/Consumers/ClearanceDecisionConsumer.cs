@@ -15,9 +15,9 @@ public class ClearanceDecisionConsumer(
     IDecisionSender decisionSender,
     ILogger<ClearanceDecisionConsumer> logger,
     IOptions<CdsOptions> cdsOptions
-) : IConsumer<ResourceEvent<CustomsDeclaration>>
+) : IConsumer<ResourceEvent<CustomsDeclarationEvent>>
 {
-    public async Task OnHandle(ResourceEvent<CustomsDeclaration> message, CancellationToken cancellationToken)
+    public async Task OnHandle(ResourceEvent<CustomsDeclarationEvent> message, CancellationToken cancellationToken)
     {
         if (message.SubResourceType != ResourceEventSubResourceTypes.ClearanceDecision)
         {

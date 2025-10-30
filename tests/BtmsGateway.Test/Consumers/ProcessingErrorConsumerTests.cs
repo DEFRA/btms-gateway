@@ -45,13 +45,14 @@ public class ProcessingErrorConsumerTests
     [Fact]
     public async Task When_processing_succeeds_Then_message_should_be_sent()
     {
-        var message = new ResourceEvent<ProcessingErrorResource>
+        var message = new ResourceEvent<ProcessingErrorEvent>
         {
             ResourceId = Mrn,
             ResourceType = "ProcessingError",
             Operation = "Created",
-            Resource = new ProcessingErrorResource
+            Resource = new ProcessingErrorEvent
             {
+                Id = "test",
                 ProcessingErrors =
                 [
                     new ProcessingError { Created = DateTime.UtcNow.AddSeconds(-10) },
@@ -97,13 +98,14 @@ public class ProcessingErrorConsumerTests
     [Fact]
     public async Task WhenValidProcessingErrorsSentItOnlyForwardsALVSVALErrors()
     {
-        var message = new ResourceEvent<ProcessingErrorResource>
+        var message = new ResourceEvent<ProcessingErrorEvent>
         {
             ResourceId = Mrn,
             ResourceType = "ProcessingError",
             Operation = "Created",
-            Resource = new ProcessingErrorResource
+            Resource = new ProcessingErrorEvent
             {
+                Id = "test",
                 ProcessingErrors =
                 [
                     new ProcessingError { Created = DateTime.UtcNow.AddSeconds(-10) },
@@ -161,13 +163,14 @@ public class ProcessingErrorConsumerTests
     [Fact]
     public async Task WhenValidProcessingErrorsOnlyContainsNonALVSVALErrorsItIsSkipped()
     {
-        var message = new ResourceEvent<ProcessingErrorResource>
+        var message = new ResourceEvent<ProcessingErrorEvent>
         {
             ResourceId = Mrn,
             ResourceType = "ProcessingError",
             Operation = "Created",
-            Resource = new ProcessingErrorResource
+            Resource = new ProcessingErrorEvent
             {
+                Id = "test",
                 ProcessingErrors =
                 [
                     new ProcessingError { Created = DateTime.UtcNow.AddSeconds(-10) },
@@ -203,7 +206,7 @@ public class ProcessingErrorConsumerTests
     [Fact]
     public async Task When_resource_is_null_Then_message_is_not_sent()
     {
-        var message = new ResourceEvent<ProcessingErrorResource>
+        var message = new ResourceEvent<ProcessingErrorEvent>
         {
             ResourceId = "24GB123456789AB012",
             ResourceType = "ProcessingError",
@@ -228,7 +231,7 @@ public class ProcessingErrorConsumerTests
     [Fact]
     public async Task When_processing_errors_resource_is_null_Then_message_is_not_sent()
     {
-        var message = new ResourceEvent<ProcessingErrorResource>
+        var message = new ResourceEvent<ProcessingErrorEvent>
         {
             ResourceId = "24GB123456789AB012",
             ResourceType = "ProcessingError",
@@ -254,12 +257,12 @@ public class ProcessingErrorConsumerTests
     [Fact]
     public async Task When_resource_processing_errors_is_empty_Then_message_is_not_sent()
     {
-        var message = new ResourceEvent<ProcessingErrorResource>
+        var message = new ResourceEvent<ProcessingErrorEvent>
         {
             ResourceId = "24GB123456789AB012",
             ResourceType = "ProcessingError",
             Operation = "Created",
-            Resource = new ProcessingErrorResource { ProcessingErrors = [] },
+            Resource = new ProcessingErrorEvent { Id = "test", ProcessingErrors = [] },
         };
 
         await _consumer.OnHandle(message, CancellationToken.None);
@@ -280,12 +283,12 @@ public class ProcessingErrorConsumerTests
     [Fact]
     public async Task When_sending_to_decision_comparer_is_not_successful_Then_exception_is_thrown()
     {
-        var message = new ResourceEvent<ProcessingErrorResource>
+        var message = new ResourceEvent<ProcessingErrorEvent>
         {
             ResourceId = "24GB123456789AB012",
             ResourceType = "ProcessingError",
             Operation = "Created",
-            Resource = new ProcessingErrorResource { ProcessingErrors = [_alvsProcessingError()] },
+            Resource = new ProcessingErrorEvent { Id = "test", ProcessingErrors = [_alvsProcessingError()] },
         };
 
         var sendErrorNotificationResult = new RoutingResult { StatusCode = HttpStatusCode.BadRequest };
@@ -313,12 +316,12 @@ public class ProcessingErrorConsumerTests
     [Fact]
     public async Task When_sending_to_decision_comparer_returns_conflict_exception_Then_conflict_exception_is_thrown()
     {
-        var message = new ResourceEvent<ProcessingErrorResource>
+        var message = new ResourceEvent<ProcessingErrorEvent>
         {
             ResourceId = "24GB123456789AB012",
             ResourceType = "ProcessingError",
             Operation = "Created",
-            Resource = new ProcessingErrorResource { ProcessingErrors = [_alvsProcessingError()] },
+            Resource = new ProcessingErrorEvent { Id = "test", ProcessingErrors = [_alvsProcessingError()] },
         };
 
         _errorNotificationSender

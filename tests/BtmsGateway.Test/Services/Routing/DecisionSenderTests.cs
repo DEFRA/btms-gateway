@@ -88,10 +88,10 @@ public class DecisionSenderTests
                 {
                     RouteFound = true,
                     RouteLinkType = LinkType.Url,
-                    ForkLinkType = LinkType.Url,
+                    ////ForkLinkType = LinkType.Url,
                     RoutingSuccessful = true,
                     FullRouteLink = "http://btms-to-cds-url/route/path-1",
-                    FullForkLink = "http://btms-to-cds-url/route/path-1",
+                    //// FullForkLink = "http://btms-to-cds-url/route/path-1",
                     StatusCode = HttpStatusCode.NoContent,
                     ResponseContent = string.Empty,
                 }

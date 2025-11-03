@@ -21,7 +21,6 @@ public class RoutingInterceptor(
 )
 {
     private const string RouteAction = "Routing";
-    private const string ForkAction = "Forking";
 
     public async Task InvokeAsync(HttpContext context)
     {
@@ -46,9 +45,6 @@ public class RoutingInterceptor(
                 );
 
                 await Route(context, messageData, metrics);
-
-                await Fork(messageData, metrics);
-
                 return;
             }
 
@@ -113,18 +109,6 @@ public class RoutingInterceptor(
         await messageData.PopulateResponse(context.Response, routingResult);
     }
 
-    private async Task Fork(MessageData messageData, IMetrics metrics)
-    {
-        var routingResult = await messageRouter.Fork(messageData, metrics);
-
-        RecordRequest(routingResult, ForkAction);
-
-        if (routingResult.RouteFound && routingResult.ForkLinkType != LinkType.None)
-            LogRouteFoundResults(messageData, routingResult, ForkAction);
-        else
-            LogRouteNotFoundResults(messageData, routingResult, ForkAction);
-    }
-
     private void RecordRequest(RoutingResult routingResult, string action)
     {
         if (routingResult.RouteFound)
@@ -149,7 +133,7 @@ public class RoutingInterceptor(
                 messageData.ContentMap.EntryVersionNumber,
                 action,
                 "successful",
-                action == RouteAction ? routingResult.FullRouteLink : routingResult.FullForkLink,
+                routingResult.FullRouteLink,
                 MessagingConstants.MessageTypes.FromSoapMessageType(routingResult.MessageSubXPath),
                 routingResult.StatusCode
             );
@@ -171,7 +155,7 @@ public class RoutingInterceptor(
             messageData.ContentMap.EntryVersionNumber,
             action,
             "failed",
-            action == RouteAction ? routingResult.FullRouteLink : routingResult.FullForkLink,
+            routingResult.FullRouteLink,
             MessagingConstants.MessageTypes.FromSoapMessageType(routingResult.MessageSubXPath),
             routingResult.StatusCode
         );

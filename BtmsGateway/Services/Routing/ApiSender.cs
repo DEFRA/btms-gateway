@@ -7,7 +7,7 @@ namespace BtmsGateway.Services.Routing;
 
 public interface IApiSender
 {
-    Task<RoutingResult> Send(RoutingResult routingResult, MessageData messageData, bool fork);
+    Task<RoutingResult> Send(RoutingResult routingResult, MessageData messageData);
     Task<HttpResponseMessage> SendSoapMessageAsync(
         string method,
         string destination,
@@ -21,33 +21,20 @@ public interface IApiSender
 
 public class ApiSender(IHttpClientFactory clientFactory) : IApiSender
 {
-    public async Task<RoutingResult> Send(RoutingResult routingResult, MessageData messageData, bool fork)
+    public async Task<RoutingResult> Send(RoutingResult routingResult, MessageData messageData)
     {
-        var proxyName = routingResult.NamedProxy ?? (fork ? Proxy.ForkedClientWithRetry : Proxy.RoutedClientWithRetry);
+        var proxyName = routingResult.NamedProxy ?? Proxy.RoutedClientWithRetry;
         var client = clientFactory.CreateClient(proxyName);
 
         HttpRequestMessage request;
 
-        if (fork)
-        {
-            request = routingResult.ConvertForkedContentToFromJson
-                ? messageData.CreateConvertedJsonRequest(
-                    routingResult.FullForkLink,
-                    routingResult.ForkHostHeader,
-                    routingResult.MessageSubXPath
-                )
-                : messageData.CreateOriginalSoapRequest(routingResult.FullForkLink, routingResult.ForkHostHeader);
-        }
-        else
-        {
-            request = routingResult.ConvertRoutedContentToFromJson
-                ? messageData.CreateConvertedJsonRequest(
-                    routingResult.FullRouteLink,
-                    routingResult.RouteHostHeader,
-                    routingResult.MessageSubXPath
-                )
-                : messageData.CreateOriginalSoapRequest(routingResult.FullRouteLink, routingResult.RouteHostHeader);
-        }
+        request = routingResult.ConvertRoutedContentToFromJson
+            ? messageData.CreateConvertedJsonRequest(
+                routingResult.FullRouteLink,
+                routingResult.RouteHostHeader,
+                routingResult.MessageSubXPath
+            )
+            : messageData.CreateOriginalSoapRequest(routingResult.FullRouteLink, routingResult.RouteHostHeader);
 
         var response = await client.SendAsync(request);
         var content =

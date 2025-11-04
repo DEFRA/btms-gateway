@@ -8,7 +8,6 @@ namespace BtmsGateway.Services.Routing;
 public interface IMessageRouter
 {
     Task<RoutingResult> Route(MessageData messageData, IMetrics metrics);
-    Task<RoutingResult> Fork(MessageData messageData, IMetrics metrics);
 }
 
 public class MessageRouter(
@@ -32,7 +31,7 @@ public class MessageRouter(
             routingResult = routingResult.RouteLinkType switch
             {
                 LinkType.Queue => await queueSender.Send(routingResult, messageData, routingResult.FullRouteLink),
-                LinkType.Url => await apiSender.Send(routingResult, messageData, fork: false),
+                LinkType.Url => await apiSender.Send(routingResult, messageData),
                 LinkType.AlvsIpaffsSuccess => alvsIpaffsSuccessProvider.SendIpaffsRequest(routingResult),
                 _ => routingResult,
             };
@@ -41,7 +40,13 @@ public class MessageRouter(
         }
         catch (Exception ex)
         {
-            LogRoutingError(ex, messageData, routingResult);
+            logger.LogError(
+                ex,
+                "{ContentCorrelationId} {MessageReference} Error routing message type {MessageType}",
+                messageData.ContentMap.CorrelationId,
+                messageData.ContentMap.MessageReference,
+                MessagingConstants.MessageTypes.FromSoapMessageType(routingResult.MessageSubXPath)
+            );
             return routingResult with
             {
                 StatusCode = HttpStatusCode.ServiceUnavailable,
@@ -52,63 +57,6 @@ public class MessageRouter(
         {
             metrics.RecordRoutedRequest(routingResult);
         }
-    }
-
-    public async Task<RoutingResult> Fork(MessageData messageData, IMetrics metrics)
-    {
-        var routingResult = GetRoutingResult(messageData);
-        if (!routingResult.RouteFound || routingResult.ForkLinkType == LinkType.None)
-            return routingResult;
-
-        try
-        {
-            metrics.StartForkedRequest();
-
-            routingResult = routingResult.ForkLinkType switch
-            {
-                LinkType.Queue => await queueSender.Send(routingResult, messageData, routingResult.FullForkLink),
-                LinkType.Url => await apiSender.Send(routingResult, messageData, fork: true),
-                LinkType.AlvsIpaffsSuccess => alvsIpaffsSuccessProvider.SendIpaffsRequest(routingResult),
-                _ => routingResult,
-            };
-
-            return routingResult;
-        }
-        catch (Exception ex)
-        {
-            LogForkingError(ex, messageData, routingResult);
-            return routingResult with
-            {
-                StatusCode = HttpStatusCode.ServiceUnavailable,
-                ErrorMessage = $"Error forking - {ex.Message} - {ex.InnerException?.Message}",
-            };
-        }
-        finally
-        {
-            metrics.RecordForkedRequest(routingResult);
-        }
-    }
-
-    private void LogRoutingError(Exception? ex, MessageData messageData, RoutingResult routingResult)
-    {
-        LogError(ex, messageData, "routing", routingResult);
-    }
-
-    private void LogForkingError(Exception? ex, MessageData messageData, RoutingResult routingResult)
-    {
-        LogError(ex, messageData, "forking", routingResult);
-    }
-
-    private void LogError(Exception? ex, MessageData messageData, string action, RoutingResult routingResult)
-    {
-        logger.LogError(
-            ex,
-            "{ContentCorrelationId} {MessageReference} Error {Action} message type {MessageType}",
-            messageData.ContentMap.CorrelationId,
-            messageData.ContentMap.MessageReference,
-            action,
-            MessagingConstants.MessageTypes.FromSoapMessageType(routingResult.MessageSubXPath)
-        );
     }
 
     private RoutingResult GetRoutingResult(MessageData messageData)

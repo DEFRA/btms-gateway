@@ -8,25 +8,26 @@ public record RoutingConfig
 
     private RoutedLink[] GetAllRoutes()
     {
-        
-        return NamedRoutes.Join(
-            NamedLinks,
-            nr => nr.Value.BtmsLinkName,
-            nl => nl.Key,
-            (nr, nl) =>
-                new RoutedLink
-                {
-                    Name = nr.Key,
-                    BtmsLink = nl.Value.Link.TrimEnd('/'),
-                    BtmsLinkType = nl.Value.LinkType,
-                    BtmsHostHeader = nl.Value.HostHeader,
-                    RoutePath = nr.Value.RoutePath.Trim('/'),
-                    MessageSubXPath = nr.Value.MessageSubXPath,
-                    Legend = nr.Value.Legend,
-                    IsCds = nr.Value.IsCds,
-                    NamedProxy = nr.Value.NamedProxy,
-                }
-        ).ToArray();
+        return NamedRoutes
+            .Join(
+                NamedLinks,
+                nr => nr.Value.BtmsLinkName,
+                nl => nl.Key,
+                (nr, nl) =>
+                    new RoutedLink
+                    {
+                        Name = nr.Key,
+                        BtmsLink = nl.Value.Link.TrimEnd('/'),
+                        BtmsLinkType = nl.Value.LinkType,
+                        BtmsHostHeader = nl.Value.HostHeader,
+                        RoutePath = nr.Value.RoutePath.Trim('/'),
+                        MessageSubXPath = nr.Value.MessageSubXPath,
+                        Legend = nr.Value.Legend,
+                        IsCds = nr.Value.IsCds,
+                        NamedProxy = nr.Value.NamedProxy,
+                    }
+            )
+            .ToArray();
     }
 
     public required Dictionary<string, NamedRoute> NamedRoutes { get; init; } = [];

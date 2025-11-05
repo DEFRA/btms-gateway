@@ -27,10 +27,10 @@ public class MessageRoutesTests
         route.RouteName.Should().Be("route-1");
         route.MessageSubXPath.Should().Be("Message1");
         route.Legend.Should().Be("Route 1");
-        route.RouteLinkType.Should().Be(LinkType.Url);
-        route.FullRouteLink.Should().Be("http://legacy-link-url/route/path-1/sub/path");
-        route.RouteHostHeader.Should().Be("legacy-host-header");
-        route.ConvertRoutedContentToFromJson.Should().BeFalse();
+        route.RouteLinkType.Should().Be(LinkType.Queue);
+        route.FullRouteLink.Should().Be("btms-link-queue");
+        route.RouteHostHeader.Should().BeNull();
+        route.ConvertRoutedContentToFromJson.Should().BeTrue();
         route.UrlPath.Should().Be("/route/path-1/sub/path");
     }
 
@@ -71,10 +71,10 @@ public class MessageRoutesTests
         route.RouteFound.Should().BeTrue();
         route.RouteName.Should().Be("route-3");
         route.MessageSubXPath.Should().Be("Message3");
-        route.RouteLinkType.Should().Be(LinkType.Url);
-        route.FullRouteLink.Should().Be("http://legacy-link-url/route/path-3/sub/path");
-        route.RouteHostHeader.Should().Be("legacy-host-header");
-        route.ConvertRoutedContentToFromJson.Should().BeFalse();
+        route.RouteLinkType.Should().Be(LinkType.None);
+        route.FullRouteLink.Should().BeNull();
+        route.RouteHostHeader.Should().BeNull();
+        route.ConvertRoutedContentToFromJson.Should().BeTrue();
         route.UrlPath.Should().Be("/route/path-3/sub/path");
     }
 
@@ -143,18 +143,6 @@ public class MessageRoutesTests
             .WithMessage("Error creating routing table: Invalid URL(s) in config")
             .WithInnerException<InvalidDataException>()
             .WithMessage("Invalid URL(s) in config");
-    }
-
-    [Fact]
-    public void When_routing_with_invalid_route_to_Then_should_fail()
-    {
-        var act = () => new MessageRoutes(TestRoutes.InvalidRouteToConfig, NullLogger<MessageRoutes>.Instance);
-
-        act.Should()
-            .Throw<RoutingException>()
-            .WithMessage("Error creating routing table: Invalid Route To in config")
-            .WithInnerException<InvalidDataException>()
-            .WithMessage("Invalid Route To in config");
     }
 
     [Fact]

@@ -8,70 +8,25 @@ public record RoutingConfig
 
     private RoutedLink[] GetAllRoutes()
     {
-        var legacy = NamedRoutes.Join(
-            NamedLinks,
-            nr => nr.Value.LegacyLinkName,
-            nl => nl.Key,
-            (nr, nl) =>
-                new
-                {
-                    Name = nr.Key,
-                    nl.Value.Link,
-                    nl.Value.LinkType,
-                    nl.Value.HostHeader,
-                    nr.Value.RoutePath,
-                    nr.Value.MessageSubXPath,
-                    nr.Value.Legend,
-                    nr.Value.RouteTo,
-                    nr.Value.IsCds,
-                    nr.Value.NamedProxy,
-                }
-        );
-        var btms = NamedRoutes.Join(
+        
+        return NamedRoutes.Join(
             NamedLinks,
             nr => nr.Value.BtmsLinkName,
             nl => nl.Key,
             (nr, nl) =>
-                new
+                new RoutedLink
                 {
                     Name = nr.Key,
-                    nl.Value.Link,
-                    nl.Value.LinkType,
-                    nl.Value.HostHeader,
-                    nr.Value.RoutePath,
-                    nr.Value.MessageSubXPath,
-                    nr.Value.Legend,
-                    nr.Value.RouteTo,
-                    nr.Value.IsCds,
-                    nr.Value.NamedProxy,
+                    BtmsLink = nl.Value.Link.TrimEnd('/'),
+                    BtmsLinkType = nl.Value.LinkType,
+                    BtmsHostHeader = nl.Value.HostHeader,
+                    RoutePath = nr.Value.RoutePath.Trim('/'),
+                    MessageSubXPath = nr.Value.MessageSubXPath,
+                    Legend = nr.Value.Legend,
+                    IsCds = nr.Value.IsCds,
+                    NamedProxy = nr.Value.NamedProxy,
                 }
-        );
-        var output = legacy
-            .Join(
-                btms,
-                l => l.Name,
-                b => b.Name,
-                (l, b) =>
-                    new RoutedLink
-                    {
-                        Name = l.Name,
-                        Legend = l.Legend,
-                        LegacyLink = l.Link.TrimEnd('/'),
-                        LegacyLinkType = l.LinkType,
-                        LegacyHostHeader = l.HostHeader,
-                        BtmsLink = b.Link.TrimEnd('/'),
-                        BtmsLinkType = b.LinkType,
-                        BtmsHostHeader = b.HostHeader,
-                        RoutePath = l.RoutePath.Trim('/'),
-                        MessageSubXPath = l.MessageSubXPath,
-                        RouteTo = b.RouteTo,
-                        IsCds = b.IsCds,
-                        NamedProxy = b.NamedProxy,
-                    }
-            )
-            .ToArray();
-
-        return output;
+        ).ToArray();
     }
 
     public required Dictionary<string, NamedRoute> NamedRoutes { get; init; } = [];
@@ -84,9 +39,7 @@ public record NamedRoute
     public required string RoutePath { get; init; }
     public required string Legend { get; init; }
     public required string MessageSubXPath { get; init; }
-    public string? LegacyLinkName { get; init; }
     public string? BtmsLinkName { get; init; }
-    public required RouteTo RouteTo { get; init; }
     public bool IsCds { get; init; }
     public string? NamedProxy { get; init; }
 }
@@ -122,19 +75,9 @@ public record RoutedLink
     public required string Legend { get; init; }
     public required string RoutePath { get; init; }
     public required string MessageSubXPath { get; init; }
-    public string? LegacyLink { get; init; }
-    public required LinkType LegacyLinkType { get; init; }
-    public string? LegacyHostHeader { get; init; }
     public string? BtmsLink { get; init; }
     public required LinkType BtmsLinkType { get; init; }
     public string? BtmsHostHeader { get; init; }
-    public required RouteTo RouteTo { get; init; }
     public required bool IsCds { get; init; }
     public string? NamedProxy { get; init; }
-}
-
-public enum RouteTo
-{
-    Legacy,
-    Btms,
 }

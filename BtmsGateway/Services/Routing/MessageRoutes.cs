@@ -27,8 +27,7 @@ public class MessageRoutes : IMessageRoutes
                 )
             )
                 throw new InvalidDataException("Invalid URL(s) in config");
-            if (routingConfig.NamedRoutes.Any(x => !Enum.IsDefined(x.Value.RouteTo)))
-                throw new InvalidDataException("Invalid Route To in config");
+
             if (routingConfig.NamedLinks.Any(x => !Enum.IsDefined(x.Value.LinkType)))
                 throw new InvalidDataException("Invalid Link Type in config");
             _routes = routingConfig.AllRoutes;
@@ -61,7 +60,25 @@ public class MessageRoutes : IMessageRoutes
                     StatusCode = HttpStatusCode.InternalServerError,
                     ErrorMessage = "Route not found",
                 }
-                : SelectRoute(route, routePath);
+                : new RoutingResult
+                {
+                    RouteFound = true,
+                    RouteName = route.Name,
+                    MessageSubXPath = route.MessageSubXPath,
+                    Legend = route.Legend,
+                    RouteLinkType = route.BtmsLinkType,
+                    FullRouteLink = SelectLink(route.BtmsLinkType, route.BtmsLink, routePath),
+                    RouteHostHeader = route.BtmsHostHeader,
+                    ConvertRoutedContentToFromJson = true,
+                    UrlPath = routePath,
+                    StatusCode = StatusCode(),
+                    NamedProxy = route.NamedProxy,
+                };
+
+            HttpStatusCode StatusCode()
+            {
+                return route.BtmsLinkType == LinkType.None ? HttpStatusCode.Accepted : default;
+            }
         }
         catch (Exception ex)
         {
@@ -82,44 +99,6 @@ public class MessageRoutes : IMessageRoutes
         return _routes.Any(x =>
             x.IsCds && x.RoutePath.Equals(routePath.Trim('/'), StringComparison.InvariantCultureIgnoreCase)
         );
-    }
-
-    private static RoutingResult SelectRoute(RoutedLink route, string routePath)
-    {
-        return route.RouteTo switch
-        {
-            RouteTo.Legacy => new RoutingResult
-            {
-                RouteFound = true,
-                RouteName = route.Name,
-                MessageSubXPath = route.MessageSubXPath,
-                Legend = route.Legend,
-                RouteLinkType = route.LegacyLinkType,
-                FullRouteLink = SelectLink(route.LegacyLinkType, route.LegacyLink, routePath),
-                RouteHostHeader = route.LegacyHostHeader,
-                UrlPath = routePath,
-                StatusCode = route.LegacyLinkType == LinkType.None ? HttpStatusCode.Accepted : default,
-                NamedProxy = route.NamedProxy,
-            },
-            RouteTo.Btms => new RoutingResult
-            {
-                RouteFound = true,
-                RouteName = route.Name,
-                MessageSubXPath = route.MessageSubXPath,
-                Legend = route.Legend,
-                RouteLinkType = route.BtmsLinkType,
-                FullRouteLink = SelectLink(route.BtmsLinkType, route.BtmsLink, routePath),
-                RouteHostHeader = route.BtmsHostHeader,
-                ConvertRoutedContentToFromJson = true,
-                UrlPath = routePath,
-                StatusCode = route.BtmsLinkType == LinkType.None ? HttpStatusCode.Accepted : default,
-                NamedProxy = route.NamedProxy,
-            },
-            _ => throw new ArgumentOutOfRangeException(
-                nameof(route),
-                "Invalid RouteTo property value specified in route argument. Can only route to 'Legacy' or 'Btms'"
-            ),
-        };
     }
 
     [SuppressMessage(

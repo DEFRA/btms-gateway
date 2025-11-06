@@ -71,9 +71,14 @@ public class MessageRoutes : IMessageRoutes
                     RouteHostHeader = route.BtmsHostHeader,
                     ConvertRoutedContentToFromJson = true,
                     UrlPath = routePath,
-                    StatusCode = route.BtmsLinkType == LinkType.None ? HttpStatusCode.Accepted : default,
+                    StatusCode = StatusCode(),
                     NamedProxy = route.NamedProxy,
                 };
+
+            HttpStatusCode StatusCode()
+            {
+                return route.BtmsLinkType == LinkType.None ? HttpStatusCode.Accepted : default;
+            }
         }
         catch (Exception ex)
         {

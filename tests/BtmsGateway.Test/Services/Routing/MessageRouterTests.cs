@@ -23,8 +23,7 @@ public class MessageRouterTests
             mocks.Routes,
             mocks.ApiSender,
             mocks.QueueSender,
-            mocks.Logger,
-            mocks.AlvsIpaffsSuccessProvider
+            mocks.Logger
         );
 
         // Act
@@ -48,8 +47,7 @@ public class MessageRouterTests
             mocks.Routes,
             mocks.ApiSender,
             mocks.QueueSender,
-            mocks.Logger,
-            mocks.AlvsIpaffsSuccessProvider
+            mocks.Logger
         );
 
         // Act
@@ -74,8 +72,7 @@ public class MessageRouterTests
             mocks.Routes,
             mocks.ApiSender,
             mocks.QueueSender,
-            mocks.Logger,
-            mocks.AlvsIpaffsSuccessProvider
+            mocks.Logger
         );
 
         // Act
@@ -100,8 +97,7 @@ public class MessageRouterTests
             mocks.Routes,
             mocks.ApiSender,
             mocks.QueueSender,
-            mocks.Logger,
-            mocks.AlvsIpaffsSuccessProvider
+            mocks.Logger
         );
 
         // Act
@@ -126,8 +122,7 @@ public class MessageRouterTests
             mocks.Routes,
             mocks.ApiSender,
             mocks.QueueSender,
-            mocks.Logger,
-            mocks.AlvsIpaffsSuccessProvider
+            mocks.Logger
         );
 
         // Act
@@ -141,68 +136,14 @@ public class MessageRouterTests
         mocks.Metrics.Received().RecordRoutedRequest(Arg.Any<RoutingResult>());
     }
 
-    [Fact]
-    public async Task Route_AlvsIpaffsSuccessLinkType_SuccessfullyRouted_ReturnsSuccess()
-    {
-        // Arrange
-        var mocks = CreateMocks(new RoutingResult { RouteLinkType = LinkType.AlvsIpaffsSuccess }, true, false);
-        var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
-
-        var sut = new MessageRouter(
-            mocks.Routes,
-            mocks.ApiSender,
-            mocks.QueueSender,
-            mocks.Logger,
-            mocks.AlvsIpaffsSuccessProvider
-        );
-
-        // Act
-        var response = await sut.Route(msgData.MessageData, mocks.Metrics);
-
-        // Assert
-        response.RouteFound.Should().BeTrue();
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        response.ErrorMessage.Should().BeNull();
-        mocks.Metrics.Received().StartRoutedRequest();
-        mocks.Metrics.Received().RecordRoutedRequest(Arg.Any<RoutingResult>());
-    }
-
-    [Fact]
-    public async Task Route_AlvsIpaffsSuccessLinkType_ThrowsException_ReturnsError()
-    {
-        // Arrange
-        var mocks = CreateMocks(
-            new RoutingResult { RouteLinkType = LinkType.AlvsIpaffsSuccess },
-            alvsIpaffsSenderSuccess: false
-        );
-        var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
-
-        var sut = new MessageRouter(
-            mocks.Routes,
-            mocks.ApiSender,
-            mocks.QueueSender,
-            mocks.Logger,
-            mocks.AlvsIpaffsSuccessProvider
-        );
-
-        // Act
-        var response = await sut.Route(msgData.MessageData, mocks.Metrics);
-
-        // Assert
-        response.RouteFound.Should().BeTrue();
-        response.StatusCode.Should().Be(HttpStatusCode.ServiceUnavailable);
-        response.ErrorMessage.Should().StartWith("Error routing");
-        mocks.Metrics.Received().StartRoutedRequest();
-        mocks.Metrics.Received().RecordRoutedRequest(Arg.Any<RoutingResult>());
-    }
+    
 
     private static (
         IMessageRoutes Routes,
         IApiSender ApiSender,
         IQueueSender QueueSender,
         Microsoft.Extensions.Logging.ILogger<MessageRouter> Logger,
-        IMetrics Metrics,
-        IAlvsIpaffsSuccessProvider AlvsIpaffsSuccessProvider
+        IMetrics Metrics
     ) CreateMocks(
         RoutingResult routingResult = null,
         bool apiSuccess = true,
@@ -275,26 +216,7 @@ public class MessageRouterTests
         var logger = new FakeLogger<MessageRouter>();
         var metrics = Substitute.For<IMetrics>();
 
-        var alvsIpaffsSuccessProvider = Substitute.For<IAlvsIpaffsSuccessProvider>();
-
-        if (alvsIpaffsSenderSuccess)
-        {
-            alvsIpaffsSuccessProvider
-                .SendIpaffsRequest(Arg.Any<RoutingResult>())
-                .Returns(
-                    routingResult with
-                    {
-                        RoutingSuccessful = true,
-                        ResponseContent = "ALVS IPAFFS Sender Success",
-                        StatusCode = HttpStatusCode.OK,
-                    }
-                );
-        }
-        else
-        {
-            alvsIpaffsSuccessProvider.SendIpaffsRequest(Arg.Any<RoutingResult>()).Throws(new Exception());
-        }
-
-        return (routes, apiSender, queueSender, logger, metrics, alvsIpaffsSuccessProvider);
+        return (routes, apiSender, queueSender, logger, metrics);
     }
 }
+o

@@ -19,12 +19,7 @@ public class MessageRouterTests
         var mocks = CreateMocks();
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
 
-        var sut = new MessageRouter(
-            mocks.Routes,
-            mocks.ApiSender,
-            mocks.QueueSender,
-            mocks.Logger
-        );
+        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger);
 
         // Act
         var response = await sut.Route(msgData.MessageData, mocks.Metrics);
@@ -43,12 +38,7 @@ public class MessageRouterTests
         var mocks = CreateMocks(new RoutingResult { RouteLinkType = LinkType.Queue }, false);
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
 
-        var sut = new MessageRouter(
-            mocks.Routes,
-            mocks.ApiSender,
-            mocks.QueueSender,
-            mocks.Logger
-        );
+        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger);
 
         // Act
         var response = await sut.Route(msgData.MessageData, mocks.Metrics);
@@ -68,12 +58,7 @@ public class MessageRouterTests
         var mocks = CreateMocks(new RoutingResult { RouteLinkType = LinkType.Queue }, true, false);
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
 
-        var sut = new MessageRouter(
-            mocks.Routes,
-            mocks.ApiSender,
-            mocks.QueueSender,
-            mocks.Logger
-        );
+        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger);
 
         // Act
         var response = await sut.Route(msgData.MessageData, mocks.Metrics);
@@ -93,12 +78,7 @@ public class MessageRouterTests
         var mocks = CreateMocks(new RoutingResult { RouteLinkType = LinkType.Url }, true, false);
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
 
-        var sut = new MessageRouter(
-            mocks.Routes,
-            mocks.ApiSender,
-            mocks.QueueSender,
-            mocks.Logger
-        );
+        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger);
 
         // Act
         var response = await sut.Route(msgData.MessageData, mocks.Metrics);
@@ -118,12 +98,7 @@ public class MessageRouterTests
         var mocks = CreateMocks(new RoutingResult { RouteLinkType = LinkType.Url }, false);
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
 
-        var sut = new MessageRouter(
-            mocks.Routes,
-            mocks.ApiSender,
-            mocks.QueueSender,
-            mocks.Logger
-        );
+        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger);
 
         // Act
         var response = await sut.Route(msgData.MessageData, mocks.Metrics);
@@ -135,8 +110,6 @@ public class MessageRouterTests
         mocks.Metrics.Received().StartRoutedRequest();
         mocks.Metrics.Received().RecordRoutedRequest(Arg.Any<RoutingResult>());
     }
-
-    
 
     private static (
         IMessageRoutes Routes,
@@ -219,4 +192,3 @@ public class MessageRouterTests
         return (routes, apiSender, queueSender, logger, metrics);
     }
 }
-o

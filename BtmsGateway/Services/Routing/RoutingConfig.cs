@@ -66,7 +66,7 @@ public enum LinkType
 {
     None,
     Url,
-    Queue
+    Queue,
 }
 
 public record RoutedLink

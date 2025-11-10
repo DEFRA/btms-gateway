@@ -14,8 +14,7 @@ public class MessageRouter(
     IMessageRoutes messageRoutes,
     IApiSender apiSender,
     IQueueSender queueSender,
-    ILogger<MessageRouter> logger,
-    IAlvsIpaffsSuccessProvider alvsIpaffsSuccessProvider
+    ILogger<MessageRouter> logger
 ) : IMessageRouter
 {
     public async Task<RoutingResult> Route(MessageData messageData, IMetrics metrics)
@@ -32,7 +31,6 @@ public class MessageRouter(
             {
                 LinkType.Queue => await queueSender.Send(routingResult, messageData, routingResult.FullRouteLink),
                 LinkType.Url => await apiSender.Send(routingResult, messageData),
-                LinkType.AlvsIpaffsSuccess => alvsIpaffsSuccessProvider.SendIpaffsRequest(routingResult),
                 _ => routingResult,
             };
 

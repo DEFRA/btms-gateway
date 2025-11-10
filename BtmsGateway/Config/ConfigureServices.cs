@@ -59,7 +59,6 @@ public static class ConfigureServices
         builder.Services.AddSingleton<MetricsHost>();
         builder.Services.AddSingleton<IDecisionSender, DecisionSender>();
         builder.Services.AddSingleton<IErrorNotificationSender, ErrorNotificationSender>();
-        builder.Services.AddSingleton<IAlvsIpaffsSuccessProvider, AlvsIpaffsSuccessProvider>();
         builder.Services.AddSingleton<IResourceEventsDeadLetterService, ResourceEventsDeadLetterService>();
 
         builder.Services.AddOptions<CdsOptions>().BindConfiguration(CdsOptions.SectionName).ValidateDataAnnotations();

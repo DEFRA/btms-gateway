@@ -67,7 +67,6 @@ public enum LinkType
     None,
     Url,
     Queue,
-    AlvsIpaffsSuccess,
 }
 
 public record RoutedLink

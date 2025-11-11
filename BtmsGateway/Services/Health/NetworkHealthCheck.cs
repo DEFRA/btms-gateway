@@ -36,7 +36,7 @@ public class NetworkHealthCheck(
         {
             logger.LogWarning(
                 ex,
-                "HEALTH - Checking network connection timed out for queue {QueueUrl}",
+                "HEALTH - Checking network connection timed out for Uri {Uri}",
                 healthCheckUrl.Url
             );
             exception = new TimeoutException(
@@ -48,7 +48,7 @@ public class NetworkHealthCheck(
         {
             logger.LogWarning(
                 ex,
-                "HEALTH - Checking network connection failed for queue {QueueUrl}",
+                "HEALTH - Checking network connection failed for Uri {Uri}",
                 healthCheckUrl.Url
             );
             exception = ex;

@@ -45,7 +45,7 @@ public class ConsumerMediator(
             cdsOptions
         );
 
-        return consumer.OnHandle(Deserialize<CustomsDeclaration>(message), cancellationToken);
+        return consumer.OnHandle(Deserialize<CustomsDeclarationEvent>(message), cancellationToken);
     }
 
     private Task HandleProcessingError(JsonElement message, CancellationToken cancellationToken)
@@ -56,7 +56,7 @@ public class ConsumerMediator(
             cdsOptions
         );
 
-        return consumer.OnHandle(Deserialize<ProcessingErrorResource>(message), cancellationToken);
+        return consumer.OnHandle(Deserialize<ProcessingErrorEvent>(message), cancellationToken);
     }
 
     private Task HandleUnknown(string resourceType)

@@ -34,11 +34,7 @@ public class NetworkHealthCheck(
         }
         catch (TaskCanceledException ex)
         {
-            logger.LogWarning(
-                ex,
-                "HEALTH - Checking network connection timed out for queue {QueueUrl}",
-                healthCheckUrl.Url
-            );
+            logger.LogWarning(ex, "HEALTH - Checking network connection timed out for Uri {Uri}", healthCheckUrl.Url);
             exception = new TimeoutException(
                 $"The network check has cancelled, probably because it timed out after {ConfigureHealthChecks.Timeout.TotalSeconds} seconds",
                 ex
@@ -46,11 +42,7 @@ public class NetworkHealthCheck(
         }
         catch (Exception ex)
         {
-            logger.LogWarning(
-                ex,
-                "HEALTH - Checking network connection failed for queue {QueueUrl}",
-                healthCheckUrl.Url
-            );
+            logger.LogWarning(ex, "HEALTH - Checking network connection failed for Uri {Uri}", healthCheckUrl.Url);
             exception = ex;
         }
 

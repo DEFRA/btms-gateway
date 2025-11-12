@@ -14,10 +14,8 @@ public static class TestRoutes
                 {
                     RoutePath = "/route/path-1/sub/path",
                     Legend = "Route 1",
-                    LegacyLinkName = "legacy_link_name_1",
                     BtmsLinkName = "btms_link_name_1",
                     MessageSubXPath = "Message1",
-                    RouteTo = RouteTo.Legacy,
                 }
             },
             {
@@ -26,10 +24,8 @@ public static class TestRoutes
                 {
                     RoutePath = "/route/path-2/sub/path",
                     Legend = "Route 2",
-                    LegacyLinkName = "legacy_link_name_2",
                     BtmsLinkName = "btms_link_name_2",
                     MessageSubXPath = "Message2",
-                    RouteTo = RouteTo.Btms,
                 }
             },
             {
@@ -38,10 +34,8 @@ public static class TestRoutes
                 {
                     RoutePath = "/route/path-3/sub/path",
                     Legend = "Route 3",
-                    LegacyLinkName = "legacy_link_name_1",
                     BtmsLinkName = "none",
                     MessageSubXPath = "Message3",
-                    RouteTo = RouteTo.Legacy,
                 }
             },
             {
@@ -50,28 +44,13 @@ public static class TestRoutes
                 {
                     RoutePath = "/route/path-4/sub/path",
                     Legend = "Route 4",
-                    LegacyLinkName = "none",
                     BtmsLinkName = "btms_link_name_2",
                     MessageSubXPath = "Message4",
-                    RouteTo = RouteTo.Btms,
                 }
             },
         },
         NamedLinks = new Dictionary<string, NamedLink>
         {
-            {
-                "legacy_link_name_1",
-                new NamedLink
-                {
-                    Link = "http://legacy-link-url",
-                    LinkType = LinkType.Url,
-                    HostHeader = "legacy-host-header",
-                }
-            },
-            {
-                "legacy_link_name_2",
-                new NamedLink { Link = "legacy-link-queue", LinkType = LinkType.Queue }
-            },
             {
                 "btms_link_name_1",
                 new NamedLink { Link = "btms-link-queue", LinkType = LinkType.Queue }
@@ -121,11 +100,9 @@ public static class TestRoutes
                 new NamedRoute
                 {
                     RoutePath = "/route/path-A/sub/path",
-                    LegacyLinkName = "legacy_link_name_1",
                     BtmsLinkName = "btms_link_name_1",
                     MessageSubXPath = "Message1/Message",
                     Legend = "Route 1",
-                    RouteTo = RouteTo.Legacy,
                 }
             },
             {
@@ -133,11 +110,9 @@ public static class TestRoutes
                 new NamedRoute
                 {
                     RoutePath = "/route/path-A/sub/path",
-                    LegacyLinkName = "legacy_link_name_2",
                     BtmsLinkName = "btms_link_name_2",
                     MessageSubXPath = "Message2/Message",
                     Legend = "Route 2",
-                    RouteTo = RouteTo.Legacy,
                 }
             },
         },
@@ -191,11 +166,9 @@ public static class TestRoutes
                 new NamedRoute
                 {
                     RoutePath = "/route/path-1",
-                    LegacyLinkName = "link_name_1",
                     BtmsLinkName = "link_name_1",
                     MessageSubXPath = "Message1",
                     Legend = "legend",
-                    RouteTo = RouteTo.Legacy,
                 }
             },
         },
@@ -232,11 +205,9 @@ public static class TestRoutes
                 new NamedRoute
                 {
                     RoutePath = "/route/path-1",
-                    LegacyLinkName = "link_name_1",
                     BtmsLinkName = "link_name_1",
                     MessageSubXPath = "Message1",
                     Legend = "legend",
-                    RouteTo = (RouteTo)99,
                 }
             },
         },
@@ -273,11 +244,9 @@ public static class TestRoutes
                 new NamedRoute
                 {
                     RoutePath = "/route/path-1",
-                    LegacyLinkName = "link_name_1",
                     BtmsLinkName = "link_name_1",
                     MessageSubXPath = "Message1",
                     Legend = "legend",
-                    RouteTo = RouteTo.Legacy,
                 }
             },
         },
@@ -315,10 +284,8 @@ public static class TestRoutes
                 {
                     RoutePath = "/route/path-1/sub/path",
                     Legend = "Route 1",
-                    LegacyLinkName = "none",
                     BtmsLinkName = "none",
                     MessageSubXPath = "Message1",
-                    RouteTo = RouteTo.Legacy,
                     IsCds = true,
                 }
             },
@@ -328,10 +295,8 @@ public static class TestRoutes
                 {
                     RoutePath = "/route/path-2/sub/path",
                     Legend = "Route 2",
-                    LegacyLinkName = "none",
                     BtmsLinkName = "none",
                     MessageSubXPath = "Message2",
-                    RouteTo = RouteTo.Legacy,
                 }
             },
         },

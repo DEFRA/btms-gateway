@@ -76,13 +76,14 @@ public class ConsumerMediatorTests
         };
 
         var message = JsonSerializer.Serialize(
-            new ResourceEvent<ProcessingErrorResource>
+            new ResourceEvent<ProcessingErrorEvent>
             {
                 ResourceId = "mrn",
                 ResourceType = ResourceEventResourceTypes.ProcessingError,
                 Operation = ResourceEventOperations.Created,
-                Resource = new ProcessingErrorResource
+                Resource = new ProcessingErrorEvent
                 {
+                    Id = "test",
                     ProcessingErrors =
                     [
                         new ProcessingError { Errors = [new ErrorItem { Code = "ALVSVAL01", Message = "ALVS Error" }] },

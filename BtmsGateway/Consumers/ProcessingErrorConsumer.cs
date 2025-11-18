@@ -14,9 +14,9 @@ public class ProcessingErrorConsumer(
     IErrorNotificationSender errorNotificationSender,
     ILogger<ProcessingErrorConsumer> logger,
     IOptions<CdsOptions> cdsOptions
-) : IConsumer<ResourceEvent<ProcessingErrorResource>>
+) : IConsumer<ResourceEvent<ProcessingErrorEvent>>
 {
-    public async Task OnHandle(ResourceEvent<ProcessingErrorResource> message, CancellationToken cancellationToken)
+    public async Task OnHandle(ResourceEvent<ProcessingErrorEvent> message, CancellationToken cancellationToken)
     {
         var mrn = message.ResourceId;
 

@@ -67,6 +67,6 @@ public class ConsumerMediator(
     }
 
     private static ResourceEvent<T> Deserialize<T>(JsonElement message) =>
-        message.Deserialize<ResourceEvent<T>>()
+        MessageDeserializer.Deserialize<ResourceEvent<T>>(message.ToString(), null)
         ?? throw new InvalidOperationException("Invalid message received from queue.");
 }

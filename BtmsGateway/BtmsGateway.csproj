@@ -28,7 +28,7 @@
     <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.400" />
     <PackageReference Include="AWSSDK.SimpleNotificationService" Version="3.7.400.162" />
     <PackageReference Include="AWSSDK.SQS" Version="3.7.400.162" />
-    <PackageReference Include="Defra.TradeImportsDataApi.Domain" Version="0.31.0" />
+    <PackageReference Include="Defra.TradeImportsDataApi.Domain" Version="0.32.0" />
     <PackageReference Include="Elastic.CommonSchema.Serilog" Version="8.19.0" />
     <PackageReference Include="Elastic.Serilog.Enrichers.Web" Version="8.19.0" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.0.0" />

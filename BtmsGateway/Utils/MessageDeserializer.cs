@@ -6,7 +6,11 @@ namespace BtmsGateway.Utils;
 
 public static class MessageDeserializer
 {
-    private static readonly JsonSerializerOptions s_jsonOptions = new() { PropertyNameCaseInsensitive = true };
+    private static readonly JsonSerializerOptions s_jsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+    };
 
     public static T? Deserialize<T>(string message, string? contentEncoding)
     {

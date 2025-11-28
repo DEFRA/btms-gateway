@@ -14,14 +14,19 @@ ICDR_Topic=trade_imports_inbound_customs_declarations.fifo
 ICDR_Queue=trade_imports_inbound_customs_declarations_processor.fifo
 OCD_Queue=trade_imports_data_upserted_btms_gateway
 OCD_DeadLetterQueue=trade_imports_data_upserted_btms_gateway-deadletter
+IntegrationTest_AppProfile_OCD_Queue=int_test_trade_imports_data_upserted_btms_gateway
+IntegrationTest_AppProfile_OCD_DeadLetterQueue=int_test_trade_imports_data_upserted_btms_gateway-deadletter
 
 # Create Topics
 aws --endpoint-url="${ENDPOINT_URL}" sns create-topic --attributes FifoTopic=true --name "${ICDR_Topic}"
 
 # Create Queues
+VISIBILITY_TIMEOUT='{"VisibilityTimeout": "5"}'
 aws --endpoint-url="${ENDPOINT_URL}" sqs create-queue --attributes FifoQueue=true --queue-name "${ICDR_Queue}"
-aws --endpoint-url="${ENDPOINT_URL}" sqs create-queue --queue-name "${OCD_Queue}" --attributes '{"VisibilityTimeout": "5"}'
-aws --endpoint-url="${ENDPOINT_URL}" sqs create-queue --queue-name "${OCD_DeadLetterQueue}" --attributes '{"VisibilityTimeout": "5"}'
+aws --endpoint-url="${ENDPOINT_URL}" sqs create-queue --queue-name "${OCD_Queue}" --attributes "${VISIBILITY_TIMEOUT}"
+aws --endpoint-url="${ENDPOINT_URL}" sqs create-queue --queue-name "${OCD_DeadLetterQueue}" --attributes "${VISIBILITY_TIMEOUT}"
+aws --endpoint-url="${ENDPOINT_URL}" sqs create-queue --queue-name "${IntegrationTest_AppProfile_OCD_Queue}" --attributes "${VISIBILITY_TIMEOUT}"
+aws --endpoint-url="${ENDPOINT_URL}" sqs create-queue --queue-name "${IntegrationTest_AppProfile_OCD_DeadLetterQueue}" --attributes "${VISIBILITY_TIMEOUT}"
 
 SNS_ARN=arn:aws:sns:eu-west-2:000000000000
 SQS_ARN=arn:aws:sqs:eu-west-2:000000000000
@@ -31,12 +36,15 @@ aws --endpoint-url="${ENDPOINT_URL}" sns subscribe --topic-arn "${SNS_ARN}:${ICD
 
 # Create Redrive Policy
 aws --endpoint-url="${ENDPOINT_URL}" sqs set-queue-attributes --queue-url "${ENDPOINT_URL}/000000000000/${OCD_Queue}" --attributes '{"RedrivePolicy": "{\"deadLetterTargetArn\":\"arn:aws:sqs:eu-west-2:000000000000:trade_imports_data_upserted_btms_gateway-deadletter\",\"maxReceiveCount\":\"1\"}"}'
+aws --endpoint-url="${ENDPOINT_URL}" sqs set-queue-attributes --queue-url "${ENDPOINT_URL}/000000000000/${IntegrationTest_AppProfile_OCD_Queue}" --attributes '{"RedrivePolicy": "{\"deadLetterTargetArn\":\"arn:aws:sqs:eu-west-2:000000000000:int_test_trade_imports_data_upserted_btms_gateway-deadletter\",\"maxReceiveCount\":\"1\"}"}'
 
 function is_ready() {
     aws --endpoint-url=http://sqs.eu-west-2.localhost.localstack.cloud:4566 sns list-topics --query "Topics[?ends_with(TopicArn, ':trade_imports_inbound_customs_declarations.fifo')].TopicArn" || return 1
     aws --endpoint-url=http://sqs.eu-west-2.localhost.localstack.cloud:4566 sqs get-queue-url --queue-name trade_imports_inbound_customs_declarations_processor.fifo || return 1
     aws --endpoint-url=http://sqs.eu-west-2.localhost.localstack.cloud:4566 sqs get-queue-url --queue-name trade_imports_data_upserted_btms_gateway || return 1
     aws --endpoint-url=http://sqs.eu-west-2.localhost.localstack.cloud:4566 sqs get-queue-url --queue-name trade_imports_data_upserted_btms_gateway-deadletter || return 1
+    aws --endpoint-url=http://sqs.eu-west-2.localhost.localstack.cloud:4566 sqs get-queue-url --queue-name int_test_trade_imports_data_upserted_btms_gateway || return 1
+    aws --endpoint-url=http://sqs.eu-west-2.localhost.localstack.cloud:4566 sqs get-queue-url --queue-name int_test_trade_imports_data_upserted_btms_gateway-deadletter || return 1
     return 0
 }
 

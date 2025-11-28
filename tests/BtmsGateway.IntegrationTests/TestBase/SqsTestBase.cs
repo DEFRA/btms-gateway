@@ -14,8 +14,14 @@ public class SqsTestBase(ITestOutputHelper output) : IntegrationTestBase
         "http://sqs.eu-west-2.127.0.0.1:4566/000000000000/trade_imports_inbound_customs_declarations_processor.fifo";
     protected const string ResourceEventsQueueUrl =
         "http://sqs.eu-west-2.127.0.0.1:4566/000000000000/trade_imports_data_upserted_btms_gateway";
+    protected const string ResourceEventsQueueArn =
+        "arn:aws:sqs:eu-west-2:000000000000:trade_imports_data_upserted_btms_gateway";
     protected const string ResourceEventsDeadLetterQueueUrl =
         "http://sqs.eu-west-2.127.0.0.1:4566/000000000000/trade_imports_data_upserted_btms_gateway-deadletter";
+    protected const string IntegrationTestProfileResourceEventsQueueUrl =
+        "http://sqs.eu-west-2.127.0.0.1:4566/000000000000/int_test_trade_imports_data_upserted_btms_gateway";
+    protected const string IntegrationTestProfileResourceEventsDeadLetterQueueUrl =
+        "http://sqs.eu-west-2.127.0.0.1:4566/000000000000/int_test_trade_imports_data_upserted_btms_gateway-deadletter";
 
     private readonly AmazonSQSClient _sqsClient = new(
         new BasicAWSCredentials("local", "local"),
@@ -85,7 +91,8 @@ public class SqsTestBase(ITestOutputHelper output) : IntegrationTestBase
         string body,
         string queueUrl,
         Dictionary<string, MessageAttributeValue>? messageAttributes = null,
-        bool usesFifo = true
+        bool usesFifo = true,
+        Dictionary<string, MessageSystemAttributeValue>? messageSystemAttributes = null
     )
     {
         var request = new SendMessageRequest
@@ -96,6 +103,11 @@ public class SqsTestBase(ITestOutputHelper output) : IntegrationTestBase
             MessageGroupId = usesFifo ? messageGroupId : null,
             QueueUrl = queueUrl,
         };
+
+        if (messageSystemAttributes is not null)
+        {
+            request.MessageSystemAttributes = messageSystemAttributes;
+        }
 
         var result = await _sqsClient.SendMessageAsync(request, CancellationToken.None);
 
@@ -131,5 +143,18 @@ public class SqsTestBase(ITestOutputHelper output) : IntegrationTestBase
         }
 
         return messageAttributes;
+    }
+
+    protected static Dictionary<string, MessageSystemAttributeValue>? WithMessageSystemAttributes(
+        string deadLetterQueueSourceArn
+    )
+    {
+        return new Dictionary<string, MessageSystemAttributeValue>
+        {
+            {
+                "DeadLetterQueueSourceArn",
+                new MessageSystemAttributeValue { DataType = "String", StringValue = deadLetterQueueSourceArn }
+            },
+        };
     }
 }

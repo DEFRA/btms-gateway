@@ -1,36 +1,28 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using BtmsGateway.IntegrationTests.Helpers;
+using BtmsGateway.IntegrationTests.TestBase;
 using BtmsGateway.IntegrationTests.TestUtils;
 using FluentAssertions;
-using WireMock.Client;
 using Xunit.Abstractions;
 
 namespace BtmsGateway.IntegrationTests.Endpoints.Admin;
 
-[Collection("UsesWireMockClient")]
-public class RemoveMessageTests(WireMockClient wireMockClient, ITestOutputHelper output) : AdminTestBase(output)
+public class RemoveMessageTests(ITestOutputHelper output) : SqsTestBase(output)
 {
-    private readonly IWireMockAdminApi _wireMockAdminApi = wireMockClient.WireMockAdminApi;
-
-    [Fact(
-        Skip = "Now the comparer is gone and wiremock isn't used as the CDS sim, then there is no way to force errors, need to chat about this"
-    )]
-    [SuppressMessage("Usage", "xUnit1004:Test methods should not be skipped")]
+    [Fact]
     public async Task When_message_processing_fails_and_moved_to_dlq_Then_message_can_be_removed()
     {
         var resourceEvent = FixtureTest.UsingContent("CustomsDeclarationClearanceDecisionResourceEvent.json");
         const string mrn = "25GB0XX00XXXXX0001";
         resourceEvent = resourceEvent.Replace("25GB0XX00XXXXX0000", mrn);
 
-        await SetUpConsumptionFailure(_wireMockAdminApi, "DLQ Remove Message", mrn);
-        await DrainAllMessages(ResourceEventsQueueUrl);
-        await DrainAllMessages(ResourceEventsDeadLetterQueueUrl);
+        await PurgeQueue(ResourceEventsQueueUrl);
+        await PurgeQueue(ResourceEventsDeadLetterQueueUrl);
 
         var messageId = await SendMessage(
             mrn,
             resourceEvent,
-            ResourceEventsQueueUrl,
+            ResourceEventsDeadLetterQueueUrl,
             WithResourceEventAttributes("CustomsDeclaration", "ClearanceDecision", mrn),
             false
         );
@@ -49,7 +41,7 @@ public class RemoveMessageTests(WireMockClient wireMockClient, ITestOutputHelper
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        // We expect no messages on either queue following removal of the single message
+        // We expect no messages on either queue following the removal of the single message
         Assert.True(
             await AsyncWaiter.WaitForAsync(async () =>
                 (await GetQueueAttributes(ResourceEventsQueueUrl)).ApproximateNumberOfMessages == 0

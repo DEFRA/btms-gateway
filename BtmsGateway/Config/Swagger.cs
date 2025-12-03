@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using BtmsGateway.Authentication;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace BtmsGateway.Config;
 
@@ -23,7 +23,10 @@ public static class Swagger
                         Scheme = BasicAuthenticationHandler.SchemeName,
                     }
                 );
-                c.OperationFilter<BasicAuthRequirementFilter>();
+                c.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+                {
+                    [new OpenApiSecuritySchemeReference("Basic", document)] = [],
+                });
             });
         }
     }

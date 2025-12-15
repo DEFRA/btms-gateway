@@ -25,6 +25,7 @@ public static class Proxy
         return services
             .AddHttpClient(ProxyClientWithoutRetry)
             .ConfigurePrimaryHttpMessageHandler(ConfigurePrimaryHttpMessageHandler)
+            .AddHttpMessageHandler<ProxyLoggingHandler>()
             .ConfigureHttpClient(client => client.Timeout = ConfigureHealthChecks.Timeout);
     }
 
@@ -47,6 +48,7 @@ public static class Proxy
         return services
             .AddHttpClient(RoutedClientWithRetry)
             .ConfigurePrimaryHttpMessageHandler(ConfigurePrimaryHttpMessageHandler)
+            .AddHttpMessageHandler<ProxyLoggingHandler>()
             .AddPolicyHandler(strategy);
     }
 
@@ -69,6 +71,7 @@ public static class Proxy
 
         return services
             .AddHttpClient(CdsProxyClientWithRetry)
+            .AddHttpMessageHandler<ProxyLoggingHandler>()
             .ConfigurePrimaryHttpMessageHandler(ConfigurePrimaryHttpMessageHandler)
             .AddPolicyHandler(strategy);
     }

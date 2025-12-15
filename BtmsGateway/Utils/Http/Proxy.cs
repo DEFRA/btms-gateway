@@ -76,7 +76,7 @@ public static class Proxy
     [ExcludeFromCodeCoverage]
     private static HttpClientHandler ConfigurePrimaryHttpMessageHandler()
     {
-        var proxyUri = Environment.GetEnvironmentVariable("CDP_HTTPS_PROXY");
+        var proxyUri = Environment.GetEnvironmentVariable("HTTPS_PROXY");
         return CreateHttpClientHandler(proxyUri);
     }
 
@@ -91,33 +91,8 @@ public static class Proxy
         var proxy = new WebProxy { BypassProxyOnLocal = true };
         if (proxyUri != null)
         {
-            ConfigureProxy(proxy, proxyUri);
+            proxy.Address = new UriBuilder(proxyUri).Uri;
         }
         return proxy;
-    }
-
-    public static void ConfigureProxy(WebProxy proxy, string proxyUri)
-    {
-        var uri = new UriBuilder(proxyUri);
-
-        var credentials = GetCredentialsFromUri(uri);
-        if (credentials != null)
-        {
-            proxy.Credentials = credentials;
-        }
-
-        // Remove credentials from URI to so they don't get logged.
-        uri.UserName = "";
-        uri.Password = "";
-        proxy.Address = uri.Uri;
-    }
-
-    private static NetworkCredential? GetCredentialsFromUri(UriBuilder uri)
-    {
-        var username = uri.UserName;
-        var password = uri.Password;
-        if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
-            return null;
-        return new NetworkCredential(username, password);
     }
 }

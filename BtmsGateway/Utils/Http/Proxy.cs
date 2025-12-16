@@ -91,7 +91,7 @@ public static class Proxy
 
     public static WebProxy CreateProxy(string? proxyUri)
     {
-        var proxy = new WebProxy { BypassProxyOnLocal = true };
+        var proxy = new WebProxy { BypassProxyOnLocal = false };
         if (proxyUri != null)
         {
             proxy.Address = new UriBuilder(proxyUri).Uri;

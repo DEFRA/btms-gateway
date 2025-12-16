@@ -31,8 +31,8 @@ public class ProxyTest
     {
         var proxy = Proxy.CreateProxy(ProxyUri);
 
-        proxy.BypassProxyOnLocal.Should().BeTrue();
-        proxy.IsBypassed(new Uri(Localhost)).Should().BeTrue();
+        proxy.BypassProxyOnLocal.Should().BeFalse();
+        proxy.IsBypassed(new Uri(Localhost)).Should().BeFalse();
         proxy.IsBypassed(new Uri("https://defra.gov.uk")).Should().BeFalse();
     }
 
@@ -46,7 +46,7 @@ public class ProxyTest
         handler.Proxy?.Credentials.Should().BeNull();
         handler.Proxy?.GetProxy(new Uri(Localhost)).Should().NotBeNull();
         handler.Proxy?.GetProxy(new Uri("http://google.com")).Should().NotBeNull();
-        handler.Proxy?.GetProxy(new Uri(Localhost))?.AbsoluteUri.Should().Be(Localhost);
+        handler.Proxy?.GetProxy(new Uri(Localhost))?.AbsoluteUri.Should().Be(LocalProxy);
         handler.Proxy?.GetProxy(new Uri("http://google.com"))?.AbsoluteUri.Should().Be(LocalProxy);
     }
 }

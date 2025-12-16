@@ -1,4 +1,3 @@
-using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using BtmsGateway.Services.Health;
@@ -7,7 +6,6 @@ using Polly.Extensions.Http;
 using Polly.Retry;
 using Polly.Timeout;
 using Serilog;
-using Environment = System.Environment;
 
 namespace BtmsGateway.Utils.Http;
 

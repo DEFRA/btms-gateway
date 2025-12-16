@@ -5,7 +5,7 @@ using Polly;
 using Polly.Extensions.Http;
 using Polly.Retry;
 using Polly.Timeout;
-using Environment = System.Environment;
+using Serilog;
 
 namespace BtmsGateway.Utils.Http;
 
@@ -91,11 +91,13 @@ public static class Proxy
 
     public static WebProxy CreateProxy(string? proxyUri)
     {
+        Log.Logger.Information("Proxy Uri from ENV: {ProxyUri}", proxyUri);
         var proxy = new WebProxy { BypassProxyOnLocal = false };
         if (proxyUri != null)
         {
-            proxy.Address = new UriBuilder(proxyUri).Uri;
+            proxy.Address = new Uri(proxyUri, UriKind.RelativeOrAbsolute);
         }
+        Log.Logger.Information("WebProxy.Address: {ProxyUri}", proxy.Address);
         return proxy;
     }
 }

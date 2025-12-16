@@ -7,6 +7,7 @@ using BtmsGateway.Services.Checking;
 using BtmsGateway.Services.Metrics;
 using BtmsGateway.Services.Routing;
 using BtmsGateway.Utils.Http;
+using Elastic.CommonSchema;
 using FluentValidation;
 
 namespace BtmsGateway.Config;
@@ -33,6 +34,8 @@ public static class ConfigureServices
             "CdsHttpClientRetries",
             Proxy.DefaultCdsHttpClientRetries
         );
+
+        builder.Services.AddTransient<ProxyLoggingHandler>();
 
         HttpRoutedClientWithRetryBuilder = builder.Services.AddHttpProxyRoutedClientWithRetry(httpClientTimeoutSeconds);
         HttpClientWithRetryBuilder = builder.Services.AddHttpProxyClientWithRetry(

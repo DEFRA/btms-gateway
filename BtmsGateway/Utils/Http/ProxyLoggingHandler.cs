@@ -14,9 +14,11 @@ public class ProxyLoggingHandler(ILogger<ProxyLoggingHandler> logger) : Delegati
         if (InnerHandler is HttpClientHandler handler)
         {
             var proxy = handler.Proxy ?? WebRequest.DefaultWebProxy;
-            var proxyUri = proxy?.GetProxy(request.RequestUri);
-
-            logger.LogInformation("Request {RequestUri} → Proxy {ProxyUri}", request.RequestUri, proxyUri);
+            if (request.RequestUri != null)
+            {
+                var proxyUri = proxy?.GetProxy(request.RequestUri);
+                logger.LogInformation("Request {RequestUri} → Proxy {ProxyUri}", request.RequestUri, proxyUri);
+            }
         }
 
         return await base.SendAsync(request, cancellationToken);

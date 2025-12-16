@@ -1,5 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
+using Microsoft.Extensions.Http;
+using Microsoft.Extensions.Http.Logging;
 
 namespace BtmsGateway.Utils.Http;
 
@@ -11,14 +13,22 @@ public class ProxyLoggingHandler(ILogger<ProxyLoggingHandler> logger) : Delegati
         CancellationToken cancellationToken
     )
     {
-        if (InnerHandler is HttpClientHandler handler)
+        if (
+            InnerHandler is PolicyHttpMessageHandler
+            {
+                InnerHandler: LoggingHttpMessageHandler { InnerHandler: HttpClientHandler handler }
+            }
+        )
         {
             var proxy = handler.Proxy ?? WebRequest.DefaultWebProxy;
-            if (request.RequestUri != null)
-            {
-                var proxyUri = proxy?.GetProxy(request.RequestUri);
-                logger.LogInformation("Request {RequestUri} → Proxy {ProxyUri}", request.RequestUri, proxyUri);
-            }
+            var proxyUri = proxy?.GetProxy(request.RequestUri!);
+
+            logger.LogInformation(
+                "HTTP {Method} {Uri} via proxy {Proxy}",
+                request.Method,
+                request.RequestUri,
+                proxyUri ?? new Uri("direct://")
+            );
         }
 
         return await base.SendAsync(request, cancellationToken);

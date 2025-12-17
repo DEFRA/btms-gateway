@@ -4,7 +4,9 @@ using Amazon.SQS;
 using Amazon.SQS.Model;
 using BtmsGateway.Extensions;
 using BtmsGateway.IntegrationTests.Helpers;
+using SlimMessageBus.Host;
 using Xunit.Abstractions;
+using Assert = Xunit.Assert;
 
 namespace BtmsGateway.IntegrationTests.TestBase;
 
@@ -66,15 +68,17 @@ public class SqsTestBase(ITestOutputHelper output) : IntegrationTestBase
             await AsyncWaiter.WaitForAsync(async () =>
             {
                 var response = await ReceiveMessage(queueUrl);
-
-                foreach (var message in response.Messages)
+                if (response.Messages is not null)
                 {
-                    output?.WriteLine("Drain message: {0} {1}", message.MessageId, message.Body);
+                    foreach (var message in response.Messages)
+                    {
+                        output?.WriteLine("Drain message: {0} {1}", message.MessageId, message.Body);
 
-                    await _sqsClient.DeleteMessageAsync(
-                        new DeleteMessageRequest { QueueUrl = queueUrl, ReceiptHandle = message.ReceiptHandle },
-                        CancellationToken.None
-                    );
+                        await _sqsClient.DeleteMessageAsync(
+                            new DeleteMessageRequest { QueueUrl = queueUrl, ReceiptHandle = message.ReceiptHandle },
+                            CancellationToken.None
+                        );
+                    }
                 }
 
                 var approximateNumberOfMessages = (await GetQueueAttributes(queueUrl)).ApproximateNumberOfMessages;
@@ -116,7 +120,7 @@ public class SqsTestBase(ITestOutputHelper output) : IntegrationTestBase
         return result.MessageId;
     }
 
-    protected static Dictionary<string, MessageAttributeValue> WithResourceEventAttributes(
+    protected static Dictionary<string, MessageAttributeValue> WithResourceEventAttributes<T>(
         string resourceType,
         string? subResourceType,
         string resourceId
@@ -124,6 +128,14 @@ public class SqsTestBase(ITestOutputHelper output) : IntegrationTestBase
     {
         var messageAttributes = new Dictionary<string, MessageAttributeValue>
         {
+            {
+                "MessageType",
+                new MessageAttributeValue
+                {
+                    DataType = "String",
+                    StringValue = new AssemblyQualifiedNameMessageTypeResolver().ToName(typeof(T)),
+                }
+            },
             {
                 MessageBusHeaders.ResourceType,
                 new MessageAttributeValue { DataType = "String", StringValue = resourceType }

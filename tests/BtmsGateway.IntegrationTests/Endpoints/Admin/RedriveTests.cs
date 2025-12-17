@@ -2,6 +2,7 @@ using System.Net;
 using BtmsGateway.IntegrationTests.Helpers;
 using BtmsGateway.IntegrationTests.TestBase;
 using BtmsGateway.IntegrationTests.TestUtils;
+using Defra.TradeImportsDataApi.Domain.Events;
 using FluentAssertions;
 using Xunit.Abstractions;
 
@@ -22,7 +23,11 @@ public class RedriveTests(ITestOutputHelper output) : SqsTestBase(output)
             mrn,
             resourceEvent,
             ResourceEventsDeadLetterQueueUrl,
-            WithResourceEventAttributes("CustomsDeclaration", "ClearanceDecision", mrn),
+            WithResourceEventAttributes<ResourceEvent<CustomsDeclarationEvent>>(
+                "CustomsDeclaration",
+                "ClearanceDecision",
+                mrn
+            ),
             false,
             WithMessageSystemAttributes(ResourceEventsQueueArn)
         );

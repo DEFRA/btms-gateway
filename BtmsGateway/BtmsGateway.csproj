@@ -24,13 +24,12 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Amazon.CloudWatch.EMF" Version="2.2.0" />
-    <PackageReference Include="AWSSDK.Core" Version="3.7.500.55" />
-    <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.400" />
-    <PackageReference Include="AWSSDK.SimpleNotificationService" Version="3.7.502.20" />
-    <PackageReference Include="AWSSDK.SQS" Version="3.7.502.16" />
+
+    <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.3.17" />
+
     <PackageReference Include="Defra.TradeImportsDataApi.Domain" Version="0.32.0" />
-    <PackageReference Include="Elastic.CommonSchema.Serilog" Version="8.19.0" />
-    <PackageReference Include="Elastic.Serilog.Enrichers.Web" Version="8.19.0" />
+    <PackageReference Include="Elastic.CommonSchema.Serilog" Version="9.0.0" />
+    <PackageReference Include="Elastic.Serilog.Enrichers.Web" Version="9.0.0" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
     <PackageReference Include="Humanizer.Core" Version="3.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.HeaderPropagation" Version="9.0.11" />

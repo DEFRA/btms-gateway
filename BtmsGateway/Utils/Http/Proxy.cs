@@ -79,7 +79,7 @@ public static class Proxy
     [ExcludeFromCodeCoverage]
     private static HttpClientHandler ConfigurePrimaryHttpMessageHandler()
     {
-        var proxyUri = Environment.GetEnvironmentVariable("HTTPS_PROXY");
+        var proxyUri = Environment.GetEnvironmentVariable("HTTP_PROXY");
         return CreateHttpClientHandler(proxyUri);
     }
 

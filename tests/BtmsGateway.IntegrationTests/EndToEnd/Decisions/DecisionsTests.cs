@@ -2,6 +2,7 @@ using BtmsGateway.IntegrationTests.Data.Entities;
 using BtmsGateway.IntegrationTests.Helpers;
 using BtmsGateway.IntegrationTests.TestBase;
 using BtmsGateway.IntegrationTests.TestUtils;
+using Defra.TradeImportsDataApi.Domain.Events;
 using MongoDB.Driver;
 using Xunit.Abstractions;
 
@@ -27,7 +28,11 @@ public class DecisionsTests(ITestOutputHelper output) : SqsTestBase(output)
             _mrn,
             _decisionResourceEvent,
             ResourceEventsQueueUrl,
-            WithResourceEventAttributes("CustomsDeclaration", "ClearanceDecision", _mrn),
+            WithResourceEventAttributes<ResourceEvent<CustomsDeclarationEvent>>(
+                "CustomsDeclaration",
+                "ClearanceDecision",
+                _mrn
+            ),
             false
         );
 

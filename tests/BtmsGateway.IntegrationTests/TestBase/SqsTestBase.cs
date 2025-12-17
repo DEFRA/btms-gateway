@@ -4,7 +4,9 @@ using Amazon.SQS;
 using Amazon.SQS.Model;
 using BtmsGateway.Extensions;
 using BtmsGateway.IntegrationTests.Helpers;
+using SlimMessageBus.Host;
 using Xunit.Abstractions;
+using Assert = Xunit.Assert;
 
 namespace BtmsGateway.IntegrationTests.TestBase;
 
@@ -116,7 +118,7 @@ public class SqsTestBase(ITestOutputHelper output) : IntegrationTestBase
         return result.MessageId;
     }
 
-    protected static Dictionary<string, MessageAttributeValue> WithResourceEventAttributes(
+    protected static Dictionary<string, MessageAttributeValue> WithResourceEventAttributes<T>(
         string resourceType,
         string? subResourceType,
         string resourceId
@@ -124,6 +126,14 @@ public class SqsTestBase(ITestOutputHelper output) : IntegrationTestBase
     {
         var messageAttributes = new Dictionary<string, MessageAttributeValue>
         {
+            {
+                "MessageType",
+                new MessageAttributeValue
+                {
+                    DataType = "String",
+                    StringValue = new AssemblyQualifiedNameMessageTypeResolver().ToName(typeof(T)),
+                }
+            },
             {
                 MessageBusHeaders.ResourceType,
                 new MessageAttributeValue { DataType = "String", StringValue = resourceType }

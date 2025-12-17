@@ -3,6 +3,7 @@ using BtmsGateway.IntegrationTests.Helpers;
 using BtmsGateway.IntegrationTests.TestBase;
 using BtmsGateway.IntegrationTests.TestUtils;
 using BtmsGateway.Utils.Http;
+using Defra.TradeImportsDataApi.Domain.Events;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
@@ -58,7 +59,11 @@ public class ProxyTests(WireMockClient wireMockClient, ITestOutputHelper output)
             mrn,
             resourceEvent,
             IntegrationTestProfileResourceEventsQueueUrl,
-            WithResourceEventAttributes("CustomsDeclaration", "ClearanceDecision", mrn),
+            WithResourceEventAttributes<ResourceEvent<CustomsDeclarationEvent>>(
+                "CustomsDeclaration",
+                "ClearanceDecision",
+                mrn
+            ),
             false
         );
 

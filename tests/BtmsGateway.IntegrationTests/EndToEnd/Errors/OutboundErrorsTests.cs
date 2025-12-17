@@ -2,6 +2,7 @@ using BtmsGateway.IntegrationTests.Data.Entities;
 using BtmsGateway.IntegrationTests.Helpers;
 using BtmsGateway.IntegrationTests.TestBase;
 using BtmsGateway.IntegrationTests.TestUtils;
+using Defra.TradeImportsDataApi.Domain.Events;
 using MongoDB.Driver;
 using Xunit.Abstractions;
 
@@ -27,7 +28,7 @@ public class OutboundErrorsTests(ITestOutputHelper output) : SqsTestBase(output)
             _mrn,
             _errorResourceEvent,
             ResourceEventsQueueUrl,
-            WithResourceEventAttributes("ProcessingError", null, _mrn),
+            WithResourceEventAttributes<ResourceEvent<ProcessingErrorEvent>>("ProcessingError", null, _mrn),
             false
         );
 

@@ -68,15 +68,17 @@ public class SqsTestBase(ITestOutputHelper output) : IntegrationTestBase
             await AsyncWaiter.WaitForAsync(async () =>
             {
                 var response = await ReceiveMessage(queueUrl);
-
-                foreach (var message in response.Messages)
+                if (response.Messages is not null)
                 {
-                    output?.WriteLine("Drain message: {0} {1}", message.MessageId, message.Body);
+                    foreach (var message in response.Messages)
+                    {
+                        output?.WriteLine("Drain message: {0} {1}", message.MessageId, message.Body);
 
-                    await _sqsClient.DeleteMessageAsync(
-                        new DeleteMessageRequest { QueueUrl = queueUrl, ReceiptHandle = message.ReceiptHandle },
-                        CancellationToken.None
-                    );
+                        await _sqsClient.DeleteMessageAsync(
+                            new DeleteMessageRequest { QueueUrl = queueUrl, ReceiptHandle = message.ReceiptHandle },
+                            CancellationToken.None
+                        );
+                    }
                 }
 
                 var approximateNumberOfMessages = (await GetQueueAttributes(queueUrl)).ApproximateNumberOfMessages;

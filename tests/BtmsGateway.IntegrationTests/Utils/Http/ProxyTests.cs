@@ -34,6 +34,21 @@ public class ProxyTests(WireMockClient wireMockClient, ITestOutputHelper output)
         await using var application = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
         {
             builder.UseEnvironment("IntegrationTests");
+
+            builder.Configure(ab =>
+            {
+                Environment.SetEnvironmentVariable("AWS_ACCESS_KEY_ID", "local", EnvironmentVariableTarget.Process);
+
+                Environment.SetEnvironmentVariable("AWS_SECRET_ACCESS_KEY", "local", EnvironmentVariableTarget.Process);
+
+                Environment.SetEnvironmentVariable("AWS_REGION", "eu-west-2", EnvironmentVariableTarget.Process);
+
+                Environment.SetEnvironmentVariable(
+                    "SQS_ENDPOINT",
+                    "http://sqs.eu-west-2.localhost.localstack.cloud:4566",
+                    EnvironmentVariableTarget.Process
+                );
+            });
         });
 
         var configuration = application.Services.GetService(typeof(IConfiguration));

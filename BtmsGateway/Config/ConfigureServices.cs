@@ -35,8 +35,6 @@ public static class ConfigureServices
             Proxy.DefaultCdsHttpClientRetries
         );
 
-        builder.Services.AddTransient<ProxyLoggingHandler>();
-
         HttpRoutedClientWithRetryBuilder = builder.Services.AddHttpProxyRoutedClientWithRetry(httpClientTimeoutSeconds);
         HttpClientWithRetryBuilder = builder.Services.AddHttpProxyClientWithRetry(
             httpClientTimeoutSeconds,

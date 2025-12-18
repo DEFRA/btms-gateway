@@ -5,7 +5,7 @@ using Polly;
 using Polly.Extensions.Http;
 using Polly.Retry;
 using Polly.Timeout;
-using Serilog;
+using Environment = System.Environment;
 
 namespace BtmsGateway.Utils.Http;
 
@@ -25,7 +25,6 @@ public static class Proxy
         return services
             .AddHttpClient(ProxyClientWithoutRetry)
             .ConfigurePrimaryHttpMessageHandler(ConfigurePrimaryHttpMessageHandler)
-            .AddHttpMessageHandler<ProxyLoggingHandler>()
             .ConfigureHttpClient(client => client.Timeout = ConfigureHealthChecks.Timeout);
     }
 
@@ -48,7 +47,6 @@ public static class Proxy
         return services
             .AddHttpClient(RoutedClientWithRetry)
             .ConfigurePrimaryHttpMessageHandler(ConfigurePrimaryHttpMessageHandler)
-            .AddHttpMessageHandler<ProxyLoggingHandler>()
             .AddPolicyHandler(strategy);
     }
 
@@ -71,7 +69,6 @@ public static class Proxy
 
         return services
             .AddHttpClient(CdsProxyClientWithRetry)
-            .AddHttpMessageHandler<ProxyLoggingHandler>()
             .ConfigurePrimaryHttpMessageHandler(ConfigurePrimaryHttpMessageHandler)
             .AddPolicyHandler(strategy);
     }
@@ -91,13 +88,36 @@ public static class Proxy
 
     public static WebProxy CreateProxy(string? proxyUri)
     {
-        Log.Logger.Information("Proxy Uri from ENV: {ProxyUri}", proxyUri);
-        var proxy = new WebProxy { BypassProxyOnLocal = false };
+        var proxy = new WebProxy { BypassProxyOnLocal = true };
         if (proxyUri != null)
         {
-            proxy.Address = new Uri(proxyUri, UriKind.RelativeOrAbsolute);
+            ConfigureProxy(proxy, proxyUri);
         }
-        Log.Logger.Information("WebProxy.Address: {ProxyUri}", proxy.Address);
         return proxy;
+    }
+
+    public static void ConfigureProxy(WebProxy proxy, string proxyUri)
+    {
+        var uri = new UriBuilder(proxyUri);
+
+        var credentials = GetCredentialsFromUri(uri);
+        if (credentials != null)
+        {
+            proxy.Credentials = credentials;
+        }
+
+        // Remove credentials from URI to so they don't get logged.
+        uri.UserName = "";
+        uri.Password = "";
+        proxy.Address = uri.Uri;
+    }
+
+    private static NetworkCredential? GetCredentialsFromUri(UriBuilder uri)
+    {
+        var username = uri.UserName;
+        var password = uri.Password;
+        if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+            return null;
+        return new NetworkCredential(username, password);
     }
 }

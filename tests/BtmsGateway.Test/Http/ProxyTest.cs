@@ -1,8 +1,6 @@
 using BtmsGateway.Utils.Http;
 using FluentAssertions;
 
-namespace BtmsGateway.Test.Http;
-
 public class ProxyTest
 {
     private const string ProxyUri = "http://user:password@localhost:8080";
@@ -31,8 +29,8 @@ public class ProxyTest
     {
         var proxy = Proxy.CreateProxy(ProxyUri);
 
-        proxy.BypassProxyOnLocal.Should().BeFalse();
-        proxy.IsBypassed(new Uri(Localhost)).Should().BeFalse();
+        proxy.BypassProxyOnLocal.Should().BeTrue();
+        proxy.IsBypassed(new Uri(Localhost)).Should().BeTrue();
         proxy.IsBypassed(new Uri("https://defra.gov.uk")).Should().BeFalse();
     }
 
@@ -46,7 +44,7 @@ public class ProxyTest
         handler.Proxy?.Credentials.Should().BeNull();
         handler.Proxy?.GetProxy(new Uri(Localhost)).Should().NotBeNull();
         handler.Proxy?.GetProxy(new Uri("http://google.com")).Should().NotBeNull();
-        handler.Proxy?.GetProxy(new Uri(Localhost))?.AbsoluteUri.Should().Be(LocalProxy);
+        handler.Proxy?.GetProxy(new Uri(Localhost))?.AbsoluteUri.Should().Be(Localhost);
         handler.Proxy?.GetProxy(new Uri("http://google.com"))?.AbsoluteUri.Should().Be(LocalProxy);
     }
 }

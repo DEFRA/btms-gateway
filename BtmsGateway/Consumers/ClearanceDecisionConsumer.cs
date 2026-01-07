@@ -68,9 +68,9 @@ public class ClearanceDecisionConsumer(
 
             await PublishActivityEvent(
                 mrn,
-                result.ResponseDate.Value.UtcDateTime,
+                result.ResponseDate!.Value.UtcDateTime,
                 (int)result.StatusCode,
-                message.Resource.ClearanceDecision.CorrelationId,
+                message.Resource.ClearanceDecision.CorrelationId!,
                 cancellationToken
             );
 
@@ -98,7 +98,7 @@ public class ClearanceDecisionConsumer(
                 mrn,
                 DateTime.UtcNow,
                 409,
-                message.Resource.ClearanceDecision.CorrelationId,
+                message.Resource?.ClearanceDecision?.CorrelationId!,
                 cancellationToken
             );
             throw new ConflictException($"{mrn} Failed to process clearance decision resource event.", ex);

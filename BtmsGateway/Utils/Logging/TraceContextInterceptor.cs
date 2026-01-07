@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.HeaderPropagation;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
@@ -6,6 +7,7 @@ using SlimMessageBus.Host.Interceptor;
 
 namespace BtmsGateway.Utils.Logging;
 
+[ExcludeFromCodeCoverage]
 public class TraceContextInterceptor<TMessage>(
     IOptions<TraceHeader> traceHeader,
     ITraceContextAccessor traceContextAccessor,

@@ -25,7 +25,7 @@
   <ItemGroup>
     <PackageReference Include="Amazon.CloudWatch.EMF" Version="2.2.0" />
 
-    <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.3.17" />
+    <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.3.18" />
 
     <PackageReference Include="Defra.TradeImportsDataApi.Domain" Version="0.32.0" />
     <PackageReference Include="Elastic.CommonSchema.Serilog" Version="9.0.0" />

@@ -10,8 +10,8 @@ export AWS_SECRET_ACCESS_KEY=local
 
 # SNS/SQS topics, queues, subscriptions
 
-Acvitity_Topic=trade_imports_activities
-Acvitity_Topic_Test_Queue=trade_imports_activities_queue
+Actvitity_Topic=trade_imports_activities
+Actvitity_Topic_Test_Queue=trade_imports_activities_queue
 ICDR_Topic=trade_imports_inbound_customs_declarations.fifo
 ICDR_Queue=trade_imports_inbound_customs_declarations_processor.fifo
 OCD_Queue=trade_imports_data_upserted_btms_gateway
@@ -21,7 +21,7 @@ IntegrationTest_AppProfile_OCD_DeadLetterQueue=int_test_trade_imports_data_upser
 
 # Create Topics
 aws --endpoint-url="${ENDPOINT_URL}" sns create-topic --attributes FifoTopic=true --name "${ICDR_Topic}"
-aws --endpoint-url="${ENDPOINT_URL}" sns create-topic --name "${Acvitity_Topic}"
+aws --endpoint-url="${ENDPOINT_URL}" sns create-topic --name "${Actvitity_Topic}"
 
 # Create Queues
 VISIBILITY_TIMEOUT='{"VisibilityTimeout": "5"}'
@@ -30,14 +30,14 @@ aws --endpoint-url="${ENDPOINT_URL}" sqs create-queue --queue-name "${OCD_Queue}
 aws --endpoint-url="${ENDPOINT_URL}" sqs create-queue --queue-name "${OCD_DeadLetterQueue}" --attributes "${VISIBILITY_TIMEOUT}"
 aws --endpoint-url="${ENDPOINT_URL}" sqs create-queue --queue-name "${IntegrationTest_AppProfile_OCD_Queue}" --attributes "${VISIBILITY_TIMEOUT}"
 aws --endpoint-url="${ENDPOINT_URL}" sqs create-queue --queue-name "${IntegrationTest_AppProfile_OCD_DeadLetterQueue}" --attributes "${VISIBILITY_TIMEOUT}"
-aws --endpoint-url="${ENDPOINT_URL}" sqs create-queue --queue-name "${Acvitity_Topic_Test_Queue}" --attributes "${VISIBILITY_TIMEOUT}"
+aws --endpoint-url="${ENDPOINT_URL}" sqs create-queue --queue-name "${Actvitity_Topic_Test_Queue}" --attributes "${VISIBILITY_TIMEOUT}"
 
 SNS_ARN=arn:aws:sns:eu-west-2:000000000000
 SQS_ARN=arn:aws:sqs:eu-west-2:000000000000
 
 # Create Subscriptions
 aws --endpoint-url="${ENDPOINT_URL}" sns subscribe --topic-arn "${SNS_ARN}:${ICDR_Topic}" --protocol sqs --notification-endpoint "${SQS_ARN}:${ICDR_Queue}" --attributes '{"RawMessageDelivery": "true"}'
-aws --endpoint-url="${ENDPOINT_URL}" sns subscribe --topic-arn "${SNS_ARN}:${Acvitity_Topic}" --protocol sqs --notification-endpoint "${SQS_ARN}:${Acvitity_Topic_Test_Queue}" --attributes '{"RawMessageDelivery": "true"}'
+aws --endpoint-url="${ENDPOINT_URL}" sns subscribe --topic-arn "${SNS_ARN}:${Actvitity_Topic}" --protocol sqs --notification-endpoint "${SQS_ARN}:${Actvitity_Topic_Test_Queue}" --attributes '{"RawMessageDelivery": "true"}'
 
 # Create Redrive Policy
 aws --endpoint-url="${ENDPOINT_URL}" sqs set-queue-attributes --queue-url "${ENDPOINT_URL}/000000000000/${OCD_Queue}" --attributes '{"RedrivePolicy": "{\"deadLetterTargetArn\":\"arn:aws:sqs:eu-west-2:000000000000:trade_imports_data_upserted_btms_gateway-deadletter\",\"maxReceiveCount\":\"1\"}"}'

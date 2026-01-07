@@ -1,5 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
-
 namespace BtmsGateway.Domain;
 
 public static class MessagingConstants

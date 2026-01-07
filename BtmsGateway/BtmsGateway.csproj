@@ -27,7 +27,7 @@
 
     <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.3.17" />
 
-    <PackageReference Include="Defra.TradeImportsDataApi.Domain" Version="0.32.0" />
+    <PackageReference Include="Defra.TradeImportsDataApi.Domain" Version="0.33.0-pr-387.1776" />
     <PackageReference Include="Elastic.CommonSchema.Serilog" Version="9.0.0" />
     <PackageReference Include="Elastic.Serilog.Enrichers.Web" Version="9.0.0" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />

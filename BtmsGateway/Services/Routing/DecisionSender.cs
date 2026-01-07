@@ -92,6 +92,7 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
             RoutingSuccessful = true,
             FullRouteLink = destination,
             StatusCode = cdsResponse.StatusCode,
+            ResponseDate = cdsResponse.Headers.Date,
             ResponseContent = await GetResponseContentAsync(cdsResponse, cancellationToken),
         };
     }

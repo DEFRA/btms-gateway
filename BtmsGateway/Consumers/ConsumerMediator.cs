@@ -13,6 +13,7 @@ using SlimMessageBus;
 namespace BtmsGateway.Consumers;
 
 public class ConsumerMediator(
+    IMessageBus bus,
     IDecisionSender decisionSender,
     IErrorNotificationSender errorNotificationSender,
     ILoggerFactory loggerFactory,
@@ -40,6 +41,7 @@ public class ConsumerMediator(
     private Task HandleCustomsDeclaration(JsonElement message, CancellationToken cancellationToken)
     {
         var consumer = new ClearanceDecisionConsumer(
+            bus,
             decisionSender,
             loggerFactory.CreateLogger<ClearanceDecisionConsumer>(),
             cdsOptions

@@ -21,6 +21,7 @@ public class ResourceEventsDeadLetterServiceTests
 
     private readonly ResourceEventsDeadLetterService _resourceEventsDeadLetterService;
 
+    private const string ActivityEventsTopicName = "activity_topic";
     private const string QueueName = "outbound_queue";
     private const string QueueNameDeadLetter = "outbound_queue-deadletter";
     private const string ArnPrefix = "arn:aws:sqs:eu-west-2:000000000000:";
@@ -28,7 +29,12 @@ public class ResourceEventsDeadLetterServiceTests
     public ResourceEventsDeadLetterServiceTests()
     {
         _awsSqsOptions.Value.Returns(
-            new AwsSqsOptions { ResourceEventsQueueName = QueueName, SqsArnPrefix = ArnPrefix }
+            new AwsSqsOptions
+            {
+                ResourceEventsQueueName = QueueName,
+                SqsArnPrefix = ArnPrefix,
+                ActivityEventsTopicName = ActivityEventsTopicName,
+            }
         );
 
         _resourceEventsDeadLetterService = new ResourceEventsDeadLetterService(_amazonSqs, _awsSqsOptions, _logger);

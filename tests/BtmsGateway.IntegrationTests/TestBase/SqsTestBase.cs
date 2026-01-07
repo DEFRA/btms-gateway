@@ -16,6 +16,8 @@ public class SqsTestBase(ITestOutputHelper output) : IntegrationTestBase
         "http://sqs.eu-west-2.127.0.0.1:4566/000000000000/trade_imports_inbound_customs_declarations_processor.fifo";
     protected const string ResourceEventsQueueUrl =
         "http://sqs.eu-west-2.127.0.0.1:4566/000000000000/trade_imports_data_upserted_btms_gateway";
+    protected const string ActivityEventsQueueUrl =
+        "http://sqs.eu-west-2.127.0.0.1:4566/000000000000/trade_imports_activities_queue";
     protected const string ResourceEventsQueueArn =
         "arn:aws:sqs:eu-west-2:000000000000:trade_imports_data_upserted_btms_gateway";
     protected const string ResourceEventsDeadLetterQueueUrl =
@@ -44,6 +46,8 @@ public class SqsTestBase(ITestOutputHelper output) : IntegrationTestBase
                 QueueUrl = queueUrl,
                 MaxNumberOfMessages = 10,
                 WaitTimeSeconds = 0,
+                MessageAttributeNames = ["*"],
+                MessageSystemAttributeNames = ["*"],
             },
             CancellationToken.None
         );

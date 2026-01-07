@@ -4,7 +4,6 @@ using BtmsGateway.Exceptions;
 using BtmsGateway.Services.Converter;
 using BtmsGateway.Services.Routing;
 using BtmsGateway.Utils;
-using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 using Defra.TradeImportsDataApi.Domain.Events;
 using Microsoft.Extensions.Options;
 using SlimMessageBus;
@@ -12,6 +11,7 @@ using SlimMessageBus;
 namespace BtmsGateway.Consumers;
 
 public class ClearanceDecisionConsumer(
+    IMessageBus bus,
     IDecisionSender decisionSender,
     ILogger<ClearanceDecisionConsumer> logger,
     IOptions<CdsOptions> cdsOptions
@@ -66,6 +66,14 @@ public class ClearanceDecisionConsumer(
                 cancellationToken: cancellationToken
             );
 
+            await PublishActivityEvent(
+                mrn,
+                result.ResponseDate.Value.UtcDateTime,
+                (int)result.StatusCode,
+                message.Resource.ClearanceDecision.CorrelationId,
+                cancellationToken
+            );
+
             if (!result.StatusCode.IsSuccessStatusCode())
             {
                 logger.LogError(
@@ -86,6 +94,13 @@ public class ClearanceDecisionConsumer(
         catch (ConflictException ex)
         {
             logger.LogWarning(ex, "{MRN} Failed to process clearance decision resource event.", mrn);
+            await PublishActivityEvent(
+                mrn,
+                DateTime.UtcNow,
+                409,
+                message.Resource.ClearanceDecision.CorrelationId,
+                cancellationToken
+            );
             throw new ConflictException($"{mrn} Failed to process clearance decision resource event.", ex);
         }
         catch (Exception ex)
@@ -96,5 +111,39 @@ public class ClearanceDecisionConsumer(
                 ex
             );
         }
+    }
+
+    private async Task PublishActivityEvent(
+        string mrn,
+        DateTime timestamp,
+        int statusCode,
+        string correlationId,
+        CancellationToken cancellationToken
+    )
+    {
+        var @event = new BtmsActivityEvent<BtmsToCdsActivity>()
+        {
+            ResourceId = mrn,
+            ResourceType = ResourceEventResourceTypes.CustomsDeclaration,
+            SubResourceType = ResourceEventSubResourceTypes.ClearanceDecision,
+            ServiceName = "BtmsGateway",
+            Activity = new BtmsToCdsActivity()
+            {
+                Timestamp = timestamp,
+                StatusCode = statusCode,
+                CorrelationId = correlationId,
+            },
+        };
+        var headers = new Dictionary<string, object>
+        {
+            { MessagingConstants.MessageAttributeKeys.ResourceType, ResourceEventResourceTypes.CustomsDeclaration },
+            { MessagingConstants.MessageAttributeKeys.ResourceId, mrn },
+            {
+                MessagingConstants.MessageAttributeKeys.SubResourceType,
+                ResourceEventSubResourceTypes.ClearanceDecision
+            },
+        };
+
+        await bus.Publish(@event, headers: headers, cancellationToken: cancellationToken);
     }
 }

@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace BtmsGateway.Domain;
 
 public static class MessagingConstants
@@ -7,6 +9,8 @@ public static class MessagingConstants
         public const string CorrelationId = "CorrelationId";
         public const string InboundHmrcMessageType = "InboundHmrcMessageType";
         public const string ResourceId = "ResourceId";
+        public const string ResourceType = nameof(ResourceType);
+        public const string SubResourceType = nameof(SubResourceType);
     }
 
     public static class MessageTypes

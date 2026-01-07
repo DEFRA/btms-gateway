@@ -31,6 +31,7 @@ public class ConsumerMediatorTests
             }
         );
         var subject = new ConsumerMediator(
+            Substitute.For<IMessageBus>(),
             Substitute.For<IDecisionSender>(),
             Substitute.For<IErrorNotificationSender>(),
             Substitute.For<ILoggerFactory>(),
@@ -66,6 +67,7 @@ public class ConsumerMediatorTests
             }
         );
         var subject = new ConsumerMediator(
+            Substitute.For<IMessageBus>(),
             Substitute.For<IDecisionSender>(),
             Substitute.For<IErrorNotificationSender>(),
             Substitute.For<ILoggerFactory>(),
@@ -108,6 +110,7 @@ public class ConsumerMediatorTests
             }
         );
         var subject = new ConsumerMediator(
+            Substitute.For<IMessageBus>(),
             Substitute.For<IDecisionSender>(),
             Substitute.For<IErrorNotificationSender>(),
             Substitute.For<ILoggerFactory>(),
@@ -143,6 +146,7 @@ public class ConsumerMediatorTests
             }
         );
         var subject = new ConsumerMediator(
+            Substitute.For<IMessageBus>(),
             Substitute.For<IDecisionSender>(),
             Substitute.For<IErrorNotificationSender>(),
             Substitute.For<ILoggerFactory>(),

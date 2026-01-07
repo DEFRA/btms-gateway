@@ -10,7 +10,7 @@ public class TraceContextInterceptor<TMessage>(
     IOptions<TraceHeader> traceHeader,
     ITraceContextAccessor traceContextAccessor,
     HeaderPropagationValues headerPropagationValues
-) : IConsumerInterceptor<TMessage>
+) : IConsumerInterceptor<TMessage>, IProducerInterceptor<TMessage>
 {
     public async Task<object> OnHandle(TMessage message, Func<Task<object>> next, IConsumerContext context)
     {
@@ -32,5 +32,15 @@ public class TraceContextInterceptor<TMessage>(
         headers.Add(traceHeader.Value.Name, traceContextAccessor.Context.TraceId);
 
         return await next();
+    }
+
+    public Task<object> OnHandle(TMessage message, Func<Task<object>> next, IProducerContext context)
+    {
+        if (!string.IsNullOrEmpty(traceContextAccessor.Context?.TraceId))
+        {
+            context.Headers.Add(traceHeader.Value.Name, traceContextAccessor.Context.TraceId);
+        }
+
+        return next();
     }
 }

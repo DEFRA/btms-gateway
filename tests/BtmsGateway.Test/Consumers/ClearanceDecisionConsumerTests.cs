@@ -66,7 +66,6 @@ public class ClearanceDecisionConsumerTests
         };
 
         _consumer = new ClearanceDecisionConsumer(
-            _bus,
             _decisionSender,
             _logger,
             new OptionsWrapper<CdsOptions>(new CdsOptions { Username = "test-username", Password = "test-password" })

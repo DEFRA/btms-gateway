@@ -2,6 +2,8 @@ using BtmsGateway.Domain;
 using BtmsGateway.Exceptions;
 using BtmsGateway.Middleware;
 using BtmsGateway.Services.Converter;
+using Defra.TradeImportsDataApi.Domain.Events;
+using SlimMessageBus;
 
 namespace BtmsGateway.Services.Routing;
 
@@ -22,12 +24,18 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
 {
     private readonly ILogger _logger;
     private readonly Destination _btmsToCdsDestination;
+    private readonly IMessageBus _bus;
 
-    public DecisionSender(RoutingConfig? routingConfig, IApiSender apiSender, ILogger<DecisionSender> logger)
+    public DecisionSender(
+        RoutingConfig? routingConfig,
+        IApiSender apiSender,
+        ILogger<DecisionSender> logger,
+        IMessageBus bus
+    )
         : base(apiSender, routingConfig, logger)
     {
         _logger = logger;
-
+        _bus = bus;
         _btmsToCdsDestination = GetDestination(MessagingConstants.Destinations.BtmsCds);
     }
 
@@ -64,6 +72,13 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
         var soapContent = new SoapContent(decision);
         var contentMap = new ContentMap(soapContent);
 
+        await PublishActivityEvent(
+            mrn ?? contentMap.EntryReference ?? "UnknownMRN",
+            cdsResponse,
+            correlationId ?? "UnknownCorrelationId",
+            cancellationToken
+        );
+
         if (!cdsResponse.IsSuccessStatusCode)
         {
             _logger.LogError(
@@ -95,5 +110,46 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
             ResponseDate = cdsResponse.Headers.Date,
             ResponseContent = await GetResponseContentAsync(cdsResponse, cancellationToken),
         };
+    }
+
+    private async Task PublishActivityEvent(
+        string mrn,
+        HttpResponseMessage cdsResponseMessage,
+        string correlationId,
+        CancellationToken cancellationToken
+    )
+    {
+        try
+        {
+            var @event = new BtmsActivityEvent<BtmsToCdsActivity>()
+            {
+                ResourceId = mrn,
+                ResourceType = ResourceEventResourceTypes.CustomsDeclaration,
+                SubResourceType = ResourceEventSubResourceTypes.ClearanceDecision,
+                ServiceName = "BtmsGateway",
+                Activity = new BtmsToCdsActivity()
+                {
+                    Timestamp = cdsResponseMessage.Headers.Date!.Value.Date,
+                    StatusCode = (int)cdsResponseMessage.StatusCode,
+                    CorrelationId = correlationId,
+                },
+            };
+            var headers = new Dictionary<string, object>
+            {
+                { MessagingConstants.MessageAttributeKeys.ResourceType, ResourceEventResourceTypes.CustomsDeclaration },
+                { MessagingConstants.MessageAttributeKeys.ResourceId, mrn },
+                {
+                    MessagingConstants.MessageAttributeKeys.SubResourceType,
+                    ResourceEventSubResourceTypes.ClearanceDecision
+                },
+            };
+
+            await _bus.Publish(@event, headers: headers, cancellationToken: cancellationToken);
+        }
+        catch (Exception e)
+        {
+            // Log the exception but do not rethrow as this is a non-critical operation
+            _logger.LogError(e, "Failed to publish BtmsToCdsActivity event for MRN: {MRN}", mrn);
+        }
     }
 }

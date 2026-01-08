@@ -10,7 +10,7 @@ export AWS_SECRET_ACCESS_KEY=local
 
 # SNS/SQS topics, queues, subscriptions
 
-Actvitity_Topic=trade_imports_activities
+Actvitity_Topic=trade_imports_btms_activity
 Actvitity_Topic_Test_Queue=trade_imports_activities_queue
 ICDR_Topic=trade_imports_inbound_customs_declarations.fifo
 ICDR_Queue=trade_imports_inbound_customs_declarations_processor.fifo
@@ -45,7 +45,7 @@ aws --endpoint-url="${ENDPOINT_URL}" sqs set-queue-attributes --queue-url "${END
 
 function is_ready() {
     aws --endpoint-url="${ENDPOINT_URL}" sns list-topics --query "Topics[?ends_with(TopicArn, ':trade_imports_inbound_customs_declarations.fifo')].TopicArn" || return 1
-    aws --endpoint-url="${ENDPOINT_URL}" sns list-topics --query "Topics[?ends_with(TopicArn, ':trade_imports_activities')].TopicArn" || return 1
+    aws --endpoint-url="${ENDPOINT_URL}" sns list-topics --query "Topics[?ends_with(TopicArn, ':trade_imports_btms_activity')].TopicArn" || return 1
     aws --endpoint-url="${ENDPOINT_URL}" sqs get-queue-url --queue-name trade_imports_inbound_customs_declarations_processor.fifo || return 1
     aws --endpoint-url="${ENDPOINT_URL}" sqs get-queue-url --queue-name trade_imports_data_upserted_btms_gateway || return 1
     aws --endpoint-url="${ENDPOINT_URL}" sqs get-queue-url --queue-name trade_imports_data_upserted_btms_gateway-deadletter || return 1

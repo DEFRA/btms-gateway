@@ -3,7 +3,6 @@ using System.Text;
 using System.Text.Json;
 using BtmsGateway.Config;
 using BtmsGateway.Consumers;
-using BtmsGateway.Domain;
 using BtmsGateway.Exceptions;
 using BtmsGateway.Extensions;
 using BtmsGateway.Services.Routing;
@@ -31,7 +30,6 @@ public class ConsumerMediatorTests
             }
         );
         var subject = new ConsumerMediator(
-            Substitute.For<IMessageBus>(),
             Substitute.For<IDecisionSender>(),
             Substitute.For<IErrorNotificationSender>(),
             Substitute.For<ILoggerFactory>(),
@@ -67,7 +65,6 @@ public class ConsumerMediatorTests
             }
         );
         var subject = new ConsumerMediator(
-            Substitute.For<IMessageBus>(),
             Substitute.For<IDecisionSender>(),
             Substitute.For<IErrorNotificationSender>(),
             Substitute.For<ILoggerFactory>(),
@@ -110,7 +107,6 @@ public class ConsumerMediatorTests
             }
         );
         var subject = new ConsumerMediator(
-            Substitute.For<IMessageBus>(),
             Substitute.For<IDecisionSender>(),
             Substitute.For<IErrorNotificationSender>(),
             Substitute.For<ILoggerFactory>(),
@@ -146,7 +142,6 @@ public class ConsumerMediatorTests
             }
         );
         var subject = new ConsumerMediator(
-            Substitute.For<IMessageBus>(),
             Substitute.For<IDecisionSender>(),
             Substitute.For<IErrorNotificationSender>(),
             Substitute.For<ILoggerFactory>(),

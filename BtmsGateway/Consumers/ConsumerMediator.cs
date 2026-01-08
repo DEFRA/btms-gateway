@@ -1,11 +1,9 @@
 using System.Text.Json;
 using BtmsGateway.Config;
-using BtmsGateway.Domain;
 using BtmsGateway.Extensions;
 using BtmsGateway.Services.Routing;
 using BtmsGateway.Utils;
 using BtmsGateway.Utils.Logging;
-using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 using Defra.TradeImportsDataApi.Domain.Events;
 using Microsoft.Extensions.Options;
 using SlimMessageBus;
@@ -13,7 +11,6 @@ using SlimMessageBus;
 namespace BtmsGateway.Consumers;
 
 public class ConsumerMediator(
-    IMessageBus bus,
     IDecisionSender decisionSender,
     IErrorNotificationSender errorNotificationSender,
     ILoggerFactory loggerFactory,
@@ -41,7 +38,6 @@ public class ConsumerMediator(
     private Task HandleCustomsDeclaration(JsonElement message, CancellationToken cancellationToken)
     {
         var consumer = new ClearanceDecisionConsumer(
-            bus,
             decisionSender,
             loggerFactory.CreateLogger<ClearanceDecisionConsumer>(),
             cdsOptions

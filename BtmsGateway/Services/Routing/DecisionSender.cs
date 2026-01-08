@@ -126,11 +126,11 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
                 ResourceId = mrn,
                 ResourceType = ResourceEventResourceTypes.CustomsDeclaration,
                 SubResourceType = ResourceEventSubResourceTypes.ClearanceDecision,
-                ServiceName = "BtmsGateway",
+                OriginatingServiceName = "BtmsGateway",
                 Activity = new BtmsToCdsActivity()
                 {
-                    Timestamp = cdsResponseMessage.Headers.Date!.Value.Date,
-                    StatusCode = (int)cdsResponseMessage.StatusCode,
+                    ResponseTimestamp = cdsResponseMessage.Headers.Date!.Value.Date,
+                    ResponseStatusCode = (int)cdsResponseMessage.StatusCode,
                     CorrelationId = correlationId,
                 },
             };

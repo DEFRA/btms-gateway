@@ -18,7 +18,6 @@ public record RoutingConfig
                     {
                         Name = nr.Key,
                         BtmsLink = nl.Value.Link.TrimEnd('/'),
-                        BtmsLinkType = nl.Value.LinkType,
                         BtmsHostHeader = nl.Value.HostHeader,
                         RoutePath = nr.Value.RoutePath.Trim('/'),
                         MessageSubXPath = nr.Value.MessageSubXPath,
@@ -48,25 +47,16 @@ public record NamedRoute
 public record NamedLink
 {
     public required string Link { get; init; }
-    public required LinkType LinkType { get; init; }
     public string? HostHeader { get; init; }
 }
 
 public record Destination
 {
-    public required LinkType LinkType { get; init; }
     public required string Link { get; init; }
     public required string RoutePath { get; init; }
     public required string ContentType { get; init; }
     public string? HostHeader { get; init; }
     public string? Method { get; init; }
-}
-
-public enum LinkType
-{
-    None,
-    Url,
-    Queue,
 }
 
 public record RoutedLink
@@ -76,7 +66,6 @@ public record RoutedLink
     public required string RoutePath { get; init; }
     public required string MessageSubXPath { get; init; }
     public string? BtmsLink { get; init; }
-    public required LinkType BtmsLinkType { get; init; }
     public string? BtmsHostHeader { get; init; }
     public required bool IsCds { get; init; }
     public string? NamedProxy { get; init; }

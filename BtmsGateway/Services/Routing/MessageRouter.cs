@@ -10,31 +10,19 @@ public interface IMessageRouter
     Task<RoutingResult> Route(MessageData messageData, IMetrics metrics);
 }
 
-public class MessageRouter(
-    IMessageRoutes messageRoutes,
-    IApiSender apiSender,
-    IQueueSender queueSender,
-    ILogger<MessageRouter> logger
-) : IMessageRouter
+public class MessageRouter(IMessageRoutes messageRoutes, IQueueSender queueSender, ILogger<MessageRouter> logger)
+    : IMessageRouter
 {
     public async Task<RoutingResult> Route(MessageData messageData, IMetrics metrics)
     {
         var routingResult = GetRoutingResult(messageData);
-        if (!routingResult.RouteFound || routingResult.RouteLinkType == LinkType.None)
+        if (!routingResult.RouteFound)
             return routingResult;
 
         try
         {
             metrics.StartRoutedRequest();
-
-            routingResult = routingResult.RouteLinkType switch
-            {
-                LinkType.Queue => await queueSender.Send(routingResult, messageData, routingResult.FullRouteLink),
-                LinkType.Url => await apiSender.Send(routingResult, messageData),
-                _ => routingResult,
-            };
-
-            return routingResult;
+            return await queueSender.Send(routingResult, messageData, routingResult.FullRouteLink);
         }
         catch (Exception ex)
         {

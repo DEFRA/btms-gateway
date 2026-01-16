@@ -28,7 +28,6 @@ public class ErrorNotificationSenderTests
                     MessagingConstants.Destinations.BtmsCds,
                     new Destination
                     {
-                        LinkType = LinkType.Url,
                         Link = "http://cds-url",
                         RoutePath = "/ws/CDS/defra/alvsclearanceinbound/v1",
                         ContentType = "application/soap+xml",
@@ -82,7 +81,6 @@ public class ErrorNotificationSenderTests
                 new RoutingResult
                 {
                     RouteFound = true,
-                    RouteLinkType = LinkType.Url,
                     RoutingSuccessful = true,
                     FullRouteLink = "http://cds-url/ws/CDS/defra/alvsclearanceinbound/v1",
                     StatusCode = HttpStatusCode.NoContent,

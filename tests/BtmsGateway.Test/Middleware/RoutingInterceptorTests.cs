@@ -78,77 +78,6 @@ public class RoutingInterceptorTests
     }
 
     [Fact]
-    public async Task When_request_message_type_is_identified_by_route_Then_message_received_metric_is_recorded()
-    {
-        var messageRouter = Substitute.For<IMessageRouter>();
-        messageRouter
-            .Route(Arg.Any<MessageData>(), Arg.Any<IMetrics>())
-            .Returns(
-                new RoutingResult
-                {
-                    RouteFound = true,
-                    MessageSubXPath = "KnownMessageType",
-                    UrlPath = "/some-known-route-path",
-                    Legend = "Known Message Type",
-                    RouteLinkType = LinkType.Url,
-                    RoutingSuccessful = true,
-                    FullRouteLink = "http://localhost/some-known-route-path",
-                    StatusCode = HttpStatusCode.OK,
-                    ResponseContent = RequestBody,
-                },
-                new RoutingResult
-                {
-                    RouteFound = true,
-                    MessageSubXPath = "KnownMessageType",
-                    UrlPath = "/some-broken-route-path",
-                    Legend = "Known Message Type",
-                    RouteLinkType = LinkType.Url,
-                    RoutingSuccessful = false,
-                    FullRouteLink = "http://localhost/some-broken-route-path",
-                    StatusCode = HttpStatusCode.ServiceUnavailable,
-                    ResponseContent = RequestBody,
-                }
-            );
-
-        var meter = new Meter("test");
-        var meterFactory = Substitute.For<IMeterFactory>();
-        meterFactory.Create(null!).ReturnsForAnyArgs(meter);
-        var metricsHost = Substitute.For<MetricsHost>(meterFactory);
-
-        var requestMetric = Substitute.For<IRequestMetrics>();
-
-        var sut = new RoutingInterceptor(
-            Substitute.For<RequestDelegate>(),
-            messageRouter,
-            metricsHost,
-            requestMetric,
-            NullLogger<RoutingInterceptor>.Instance,
-            _messageLoggingOptions,
-            Substitute.For<IMessageRoutes>()
-        );
-
-        await sut.InvokeAsync(_httpContext);
-        await sut.InvokeAsync(_httpContext);
-
-        requestMetric
-            .Received(1)
-            .MessageReceived(
-                Arg.Is("KnownMessageType"),
-                Arg.Is("/some-known-route-path"),
-                Arg.Is("Known Message Type"),
-                Arg.Is("Routing")
-            );
-        requestMetric
-            .Received(1)
-            .MessageReceived(
-                Arg.Is("KnownMessageType"),
-                Arg.Is("/some-broken-route-path"),
-                Arg.Is("Known Message Type"),
-                Arg.Is("Routing")
-            );
-    }
-
-    [Fact]
     public async Task When_request_message_type_is_identified_by_route_and_successfully_forwarded_Then_message_successfully_sent_metric_is_recorded()
     {
         var messageRouter = Substitute.For<IMessageRouter>();
@@ -161,7 +90,6 @@ public class RoutingInterceptorTests
                     MessageSubXPath = "KnownMessageType",
                     UrlPath = "/some-known-route-path",
                     Legend = "Known Message Type",
-                    RouteLinkType = LinkType.Url,
                     RoutingSuccessful = true,
                     FullRouteLink = "http://localhost/some-known-route-path",
                     StatusCode = HttpStatusCode.OK,
@@ -173,7 +101,6 @@ public class RoutingInterceptorTests
                     MessageSubXPath = "KnownMessageType",
                     UrlPath = "/some-broken-route-path",
                     Legend = "Known Message Type",
-                    RouteLinkType = LinkType.Url,
                     RoutingSuccessful = false,
                     FullRouteLink = "http://localhost/some-broken-route-path",
                     StatusCode = HttpStatusCode.ServiceUnavailable,

@@ -88,7 +88,7 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
         return routingResult with
         {
             RouteFound = true,
-            RouteLinkType = _btmsToCdsDestination.LinkType,
+            // RouteLinkType = _btmsToCdsDestination.LinkType,
             RoutingSuccessful = true,
             FullRouteLink = destination,
             StatusCode = cdsResponse.StatusCode,

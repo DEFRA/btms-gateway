@@ -29,7 +29,6 @@ public class DecisionSenderTests
                     MessagingConstants.Destinations.BtmsCds,
                     new Destination
                     {
-                        LinkType = LinkType.Url,
                         Link = "http://btms-to-cds-url",
                         RoutePath = "/route/path-1",
                         ContentType = "application/soap+xml",
@@ -87,11 +86,8 @@ public class DecisionSenderTests
                 new RoutingResult
                 {
                     RouteFound = true,
-                    RouteLinkType = LinkType.Url,
-                    ////ForkLinkType = LinkType.Url,
                     RoutingSuccessful = true,
                     FullRouteLink = "http://btms-to-cds-url/route/path-1",
-                    //// FullForkLink = "http://btms-to-cds-url/route/path-1",
                     StatusCode = HttpStatusCode.NoContent,
                     ResponseContent = string.Empty,
                 }

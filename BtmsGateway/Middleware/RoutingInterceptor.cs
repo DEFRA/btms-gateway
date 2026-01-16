@@ -101,7 +101,7 @@ public class RoutingInterceptor(
 
         RecordRequest(routingResult, RouteAction);
 
-        if (routingResult.RouteFound && routingResult.RouteLinkType != LinkType.None)
+        if (routingResult.RouteFound)
             LogRouteFoundResults(messageData, routingResult, RouteAction);
         else
             LogRouteNotFoundResults(messageData, routingResult, RouteAction);

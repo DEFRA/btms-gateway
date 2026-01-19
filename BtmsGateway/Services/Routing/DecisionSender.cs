@@ -129,7 +129,7 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
                 OriginatingServiceName = "BtmsGateway",
                 Activity = new BtmsToCdsActivity()
                 {
-                    ResponseTimestamp = cdsResponseMessage.Headers.Date!.Value.Date,
+                    ResponseTimestamp = cdsResponseMessage.Headers.Date!.Value.DateTime,
                     ResponseStatusCode = (int)cdsResponseMessage.StatusCode,
                     CorrelationId = correlationId,
                 },

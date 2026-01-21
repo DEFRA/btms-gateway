@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using NSubstitute;
+using SlimMessageBus;
 
 namespace BtmsGateway.Test.Services.Routing;
 
@@ -14,7 +15,8 @@ public class DecisionSenderTests
 {
     private RoutingConfig _routingConfig;
     private readonly IApiSender _apiSender = Substitute.For<IApiSender>();
-    private readonly ILogger<DecisionSender> _logger = new FakeLogger<DecisionSender>();
+    private readonly IMessageBus _messageBus = Substitute.For<IMessageBus>();
+    private readonly FakeLogger<DecisionSender> _logger = new FakeLogger<DecisionSender>();
     private readonly DecisionSender _decisionSender;
 
     public DecisionSenderTests()
@@ -40,6 +42,8 @@ public class DecisionSenderTests
             },
         };
 
+        var response = new HttpResponseMessage(HttpStatusCode.NoContent);
+        response.Headers.Date = new DateTimeOffset(DateTime.Today);
         _apiSender
             .SendSoapMessageAsync(
                 Arg.Any<string>(),
@@ -50,13 +54,13 @@ public class DecisionSenderTests
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>()
             )
-            .Returns(new HttpResponseMessage(HttpStatusCode.NoContent));
+            .Returns(response);
 
-        _decisionSender = new DecisionSender(_routingConfig, _apiSender, _logger);
+        _decisionSender = new DecisionSender(_routingConfig, _apiSender, _logger, _messageBus);
     }
 
     [Fact]
-    public async Task When_sending_decision_Then_message_is_sent_to_comparer_and_comparer_response_sent_onto_cds()
+    public async Task When_sending_decision_Then_message_is_sent_onto_cds()
     {
         var result = await _decisionSender.SendDecisionAsync(
             "mrn-123",
@@ -88,14 +92,73 @@ public class DecisionSenderTests
                 {
                     RouteFound = true,
                     RouteLinkType = LinkType.Url,
-                    ////ForkLinkType = LinkType.Url,
                     RoutingSuccessful = true,
                     FullRouteLink = "http://btms-to-cds-url/route/path-1",
-                    //// FullForkLink = "http://btms-to-cds-url/route/path-1",
                     StatusCode = HttpStatusCode.NoContent,
+                    ResponseContent = string.Empty,
+                    ResponseDate = new DateTimeOffset(DateTime.Today),
+                }
+            );
+    }
+
+    [Fact]
+    public async Task When_sending_decision_and_activity_event_fails_Then_message_is_sent_onto_cds()
+    {
+        var response = new HttpResponseMessage(HttpStatusCode.OK);
+        _apiSender
+            .SendSoapMessageAsync(
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<Dictionary<string, string>>(),
+                "<DecisionNotification />",
+                Arg.Any<CancellationToken>()
+            )
+            .Returns(response);
+
+        var result = await _decisionSender.SendDecisionAsync(
+            "mrn-123",
+            "<DecisionNotification />",
+            MessagingConstants.MessageSource.Btms,
+            new RoutingResult(),
+            new HeaderDictionary(),
+            "external-correlation-id",
+            CancellationToken.None
+        );
+
+        await _apiSender
+            .Received(1)
+            .SendSoapMessageAsync(
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<Dictionary<string, string>>(),
+                "<DecisionNotification />",
+                Arg.Any<CancellationToken>()
+            );
+
+        result.Should().BeAssignableTo<RoutingResult>();
+        result
+            .Should()
+            .BeEquivalentTo(
+                new RoutingResult
+                {
+                    RouteFound = true,
+                    RouteLinkType = LinkType.Url,
+                    RoutingSuccessful = true,
+                    FullRouteLink = "http://btms-to-cds-url/route/path-1",
+                    StatusCode = HttpStatusCode.OK,
                     ResponseContent = string.Empty,
                 }
             );
+
+        _logger
+            .Collector.GetSnapshot()
+            .Any(x => x.Message.StartsWith("Failed to publish BtmsToCdsActivity event"))
+            .Should()
+            .BeTrue();
     }
 
     [Fact]
@@ -109,7 +172,7 @@ public class DecisionSenderTests
         };
 
         var thrownException = Assert.Throws<ArgumentException>(() =>
-            new DecisionSender(_routingConfig, _apiSender, _logger)
+            new DecisionSender(_routingConfig, _apiSender, _logger, _messageBus)
         );
         thrownException.Message.Should().Be("Destination configuration could not be found for BtmsCds.");
     }
@@ -133,6 +196,8 @@ public class DecisionSenderTests
     [Fact]
     public async Task When_sending_decision_and_cds_returns_unsuccessful_response_Then_exception_is_thrown()
     {
+        var response = new HttpResponseMessage(HttpStatusCode.BadRequest);
+        response.Headers.Date = DateTimeOffset.UtcNow;
         _apiSender
             .SendSoapMessageAsync(
                 Arg.Any<string>(),
@@ -143,7 +208,7 @@ public class DecisionSenderTests
                 "<DecisionNotification />",
                 Arg.Any<CancellationToken>()
             )
-            .Returns(new HttpResponseMessage(HttpStatusCode.BadRequest));
+            .Returns(response);
 
         var thrownException = await Assert.ThrowsAsync<CdsCommunicationException>(() =>
             _decisionSender.SendDecisionAsync(

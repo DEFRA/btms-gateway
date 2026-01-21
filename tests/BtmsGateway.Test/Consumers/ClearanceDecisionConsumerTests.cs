@@ -13,11 +13,14 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
+using SlimMessageBus;
 
 namespace BtmsGateway.Test.Consumers;
 
 public class ClearanceDecisionConsumerTests
 {
+    private readonly IConsumerContext _consumerContext = Substitute.For<IConsumerContext>();
+    private readonly IMessageBus _bus = Substitute.For<IMessageBus>();
     private readonly IDecisionSender _decisionSender = Substitute.For<IDecisionSender>();
     private readonly ILogger<ClearanceDecisionConsumer> _logger = NullLogger<ClearanceDecisionConsumer>.Instance;
     private readonly ResourceEvent<CustomsDeclarationEvent> _message;
@@ -72,7 +75,11 @@ public class ClearanceDecisionConsumerTests
     [Fact]
     public async Task When_processing_succeeds_Then_message_should_be_sent()
     {
-        var sendDecisionResult = new RoutingResult { StatusCode = HttpStatusCode.OK };
+        var sendDecisionResult = new RoutingResult
+        {
+            StatusCode = HttpStatusCode.OK,
+            ResponseDate = DateTimeOffset.UtcNow,
+        };
 
         _decisionSender
             .SendDecisionAsync(
@@ -173,7 +180,11 @@ public class ClearanceDecisionConsumerTests
     [Fact]
     public async Task When_sending_to_decision_comparer_is_not_successful_Then_exception_is_thrown()
     {
-        var sendDecisionResult = new RoutingResult { StatusCode = HttpStatusCode.BadRequest };
+        var sendDecisionResult = new RoutingResult
+        {
+            StatusCode = HttpStatusCode.BadRequest,
+            ResponseDate = DateTimeOffset.UtcNow,
+        };
 
         _decisionSender
             .SendDecisionAsync(

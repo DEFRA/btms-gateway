@@ -1,11 +1,9 @@
 using System.Text.Json;
 using BtmsGateway.Config;
-using BtmsGateway.Domain;
 using BtmsGateway.Extensions;
 using BtmsGateway.Services.Routing;
 using BtmsGateway.Utils;
 using BtmsGateway.Utils.Logging;
-using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 using Defra.TradeImportsDataApi.Domain.Events;
 using Microsoft.Extensions.Options;
 using SlimMessageBus;

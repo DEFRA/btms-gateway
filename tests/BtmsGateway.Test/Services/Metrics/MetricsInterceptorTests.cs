@@ -29,6 +29,7 @@ public class MetricsInterceptorTests
         {
             ResourceEventsQueueName = "test-queue",
             SqsArnPrefix = "arn:aws:sqs:eu-west-2:000000000000:",
+            ActivityEventsTopicName = "test-topic",
         };
         var options = Substitute.For<IOptions<AwsSqsOptions>>();
         options.Value.Returns(awsSqsOptions);

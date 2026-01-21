@@ -12,6 +12,9 @@ public class AwsSqsOptions
     public required string ResourceEventsQueueName { get; init; }
 
     [Required]
+    public required string ActivityEventsTopicName { get; init; }
+
+    [Required]
     public required string SqsArnPrefix { get; init; }
 
     public int ConsumersPerHost { get; init; } = 20;

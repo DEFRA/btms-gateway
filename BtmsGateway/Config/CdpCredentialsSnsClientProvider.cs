@@ -1,6 +1,7 @@
 using Amazon;
 using Amazon.Runtime;
 using Amazon.SimpleNotificationService;
+using BtmsGateway.Extensions;
 using SlimMessageBus.Host.AmazonSQS;
 
 namespace BtmsGateway.Config;
@@ -23,20 +24,21 @@ public sealed class CdpCredentialsSnsClientProvider : ISnsClientProvider, IDispo
             var region = configuration.GetValue<string>("AWS_REGION") ?? DefaultRegion;
             var regionEndpoint = RegionEndpoint.GetBySystemName(region);
 
-            Client = new AmazonSimpleNotificationServiceClient(
+            Client = new BtmsAmazonSimpleNotificationService(
                 new BasicAWSCredentials(clientId, clientSecret),
                 new AmazonSimpleNotificationServiceConfig
                 {
                     AuthenticationRegion = region,
                     RegionEndpoint = regionEndpoint,
                     ServiceURL = configuration.GetValue<string>("SQS_Endpoint"),
-                }
+                },
+                configuration
             );
 
             return;
         }
 
-        Client = new AmazonSimpleNotificationServiceClient(sqsConfig);
+        Client = new BtmsAmazonSimpleNotificationService(sqsConfig, configuration);
     }
 
     #region ISqsClientProvider

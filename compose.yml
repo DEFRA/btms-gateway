@@ -106,6 +106,8 @@ services:
       Acl__Clients__IntegrationTests__Secret: integration-tests-pwd
       Acl__Clients__IntegrationTests__Scopes__0: execute
       AwsSqsOptions__VisibilityTimeout: 5
+      AwsSqsOptions__Topics__0:  "arn:aws:sns:eu-west-2:000000000000:trade_imports_btms_activity"
+      AwsSqsOptions__Topics__1:  "arn:aws:sns:eu-west-2:000000000000:trade_imports_inbound_customs_declarations.fifo"
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8080/health" ]
       interval: 300s

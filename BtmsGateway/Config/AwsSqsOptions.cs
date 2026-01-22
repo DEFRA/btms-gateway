@@ -27,4 +27,7 @@ public class AwsSqsOptions
     public string ResourceEventsDeadLetterQueueName => $"{ResourceEventsQueueName}-deadletter";
 
     public string ResourceEventsDeadLetterQueueArn => $"{SqsArnPrefix}{ResourceEventsDeadLetterQueueName}";
+
+    [Required]
+    public required List<string> Topics { get; init; }
 }

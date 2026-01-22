@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using Amazon.Runtime;
 using Amazon.SimpleNotificationService;
@@ -6,6 +7,7 @@ using BtmsGateway.Config;
 
 namespace BtmsGateway.Extensions;
 
+[ExcludeFromCodeCoverage]
 public class BtmsAmazonSimpleNotificationService : AmazonSimpleNotificationServiceClient
 {
     private readonly IConfiguration _configuration;
@@ -34,9 +36,10 @@ public class BtmsAmazonSimpleNotificationService : AmazonSimpleNotificationServi
         CancellationToken cancellationToken = new CancellationToken()
     )
     {
-        var topics = _configuration
-            .GetSection($"{AwsSqsOptions.SectionName}:{nameof(AwsSqsOptions.Topics)}")
-            .Get<List<string>>();
+        var topics =
+            _configuration.GetSection($"{AwsSqsOptions.SectionName}:{nameof(AwsSqsOptions.Topics)}").Get<List<string>>()
+            ?? [];
+
         return Task.FromResult(
             new ListTopicsResponse()
             {

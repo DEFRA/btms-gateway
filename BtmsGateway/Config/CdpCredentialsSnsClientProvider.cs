@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Amazon;
 using Amazon.Runtime;
 using Amazon.SimpleNotificationService;
@@ -6,6 +7,7 @@ using SlimMessageBus.Host.AmazonSQS;
 
 namespace BtmsGateway.Config;
 
+[ExcludeFromCodeCoverage]
 public sealed class CdpCredentialsSnsClientProvider : ISnsClientProvider, IDisposable
 {
     private const string DefaultRegion = "eu-west-2";

@@ -126,6 +126,7 @@ public class ResourceEventsDeadLetterService(
                     MaxNumberOfMessages = 10,
                     WaitTimeSeconds = 0,
                     VisibilityTimeout = 60,
+                    MessageAttributeNames = ["All"],
                 };
 
                 var response = await amazonSqs.ReceiveMessageAsync(request, cancellationToken);

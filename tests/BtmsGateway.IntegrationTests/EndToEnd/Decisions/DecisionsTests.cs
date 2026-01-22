@@ -18,6 +18,7 @@ public class DecisionsTests(ITestOutputHelper output) : SqsTestBase(output)
     [Fact]
     public async Task When_decision_notification_event_consumed_from_btms_Then_should_forward_to__cds()
     {
+        await DrainAllMessages(ActivityEventsQueueUrl);
         await DrainAllMessages(ResourceEventsQueueUrl);
         await DrainAllMessages(ResourceEventsDeadLetterQueueUrl);
 
@@ -40,6 +41,12 @@ public class DecisionsTests(ITestOutputHelper output) : SqsTestBase(output)
             await AsyncWaiter.WaitForAsync(async () =>
                 (await GetQueueAttributes(ResourceEventsQueueUrl)).ApproximateNumberOfMessages == 0
                 && (await GetQueueAttributes(ResourceEventsQueueUrl)).ApproximateNumberOfMessagesNotVisible == 0
+            )
+        );
+        Assert.True(
+            await AsyncWaiter.WaitForAsync(async () =>
+                (await GetQueueAttributes(ActivityEventsQueueUrl)).ApproximateNumberOfMessages == 1
+                && (await GetQueueAttributes(ActivityEventsQueueUrl)).ApproximateNumberOfMessagesNotVisible == 0
             )
         );
         Assert.True(

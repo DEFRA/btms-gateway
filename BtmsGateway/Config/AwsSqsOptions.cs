@@ -12,6 +12,9 @@ public class AwsSqsOptions
     public required string ResourceEventsQueueName { get; init; }
 
     [Required]
+    public required string ActivityEventsTopicName { get; init; }
+
+    [Required]
     public required string SqsArnPrefix { get; init; }
 
     public int ConsumersPerHost { get; init; } = 20;
@@ -24,4 +27,7 @@ public class AwsSqsOptions
     public string ResourceEventsDeadLetterQueueName => $"{ResourceEventsQueueName}-deadletter";
 
     public string ResourceEventsDeadLetterQueueArn => $"{SqsArnPrefix}{ResourceEventsDeadLetterQueueName}";
+
+    [Required]
+    public required List<string> Topics { get; init; }
 }

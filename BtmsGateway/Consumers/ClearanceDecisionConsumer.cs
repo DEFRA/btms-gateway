@@ -4,7 +4,6 @@ using BtmsGateway.Exceptions;
 using BtmsGateway.Services.Converter;
 using BtmsGateway.Services.Routing;
 using BtmsGateway.Utils;
-using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 using Defra.TradeImportsDataApi.Domain.Events;
 using Microsoft.Extensions.Options;
 using SlimMessageBus;

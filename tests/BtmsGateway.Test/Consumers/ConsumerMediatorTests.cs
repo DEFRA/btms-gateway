@@ -3,7 +3,6 @@ using System.Text;
 using System.Text.Json;
 using BtmsGateway.Config;
 using BtmsGateway.Consumers;
-using BtmsGateway.Domain;
 using BtmsGateway.Exceptions;
 using BtmsGateway.Extensions;
 using BtmsGateway.Services.Routing;

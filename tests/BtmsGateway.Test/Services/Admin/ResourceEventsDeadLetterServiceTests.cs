@@ -34,6 +34,7 @@ public class ResourceEventsDeadLetterServiceTests
                 ResourceEventsQueueName = QueueName,
                 SqsArnPrefix = ArnPrefix,
                 ActivityEventsTopicName = ActivityEventsTopicName,
+                Topics = ["arn:aws:sns:eu-west-2:000000000000:activity_topic"],
             }
         );
 

@@ -144,7 +144,6 @@ public class DecisionSenderTests
                 new RoutingResult
                 {
                     RouteFound = true,
-                    RouteLinkType = LinkType.Url,
                     RoutingSuccessful = true,
                     FullRouteLink = "http://btms-to-cds-url/route/path-1",
                     StatusCode = HttpStatusCode.OK,

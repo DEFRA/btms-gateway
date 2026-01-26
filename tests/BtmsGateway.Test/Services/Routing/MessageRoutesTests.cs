@@ -27,7 +27,6 @@ public class MessageRoutesTests
         route.RouteName.Should().Be("route-1");
         route.MessageSubXPath.Should().Be("Message1");
         route.Legend.Should().Be("Route 1");
-        route.RouteLinkType.Should().Be(LinkType.Queue);
         route.FullRouteLink.Should().Be("btms-link-queue");
         route.RouteHostHeader.Should().BeNull();
         route.ConvertRoutedContentToFromJson.Should().BeTrue();
@@ -49,8 +48,7 @@ public class MessageRoutesTests
         route.RouteFound.Should().BeTrue();
         route.RouteName.Should().Be("route-2");
         route.MessageSubXPath.Should().Be("Message2");
-        route.RouteLinkType.Should().Be(LinkType.Url);
-        route.FullRouteLink.Should().Be("http://btms-link-url/route/path-2/sub/path");
+        route.FullRouteLink.Should().Be("http://btms-link-url");
         route.RouteHostHeader.Should().Be("btms-host-header");
         route.ConvertRoutedContentToFromJson.Should().BeTrue();
         route.UrlPath.Should().Be("/route/path-2/sub/path");
@@ -71,8 +69,7 @@ public class MessageRoutesTests
         route.RouteFound.Should().BeTrue();
         route.RouteName.Should().Be("route-3");
         route.MessageSubXPath.Should().Be("Message3");
-        route.RouteLinkType.Should().Be(LinkType.None);
-        route.FullRouteLink.Should().BeNull();
+        route.FullRouteLink.Should().Be("none");
         route.RouteHostHeader.Should().BeNull();
         route.ConvertRoutedContentToFromJson.Should().BeTrue();
         route.UrlPath.Should().Be("/route/path-3/sub/path");
@@ -93,8 +90,7 @@ public class MessageRoutesTests
         route.RouteFound.Should().BeTrue();
         route.RouteName.Should().Be("route-4");
         route.MessageSubXPath.Should().Be("Message4");
-        route.RouteLinkType.Should().Be(LinkType.Url);
-        route.FullRouteLink.Should().Be("http://btms-link-url/route/path-4/sub/path");
+        route.FullRouteLink.Should().Be("http://btms-link-url");
         route.RouteHostHeader.Should().Be("btms-host-header");
         route.ConvertRoutedContentToFromJson.Should().BeTrue();
         route.UrlPath.Should().Be("/route/path-4/sub/path");
@@ -131,30 +127,6 @@ public class MessageRoutesTests
         route.FullRouteLink.Should().BeNull();
         route.RouteHostHeader.Should().BeNull();
         route.UrlPath.Should().BeNull();
-    }
-
-    [Fact]
-    public void When_routing_with_invalid_url_Then_should_fail()
-    {
-        var act = () => new MessageRoutes(TestRoutes.InvalidUrlConfig, NullLogger<MessageRoutes>.Instance);
-
-        act.Should()
-            .Throw<RoutingException>()
-            .WithMessage("Error creating routing table: Invalid URL(s) in config")
-            .WithInnerException<InvalidDataException>()
-            .WithMessage("Invalid URL(s) in config");
-    }
-
-    [Fact]
-    public void When_routing_with_invalid_link_type_Then_should_fail()
-    {
-        var act = () => new MessageRoutes(TestRoutes.InvalidLinkTypeConfig, NullLogger<MessageRoutes>.Instance);
-
-        var thrownException = act.Should()
-            .Throw<RoutingException>()
-            .WithMessage($"Error creating routing table: Invalid Link Type in config")
-            .WithInnerException<InvalidDataException>()
-            .WithMessage("Invalid Link Type in config");
     }
 
     [Theory]

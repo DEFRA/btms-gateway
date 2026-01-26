@@ -53,25 +53,15 @@ public static class TestRoutes
         {
             {
                 "btms_link_name_1",
-                new NamedLink { Link = "btms-link-queue", LinkType = LinkType.Queue }
+                new NamedLink { Link = "btms-link-queue" }
             },
             {
                 "btms_link_name_2",
-                new NamedLink
-                {
-                    Link = "http://btms-link-url",
-                    LinkType = LinkType.Url,
-                    HostHeader = "btms-host-header",
-                }
+                new NamedLink { Link = "http://btms-link-url", HostHeader = "btms-host-header" }
             },
             {
                 "none",
-                new NamedLink
-                {
-                    Link = "none",
-                    LinkType = LinkType.None,
-                    HostHeader = null,
-                }
+                new NamedLink { Link = "none", HostHeader = null }
             },
         },
         Destinations = new Dictionary<string, Destination>
@@ -80,7 +70,6 @@ public static class TestRoutes
                 "destination-1",
                 new Destination
                 {
-                    LinkType = LinkType.Url,
                     Link = "http://destination-url",
                     RoutePath = "/route/path-1",
                     ContentType = "application/soap+xml",
@@ -120,24 +109,19 @@ public static class TestRoutes
         {
             {
                 "legacy_link_name_1",
-                new NamedLink { Link = "http://legacy-link-1-url", LinkType = LinkType.Url }
+                new NamedLink { Link = "http://legacy-link-1-url" }
             },
             {
                 "legacy_link_name_2",
-                new NamedLink { Link = "http://legacy-link-2-url", LinkType = LinkType.Url }
+                new NamedLink { Link = "http://legacy-link-2-url" }
             },
             {
                 "btms_link_name_1",
-                new NamedLink { Link = "btms-link-1-queue", LinkType = LinkType.Queue }
+                new NamedLink { Link = "btms-link-1-queue" }
             },
             {
                 "btms_link_name_2",
-                new NamedLink
-                {
-                    Link = "btms-link-2-queue",
-                    LinkType = LinkType.Queue,
-                    HostHeader = "btms-host-header",
-                }
+                new NamedLink { Link = "btms-link-2-queue", HostHeader = "btms-host-header" }
             },
         },
         Destinations = new Dictionary<string, Destination>
@@ -146,85 +130,6 @@ public static class TestRoutes
                 "destination-1",
                 new Destination
                 {
-                    LinkType = LinkType.Url,
-                    Link = "http://destination-url",
-                    RoutePath = "/route/path-1",
-                    ContentType = "application/soap+xml",
-                    HostHeader = "syst32.hmrc.gov.uk",
-                    Method = "POST",
-                }
-            },
-        },
-    };
-
-    public static readonly RoutingConfig InvalidUrlConfig = new()
-    {
-        NamedRoutes = new Dictionary<string, NamedRoute>
-        {
-            {
-                "route-1",
-                new NamedRoute
-                {
-                    RoutePath = "/route/path-1",
-                    BtmsLinkName = "link_name_1",
-                    MessageSubXPath = "Message1",
-                    Legend = "legend",
-                }
-            },
-        },
-        NamedLinks = new Dictionary<string, NamedLink>
-        {
-            {
-                "link_name_1",
-                new NamedLink { Link = "link-url", LinkType = LinkType.Url }
-            },
-        },
-        Destinations = new Dictionary<string, Destination>
-        {
-            {
-                "destination-1",
-                new Destination
-                {
-                    LinkType = LinkType.Url,
-                    Link = "http://destination-url",
-                    RoutePath = "/route/path-1",
-                    ContentType = "application/soap+xml",
-                    HostHeader = "syst32.hmrc.gov.uk",
-                    Method = "POST",
-                }
-            },
-        },
-    };
-
-    public static readonly RoutingConfig InvalidRouteToConfig = new()
-    {
-        NamedRoutes = new Dictionary<string, NamedRoute>
-        {
-            {
-                "route-1",
-                new NamedRoute
-                {
-                    RoutePath = "/route/path-1",
-                    BtmsLinkName = "link_name_1",
-                    MessageSubXPath = "Message1",
-                    Legend = "legend",
-                }
-            },
-        },
-        NamedLinks = new Dictionary<string, NamedLink>
-        {
-            {
-                "link_name_1",
-                new NamedLink { Link = "http://link-url", LinkType = LinkType.Url }
-            },
-        },
-        Destinations = new Dictionary<string, Destination>
-        {
-            {
-                "destination-1",
-                new Destination
-                {
-                    LinkType = LinkType.Url,
                     Link = "http://destination-url",
                     RoutePath = "/route/path-1",
                     ContentType = "application/soap+xml",
@@ -254,7 +159,7 @@ public static class TestRoutes
         {
             {
                 "link_name_1",
-                new NamedLink { Link = "http://link-url", LinkType = (LinkType)99 }
+                new NamedLink { Link = "http://link-url" }
             },
         },
         Destinations = new Dictionary<string, Destination>
@@ -263,7 +168,6 @@ public static class TestRoutes
                 "destination-1",
                 new Destination
                 {
-                    LinkType = LinkType.Url,
                     Link = "http://destination-url",
                     RoutePath = "/route/path-1",
                     ContentType = "application/soap+xml",
@@ -304,12 +208,7 @@ public static class TestRoutes
         {
             {
                 "none",
-                new NamedLink
-                {
-                    Link = "none",
-                    LinkType = LinkType.None,
-                    HostHeader = null,
-                }
+                new NamedLink { Link = "none", HostHeader = null }
             },
         },
         Destinations = new Dictionary<string, Destination>(),

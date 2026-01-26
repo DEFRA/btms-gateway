@@ -91,7 +91,6 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
         return routingResult with
         {
             RouteFound = true,
-            RouteLinkType = _btmsToCdsDestination.LinkType,
             RoutingSuccessful = true,
             FullRouteLink = destination,
             StatusCode = cdsResponse.StatusCode,

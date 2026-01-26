@@ -14,7 +14,6 @@ public class RoutingConfigTests
         route.RoutePath.Should().Be("route/path-1/sub/path");
         route.MessageSubXPath.Should().Be("Message1");
         route.BtmsLink.Should().Be("btms-link-queue");
-        route.BtmsLinkType.Should().Be(LinkType.Queue);
         route.BtmsHostHeader.Should().BeNull();
     }
 
@@ -27,7 +26,6 @@ public class RoutingConfigTests
         route.RoutePath.Should().Be("route/path-2/sub/path");
         route.MessageSubXPath.Should().Be("Message2");
         route.BtmsLink.Should().Be("http://btms-link-url");
-        route.BtmsLinkType.Should().Be(LinkType.Url);
         route.BtmsHostHeader.Should().Be("btms-host-header");
     }
 
@@ -40,7 +38,6 @@ public class RoutingConfigTests
         route.RoutePath.Should().Be("route/path-3/sub/path");
         route.MessageSubXPath.Should().Be("Message3");
         route.BtmsLink.Should().Be("none");
-        route.BtmsLinkType.Should().Be(LinkType.None);
         route.BtmsHostHeader.Should().BeNull();
     }
 
@@ -53,7 +50,6 @@ public class RoutingConfigTests
         route.RoutePath.Should().Be("route/path-4/sub/path");
         route.MessageSubXPath.Should().Be("Message4");
         route.BtmsLink.Should().Be("http://btms-link-url");
-        route.BtmsLinkType.Should().Be(LinkType.Url);
         route.BtmsHostHeader.Should().Be("btms-host-header");
     }
 }

@@ -21,15 +21,6 @@ public class MessageRoutes : IMessageRoutes
         _logger = logger;
         try
         {
-            if (
-                routingConfig.NamedLinks.Any(x =>
-                    x.Value.LinkType == LinkType.Url && !Uri.TryCreate(x.Value.Link, UriKind.Absolute, out _)
-                )
-            )
-                throw new InvalidDataException("Invalid URL(s) in config");
-
-            if (routingConfig.NamedLinks.Any(x => !Enum.IsDefined(x.Value.LinkType)))
-                throw new InvalidDataException("Invalid Link Type in config");
             _routes = routingConfig.AllRoutes;
         }
         catch (Exception ex)
@@ -66,19 +57,13 @@ public class MessageRoutes : IMessageRoutes
                     RouteName = route.Name,
                     MessageSubXPath = route.MessageSubXPath,
                     Legend = route.Legend,
-                    RouteLinkType = route.BtmsLinkType,
-                    FullRouteLink = SelectLink(route.BtmsLinkType, route.BtmsLink, routePath),
+                    FullRouteLink = route.BtmsLink,
                     RouteHostHeader = route.BtmsHostHeader,
                     ConvertRoutedContentToFromJson = true,
                     UrlPath = routePath,
-                    StatusCode = StatusCode(),
+                    StatusCode = HttpStatusCode.Accepted,
                     NamedProxy = route.NamedProxy,
                 };
-
-            HttpStatusCode StatusCode()
-            {
-                return route.BtmsLinkType == LinkType.None ? HttpStatusCode.Accepted : default;
-            }
         }
         catch (Exception ex)
         {
@@ -99,15 +84,5 @@ public class MessageRoutes : IMessageRoutes
         return _routes.Any(x =>
             x.IsCds && x.RoutePath.Equals(routePath.Trim('/'), StringComparison.InvariantCultureIgnoreCase)
         );
-    }
-
-    [SuppressMessage(
-        "SonarLint",
-        "S3358",
-        Justification = "The second nested ternary in each case (lines 55, 56, 68, 69) is within a string interpolation so is very clearly independent of the first"
-    )]
-    private static string? SelectLink(LinkType linkType, string? link, string routePath)
-    {
-        return linkType == LinkType.None ? null : $"{link}{(linkType == LinkType.Url ? routePath : null)}";
     }
 }

@@ -19,7 +19,7 @@ public class MessageRouterTests
         var mocks = CreateMocks();
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
 
-        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger);
+        var sut = new MessageRouter(mocks.Routes, mocks.QueueSender, mocks.Logger);
 
         // Act
         var response = await sut.Route(msgData.MessageData, mocks.Metrics);
@@ -35,10 +35,10 @@ public class MessageRouterTests
     public async Task Route_QueueLinkType_SuccessfullyRouted_ReturnsSuccess()
     {
         // Arrange
-        var mocks = CreateMocks(new RoutingResult { RouteLinkType = LinkType.Queue }, false);
+        var mocks = CreateMocks(new RoutingResult(), false);
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
 
-        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger);
+        var sut = new MessageRouter(mocks.Routes, mocks.QueueSender, mocks.Logger);
 
         // Act
         var response = await sut.Route(msgData.MessageData, mocks.Metrics);
@@ -55,50 +55,10 @@ public class MessageRouterTests
     public async Task Route_QueueLinkType_ThrowsException_ReturnsError()
     {
         // Arrange
-        var mocks = CreateMocks(new RoutingResult { RouteLinkType = LinkType.Queue }, true, false);
+        var mocks = CreateMocks(new RoutingResult(), true, false);
         var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
 
-        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger);
-
-        // Act
-        var response = await sut.Route(msgData.MessageData, mocks.Metrics);
-
-        // Assert
-        response.RouteFound.Should().BeTrue();
-        response.StatusCode.Should().Be(HttpStatusCode.ServiceUnavailable);
-        response.ErrorMessage.Should().StartWith("Error routing");
-        mocks.Metrics.Received().StartRoutedRequest();
-        mocks.Metrics.Received().RecordRoutedRequest(Arg.Any<RoutingResult>());
-    }
-
-    [Fact]
-    public async Task Route_UrlLinkType_SuccessfullyRouted_ReturnsSuccess()
-    {
-        // Arrange
-        var mocks = CreateMocks(new RoutingResult { RouteLinkType = LinkType.Url }, true, false);
-        var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
-
-        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger);
-
-        // Act
-        var response = await sut.Route(msgData.MessageData, mocks.Metrics);
-
-        // Assert
-        response.RouteFound.Should().BeTrue();
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        response.ErrorMessage.Should().BeNull();
-        mocks.Metrics.Received().StartRoutedRequest();
-        mocks.Metrics.Received().RecordRoutedRequest(Arg.Any<RoutingResult>());
-    }
-
-    [Fact]
-    public async Task Route_UrlLinkType_ThrowsException_ReturnsError()
-    {
-        // Arrange
-        var mocks = CreateMocks(new RoutingResult { RouteLinkType = LinkType.Url }, false);
-        var msgData = await TestHelpers.CreateMessageData(mocks.Logger);
-
-        var sut = new MessageRouter(mocks.Routes, mocks.ApiSender, mocks.QueueSender, mocks.Logger);
+        var sut = new MessageRouter(mocks.Routes, mocks.QueueSender, mocks.Logger);
 
         // Act
         var response = await sut.Route(msgData.MessageData, mocks.Metrics);
@@ -113,7 +73,6 @@ public class MessageRouterTests
 
     private static (
         IMessageRoutes Routes,
-        IApiSender ApiSender,
         IQueueSender QueueSender,
         Microsoft.Extensions.Logging.ILogger<MessageRouter> Logger,
         IMetrics Metrics
@@ -144,26 +103,6 @@ public class MessageRouterTests
             .GetRoute(Arg.Any<string>(), Arg.Any<SoapContent>(), Arg.Any<string>(), Arg.Any<string>())
             .Returns(routingResult);
 
-        var apiSender = Substitute.For<IApiSender>();
-
-        if (apiSuccess)
-        {
-            apiSender
-                .Send(Arg.Any<RoutingResult>(), Arg.Any<MessageData>())
-                .Returns(
-                    routingResult with
-                    {
-                        RoutingSuccessful = true,
-                        ResponseContent = $"API Success!",
-                        StatusCode = HttpStatusCode.OK,
-                    }
-                );
-        }
-        else
-        {
-            apiSender.Send(Arg.Any<RoutingResult>(), Arg.Any<MessageData>()).ThrowsAsync<Exception>();
-        }
-
         var queueSender = Substitute.For<IQueueSender>();
 
         if (queueSuccess)
@@ -189,6 +128,6 @@ public class MessageRouterTests
         var logger = new FakeLogger<MessageRouter>();
         var metrics = Substitute.For<IMetrics>();
 
-        return (routes, apiSender, queueSender, logger, metrics);
+        return (routes, queueSender, logger, metrics);
     }
 }

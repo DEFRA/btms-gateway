@@ -1,10 +1,10 @@
+using System.Text.Json;
 using BtmsGateway.Config;
 using BtmsGateway.Consumers;
-using BtmsGateway.Utils;
-using Microsoft.Extensions.DependencyInjection.Extensions;
+using Defra.TradeImports.SMB.CompressedSerializer;
+using Defra.TradeImportsDataApi.Domain.Events;
 using SlimMessageBus.Host;
 using SlimMessageBus.Host.AmazonSQS;
-using SlimMessageBus.Host.Serialization;
 
 namespace BtmsGateway.Extensions;
 
@@ -25,19 +25,26 @@ public static class AmazonConsumerExtensions
             cfg.SnsClientProviderFactory = _ => new CdpCredentialsSnsClientProvider(cfg.SnsClientConfig, configuration);
         });
 
-        messageBusBuilder.RegisterSerializer<ToStringSerializer>(s =>
-        {
-            s.TryAddSingleton(_ => new ToStringSerializer());
-            s.TryAddSingleton<IMessageSerializer<string>>(svp => svp.GetRequiredService<ToStringSerializer>());
-        });
-
         messageBusBuilder
+            .AddCompressedJsonSerializer(
+                new() { PropertyNameCaseInsensitive = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase }
+            )
             .AutoStartConsumersEnabled(options.AutoStartConsumers)
-            .Consume<string>(x =>
-                x.WithConsumer<ConsumerMediator>()
+            .Consume<ResourceEvent<CustomsDeclarationEvent>>(x =>
+                x.WithConsumer<ClearanceDecisionConsumer>()
                     .Queue(options.ResourceEventsQueueName)
                     .Instances(options.ConsumersPerHost)
                     .VisibilityTimeout(options.VisibilityTimeout)
+                    .SkipUndeclaredMessageTypes()
+                    .FilterOnResourceTypeHeader(ResourceEventResourceTypes.CustomsDeclaration)
+            )
+            .Consume<ResourceEvent<ProcessingErrorEvent>>(x =>
+                x.WithConsumer<ProcessingErrorConsumer>()
+                    .Queue(options.ResourceEventsQueueName)
+                    .Instances(options.ConsumersPerHost)
+                    .VisibilityTimeout(options.VisibilityTimeout)
+                    .SkipUndeclaredMessageTypes()
+                    .FilterOnResourceTypeHeader(ResourceEventResourceTypes.ProcessingError)
             );
     }
 }

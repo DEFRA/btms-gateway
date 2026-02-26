@@ -289,4 +289,39 @@ public class ResourceEventsDeadLetterServiceTests
 
         result.Should().BeFalse();
     }
+
+    [Fact]
+    public async Task When_get_count_successful_Then_return_count()
+    {
+        const string queueUrl = "queueUrl";
+        _amazonSqs
+            .GetQueueUrlAsync(Arg.Is<GetQueueUrlRequest>(x => x.QueueName == QueueNameDeadLetter))
+            .Returns(Task.FromResult(new GetQueueUrlResponse { QueueUrl = queueUrl }));
+
+        _amazonSqs
+            .GetQueueAttributesAsync(Arg.Any<GetQueueAttributesRequest>())
+            .Returns(
+                Task.FromResult(
+                    new GetQueueAttributesResponse()
+                    {
+                        HttpStatusCode = HttpStatusCode.OK,
+                        Attributes = new Dictionary<string, string>() { { "ApproximateNumberOfMessages", "1" } },
+                    }
+                )
+            );
+
+        var result = await _resourceEventsDeadLetterService.GetCount(CancellationToken.None);
+
+        result.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task When_get_count_exception_Then_return_zero()
+    {
+        _amazonSqs.GetQueueAttributesAsync(Arg.Any<GetQueueAttributesRequest>()).Throws(new Exception());
+
+        var result = await _resourceEventsDeadLetterService.GetCount(CancellationToken.None);
+
+        result.Should().Be(0);
+    }
 }

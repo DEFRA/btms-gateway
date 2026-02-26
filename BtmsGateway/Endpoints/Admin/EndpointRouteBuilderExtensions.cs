@@ -45,6 +45,34 @@ public static class EndpointRouteBuilderExtensions
             .ProducesProblem(StatusCodes.Status405MethodNotAllowed)
             .ProducesProblem(StatusCodes.Status500InternalServerError)
             .RequireAuthorization(PolicyNames.Execute);
+
+        app.MapGet("admin/dlq/count", Count)
+            .WithName(nameof(Count))
+            .WithTags("Admin")
+            .WithSummary("Gets the count of messages on the resource events dead letter queue")
+            .WithDescription("Gets the count of messages on the resource events dead letter queue")
+            .Produces(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .ProducesProblem(StatusCodes.Status500InternalServerError)
+            .RequireAuthorization(PolicyNames.Execute);
+    }
+
+    [HttpGet]
+    private static async Task<IResult> Count(
+        [FromServices] IResourceEventsDeadLetterService resourceEventsDeadLetterService,
+        CancellationToken cancellationToken
+    )
+    {
+        try
+        {
+            var deadLetterQueueCount = await resourceEventsDeadLetterService.GetCount(cancellationToken);
+            return Results.Ok(new { DeadLetterQueueCount = deadLetterQueueCount });
+        }
+        catch (Exception)
+        {
+            return Results.InternalServerError();
+        }
     }
 
     [HttpPost]

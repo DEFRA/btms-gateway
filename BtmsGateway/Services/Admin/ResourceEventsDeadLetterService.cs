@@ -14,6 +14,8 @@ public interface IResourceEventsDeadLetterService
     Task<string> Remove(string messageId, CancellationToken cancellationToken);
 
     Task<bool> Drain(CancellationToken cancellationToken);
+
+    Task<int> GetCount(CancellationToken cancellationToken);
 }
 
 public class ResourceEventsDeadLetterService(
@@ -184,6 +186,29 @@ public class ResourceEventsDeadLetterService(
 
             return false;
         }
+    }
+
+    public async Task<int> GetCount(CancellationToken cancellationToken)
+    {
+        try
+        {
+            var queueUrl = await GetQueueUrl(cancellationToken);
+
+            var request = new GetQueueAttributesRequest
+            {
+                QueueUrl = queueUrl,
+                AttributeNames = ["ApproximateNumberOfMessages"],
+            };
+
+            var response = await amazonSqs.GetQueueAttributesAsync(request, cancellationToken);
+            return response.ApproximateNumberOfMessages;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to get count of dead letter queue");
+        }
+
+        return 0;
     }
 
     private async Task<string> GetQueueUrl(CancellationToken cancellationToken)

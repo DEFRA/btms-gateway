@@ -47,7 +47,7 @@ public class CountTests(ApiWebApplicationFactory factory, ITestOutputHelper outp
         var client = CreateClient();
         _resourceEventsDeadLetterService.GetCount(Arg.Any<CancellationToken>()).Returns(Task.FromResult(1));
 
-        var response = await client.PostAsync(Testing.Endpoints.Redrive.DeadLetterQueue.Drain(), null);
+        var response = await client.GetAsync(Testing.Endpoints.Redrive.DeadLetterQueue.Count());
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }

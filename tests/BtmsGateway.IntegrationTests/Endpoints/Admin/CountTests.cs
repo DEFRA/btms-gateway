@@ -42,6 +42,8 @@ public class CountTests(ITestOutputHelper output) : SqsTestBase(output)
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        response.Content.ReadAsStringAsync().Result.Should().Be("{\"deadLetterQueueCount\":1}");
+        var result = await response.Content.ReadAsStringAsync();
+
+        result.Should().Be("{\"deadLetterQueueCount\":1}");
     }
 }

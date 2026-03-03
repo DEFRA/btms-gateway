@@ -27,6 +27,8 @@
 
     <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.3.22" />
 
+    <PackageReference Include="Defra.TradeImports.SMB.CompressedSerializer" Version="0.2.0" />
+
     <PackageReference Include="Defra.TradeImportsDataApi.Domain" Version="0.33.0" />
     <PackageReference Include="Elastic.CommonSchema.Serilog" Version="9.0.0" />
     <PackageReference Include="Elastic.Serilog.Enrichers.Web" Version="9.0.0" />
@@ -42,8 +44,8 @@
     <PackageReference Include="Serilog.Enrichers.Thread" Version="4.0.0" />
     <PackageReference Include="Serilog.Settings.Configuration" Version="10.0.0" />
     <PackageReference Include="SlimMessageBus" Version="3.0.0" />
-    <PackageReference Include="SlimMessageBus.Host.AmazonSQS" Version="3.3.6" />
-    <PackageReference Include="SlimMessageBus.Host.Serialization.SystemTextJson" Version="3.3.6" />
+    <PackageReference Include="SlimMessageBus.Host.AmazonSQS" Version="3.4.0-rc112" />
+    <PackageReference Include="SlimMessageBus.Host.Serialization.SystemTextJson" Version="3.4.0-rc112" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.6" />
     <PackageReference Include="Serilog.Enrichers.ClientInfo" Version="2.9.0" />
   </ItemGroup>

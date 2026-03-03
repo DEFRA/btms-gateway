@@ -1,9 +1,11 @@
 using System.Diagnostics.CodeAnalysis;
 using BtmsGateway.Config;
 using BtmsGateway.Middleware;
+using BtmsGateway.Services.Health;
 using BtmsGateway.Services.Metrics;
 using BtmsGateway.Utils.Logging;
 using Defra.TradeImportsDataApi.Domain.Events;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using SlimMessageBus.Host;
 using SlimMessageBus.Host.AmazonSQS;
 using SlimMessageBus.Host.Interceptor;
@@ -23,6 +25,12 @@ public static class ServiceCollectionExtensions
         services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(MetricsInterceptor<>));
 
         services.AddSingleton(typeof(IProducerInterceptor<>), typeof(TraceContextInterceptor<>));
+
+        //This will default to false if the setting is not present, so no need to check for the existence of the setting first
+        if (configuration.GetValue<bool>("ENABLE_CONSUMERS_CIRCUIT_BREAKER", false))
+        {
+            services.AddSingleton<IHealthCheckPublisher, CircuitBreakerHealthCheckPublisher>();
+        }
 
         services.AddSlimMessageBus(messageBusBuilder =>
         {

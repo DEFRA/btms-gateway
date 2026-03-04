@@ -1,5 +1,5 @@
 using System.Net;
-using BtmsGateway.Services.Admin;
+using Defra.TradeImports.SQS.Endpoints;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
@@ -11,8 +11,7 @@ namespace BtmsGateway.Test.Endpoints.Admin;
 public class RemoveMessageTests(ApiWebApplicationFactory factory, ITestOutputHelper outputHelper)
     : NoConsumersTestBase(factory, outputHelper)
 {
-    private readonly IResourceEventsDeadLetterService _resourceEventsDeadLetterService =
-        Substitute.For<IResourceEventsDeadLetterService>();
+    private readonly ISqsDeadLetterService _resourceEventsDeadLetterService = Substitute.For<ISqsDeadLetterService>();
 
     protected override void ConfigureTestServices(IServiceCollection services)
     {
@@ -46,7 +45,9 @@ public class RemoveMessageTests(ApiWebApplicationFactory factory, ITestOutputHel
     {
         var client = CreateClient();
         const string messageId = "messageId";
-        _resourceEventsDeadLetterService.Remove(messageId, Arg.Any<CancellationToken>()).Returns("Result from Remove");
+        _resourceEventsDeadLetterService
+            .Remove(messageId, Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns("Result from Remove");
 
         var response = await client.PostAsync(Testing.Endpoints.Redrive.DeadLetterQueue.RemoveMessage(messageId), null);
 
@@ -60,7 +61,7 @@ public class RemoveMessageTests(ApiWebApplicationFactory factory, ITestOutputHel
         var client = CreateClient();
         const string messageId = "messageId";
         _resourceEventsDeadLetterService
-            .Remove(messageId, Arg.Any<CancellationToken>())
+            .Remove(messageId, Arg.Any<string>(), Arg.Any<CancellationToken>())
             .ThrowsAsync(new Exception("Test"));
 
         var response = await client.PostAsync(Testing.Endpoints.Redrive.DeadLetterQueue.RemoveMessage(messageId), null);

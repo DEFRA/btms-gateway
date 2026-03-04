@@ -1,7 +1,9 @@
 using System.Net;
+using Defra.TradeImports.SQS.Endpoints;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 using Xunit.Abstractions;
 
 namespace BtmsGateway.Test.Endpoints.Admin;
@@ -9,8 +11,7 @@ namespace BtmsGateway.Test.Endpoints.Admin;
 public class CountTests(ApiWebApplicationFactory factory, ITestOutputHelper outputHelper)
     : NoConsumersTestBase(factory, outputHelper)
 {
-    private readonly IResourceEventsDeadLetterService _resourceEventsDeadLetterService =
-        Substitute.For<IResourceEventsDeadLetterService>();
+    private readonly ISqsDeadLetterService _resourceEventsDeadLetterService = Substitute.For<ISqsDeadLetterService>();
 
     protected override void ConfigureTestServices(IServiceCollection services)
     {
@@ -43,7 +44,9 @@ public class CountTests(ApiWebApplicationFactory factory, ITestOutputHelper outp
     public async Task When_authorized_and_count_returns_Then_OK()
     {
         var client = CreateClient();
-        _resourceEventsDeadLetterService.GetCount(Arg.Any<CancellationToken>()).Returns(Task.FromResult(1));
+        _resourceEventsDeadLetterService
+            .GetCount(Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult(1));
 
         var response = await client.GetAsync(Testing.Endpoints.Redrive.DeadLetterQueue.Count());
 
@@ -54,7 +57,9 @@ public class CountTests(ApiWebApplicationFactory factory, ITestOutputHelper outp
     public async Task When_authorized_and_count_throws_exception_Then_InternalServerError()
     {
         var client = CreateClient();
-        _resourceEventsDeadLetterService.GetCount(Arg.Any<CancellationToken>()).ThrowsAsync(new Exception("Test"));
+        _resourceEventsDeadLetterService
+            .GetCount(Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .ThrowsAsync(new Exception("Test"));
 
         var response = await client.GetAsync(Testing.Endpoints.Redrive.DeadLetterQueue.Count());
 

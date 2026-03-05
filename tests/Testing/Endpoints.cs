@@ -1,4 +1,4 @@
-﻿// ReSharper disable MemberHidesStaticFromOuterClass
+// ReSharper disable MemberHidesStaticFromOuterClass
 namespace Testing;
 
 public static class Endpoints
@@ -17,6 +17,8 @@ public static class Endpoints
                 $"{SubRoot}/remove-message?messageId={messageId}";
 
             public static string Drain() => $"{SubRoot}/drain";
+
+            public static string Count() => $"{SubRoot}/count";
         }
     }
 

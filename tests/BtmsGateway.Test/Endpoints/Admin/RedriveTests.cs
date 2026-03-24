@@ -1,5 +1,5 @@
 using System.Net;
-using BtmsGateway.Services.Admin;
+using Defra.TradeImports.SQS.Endpoints;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
@@ -11,8 +11,7 @@ namespace BtmsGateway.Test.Endpoints.Admin;
 public class RedriveTests(ApiWebApplicationFactory factory, ITestOutputHelper outputHelper)
     : NoConsumersTestBase(factory, outputHelper)
 {
-    private readonly IResourceEventsDeadLetterService _resourceEventsDeadLetterService =
-        Substitute.For<IResourceEventsDeadLetterService>();
+    private readonly ISqsDeadLetterService _resourceEventsDeadLetterService = Substitute.For<ISqsDeadLetterService>();
 
     protected override void ConfigureTestServices(IServiceCollection services)
     {
@@ -45,7 +44,9 @@ public class RedriveTests(ApiWebApplicationFactory factory, ITestOutputHelper ou
     public async Task When_authorized_redrive_fails_Then_InternalServerError()
     {
         var client = CreateClient();
-        _resourceEventsDeadLetterService.Redrive(Arg.Any<CancellationToken>()).Returns(false);
+        _resourceEventsDeadLetterService
+            .Redrive(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns(false);
 
         var response = await client.PostAsync(Testing.Endpoints.Redrive.DeadLetterQueue.Redrive(), null);
 
@@ -56,7 +57,9 @@ public class RedriveTests(ApiWebApplicationFactory factory, ITestOutputHelper ou
     public async Task When_authorized_redrive_throws_exception_Then_InternalServerError()
     {
         var client = CreateClient();
-        _resourceEventsDeadLetterService.Redrive(Arg.Any<CancellationToken>()).ThrowsAsync(new Exception("Test"));
+        _resourceEventsDeadLetterService
+            .Redrive(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .ThrowsAsync(new Exception("Test"));
 
         var response = await client.PostAsync(Testing.Endpoints.Redrive.DeadLetterQueue.Redrive(), null);
 
@@ -67,7 +70,9 @@ public class RedriveTests(ApiWebApplicationFactory factory, ITestOutputHelper ou
     public async Task When_authorized_Then_Accepted()
     {
         var client = CreateClient();
-        _resourceEventsDeadLetterService.Redrive(Arg.Any<CancellationToken>()).Returns(true);
+        _resourceEventsDeadLetterService
+            .Redrive(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns(true);
 
         var response = await client.PostAsync(Testing.Endpoints.Redrive.DeadLetterQueue.Redrive(), null);
 

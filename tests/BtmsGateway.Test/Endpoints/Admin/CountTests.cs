@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace BtmsGateway.Test.Endpoints.Admin;
 
-public class RemoveMessageTests(ApiWebApplicationFactory factory, ITestOutputHelper outputHelper)
+public class CountTests(ApiWebApplicationFactory factory, ITestOutputHelper outputHelper)
     : NoConsumersTestBase(factory, outputHelper)
 {
     private readonly ISqsDeadLetterService _resourceEventsDeadLetterService = Substitute.For<ISqsDeadLetterService>();
@@ -25,7 +25,7 @@ public class RemoveMessageTests(ApiWebApplicationFactory factory, ITestOutputHel
     {
         var client = CreateClient(false);
 
-        var response = await client.PostAsync(Testing.Endpoints.Redrive.DeadLetterQueue.RemoveMessage(), null);
+        var response = await client.GetAsync(Testing.Endpoints.Redrive.DeadLetterQueue.Count());
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
@@ -35,36 +35,33 @@ public class RemoveMessageTests(ApiWebApplicationFactory factory, ITestOutputHel
     {
         var client = CreateClient(testUser: TestUser.ReadOnly);
 
-        var response = await client.PostAsync(Testing.Endpoints.Redrive.DeadLetterQueue.RemoveMessage(), null);
+        var response = await client.GetAsync(Testing.Endpoints.Redrive.DeadLetterQueue.Count());
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
     [Fact]
-    public async Task When_authorized_remove_message_returns_Then_OK()
+    public async Task When_authorized_and_count_returns_Then_OK()
     {
         var client = CreateClient();
-        const string messageId = "messageId";
         _resourceEventsDeadLetterService
-            .Remove(messageId, Arg.Any<string>(), Arg.Any<CancellationToken>())
-            .Returns("Result from Remove");
+            .GetCount(Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult(1));
 
-        var response = await client.PostAsync(Testing.Endpoints.Redrive.DeadLetterQueue.RemoveMessage(messageId), null);
+        var response = await client.GetAsync(Testing.Endpoints.Redrive.DeadLetterQueue.Count());
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        (await response.Content.ReadAsStringAsync()).Should().Be("Result from Remove");
     }
 
     [Fact]
-    public async Task When_authorized_remove_message_throws_exception_Then_InternalServerError()
+    public async Task When_authorized_and_count_throws_exception_Then_InternalServerError()
     {
         var client = CreateClient();
-        const string messageId = "messageId";
         _resourceEventsDeadLetterService
-            .Remove(messageId, Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .GetCount(Arg.Any<string>(), Arg.Any<CancellationToken>())
             .ThrowsAsync(new Exception("Test"));
 
-        var response = await client.PostAsync(Testing.Endpoints.Redrive.DeadLetterQueue.RemoveMessage(messageId), null);
+        var response = await client.GetAsync(Testing.Endpoints.Redrive.DeadLetterQueue.Count());
 
         response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
     }

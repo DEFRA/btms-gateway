@@ -57,7 +57,7 @@ jobs:
           push: false
           tags: btms-gateway:latest
       - name: Check with Trivy
-        run: docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image btms-gateway:latest --ignore-unfixed
+        run: docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:0.69.3 image btms-gateway:latest --ignore-unfixed
   sonarcloud-scan:
     name: CDP SonarCloud Scan
     uses: ./.github/workflows/sonarcloud.yml

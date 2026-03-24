@@ -1,6 +1,5 @@
 using BtmsGateway.Authentication;
 using BtmsGateway.Config;
-using BtmsGateway.Endpoints.Admin;
 using BtmsGateway.Middleware;
 using BtmsGateway.Services.Checking;
 using BtmsGateway.Services.Health;
@@ -8,7 +7,9 @@ using BtmsGateway.Services.Metrics;
 using BtmsGateway.Services.Routing;
 using BtmsGateway.Utils;
 using BtmsGateway.Utils.Logging;
+using Defra.TradeImports.SQS.Endpoints.Endpoints;
 using Elastic.CommonSchema.Serilog;
+using Microsoft.Extensions.Options;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration().WriteTo.Console(new EcsTextFormatter()).CreateBootstrapLogger();
@@ -57,6 +58,7 @@ static void ConfigureWebApplication(WebApplicationBuilder builder)
 static WebApplication BuildWebApplication(WebApplicationBuilder builder)
 {
     var app = builder.Build();
+    var awsSqsOptions = app.Services.GetRequiredService<IOptions<AwsSqsOptions>>();
 
     app.UseEmfExporter();
     app.UseHttpLogging();
@@ -71,7 +73,12 @@ static WebApplication BuildWebApplication(WebApplicationBuilder builder)
     );
     app.UseCustomHealthChecks();
     app.UseCheckRoutesEndpoints();
-    app.MapAdminEndpoints();
+    app.MapDeadLetterQueueEndpoints(
+        awsSqsOptions.Value.ResourceEventsQueueName,
+        awsSqsOptions.Value.ResourceEventsDeadLetterQueueName,
+        policyName: PolicyNames.Execute,
+        tags: "Admin"
+    );
     app.ConfigureSwaggerApp();
 
     return app;

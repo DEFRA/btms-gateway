@@ -1,4 +1,4 @@
-FROM localstack/localstack:4.3.0
+FROM localstack/localstack:4.14.0
 
 WORKDIR "/"
 

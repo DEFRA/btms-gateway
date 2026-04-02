@@ -2,12 +2,11 @@ using System.Diagnostics.CodeAnalysis;
 using Amazon.SimpleNotificationService;
 using Amazon.SQS;
 using BtmsGateway.Extensions;
-using BtmsGateway.Services.Admin;
 using BtmsGateway.Services.Checking;
 using BtmsGateway.Services.Metrics;
 using BtmsGateway.Services.Routing;
 using BtmsGateway.Utils.Http;
-using Elastic.CommonSchema;
+using Defra.TradeImports.SQS.Endpoints;
 using FluentValidation;
 
 namespace BtmsGateway.Config;
@@ -60,7 +59,7 @@ public static class ConfigureServices
         builder.Services.AddSingleton<MetricsHost>();
         builder.Services.AddSingleton<IDecisionSender, DecisionSender>();
         builder.Services.AddSingleton<IErrorNotificationSender, ErrorNotificationSender>();
-        builder.Services.AddSingleton<IResourceEventsDeadLetterService, ResourceEventsDeadLetterService>();
+        builder.Services.AddDeadLetterQueueManagementServices();
 
         builder.Services.AddOptions<CdsOptions>().BindConfiguration(CdsOptions.SectionName).ValidateDataAnnotations();
     }

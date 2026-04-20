@@ -26,8 +26,8 @@
     <PackageReference Include="Amazon.CloudWatch.EMF" Version="2.2.0" />
     <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.3.22" />
     <PackageReference Include="Defra.TradeImports.SMB.CompressedSerializer" Version="0.2.0" />
+    <PackageReference Include="Defra.TradeImportsDataApi.Domain" Version="0.35.0" />
     <PackageReference Include="Defra.TradeImports.SQS.Endpoints" Version="0.1.2" />
-    <PackageReference Include="Defra.TradeImportsDataApi.Domain" Version="0.33.0" />
     <PackageReference Include="Elastic.CommonSchema.Serilog" Version="9.0.0" />
     <PackageReference Include="Elastic.Serilog.Enrichers.Web" Version="9.0.0" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />

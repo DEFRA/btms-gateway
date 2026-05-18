@@ -7,6 +7,7 @@ EXPOSE 443
 # Add curl to template.
 # CDP PLATFORM HEALTHCHECK REQUIREMENT
 RUN apt update && \
+    apt upgrade -y && \
     apt install curl -y && \
     apt install dnsutils -y && \
     apt install iputils-ping -y && \

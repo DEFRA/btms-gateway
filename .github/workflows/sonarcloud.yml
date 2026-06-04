@@ -59,7 +59,7 @@ jobs:
           mkdir -p ./.sonar/coverage
           dotnet tool update dotnet-coverage --tool-path ./.sonar/coverage
       - name: Run docker-compose # Runs the existing Docker compose and scripts for now until the tests can be rewritten
-        uses: hoverkraft-tech/compose-action@d2bee4f07e8ca410d6b196d00f90c12e7d48c33a
+        uses: hoverkraft-tech/compose-action@11beaa1c2dae4e8ed7b1665aa074723b6cecb0e4
         with:
           compose-file: "./compose.yml"
         env:

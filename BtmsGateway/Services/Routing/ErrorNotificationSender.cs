@@ -1,5 +1,6 @@
 using BtmsGateway.Domain;
 using BtmsGateway.Exceptions;
+using System.Net;
 
 namespace BtmsGateway.Services.Routing;
 
@@ -67,7 +68,7 @@ public class ErrorNotificationSender : SoapMessageSenderBase, IErrorNotification
             cancellationToken
         );
 
-        if (!cdsResponse.IsSuccessStatusCode)
+        if (cdsResponse.StatusCode != HttpStatusCode.NoContent)
         {
             _logger.LogError(
                 "{MessageCorrelationId} {MRN} Failed to send error notification to CDS. CDS Response Status Code: {StatusCode}, Reason: {Reason}, Content: {Content}",

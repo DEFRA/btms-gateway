@@ -121,10 +121,12 @@ public class ErrorNotificationSenderTests
         thrownException.Message.Should().Be("mrn-123 Request to send an invalid error notification to CDS: ");
     }
 
-    [Fact]
-    public async Task When_sending_error_notification_to_cds_fails_Then_exception_is_thrown()
+    [Theory]
+    [InlineData(HttpStatusCode.BadRequest)]
+    [InlineData(HttpStatusCode.OK)]
+    public async Task When_sending_error_notification_to_cds_fails_Then_exception_is_thrown(HttpStatusCode status)
     {
-        var cdsResponse = new HttpResponseMessage(HttpStatusCode.BadRequest);
+        var cdsResponse = new HttpResponseMessage(status);
 
         _apiSender
             .SendSoapMessageAsync(

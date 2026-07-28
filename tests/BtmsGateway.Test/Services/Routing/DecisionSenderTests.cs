@@ -102,7 +102,7 @@ public class DecisionSenderTests
     [Fact]
     public async Task When_sending_decision_and_activity_event_fails_Then_message_is_sent_onto_cds()
     {
-        var response = new HttpResponseMessage(HttpStatusCode.OK);
+        var response = new HttpResponseMessage(HttpStatusCode.NoContent);
         _apiSender
             .SendSoapMessageAsync(
                 Arg.Any<string>(),
@@ -146,7 +146,7 @@ public class DecisionSenderTests
                     RouteFound = true,
                     RoutingSuccessful = true,
                     FullRouteLink = "http://btms-to-cds-url/route/path-1",
-                    StatusCode = HttpStatusCode.OK,
+                    StatusCode = HttpStatusCode.NoContent,
                     ResponseContent = string.Empty,
                 }
             );
@@ -190,10 +190,14 @@ public class DecisionSenderTests
         thrownException.Message.Should().Be("mrn-123 Decision invalid.");
     }
 
-    [Fact]
-    public async Task When_sending_decision_and_cds_returns_unsuccessful_response_Then_exception_is_thrown()
+    [Theory]
+    [InlineData(HttpStatusCode.BadRequest)]
+    [InlineData(HttpStatusCode.OK)]
+    public async Task When_sending_decision_and_cds_returns_unsuccessful_response_Then_exception_is_thrown(
+        HttpStatusCode status
+    )
     {
-        var response = new HttpResponseMessage(HttpStatusCode.BadRequest);
+        var response = new HttpResponseMessage(status);
         response.Headers.Date = DateTimeOffset.UtcNow;
         _apiSender
             .SendSoapMessageAsync(

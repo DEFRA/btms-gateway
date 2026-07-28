@@ -1,3 +1,4 @@
+using System.Net;
 using BtmsGateway.Domain;
 using BtmsGateway.Exceptions;
 using BtmsGateway.Middleware;
@@ -79,7 +80,7 @@ public class DecisionSender : SoapMessageSenderBase, IDecisionSender
             cancellationToken
         );
 
-        if (!cdsResponse.IsSuccessStatusCode)
+        if (cdsResponse.StatusCode != HttpStatusCode.NoContent)
         {
             _logger.LogError(
                 "{MessageCorrelationId} {MRN} Failed to send Decision to CDS. CDS Response Status Code: {StatusCode}, Reason: {Reason}, Content: {Content}",

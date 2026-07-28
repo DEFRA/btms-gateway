@@ -1,6 +1,6 @@
+using System.Net;
 using BtmsGateway.Domain;
 using BtmsGateway.Exceptions;
-using System.Net;
 
 namespace BtmsGateway.Services.Routing;
 

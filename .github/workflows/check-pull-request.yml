@@ -36,7 +36,7 @@ jobs:
           dotnet nuget add source --username USERNAME --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name defra "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --configfile ./NuGet.config
 #      Remove this running of docker compose once E2E tests have been updated and/or moved to the IntegrationTests project
       - name: Run docker-compose
-        uses: hoverkraft-tech/compose-action@11beaa1c2dae4e8ed7b1665aa074723b6cecb0e4
+        uses: hoverkraft-tech/compose-action@ee6af68587292d72db67743171809c19787df4c9
         with:
           compose-file: "./compose.yml"
       - name: Test

@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set up JDK 17
-        uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
         with:
           java-version: 17
           distribution: "zulu"
@@ -59,7 +59,7 @@ jobs:
           mkdir -p ./.sonar/coverage
           dotnet tool update dotnet-coverage --tool-path ./.sonar/coverage
       - name: Run docker-compose # Runs the existing Docker compose and scripts for now until the tests can be rewritten
-        uses: hoverkraft-tech/compose-action@11beaa1c2dae4e8ed7b1665aa074723b6cecb0e4
+        uses: hoverkraft-tech/compose-action@ee6af68587292d72db67743171809c19787df4c9
         with:
           compose-file: "./compose.yml"
         env:

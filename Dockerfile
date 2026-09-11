@@ -57,4 +57,5 @@ WORKDIR /app
 COPY --from=publish /app/publish .
 COPY --from=mcr.microsoft.com/dotnet/aspnet:7.0 /etc/ssl/openssl.cnf /etc/ssl/openssl.cnf
 EXPOSE 8085
+USER app
 ENTRYPOINT ["dotnet", "BtmsGateway.dll"]

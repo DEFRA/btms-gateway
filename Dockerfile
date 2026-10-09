@@ -37,7 +37,7 @@ ARG DEFRA_NUGET_PAT
 RUN dotnet restore
 
 COPY src/BtmsGateway src/BtmsGateway
-COPY src/BtmsGateway.Contract/BtmsGateway.Contract.csproj src/BtmsGateway.Contract/BtmsGateway.Contract.csproj
+COPY src/BtmsGateway.Contract/BtmsGateway.Contract src/BtmsGateway.Contract/BtmsGateway.Contract
 COPY tests/BtmsGateway.Test tests/BtmsGateway.Test
 COPY tests/Testing tests/Testing
 COPY tests/BtmsGateway.IntegrationTests tests/BtmsGateway.IntegrationTests

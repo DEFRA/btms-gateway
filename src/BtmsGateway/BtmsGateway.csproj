@@ -48,6 +48,9 @@
     <PackageReference Include="Serilog.Enrichers.ClientInfo" Version="2.9.0" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\BtmsGateway.Contract\BtmsGateway.Contract.csproj" />
+  </ItemGroup>
+  <ItemGroup>
     <None Update="Services\Fixtures\DecisionNotification.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

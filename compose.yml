@@ -73,9 +73,14 @@ services:
   
   gateway:
     build:
+      context: ./    
       args:
         DEFRA_NUGET_PAT: ${DEFRA_NUGET_PAT}
       dockerfile: Dockerfile
+    env_file:
+      - 'compose/aws.env'
+      - path: .env
+        required: false
     depends_on:
       localstack:
         condition: service_healthy
@@ -85,8 +90,6 @@ services:
         condition: service_healthy
     ports:
       - "3091:8080"
-    env_file:
-      - 'compose/aws.env'
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       AWS__ServiceURL: http://localstack:4566

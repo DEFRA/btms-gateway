@@ -31,7 +31,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\BtmsGateway\BtmsGateway.csproj" />
+    <ProjectReference Include="..\..\src\BtmsGateway\BtmsGateway.csproj" />
     <ProjectReference Include="..\Testing\Testing.csproj" />
   </ItemGroup>
   <ItemGroup>

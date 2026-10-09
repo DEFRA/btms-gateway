@@ -35,6 +35,16 @@ jobs:
         uses: DEFRA/cdp-build-action/build@dfb527d1bca7591fbbfd32ac007557745e888cf2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Pack NuGets
+        run: |
+          echo "Building a stable release package"
+          dotnet pack --configuration Release -o ./nupkg
+      - name: Publish NuGets
+        run: |
+          dotnet nuget push ./nupkg/*.nupkg \
+            --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
+            --api-key "$GITHUB_TOKEN" \
+            --skip-duplicate
   sonarcloud-scan:
     name: CDP SonarCloud Scan
     uses: ./.github/workflows/sonarcloud.yml

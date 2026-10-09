@@ -24,7 +24,8 @@ COPY .csharpierignore .csharpierignore
 
 RUN dotnet tool restore
 
-COPY BtmsGateway/BtmsGateway.csproj BtmsGateway/BtmsGateway.csproj
+COPY src/BtmsGateway/BtmsGateway.csproj src/BtmsGateway/BtmsGateway.csproj
+COPY src/BtmsGateway.Contract/BtmsGateway.Contract.csproj src/BtmsGateway.Contract/BtmsGateway.Contract.csproj
 COPY tests/BtmsGateway.Test/BtmsGateway.Test.csproj tests/BtmsGateway.Test/BtmsGateway.Test.csproj
 COPY tests/Testing/Testing.csproj tests/Testing/Testing.csproj
 COPY tests/BtmsGateway.IntegrationTests/BtmsGateway.IntegrationTests.csproj tests/BtmsGateway.IntegrationTests/BtmsGateway.IntegrationTests.csproj
@@ -35,19 +36,20 @@ ARG DEFRA_NUGET_PAT
 
 RUN dotnet restore
 
-COPY BtmsGateway BtmsGateway
+COPY src/BtmsGateway src/BtmsGateway
+COPY src/BtmsGateway.Contract/BtmsGateway.Contract.csproj src/BtmsGateway.Contract/BtmsGateway.Contract.csproj
 COPY tests/BtmsGateway.Test tests/BtmsGateway.Test
 COPY tests/Testing tests/Testing
 COPY tests/BtmsGateway.IntegrationTests tests/BtmsGateway.IntegrationTests
 
 RUN dotnet csharpier check .
 
-RUN dotnet build BtmsGateway/BtmsGateway.csproj --no-restore -c Release
+RUN dotnet build src/BtmsGateway/BtmsGateway.csproj --no-restore -c Release
 
 RUN dotnet test --no-restore --filter "Category!=IntegrationTest"
 
 FROM build AS publish
-RUN dotnet publish BtmsGateway -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish src/BtmsGateway -c Release -o /app/publish /p:UseAppHost=false
 
 ENV ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
 

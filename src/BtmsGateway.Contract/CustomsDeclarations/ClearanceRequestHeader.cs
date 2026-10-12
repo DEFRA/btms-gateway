@@ -1,5 +1,7 @@
 using System.Text.Json.Serialization;
+using System.Xml.Serialization;
 using BtmsGateway.Contract.Json;
+using BtmsGateway.Contract.Xml;
 
 namespace BtmsGateway.Contract.CustomsDeclarations;
 
@@ -17,9 +19,18 @@ public record ClearanceRequestHeader : Header
     [JsonPropertyName("declarationType")]
     public string? DeclarationType { get; set; }
 
+    [XmlIgnore]
     [JsonPropertyName("arrivalDateTime")]
     [EpochDateTimeJsonConverter]
     public DateTime? ArrivalDateTime { get; set; }
+
+    [XmlElement("ArrivalDateTime")]
+    [JsonIgnore]
+    public string? ArrivalDateTimeXml
+    {
+        get => DateTimeUtilities.ToCompactXmlDateTime(ArrivalDateTime);
+        set => ArrivalDateTime = DateTimeUtilities.ParseNullableXmlDateTime(value);
+    }
 
     [JsonPropertyName("submitterTURN")]
     public string? SubmitterTurn { get; set; }

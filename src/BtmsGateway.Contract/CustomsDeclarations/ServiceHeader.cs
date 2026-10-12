@@ -1,5 +1,7 @@
 using System.Text.Json.Serialization;
+using System.Xml.Serialization;
 using BtmsGateway.Contract.Json;
+using BtmsGateway.Contract.Xml;
 
 namespace BtmsGateway.Contract.CustomsDeclarations;
 
@@ -17,4 +19,12 @@ public record ServiceHeader
     [JsonPropertyName("serviceCallTimestamp")]
     [EpochDateTimeJsonConverter]
     public DateTime? ServiceCallTimestamp { get; set; }
+
+    [XmlElement("ServiceCallTimestamp")]
+    [JsonIgnore]
+    public string? ArrivalDateTimeXml
+    {
+        get => DateTimeUtilities.ToCompactXmlDateTime(ServiceCallTimestamp);
+        set => ServiceCallTimestamp = DateTimeUtilities.ParseNullableXmlDateTime(value);
+    }
 }

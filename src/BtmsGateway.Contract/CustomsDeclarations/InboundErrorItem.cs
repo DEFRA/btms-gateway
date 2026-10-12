@@ -5,8 +5,8 @@ namespace BtmsGateway.Contract.CustomsDeclarations;
 public record InboundErrorItem
 {
     [JsonPropertyName("errorCode")]
-    public required string errorCode { get; init; }
+    public required string ErrorCode { get; init; }
 
     [JsonPropertyName("errorMessage")]
-    public required string errorMessage { get; init; }
+    public required string ErrorMessage { get; init; }
 }

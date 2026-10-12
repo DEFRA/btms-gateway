@@ -5,7 +5,7 @@ namespace BtmsGateway.Contract.CustomsDeclarations;
 public record Header
 {
     [JsonPropertyName("entryReference")]
-    public string? EntryReference { get; init; }
+    public string? EntryReference { get; set; }
 
     [JsonPropertyName("entryVersionNumber")]
     public int? EntryVersionNumber { get; init; }

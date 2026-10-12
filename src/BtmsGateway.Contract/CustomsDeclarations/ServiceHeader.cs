@@ -12,9 +12,9 @@ public record ServiceHeader
     public required string DestinationSystem { get; init; }
 
     [JsonPropertyName("correlationId")]
-    public required string CorrelationId { get; init; }
+    public string? CorrelationId { get; init; }
 
     [JsonPropertyName("serviceCallTimestamp")]
     [EpochDateTimeJsonConverter]
-    public required DateTime ServiceCallTimestamp { get; init; }
+    public DateTime? ServiceCallTimestamp { get; init; }
 }

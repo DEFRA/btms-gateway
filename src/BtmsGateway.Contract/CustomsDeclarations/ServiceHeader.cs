@@ -16,6 +16,7 @@ public record ServiceHeader
     [JsonPropertyName("correlationId")]
     public string? CorrelationId { get; set; }
 
+    [XmlIgnore]
     [JsonPropertyName("serviceCallTimestamp")]
     [EpochDateTimeJsonConverter]
     public DateTime? ServiceCallTimestamp { get; set; }

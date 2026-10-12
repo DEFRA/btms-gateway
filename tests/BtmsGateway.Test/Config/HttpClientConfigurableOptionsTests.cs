@@ -8,9 +8,7 @@ namespace BtmsGateway.Test.Config;
 
 public class HttpClientConfigurableOptionsTests
 {
-    private sealed class TestHttpClientConfigurableOptions : HttpClientConfigurableOptions
-    {
-    }
+    private sealed class TestHttpClientConfigurableOptions : HttpClientConfigurableOptions { }
 
     [Fact]
     public void When_configuring_client_with_https_Then_it_should_set_http2_and_base_address()
@@ -58,7 +56,11 @@ public class HttpClientConfigurableOptionsTests
     [Fact]
     public void When_username_or_password_missing_Then_basic_auth_header_should_not_be_set()
     {
-        var options = new TestHttpClientConfigurableOptions { BaseAddress = "https://example.com", Username = "test-user" };
+        var options = new TestHttpClientConfigurableOptions
+        {
+            BaseAddress = "https://example.com",
+            Username = "test-user",
+        };
         using var client = new HttpClient();
 
         options.Configure(client);

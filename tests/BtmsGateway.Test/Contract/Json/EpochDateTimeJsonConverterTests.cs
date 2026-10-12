@@ -32,7 +32,9 @@ public class EpochDateTimeJsonConverterTests
     {
         var result = JsonSerializer.Deserialize<DateTime>("\"2025-05-29T18:57:29.298Z\"", SerializerOptions);
 
-        result.Should().Be(DateTime.Parse("2025-05-29T18:57:29.298Z", null, System.Globalization.DateTimeStyles.RoundtripKind));
+        result
+            .Should()
+            .Be(DateTime.Parse("2025-05-29T18:57:29.298Z", null, System.Globalization.DateTimeStyles.RoundtripKind));
     }
 
     [Fact]

@@ -33,7 +33,10 @@ public class SoapUtilsTests
 
     [Theory]
     [InlineData(MessagingConstants.SoapMessageTypes.ALVSClearanceRequest, "ALVSClearanceResponse")]
-    [InlineData(MessagingConstants.SoapMessageTypes.FinalisationNotificationRequest, "FinalisationNotificationResponse")]
+    [InlineData(
+        MessagingConstants.SoapMessageTypes.FinalisationNotificationRequest,
+        "FinalisationNotificationResponse"
+    )]
     [InlineData(MessagingConstants.SoapMessageTypes.ALVSErrorNotificationRequest, "ALVSErrorNotificationResponse")]
     public void When_getting_success_response_for_known_message_type_Then_response_body_should_be_returned(
         string messageSubXPath,

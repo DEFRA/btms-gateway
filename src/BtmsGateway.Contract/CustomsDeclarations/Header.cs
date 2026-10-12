@@ -8,5 +8,5 @@ public record Header
     public string? EntryReference { get; set; }
 
     [JsonPropertyName("entryVersionNumber")]
-    public int? EntryVersionNumber { get; init; }
+    public int? EntryVersionNumber { get; set; }
 }

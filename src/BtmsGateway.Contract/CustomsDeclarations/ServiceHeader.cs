@@ -22,7 +22,7 @@ public record ServiceHeader
 
     [XmlElement("ServiceCallTimestamp")]
     [JsonIgnore]
-    public string? ArrivalDateTimeXml
+    public string? ServiceCallTimestampXml
     {
         get => DateTimeUtilities.ToCompactXmlDateTime(ServiceCallTimestamp);
         set => ServiceCallTimestamp = DateTimeUtilities.ParseNullableXmlDateTime(value);

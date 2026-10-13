@@ -1,7 +1,13 @@
 using System.Text.Json.Serialization;
+using System.Xml.Serialization;
 
 namespace BtmsGateway.Contract.CustomsDeclarations;
 
+[XmlRoot(
+    ElementName = "Finalisation",
+    Namespace = "http://notifyfinalisedstatehmrcfacade.types.esb.ws.cara.defra.com",
+    IsNullable = false
+)]
 public record Finalisation
 {
     [JsonPropertyName("header")]

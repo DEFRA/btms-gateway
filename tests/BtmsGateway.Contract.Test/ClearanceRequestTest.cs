@@ -52,7 +52,10 @@ public class ClearanceRequestTest
         Assert.Equal(2, root.GetProperty("header").GetProperty("previousVersionNumber").GetInt32());
         Assert.Equal("S", root.GetProperty("header").GetProperty("declarationType").GetString());
         Assert.Equal(JsonValueKind.Number, root.GetProperty("header").GetProperty("arrivalDateTime").ValueKind);
-        Assert.Equal(JsonValueKind.Number, root.GetProperty("serviceHeader").GetProperty("serviceCallTimestamp").ValueKind);
+        Assert.Equal(
+            JsonValueKind.Number,
+            root.GetProperty("serviceHeader").GetProperty("serviceCallTimestamp").ValueKind
+        );
         Assert.Equal(1, root.GetProperty("items").GetArrayLength());
     }
 

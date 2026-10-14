@@ -24,8 +24,14 @@ public class ClearanceRequestPostTests
         Assert.Equal(dto.UserPassword, result.UserPassword);
         Assert.Equal(dto.SendingDate, result.SendingDate);
         Assert.NotNull(result.AlvsClearanceRequest);
-        Assert.Equal(dto.AlvsClearanceRequest!.Header.EntryReference, result.AlvsClearanceRequest!.Header.EntryReference);
-        Assert.Equal(dto.AlvsClearanceRequest.Header.ArrivalDateTime, result.AlvsClearanceRequest.Header.ArrivalDateTime);
+        Assert.Equal(
+            dto.AlvsClearanceRequest!.Header.EntryReference,
+            result.AlvsClearanceRequest!.Header.EntryReference
+        );
+        Assert.Equal(
+            dto.AlvsClearanceRequest.Header.ArrivalDateTime,
+            result.AlvsClearanceRequest.Header.ArrivalDateTime
+        );
         Assert.Equal(dto.AlvsClearanceRequest.Items.Length, result.AlvsClearanceRequest.Items.Length);
     }
 }

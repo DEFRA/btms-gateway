@@ -26,6 +26,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BtmsGateway", "src\BtmsGate
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BtmsGateway.Contract", "src\BtmsGateway.Contract\BtmsGateway.Contract.csproj", "{9F853DBC-79B8-8160-1D78-D8CF423A6BC6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BtmsGateway.Contract.Test", "tests\BtmsGateway.Contract.Test\BtmsGateway.Contract.Test.csproj", "{7D5C763B-17B5-41C4-9F02-C150A0AA2EE9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -52,6 +54,10 @@ Global
 		{9F853DBC-79B8-8160-1D78-D8CF423A6BC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9F853DBC-79B8-8160-1D78-D8CF423A6BC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9F853DBC-79B8-8160-1D78-D8CF423A6BC6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D5C763B-17B5-41C4-9F02-C150A0AA2EE9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D5C763B-17B5-41C4-9F02-C150A0AA2EE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D5C763B-17B5-41C4-9F02-C150A0AA2EE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D5C763B-17B5-41C4-9F02-C150A0AA2EE9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -62,6 +68,7 @@ Global
 		{3C315124-28BE-4D59-9D0D-05177D8CA60B} = {9115ED15-935F-4842-8ACB-2B1007C7EB21}
 		{6B773096-2078-E115-0F07-D30A94A12D1C} = {1643CB08-1B5A-4F41-B973-1BFA29CF746D}
 		{9F853DBC-79B8-8160-1D78-D8CF423A6BC6} = {1643CB08-1B5A-4F41-B973-1BFA29CF746D}
+		{7D5C763B-17B5-41C4-9F02-C150A0AA2EE9} = {9115ED15-935F-4842-8ACB-2B1007C7EB21}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {38E18FED-C240-4232-AE3C-C5EA43802226}

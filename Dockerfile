@@ -29,6 +29,7 @@ COPY src/BtmsGateway.Contract/BtmsGateway.Contract.csproj src/BtmsGateway.Contra
 COPY tests/BtmsGateway.Test/BtmsGateway.Test.csproj tests/BtmsGateway.Test/BtmsGateway.Test.csproj
 COPY tests/Testing/Testing.csproj tests/Testing/Testing.csproj
 COPY tests/BtmsGateway.IntegrationTests/BtmsGateway.IntegrationTests.csproj tests/BtmsGateway.IntegrationTests/BtmsGateway.IntegrationTests.csproj
+COPY tests/BtmsGateway.Contract.Test/BtmsGateway.Contract.Test.csproj tests/BtmsGateway.Contract.Test/BtmsGateway.Contract.Test.csproj
 COPY BtmsGateway.sln BtmsGateway.sln
 
 COPY NuGet.config NuGet.config
@@ -40,6 +41,7 @@ COPY src/BtmsGateway src/BtmsGateway
 COPY src/BtmsGateway.Contract src/BtmsGateway.Contract
 COPY tests/BtmsGateway.Test tests/BtmsGateway.Test
 COPY tests/Testing tests/Testing
+COPY tests/BtmsGateway.Contract.Test/BtmsGateway.Contract.Test tests/BtmsGateway.Contract.Test/BtmsGateway.Contract.Test
 COPY tests/BtmsGateway.IntegrationTests tests/BtmsGateway.IntegrationTests
 
 RUN dotnet csharpier check .

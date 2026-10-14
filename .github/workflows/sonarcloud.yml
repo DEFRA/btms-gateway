@@ -72,9 +72,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          ./.sonar/scanner/dotnet-sonarscanner begin /k:"DEFRA_btms-gateway" /o:"defra" /d:sonar.token="${{ env.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml
+          ./.sonar/scanner/dotnet-sonarscanner begin /k:"DEFRA_btms-gateway" /o:"defra" /d:sonar.token="${{ env.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.vscoveragexml.reportsPaths=coverage*.xml
           dotnet nuget remove source defra
           dotnet nuget add source --username USERNAME --password ${{ env.GITHUB_TOKEN }} --store-password-in-clear-text --name defra "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
           dotnet build --no-incremental
-          ./.sonar/coverage/dotnet-coverage collect "dotnet test" -f xml -o "coverage.xml"
+          ./.sonar/coverage/dotnet-coverage collect "dotnet test tests/BtmsGateway.Test" -f xml -o "coverage.BtmsGateway.xml"
+          ./.sonar/coverage/dotnet-coverage collect "dotnet test tests/BtmsGateway.Contract.Test" -f xml -o "coverage.BtmsGateway.Contract.xml"
           ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ env.SONAR_TOKEN }}"

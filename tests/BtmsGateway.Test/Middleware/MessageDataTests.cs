@@ -1,11 +1,11 @@
 using System.Net;
 using System.Text;
 using Amazon.SimpleNotificationService.Model;
+using AwesomeAssertions;
 using BtmsGateway.Domain;
 using BtmsGateway.Middleware;
 using BtmsGateway.Services.Routing;
 using BtmsGateway.Test.TestUtils;
-using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Logging.Testing;

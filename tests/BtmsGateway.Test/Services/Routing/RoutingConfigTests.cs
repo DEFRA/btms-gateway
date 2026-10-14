@@ -1,5 +1,5 @@
+using AwesomeAssertions;
 using BtmsGateway.Services.Routing;
-using FluentAssertions;
 
 namespace BtmsGateway.Test.Services.Routing;
 

@@ -1,6 +1,6 @@
 using System.Net;
+using AwesomeAssertions;
 using Defra.TradeImports.SQS.Endpoints;
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;

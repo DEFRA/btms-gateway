@@ -1,7 +1,7 @@
 using System.Text;
+using AwesomeAssertions;
 using BtmsGateway.Authentication;
 using BtmsGateway.Config;
-using FluentAssertions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;

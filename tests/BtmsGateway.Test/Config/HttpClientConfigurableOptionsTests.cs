@@ -1,8 +1,8 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
+using AwesomeAssertions;
 using BtmsGateway.Config;
-using FluentAssertions;
 
 namespace BtmsGateway.Test.Config;
 

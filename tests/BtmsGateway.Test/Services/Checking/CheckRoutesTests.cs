@@ -1,7 +1,7 @@
 using System.Net;
+using AwesomeAssertions;
 using BtmsGateway.Services.Checking;
 using BtmsGateway.Test.TestUtils;
-using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;

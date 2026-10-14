@@ -1,7 +1,7 @@
+using AwesomeAssertions;
 using BtmsGateway.Exceptions;
 using BtmsGateway.Services.Converter;
 using BtmsGateway.Services.Routing;
-using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace BtmsGateway.Test.Services.Routing;

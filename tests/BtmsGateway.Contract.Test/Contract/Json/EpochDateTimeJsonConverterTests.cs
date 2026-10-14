@@ -1,12 +1,12 @@
 using System.Text.Json;
+using AwesomeAssertions;
 using BtmsGateway.Contract.Json;
-using FluentAssertions;
 
-namespace BtmsGateway.Test.Contract.Json;
+namespace BtmsGateway.Contract.Test.Contract.Json;
 
 public class EpochDateTimeJsonConverterTests
 {
-    private static readonly JsonSerializerOptions SerializerOptions = new()
+    private static readonly JsonSerializerOptions s_serializerOptions = new()
     {
         Converters = { new EpochDateTimeJsonConverter() },
     };
@@ -14,7 +14,7 @@ public class EpochDateTimeJsonConverterTests
     [Fact]
     public void When_deserializing_unix_seconds_Then_it_should_parse_seconds_from_epoch()
     {
-        var result = JsonSerializer.Deserialize<DateTime>("1723127967", SerializerOptions);
+        var result = JsonSerializer.Deserialize<DateTime>("1723127967", s_serializerOptions);
 
         result.Should().Be(DateTime.UnixEpoch.AddSeconds(1723127967));
     }
@@ -22,7 +22,7 @@ public class EpochDateTimeJsonConverterTests
     [Fact]
     public void When_deserializing_unix_milliseconds_Then_it_should_parse_milliseconds_from_epoch()
     {
-        var result = JsonSerializer.Deserialize<DateTime>("1712851200000", SerializerOptions);
+        var result = JsonSerializer.Deserialize<DateTime>("1712851200000", s_serializerOptions);
 
         result.Should().Be(DateTime.UnixEpoch.AddMilliseconds(1712851200000));
     }
@@ -30,7 +30,7 @@ public class EpochDateTimeJsonConverterTests
     [Fact]
     public void When_deserializing_iso_datetime_string_Then_it_should_parse_using_roundtrip_kind()
     {
-        var result = JsonSerializer.Deserialize<DateTime>("\"2025-05-29T18:57:29.298Z\"", SerializerOptions);
+        var result = JsonSerializer.Deserialize<DateTime>("\"2025-05-29T18:57:29.298Z\"", s_serializerOptions);
 
         result
             .Should()
@@ -42,7 +42,7 @@ public class EpochDateTimeJsonConverterTests
     {
         var value = DateTime.UnixEpoch.AddMilliseconds(1712851200000);
 
-        var result = JsonSerializer.Serialize(value, SerializerOptions);
+        var result = JsonSerializer.Serialize(value, s_serializerOptions);
 
         result.Should().Be("1712851200000");
     }

@@ -1,7 +1,7 @@
 using System.Diagnostics.Metrics;
+using AwesomeAssertions;
 using BtmsGateway.Services.Health;
 using BtmsGateway.Services.Metrics;
-using FluentAssertions;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;

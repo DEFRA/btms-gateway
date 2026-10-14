@@ -1,7 +1,7 @@
+using AwesomeAssertions;
 using BtmsGateway.Services.Converter;
 using BtmsGateway.Test.Services.Converter.Fixtures;
 using BtmsGateway.Test.TestUtils;
-using FluentAssertions;
 
 namespace BtmsGateway.Test.Services.Converter;
 

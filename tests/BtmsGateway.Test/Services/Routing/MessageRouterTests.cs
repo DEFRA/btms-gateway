@@ -1,9 +1,9 @@
 using System.Net;
+using AwesomeAssertions;
 using BtmsGateway.Middleware;
 using BtmsGateway.Services.Converter;
 using BtmsGateway.Services.Metrics;
 using BtmsGateway.Services.Routing;
-using FluentAssertions;
 using Microsoft.Extensions.Logging.Testing;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;

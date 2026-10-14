@@ -1,7 +1,7 @@
+using AwesomeAssertions;
 using BtmsGateway.Contract.CustomsDeclarations;
-using FluentAssertions;
 
-namespace BtmsGateway.Test.Contract.CustomsDeclarations;
+namespace BtmsGateway.Contract.Test.Contract.CustomsDeclarations;
 
 public class FinalStateValuesTests
 {

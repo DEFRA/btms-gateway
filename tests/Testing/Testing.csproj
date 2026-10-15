@@ -4,10 +4,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="MartinCostello.Logging.XUnit" Version="0.7.0" />
     <PackageReference Include="Verify.Xunit" Version="31.12.5" />
-    <PackageReference Include="WireMock.Net.FluentAssertions" Version="2.15.0" />
+    <PackageReference Include="WireMock.Net.AwesomeAssertions" Version="2.15.0" />
   </ItemGroup>
 </Project>

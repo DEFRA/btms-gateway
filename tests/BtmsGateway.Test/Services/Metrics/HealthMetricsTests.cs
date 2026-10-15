@@ -1,5 +1,5 @@
+using AwesomeAssertions;
 using BtmsGateway.Services.Metrics;
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 

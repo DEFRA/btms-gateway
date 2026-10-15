@@ -1,6 +1,6 @@
 using System.Net;
+using AwesomeAssertions;
 using BtmsGateway.IntegrationTests.TestBase;
-using FluentAssertions;
 
 namespace BtmsGateway.IntegrationTests.EndToEnd.PassThrough;
 

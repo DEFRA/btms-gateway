@@ -1,7 +1,7 @@
 using System.IO.Compression;
 using System.Text;
+using AwesomeAssertions;
 using BtmsGateway.Utils;
-using FluentAssertions;
 
 namespace BtmsGateway.Test.Utils;
 

@@ -1,5 +1,5 @@
+using AwesomeAssertions;
 using BtmsGateway.Utils.Logging;
-using FluentAssertions;
 
 namespace BtmsGateway.Test.Utils.Logging;
 

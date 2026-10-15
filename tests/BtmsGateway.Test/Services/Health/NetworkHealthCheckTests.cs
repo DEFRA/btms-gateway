@@ -1,9 +1,9 @@
 using System.Net;
+using AwesomeAssertions;
 using BtmsGateway.Services.Checking;
 using BtmsGateway.Services.Health;
 using BtmsGateway.Test.TestUtils;
 using BtmsGateway.Utils.Http;
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging.Abstractions;

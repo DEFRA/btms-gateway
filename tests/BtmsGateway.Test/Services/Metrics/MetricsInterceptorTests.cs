@@ -1,10 +1,10 @@
+using AwesomeAssertions;
 using BtmsGateway.Config;
 using BtmsGateway.Exceptions;
 using BtmsGateway.Extensions;
 using BtmsGateway.Services.Metrics;
 using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 using Defra.TradeImportsDataApi.Domain.Events;
-using FluentAssertions;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 using SlimMessageBus;

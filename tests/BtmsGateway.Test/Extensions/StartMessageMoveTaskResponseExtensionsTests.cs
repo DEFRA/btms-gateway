@@ -1,8 +1,8 @@
 using System.Net;
 using Amazon.Runtime;
 using Amazon.SQS.Model;
+using AwesomeAssertions;
 using BtmsGateway.Extensions;
-using FluentAssertions;
 
 namespace BtmsGateway.Test.Extensions;
 

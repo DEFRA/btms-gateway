@@ -1,4 +1,5 @@
 using System.Net;
+using AwesomeAssertions;
 using BtmsGateway.Config;
 using BtmsGateway.Consumers;
 using BtmsGateway.Domain;
@@ -6,7 +7,6 @@ using BtmsGateway.Exceptions;
 using BtmsGateway.Services.Routing;
 using Defra.TradeImportsDataApi.Domain.Errors;
 using Defra.TradeImportsDataApi.Domain.Events;
-using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;

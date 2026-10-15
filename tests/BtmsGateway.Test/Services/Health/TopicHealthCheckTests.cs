@@ -1,8 +1,8 @@
 using System.Net;
 using Amazon.SimpleNotificationService;
 using Amazon.SimpleNotificationService.Model;
+using AwesomeAssertions;
 using BtmsGateway.Services.Health;
-using FluentAssertions;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;

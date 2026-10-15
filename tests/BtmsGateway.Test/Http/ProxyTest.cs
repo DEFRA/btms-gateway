@@ -1,5 +1,5 @@
+using AwesomeAssertions;
 using BtmsGateway.Utils.Http;
-using FluentAssertions;
 
 public class ProxyTest
 {

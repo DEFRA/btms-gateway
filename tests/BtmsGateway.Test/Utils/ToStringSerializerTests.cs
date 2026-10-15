@@ -1,5 +1,5 @@
+using AwesomeAssertions;
 using BtmsGateway.Utils;
-using FluentAssertions;
 
 namespace BtmsGateway.Test.Utils;
 

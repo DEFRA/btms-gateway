@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>BtmsGateway.Contract</RootNamespace>
+    <IsPackable>true</IsPackable>
+    <PackageId>Defra.BtmsGateway.Api.Contract</PackageId>
+    <VersionPrefix>0.7.0</VersionPrefix>
+    <PackageDescription>Defra Btms Gateway Api Contracts</PackageDescription>
+    <Company>DEFRA</Company>
+    <RepositoryUrl>https://github.com/DEFRA/btms-gateway</RepositoryUrl>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+</Project>

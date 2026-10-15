@@ -4,7 +4,7 @@ using System.Xml.Serialization;
 namespace BtmsGateway.Contract.CustomsDeclarations;
 
 [XmlRoot(
-    ElementName = "Finalisation",
+    ElementName = "FinalisationNotificationRequest",
     Namespace = "http://notifyfinalisedstatehmrcfacade.types.esb.ws.cara.defra.com",
     IsNullable = false
 )]

@@ -39,6 +39,8 @@ public class ClearanceRequestTest
                 <ConsigneeId>GB123456789012</ConsigneeId>
                 <ConsigneeName>REDACTED</ConsigneeName>
                 <ItemNetMass>518.400</ItemNetMass>
+                <ItemSupplementaryUnits>1.1</ItemSupplementaryUnits>
+                <ItemThirdQuantity>1.2</ItemThirdQuantity>
                 <ItemOriginCountryCode>CN</ItemOriginCountryCode>
                 <Document>
                   <DocumentCode>N853</DocumentCode>
@@ -105,18 +107,18 @@ public class ClearanceRequestTest
         Assert.Equal("GB123456789012", request.Items[0].ConsigneeId);
         Assert.Equal("REDACTED", request.Items[0].ConsigneeName);
         Assert.Equal(518.400m, request.Items[0].ItemNetMass);
-        Assert.Null(request.Items[0].ItemSupplementaryUnits);
-        Assert.Null(request.Items[0].ItemThirdQuantity);
+        Assert.Equal(1.1m, request.Items[0].ItemSupplementaryUnits);
+        Assert.Equal(1.2m, request.Items[0].ItemThirdQuantity);
         Assert.Equal("CN", request.Items[0].ItemOriginCountryCode);
         Assert.Single(request.Items[0].Documents!);
         Assert.Equal("N853", request.Items[0].Documents![0].DocumentCode);
-        Assert.Equal("GBCVD2021.1396386", request.Items[0].Documents[0].DocumentReference);
-        Assert.Equal("AE", request.Items[0].Documents[0].DocumentStatus);
-        Assert.Equal("P", request.Items[0].Documents[0].DocumentControl);
-        Assert.Null(request.Items[0].Documents[0].DocumentQuantity);
+        Assert.Equal("GBCVD2021.1396386", request.Items![0].Documents![0].DocumentReference);
+        Assert.Equal("AE", request.Items![0].Documents![0].DocumentStatus);
+        Assert.Equal("P", request.Items![0].Documents![0].DocumentControl);
+        Assert.Null(request.Items![0].Documents![0].DocumentQuantity);
         Assert.Single(request.Items[0].Checks!);
         Assert.Equal("H222", request.Items[0].Checks![0].CheckCode);
-        Assert.Equal("PHA", request.Items[0].Checks[0].DepartmentCode);
+        Assert.Equal("PHA", request.Items[0].Checks![0].DepartmentCode);
 
         Assert.Equal(2, request.Items[1].ItemNumber);
         Assert.Equal("4000000", request.Items[1].CustomsProcedureCode);
@@ -130,13 +132,13 @@ public class ClearanceRequestTest
         Assert.Equal("CN", request.Items[1].ItemOriginCountryCode);
         Assert.Single(request.Items[1].Documents!);
         Assert.Equal("N853", request.Items[1].Documents![0].DocumentCode);
-        Assert.Equal("GBCVD2021.1396399", request.Items[1].Documents[0].DocumentReference);
-        Assert.Equal("AE", request.Items[1].Documents[0].DocumentStatus);
-        Assert.Equal("P", request.Items[1].Documents[0].DocumentControl);
-        Assert.Null(request.Items[1].Documents[0].DocumentQuantity);
+        Assert.Equal("GBCVD2021.1396399", request.Items[1].Documents![0].DocumentReference);
+        Assert.Equal("AE", request.Items[1].Documents![0].DocumentStatus);
+        Assert.Equal("P", request.Items[1].Documents![0].DocumentControl);
+        Assert.Null(request.Items[1].Documents![0].DocumentQuantity);
         Assert.Single(request.Items[1].Checks!);
         Assert.Equal("H222", request.Items[1].Checks![0].CheckCode);
-        Assert.Equal("PHA", request.Items[1].Checks[0].DepartmentCode);
+        Assert.Equal("PHA", request.Items[1].Checks![0].DepartmentCode);
 
         using var jsonDocument = JsonDocument.Parse(json);
         var root = jsonDocument.RootElement;
@@ -210,7 +212,7 @@ public class ClearanceRequestTest
 
         Assert.NotNull(request);
 
-        var xml = SerializeXml(request!);
+        var xml = SerializeXml(request);
 
         Assert.Contains("<ArrivalDateTime>202201031224</ArrivalDateTime>", xml);
         Assert.Contains("<ServiceCallTimestamp>202201031224</ServiceCallTimestamp>", xml);

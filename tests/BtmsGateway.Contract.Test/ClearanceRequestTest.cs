@@ -147,7 +147,10 @@ public class ClearanceRequestTest
         Assert.Equal("290-000151G-02/01/2022", root.GetProperty("header").GetProperty("entryReference").GetString());
         Assert.Equal(3, root.GetProperty("header").GetProperty("entryVersionNumber").GetInt32());
         Assert.Equal(2, root.GetProperty("header").GetProperty("previousVersionNumber").GetInt32());
-        Assert.Equal("1GB116445386000-KDA35932Y1BHX", root.GetProperty("header").GetProperty("declarationUCR").GetString());
+        Assert.Equal(
+            "1GB116445386000-KDA35932Y1BHX",
+            root.GetProperty("header").GetProperty("declarationUCR").GetString()
+        );
         Assert.Equal("S", root.GetProperty("header").GetProperty("declarationType").GetString());
         Assert.Equal("123456789012", root.GetProperty("header").GetProperty("submitterTURN").GetString());
         Assert.Equal("GB123456789013", root.GetProperty("header").GetProperty("declarantId").GetString());

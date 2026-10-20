@@ -32,7 +32,7 @@ public class ClearanceRequestTest
                 <MasterUCR>GB/CNS1-SCT16S6LF00000</MasterUCR>
               </Header>
               <Item>
-                <ItemNumber>5</ItemNumber>
+                <ItemNumber>1</ItemNumber>
                 <CustomsProcedureCode>4000000</CustomsProcedureCode>
                 <TaricCommodityCode>2309103100</TaricCommodityCode>
                 <GoodsDescription>DOG CHEWS</GoodsDescription>
@@ -52,7 +52,7 @@ public class ClearanceRequestTest
                 </Check>
               </Item>
               <Item>
-                <ItemNumber>6</ItemNumber>
+                <ItemNumber>2</ItemNumber>
                 <CustomsProcedureCode>4000000</CustomsProcedureCode>
                 <TaricCommodityCode>2309103100</TaricCommodityCode>
                 <GoodsDescription>DOG CHEWS</GoodsDescription>
@@ -98,7 +98,7 @@ public class ClearanceRequestTest
 
         Assert.Equal(2, request.Items.Length);
 
-        Assert.Equal(5, request.Items[0].ItemNumber);
+        Assert.Equal(1, request.Items[0].ItemNumber);
         Assert.Equal("4000000", request.Items[0].CustomsProcedureCode);
         Assert.Equal("2309103100", request.Items[0].TaricCommodityCode);
         Assert.Equal("DOG CHEWS", request.Items[0].GoodsDescription);
@@ -118,7 +118,7 @@ public class ClearanceRequestTest
         Assert.Equal("H222", request.Items[0].Checks![0].CheckCode);
         Assert.Equal("PHA", request.Items[0].Checks[0].DepartmentCode);
 
-        Assert.Equal(6, request.Items[1].ItemNumber);
+        Assert.Equal(2, request.Items[1].ItemNumber);
         Assert.Equal("4000000", request.Items[1].CustomsProcedureCode);
         Assert.Equal("2309103100", request.Items[1].TaricCommodityCode);
         Assert.Equal("DOG CHEWS", request.Items[1].GoodsDescription);

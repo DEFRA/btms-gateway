@@ -10,6 +10,7 @@ public record ClearanceRequestHeader : Header
     [JsonPropertyName("previousVersionNumber")]
     public int? PreviousVersionNumber { get; set; }
 
+    [XmlElement("DeclarationUCR")]
     [JsonPropertyName("declarationUCR")]
     public string? DeclarationUcr { get; set; }
 
@@ -32,6 +33,7 @@ public record ClearanceRequestHeader : Header
         set => ArrivalDateTime = DateTimeUtilities.ParseNullableXmlDateTime(value);
     }
 
+    [XmlElement("SubmitterTURN")]
     [JsonPropertyName("submitterTURN")]
     public string? SubmitterTurn { get; set; }
 
@@ -47,6 +49,7 @@ public record ClearanceRequestHeader : Header
     [JsonPropertyName("goodsLocationCode")]
     public string? GoodsLocationCode { get; set; }
 
+    [XmlElement("MasterUCR")]
     [JsonPropertyName("masterUCR")]
     public string? MasterUcr { get; set; }
 }

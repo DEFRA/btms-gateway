@@ -25,7 +25,7 @@ public record ServiceHeader
     [JsonIgnore]
     public string? ServiceCallTimestampXml
     {
-        get => DateTimeUtilities.ToCompactXmlDateTime(ServiceCallTimestamp);
+        get => DateTimeUtilities.ToIsoDateTime(ServiceCallTimestamp);
         set => ServiceCallTimestamp = DateTimeUtilities.ParseNullableXmlDateTime(value);
     }
 }

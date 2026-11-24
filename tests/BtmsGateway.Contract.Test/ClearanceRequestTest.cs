@@ -215,7 +215,7 @@ public class ClearanceRequestTest
         var xml = SerializeXml(request);
 
         Assert.Contains("<ArrivalDateTime>202201031224</ArrivalDateTime>", xml);
-        Assert.Contains("<ServiceCallTimestamp>202201031224</ServiceCallTimestamp>", xml);
+        Assert.Contains("<ServiceCallTimestamp>2022-01-03T12:24:00.000</ServiceCallTimestamp>", xml);
         Assert.Contains("<EntryReference>25GB1HG99NHUJO3999</EntryReference>", xml);
         Assert.Contains("<DeclarationUCR>1GB116445386000-KDA35932Y1BHX</DeclarationUCR>", xml);
         Assert.Contains("<SubmitterTURN>123456789012</SubmitterTURN>", xml);

@@ -11,11 +11,18 @@ namespace BtmsGateway.Contract.Test
             var fromJson = JsonSerializer.Deserialize<T>(json)!;
 
             var serializer = new XmlSerializer(typeof(T));
-            using var writer = new StringWriter();
-            serializer.Serialize(writer, fromJson);
 
-            using var reader = new StringReader(writer.ToString());
+            using var reader = new StringReader(ToXml(fromJson));
             return (T)serializer.Deserialize(reader)!;
+        }
+
+        internal static string ToXml<T>(T value)
+        {
+            var serializer = new XmlSerializer(typeof(T));
+            using var writer = new StringWriter();
+            serializer.Serialize(writer, value);
+
+            return writer.ToString();
         }
     }
 }
